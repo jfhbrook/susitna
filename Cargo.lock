@@ -45,5 +45,6 @@ dependencies = [
 name = "shell-basic"
 version = "0.1.0"
 dependencies = [
+ "nom",
  "nom_locate",
 ]

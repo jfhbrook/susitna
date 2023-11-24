@@ -5,7 +5,7 @@ pub type Integer = i64;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Symbol {
-    pub identifier: Vec<String>
+    pub identifier: Vec<String>,
 }
 
 // TODO: yabasic supports three kinds of digits: base 10 Digits, base 16
@@ -13,7 +13,7 @@ pub struct Symbol {
 // but I think I want to lex these into i64s.
 #[derive(PartialEq, Debug, Clone)]
 pub struct Digits {
-    pub digits: String
+    pub digits: String,
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -37,7 +37,7 @@ pub enum Token {
     Step,
     Next,
     While,
-    WEnd,
+    EndWhile,
     Repeat,
     Until,
     // NOTE: yabasic loads the library as a side effect of lexing, but in
@@ -49,7 +49,7 @@ pub enum Token {
     Label,
     On,
     Sub,
-    Endsub,
+    EndSub,
     Local,
     Static,
     Export,
@@ -64,7 +64,7 @@ pub enum Token {
     Break,
     Continue,
     Switch,
-    Send,
+    EndSwitch,
     Case,
     Default,
     Loop,
@@ -92,7 +92,7 @@ pub enum Token {
     Then,
     Else,
     Elsif,
-    Endif,
+    EndIf,
     // NOTE: yabasic detects this at the lexing layer, we should be able to
     // capture this with a combinator and avoid a dedicated token type
     ImplicitEndif,
@@ -108,14 +108,15 @@ pub enum Token {
     Screen,
 
     Reverse,
-    Colour,
-    BackColour,
+    Color,
+    BackColor,
 
     And,
     Or,
     Not,
     BitNot,
-    Eor,
+    EOr,
+    XOr,
     Shl,
     Shr,
 
@@ -251,6 +252,7 @@ pub enum Token {
     StartAssignment,
     StartFunctionDefinition,
 
+    Eval,
     Eval2,
 
     // These are represented as individual characters in yabasic

@@ -1,5 +1,17 @@
 use nom_locate::LocatedSpan;
 
+// TODO: let's implement a Tokens collection type. I can basically copy what
+// monkey-rust does here - make a struct that wraps Vec<LocatedToken> and
+// implement all the traits it says to implement. This will be a data structure
+// I can hand to the parser code later on.
+
+pub type Span<'a> = LocatedSpan<&'a str>;
+
+pub struct LocatedToken<'a> {
+    pub token: Token,
+    pub position: Span<'a>,
+}
+
 pub type Double = f64;
 pub type Integer = i64;
 
@@ -8,12 +20,26 @@ pub struct Symbol {
     pub identifier: Vec<String>,
 }
 
+impl Symbol {
+    pub fn new(identifier: Vec<String>) -> Symbol {
+        Symbol { identifier }
+    }
+}
+
 // TODO: yabasic supports three kinds of digits: base 10 Digits, base 16
 // HexDigits, and binary BinDigits. Right now, I'm parsing those to a string,
 // but I think I want to lex these into i64s.
 #[derive(PartialEq, Debug, Clone)]
 pub struct Digits {
     pub digits: String,
+}
+
+impl Digits {
+    pub fn from(digits: Span) -> Digits {
+        Digits {
+            digits: String::from(*digits.fragment()),
+        }
+    }
 }
 
 #[derive(PartialEq, Debug, Clone)]
@@ -263,11 +289,4 @@ pub enum Token {
     Neg,      // UMINUS
     LParen,   // '('
     RParen,   // ')'
-}
-
-pub type Span<'a> = LocatedSpan<&'a str>;
-
-pub struct LocatedToken<'a> {
-    pub token: Token,
-    pub position: Span<'a>,
 }

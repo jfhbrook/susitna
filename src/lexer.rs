@@ -2,46 +2,35 @@
 // converting it into a collection of Tokens. The parser will then convert
 // those tokens into expressions, statements, and so on.
 //
-// Third, I'll need to look at the syntax! macro from monkey-rust. Their macro
-// helps simplify writing parsers for "simple" tokens. Of course, MY token
-// parsing is less simple because tokens can involve case insensitivity and
-// arbitrary whitespace. But it should be a good starting place, and even if
-// I can't make it handle those use cases it should still be able to handle
-// the simplest of tokens. I have a LOT of tokens so it should help with
-// boilerplate.
+// TODO: Make everything typecheck
+// TODO: Bang out the rest of the "simple" syntax parsers.
+// TODO: Implement string literals
 //
-// Once I have that macro, I should be able to bang out all the "simple"
-// token parsers.
-//
-// Fourth, I'll need to actually port over the parsers I've already written
-// in yabasic-rs.
-//
-// Fifth, let's implement a Tokens collection type. I can basically copy what
-// monkey-rust does here - make a struct that wraps Vec<LocatedToken> and
-// implement all the traits it says to implement. This will be a data structure
-// I can hand to the parser code later on.
-//
-// Sixth, I'll want to put it all together. monkey-rust has good examples to
+// TODO: put it all together. monkey-rust has good examples to
 // follow here, but basically any given input will be some whitespace, plus
 // tokens separated by potential whitespace, plus trailing whitespace. At
 // this stage, I can take a given token and use nom_locate to track its
 // position in a LocatedSpan.
 //
-// Finally, monkey-rust has an "illegal" token type, and I think that will
+// TODO: monkey-rust has an "illegal" token type, and I think that will
 // help with error reporting at the parser level. Now might be a good time to
 // implement that.
 //
 // If I get this far, I should be ready to tackle the parser!
 
-use crate::tokens::{Span, Token};
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case},
-    character::complete::space0,
-    combinator::map,
-    sequence::tuple,
+    bytes::complete::{tag, tag_no_case, take_while},
+    character::complete::{anychar, digit1, hex_digit1, line_ending, one_of, space0, space1},
+    character::{is_alphabetic, is_alphanumeric},
+    combinator::{map, opt, peek, recognize},
+    multi::{many1, many_till, separated_list1},
+    number::complete::double,
+    sequence::{pair, preceded, terminated, tuple},
     IResult,
 };
+
+use crate::tokens::{Digits, Span, Symbol, Token};
 
 // TODO: This is the name monkey-rust gives this type of macro. I don't really
 // like the name - maybe workshop it a bit?
@@ -56,6 +45,127 @@ macro_rules! syntax {
             map($parser, |_| $output_token)(s)
         }
     };
+}
+
+pub fn name(input: Span) -> IResult<Span, Symbol> {
+    // first character can't be a number
+    let starts_with = take_while(|c: char| is_alphabetic(c as u8) || c == '_');
+    // subsequent characters CAN include numbers
+    let followed_by = take_while(|c: char| is_alphanumeric(c as u8) || c == '_');
+
+    let simple_name = map(recognize(pair(starts_with, followed_by)), |n: Span| {
+        n.fragment().to_string()
+    });
+
+    map(separated_list1(tag("."), simple_name), |names| {
+        Symbol::new(names)
+    })(input)
+}
+
+// TODO: yabasic's parser matches line_no in compile mode and uses state to
+// trigger loading a separator and potentially a number for the next two
+// tokens. my plan is to match these at the parser level, something like
+// pair(line_no, alt((single_newline, preceded(space0, alt((eval_digits, etc)))))).
+//
+// NOTE: the "cond" combinator might let us use flags to generate parsers
+pub fn line_no(input: Span) -> IResult<Span, Token> {
+    map(preceded(space1, digit1), |digit: Span| {
+        Token::Digits(Digits::from(digit))
+    })(input)
+}
+
+// kinds of significant whitespace
+
+// used specifically to end loading in interactive mode
+syntax!(
+    double_line_ending,
+    pair(line_ending, line_ending),
+    Token::DoubleLineEnding
+);
+syntax!(single_line_ending, line_ending, Token::SingleLineEnding);
+syntax!(colon, ":", Token::Sep);
+
+// TODO: Fix type disaster going on in here
+fn rem(input: Span) -> IResult<Span, Token> {
+    preceded(
+        tag_no_case("REM"),
+        alt((
+            map(recognize(pair(space1, until_line_ending)), |rem: Span| {
+                let mut rem = rem.fragment().to_string();
+                // first space is significant whitespace
+                rem.remove(0);
+                Token::Rem(rem)
+            }),
+            map(peek(line_ending), |_: Span| Token::Rem(String::new())),
+        )),
+    )(input)
+}
+
+// slash-style comments
+fn comment(input: Span) -> IResult<Span, Token> {
+    map(
+        preceded(alt((tag("//"), tag("#"), tag("'"))), until_line_ending),
+        |comment: Span| Token::Comment(comment.fragment().to_string()),
+    )(input)
+}
+
+syntax!(
+    sep,
+    alt((double_line_ending, single_line_ending, colon, rem, comment)),
+    Token::Sep
+);
+
+// NOTE: match kinds of whitespace that would constitute an implicit endif,
+// to be used in an if statement parser
+pub fn implicit_endif(input: Span) -> IResult<Span, Token> {
+    alt((
+        double_line_ending,
+        single_line_ending,
+        // NOTE: yabasic emits a Sep in all rem cases, but only treats a REM
+        // *without* a comment as an implicit endif. This is probably a bug.
+        rem,
+    ))(input)
+}
+
+// Used to get everything until the end of the line. We take pains not to
+// consume \n or \r\n so that those are parsed as separators.
+fn until_line_ending(input: Span) -> IResult<Span, Span> {
+    // TODO: test for happy path
+    // TODO: test for immediate line ending
+    // TODO: how to handle end-of-input?
+    //   - assume input is complete and read rest
+    //   - return incomplete and wait for a line ending
+    //   - might be able to use flags w/ cond
+    //   - may be most straightforward with a stateful Vec<Token> parser
+    recognize(many_till(opt(anychar), line_ending))(input)
+}
+
+// NOTE: yabasic emits three tokens for this: a Label, a Symbol and a Sep. In
+// our case, we emit a single Import token.
+fn import(input: Span) -> IResult<Span, Token> {
+    // NOTE: yabasic either consumes a newline or injects a separator after
+    // matching an import statement
+    map(
+        preceded(pair(tag_no_case("import"), space1), name),
+        |name| Token::Import(name),
+    )(input)
+}
+
+fn docu(input: Span) -> IResult<Span, Token> {
+    map(
+        preceded(
+            pair(
+                alt((
+                    tag_no_case("DOCU"),
+                    tag_no_case("DOC"),
+                    tag_no_case("DOCUMENTATION"),
+                )),
+                space1,
+            ),
+            until_line_ending,
+        ),
+        |docu| Token::Docu(docu.fragment().to_string()),
+    )(input)
 }
 
 syntax!(execute, "EXECUTE", Token::Execute);
@@ -259,7 +369,16 @@ syntax!(
     )),
     Token::ArDim
 );
-// TODO: NUMPARAM/NUMPARAMS
+fn numparam(input: Span) -> IResult<Span, Token> {
+    map(
+        tuple((
+            tag_no_case("NUMPARAM"),
+            opt(tag_no_case("S")),
+            opt(tuple((space0, tag("("), space0, tag(")")))),
+        )),
+        |_| Token::Symbol(Symbol::new(vec!["numparams".to_string()])),
+    )(input)
+}
 syntax!(bind, "BIND", Token::Bind);
 
 // TODO: Should these be functions?
@@ -306,3 +425,74 @@ syntax!(mousex, "MOUSEX", Token::MouseX);
 syntax!(mousey, "MOUSEY", Token::MouseY);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
+
+// NOTE: yabasic tries to call this series of parsers first when detecting a
+// decimal number in eval mode, or right after a line number. Note that because
+// of how yabasic does the look-ahead that only the decimal digits are actually
+// expected to match.
+//
+// Keep in mind that, because we're using combinators to track the kind of
+// token, that we might not use this combination in practice.
+fn digits(input: Span) -> IResult<Span, Token> {
+    alt((hex_digits, bin_digits, dec_digits, float))(input)
+}
+
+fn hex_digits(input: Span) -> IResult<Span, Token> {
+    map(preceded(tag("0x"), hex_digit1), |digits: Span| {
+        Token::HexDigits(Digits::from(digits))
+    })(input)
+}
+
+fn bin_digits(input: Span) -> IResult<Span, Token> {
+    map(
+        preceded(tag("0b"), recognize(many1(one_of("01")))),
+        |digits: Span| Token::BinDigits(Digits::from(digits)),
+    )(input)
+}
+
+fn dec_digits(input: Span) -> IResult<Span, Token> {
+    map(digit1, |digits: Span| Token::Digits(Digits::from(digits)))(input)
+}
+
+fn float(input: Span) -> IResult<Span, Token> {
+    map(double, |n| Token::new(Value::Num(n)))(input)
+}
+
+// TODO: Would rather encode these constants as Symbols or tokens
+fn pi(input: Span) -> IResult<Span, Token> {
+    map(tag_no_case("PI"), |_| {
+        Token::new(Value::Num(std::f64::consts::PI))
+    })(input)
+}
+
+fn euler(input: Span) -> IResult<Span, Token> {
+    map(tag_no_case("EULER"), |_| {
+        Token::new(Value::Num(std::f64::consts::E))
+    })(input)
+}
+
+fn true_(input: Span) -> IResult<Span, Token> {
+    map(tag_no_case("TRUE"), |_| Token::new(Value::Bool(true)))(input)
+}
+
+fn false_(input: Span) -> IResult<Span, Token> {
+    map(tag_no_case("FALSE"), |_| Token::new(Value::Bool(false)))(input)
+}
+
+fn bool_(input: Span) -> IResult<Span, Token> {
+    alt((true_, false_))(input)
+}
+
+fn strsym(input: Span) -> IResult<Span, Token> {
+    map(terminated(name, tag("$")), |sym| Token::StrSym(sym))(input)
+}
+
+fn symbol(input: Span) -> IResult<Span, Token> {
+    map(name, |sym| Token::Symbol(sym))(input)
+}
+
+// TODO: probably need bytes::complete::escaped? or borrow the string impl
+// I wrote in the s7basic spike?
+fn string_literal(input: &str) -> IResult<&str, Token> {
+    unimplemented!("string_literal")
+}

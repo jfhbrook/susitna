@@ -2,22 +2,6 @@
 // converting it into a collection of Tokens. The parser will then convert
 // those tokens into expressions, statements, and so on.
 //
-// First, I need to create a Token enum. I can basically copy the Value enum
-// from yabasic-rs to start. But it should be called Token. I can store that
-// in a token.rs file instead of here - it will be a common language used by
-// the parser code.
-//
-// Note that, in order to create that enum, I'll need to create some other
-// types. In yabasic-rs, "symbols" are Vec<String> (to account for namespaces)
-// but I think I want a wrapper struct this time. That will give it some
-// semantic distance from vecs and let me evolve it later.
-//
-// Second, I'll want to introduce a LocatedToken wrapper struct based on
-// nom_locate. This will let me have both a Token and its Span, such that I
-// can do good error reporting later on. I don't need to use it yet, but I'll
-// definitely want to write the parsers to use a nom_locate Span instead of
-// an &str.
-//
 // Third, I'll need to look at the syntax! macro from monkey-rust. Their macro
 // helps simplify writing parsers for "simple" tokens. Of course, MY token
 // parsing is less simple because tokens can involve case insensitivity and
@@ -48,3 +32,5 @@
 // implement that.
 //
 // If I get this far, I should be ready to tackle the parser!
+
+use crate::tokens::Token;

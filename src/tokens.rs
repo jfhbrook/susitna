@@ -1,7 +1,9 @@
+use nom_locate::LocatedSpan;
 
 pub type Double = f64;
 pub type Integer = i64;
 
+#[derive(PartialEq, Debug, Clone)]
 pub struct Symbol {
     pub identifier: Vec<String>
 }
@@ -9,14 +11,13 @@ pub struct Symbol {
 // TODO: yabasic supports three kinds of digits: base 10 Digits, base 16
 // HexDigits, and binary BinDigits. Right now, I'm parsing those to a string,
 // but I think I want to lex these into i64s.
+#[derive(PartialEq, Debug, Clone)]
 pub struct Digits {
     pub digits: String
 }
 
-pub type Docu = String;
-
 #[derive(PartialEq, Debug, Clone)]
-pub enum Value {
+pub enum Token {
     // Unambiguously have a value associated with them
     Num(f64),
     // NOTE: yabasic uses digits to represent booleans; I'm using a dedicated
@@ -260,4 +261,11 @@ pub enum Value {
     Neg,      // UMINUS
     LParen,   // '('
     RParen,   // ')'
+}
+
+pub type Span<'a> = LocatedSpan<&'a str>;
+
+pub struct LocatedToken<'a> {
+    pub token: Token,
+    pub position: Span<'a>,
 }

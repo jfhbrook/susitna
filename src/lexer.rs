@@ -2,7 +2,6 @@
 // converting it into a collection of Tokens. The parser will then convert
 // those tokens into expressions, statements, and so on.
 //
-// TODO: Make everything typecheck
 // TODO: Bang out the rest of the "simple" syntax parsers.
 // TODO: Implement string literals
 //
@@ -455,28 +454,28 @@ fn dec_digits(input: Span) -> IResult<Span, Token> {
 }
 
 fn float(input: Span) -> IResult<Span, Token> {
-    map(double, |n| Token::new(Value::Num(n)))(input)
+    map(double, |n| Token::Num(n))(input)
 }
 
 // TODO: Would rather encode these constants as Symbols or tokens
 fn pi(input: Span) -> IResult<Span, Token> {
     map(tag_no_case("PI"), |_| {
-        Token::new(Value::Num(std::f64::consts::PI))
+        Token::Num(std::f64::consts::PI)
     })(input)
 }
 
 fn euler(input: Span) -> IResult<Span, Token> {
     map(tag_no_case("EULER"), |_| {
-        Token::new(Value::Num(std::f64::consts::E))
+        Token::Num(std::f64::consts::E)
     })(input)
 }
 
 fn true_(input: Span) -> IResult<Span, Token> {
-    map(tag_no_case("TRUE"), |_| Token::new(Value::Bool(true)))(input)
+    map(tag_no_case("TRUE"), |_| Token::Bool(true))(input)
 }
 
 fn false_(input: Span) -> IResult<Span, Token> {
-    map(tag_no_case("FALSE"), |_| Token::new(Value::Bool(false)))(input)
+    map(tag_no_case("FALSE"), |_| Token::Bool(false))(input)
 }
 
 fn bool_(input: Span) -> IResult<Span, Token> {

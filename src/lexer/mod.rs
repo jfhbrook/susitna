@@ -29,6 +29,9 @@ use nom::{
     IResult,
 };
 
+mod strings;
+
+use crate::strings::string_literal;
 use crate::tokens::{Digits, Span, Symbol, Token};
 
 // TODO: This is the name monkey-rust gives this type of macro. I don't really
@@ -488,10 +491,4 @@ fn strsym(input: Span) -> IResult<Span, Token> {
 
 fn symbol(input: Span) -> IResult<Span, Token> {
     map(name, |sym| Token::Symbol(sym))(input)
-}
-
-// TODO: probably need bytes::complete::escaped? or borrow the string impl
-// I wrote in the s7basic spike?
-fn string_literal(input: &str) -> IResult<&str, Token> {
-    unimplemented!("string_literal")
 }

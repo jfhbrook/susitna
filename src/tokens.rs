@@ -12,9 +12,7 @@ pub struct LocatedToken<'a> {
     pub position: Span<'a>,
 }
 
-pub type Double = f64;
-pub type Integer = i64;
-
+// A symbol - a variable, an import path, etc
 #[derive(PartialEq, Debug, Clone)]
 pub struct Symbol {
     pub identifier: Vec<String>,
@@ -23,22 +21,6 @@ pub struct Symbol {
 impl Symbol {
     pub fn new(identifier: Vec<String>) -> Symbol {
         Symbol { identifier }
-    }
-}
-
-// TODO: yabasic supports three kinds of digits: base 10 Digits, base 16
-// HexDigits, and binary BinDigits. Right now, I'm parsing those to a string,
-// but I think I want to lex these into i64s.
-#[derive(PartialEq, Debug, Clone)]
-pub struct Digits {
-    pub digits: String,
-}
-
-impl Digits {
-    pub fn from(digits: Span) -> Digits {
-        Digits {
-            digits: String::from(*digits.fragment()),
-        }
     }
 }
 
@@ -52,9 +34,10 @@ pub enum Token {
     Symbol(Symbol),
     StrSym(Symbol),
     Docu(String),
-    Digits(Digits),
-    HexDigits(Digits),
-    BinDigits(Digits),
+    Digits(i64),
+    HexDigits(i64),
+    BinDigits(i64),
+    LineNo(i64),
     String(String),
 
     // In yabasic, don't have a value associated with them

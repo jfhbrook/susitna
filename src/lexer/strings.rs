@@ -10,7 +10,6 @@ use nom::{
 
 use crate::tokens::{Span, Token};
 
-
 // Syntax for strings is based on VB, for now. Eventually I want to implement
 // format-strings on some level, but this is a good start.
 
@@ -33,7 +32,7 @@ fn escaped_char(input: Span) -> IResult<Span, char> {
     )(input)
 }
 
-// Double-quotes are escaped in VB by being hit twice - ie. "hello ""foo""..." 
+// Double-quotes are escaped in VB by being hit twice - ie. "hello ""foo""..."
 fn quote_char(input: Span) -> IResult<Span, char> {
     value('\"', tag("\"\""))(input)
 }
@@ -44,7 +43,7 @@ fn literal_char(input: Span) -> IResult<Span, String> {
 
     map(
         verify(not_quote_or_slash, |s: &Span| !s.fragment().is_empty()),
-        |s: Span| s.fragment().to_string()
+        |s: Span| s.fragment().to_string(),
     )(input)
 }
 
@@ -56,8 +55,7 @@ enum StringFragment {
     Escaped(char),
 }
 
-fn string_fragment(input: Span) -> IResult<Span, StringFragment>
-{
+fn string_fragment(input: Span) -> IResult<Span, StringFragment> {
     alt((
         map(literal_char, StringFragment::Literal),
         map(escaped_char, StringFragment::Escaped),
@@ -67,22 +65,16 @@ fn string_fragment(input: Span) -> IResult<Span, StringFragment>
 
 // The full string literal - a bunch of fragments wrapped in double-quotes
 pub(crate) fn string_literal(input: Span) -> IResult<Span, Token> {
-    let build = fold_many0(
-        string_fragment,
-        String::new,
-        |mut string, fragment| {
-            match fragment {
-                StringFragment::Literal(s) => string.push_str(s.as_str()),
-                StringFragment::Escaped(c) => string.push(c),
-            }
-            string
-        },
-    );
+    let build = fold_many0(string_fragment, String::new, |mut string, fragment| {
+        match fragment {
+            StringFragment::Literal(s) => string.push_str(s.as_str()),
+            StringFragment::Escaped(c) => string.push(c),
+        }
+        string
+    });
 
     map(
         delimited(pair(space0, char('"')), build, pair(char('"'), space0)),
-        |s: String| Token::String(s)
+        |s: String| Token::String(s),
     )(input)
 }
-
-

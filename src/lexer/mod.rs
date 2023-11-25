@@ -20,19 +20,20 @@
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_while},
-    character::complete::{anychar, digit1, hex_digit1, line_ending, one_of, space0, space1},
+    character::complete::{anychar, digit1, line_ending, space0, space1},
     character::{is_alphabetic, is_alphanumeric},
     combinator::{map, opt, peek, recognize},
-    multi::{many1, many_till, separated_list1},
-    number::complete::double,
+    multi::{many_till, separated_list1},
     sequence::{pair, preceded, terminated, tuple},
     IResult,
 };
 
+mod numbers;
 mod strings;
 
-use crate::strings::string_literal;
-use crate::tokens::{Digits, Span, Symbol, Token};
+use crate::tokens::{Span, Symbol, Token};
+use numbers::{digits, float, line_no};
+use strings::string_literal;
 
 // TODO: This is the name monkey-rust gives this type of macro. I don't really
 // like the name - maybe workshop it a bit?
@@ -61,18 +62,6 @@ pub fn name(input: Span) -> IResult<Span, Symbol> {
 
     map(separated_list1(tag("."), simple_name), |names| {
         Symbol::new(names)
-    })(input)
-}
-
-// TODO: yabasic's parser matches line_no in compile mode and uses state to
-// trigger loading a separator and potentially a number for the next two
-// tokens. my plan is to match these at the parser level, something like
-// pair(line_no, alt((single_newline, preceded(space0, alt((eval_digits, etc)))))).
-//
-// NOTE: the "cond" combinator might let us use flags to generate parsers
-pub fn line_no(input: Span) -> IResult<Span, Token> {
-    map(preceded(space1, digit1), |digit: Span| {
-        Token::Digits(Digits::from(digit))
     })(input)
 }
 
@@ -428,49 +417,13 @@ syntax!(mousey, "MOUSEY", Token::MouseY);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
 
-// NOTE: yabasic tries to call this series of parsers first when detecting a
-// decimal number in eval mode, or right after a line number. Note that because
-// of how yabasic does the look-ahead that only the decimal digits are actually
-// expected to match.
-//
-// Keep in mind that, because we're using combinators to track the kind of
-// token, that we might not use this combination in practice.
-fn digits(input: Span) -> IResult<Span, Token> {
-    alt((hex_digits, bin_digits, dec_digits, float))(input)
-}
-
-fn hex_digits(input: Span) -> IResult<Span, Token> {
-    map(preceded(tag("0x"), hex_digit1), |digits: Span| {
-        Token::HexDigits(Digits::from(digits))
-    })(input)
-}
-
-fn bin_digits(input: Span) -> IResult<Span, Token> {
-    map(
-        preceded(tag("0b"), recognize(many1(one_of("01")))),
-        |digits: Span| Token::BinDigits(Digits::from(digits)),
-    )(input)
-}
-
-fn dec_digits(input: Span) -> IResult<Span, Token> {
-    map(digit1, |digits: Span| Token::Digits(Digits::from(digits)))(input)
-}
-
-fn float(input: Span) -> IResult<Span, Token> {
-    map(double, |n| Token::Num(n))(input)
-}
-
 // TODO: Would rather encode these constants as Symbols or tokens
 fn pi(input: Span) -> IResult<Span, Token> {
-    map(tag_no_case("PI"), |_| {
-        Token::Num(std::f64::consts::PI)
-    })(input)
+    map(tag_no_case("PI"), |_| Token::Num(std::f64::consts::PI))(input)
 }
 
 fn euler(input: Span) -> IResult<Span, Token> {
-    map(tag_no_case("EULER"), |_| {
-        Token::Num(std::f64::consts::E)
-    })(input)
+    map(tag_no_case("EULER"), |_| Token::Num(std::f64::consts::E))(input)
 }
 
 fn true_(input: Span) -> IResult<Span, Token> {

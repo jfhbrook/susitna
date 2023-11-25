@@ -4,34 +4,25 @@
 //
 // TODO: Bang out the rest of the "simple" syntax parsers.
 //
-// TODO: put it all together. monkey-rust has good examples to
-// follow here, but basically any given input will be some whitespace, plus
-// tokens separated by potential whitespace, plus trailing whitespace. At
-// this stage, I can take a given token and use nom_locate to track its
-// position in a LocatedSpan.
-//
-// TODO: monkey-rust has an "illegal" token type, and I think that will
-// help with error reporting at the parser level. Now might be a good time to
-// implement that.
-//
 // If I get this far, I should be ready to tackle the parser!
 
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case, take_while},
-    character::complete::{anychar, digit1, line_ending, space0, space1},
+    bytes::complete::{tag, tag_no_case, take_till, take_while},
+    character::complete::{anychar, line_ending, space0, space1},
     character::{is_alphabetic, is_alphanumeric},
     combinator::{map, opt, peek, recognize},
-    multi::{many_till, separated_list1},
-    sequence::{pair, preceded, terminated, tuple},
+    multi::{many0, many_till, separated_list1},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
+use nom_locate::position;
 
 mod numbers;
 mod strings;
 
-use crate::tokens::{Span, Symbol, Token};
-use numbers::{digits, float, line_no};
+use crate::tokens::{LocatedToken, Span, Symbol, Token};
+use numbers::{digits, float};
 use strings::string_literal;
 
 // TODO: This is the name monkey-rust gives this type of macro. I don't really
@@ -49,7 +40,7 @@ macro_rules! syntax {
     };
 }
 
-pub fn name(input: Span) -> IResult<Span, Symbol> {
+fn name(input: Span) -> IResult<Span, Symbol> {
     // first character can't be a number
     let starts_with = take_while(|c: char| is_alphabetic(c as u8) || c == '_');
     // subsequent characters CAN include numbers
@@ -443,4 +434,142 @@ fn strsym(input: Span) -> IResult<Span, Token> {
 
 fn symbol(input: Span) -> IResult<Span, Token> {
     map(name, |sym| Token::Symbol(sym))(input)
+}
+
+fn illegal(input: Span) -> IResult<Span, Token> {
+    map(
+        take_till(|c: char| c.is_whitespace()),
+        |s: Span| Token::Illegal(s.fragment().to_string())
+    )(input)
+}
+
+// giddyup!
+
+// alts have a limited length, as they're implemented separately for each size
+// of tuple. therefore, we need to break these up into groups of at most 13.
+//
+// TODO: Either (a) find a more sensible way to group these; or (b) write a
+// macro that handles this problem better.
+fn part_one(input: Span) -> IResult<Span, Token> {
+    alt((
+        // NOTE: line_no is currently indistinguishable from a digit at the
+        // lexer level, but yabasic bakes it in at the lexer level.
+        digits,
+        rem,
+        comment,
+        sep,
+        import,
+        docu,
+        execute,
+        execute2,
+        compile,
+        eval,
+        eval2,
+        runtime_created_sub,
+        end_sub,
+    ))(input)
+}
+
+fn part_two(input: Span) -> IResult<Span, Token> {
+    alt((
+        end_if, fi, end_while, wend, end_switch, export, error, for_, break_, switch, case,
+        default, loop_,
+    ))(input)
+}
+
+fn part_three(input: Span) -> IResult<Span, Token> {
+    alt((
+        do_, to, as_, reading, writing, step, next, while_, repeat, until, goto, gosub, sub,
+    ))(input)
+}
+
+fn part_four(input: Span) -> IResult<Span, Token> {
+    alt((
+        local, static_, on, interrupt, continue_, label, if_, then_, else_, elsif, open, close,
+        seek,
+    ))(input)
+}
+
+fn part_five(input_: Span) -> IResult<Span, Token> {
+    alt((
+        tell, print, using, reverse, color, backcolor, input, return_, dim, end, exit, read, data,
+    ))(input_)
+}
+
+fn part_six(input: Span) -> IResult<Span, Token> {
+    alt((
+        restore, and, or, not, eor, xor, shl, shr, window, origin, printer, dot, line,
+    ))(input)
+}
+
+fn part_seven(input: Span) -> IResult<Span, Token> {
+    alt((
+        curve, circle, triangle, clear, fill, text, rectangle, put_bit, get_bit, putchar, getchar,
+        new, wait,
+    ))(input)
+}
+
+fn part_eight(input: Span) -> IResult<Span, Token> {
+    alt((
+        bell, ardim, numparam, bind, sin, asin, cos, acos, tan, atan, exp, log, sqrt,
+    ))(input)
+}
+
+fn part_nine(input: Span) -> IResult<Span, Token> {
+    alt((
+        sqr, int, ceil, floor, round, frac, abs, sig, mod_, ran, min, max, left,
+    ))(input)
+}
+
+fn part_ten(input: Span) -> IResult<Span, Token> {
+    alt((
+        right, mid, lower, upper, ltrim, rtrim, trim, instr, rinstr, chomp, len, val, my_eof,
+    ))(input)
+}
+
+fn part_eleven(input: Span) -> IResult<Span, Token> {
+    alt((
+        str_,
+        inkey,
+        mousex,
+        mousey,
+        float,
+        digits,
+        pi,
+        euler,
+        bool_,
+        strsym,
+        symbol,
+        string_literal,
+    ))(input)
+}
+
+fn token(input: Span) -> IResult<Span, LocatedToken> {
+    let (s, position) = position(input)?;
+    let (s, token) = alt((
+        part_one,
+        part_two,
+        part_three,
+        part_four,
+        part_five,
+        part_six,
+        part_seven,
+        part_eight,
+        part_nine,
+        part_ten,
+        part_eleven,
+        illegal
+    ))(s)?;
+
+    Ok((s, LocatedToken { token, position }))
+}
+
+// TODO: I would like this to return Tokens instead of Vec<LocatedToken>, but
+// the reference implementation actually expects to *borrow* the vec. They
+// allocate the Vec, lend it to create Tokens, then pass that into the parser
+// inside a function - example here:
+//
+//     https://github.com/Rydgel/monkey-rust/blob/master/lib/parser/mod.rs#L331-L336
+pub fn tokens(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    many0(delimited(space0, token, space0))(input)
 }

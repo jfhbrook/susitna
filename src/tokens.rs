@@ -10,6 +10,7 @@ use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
+#[derive(PartialEq, Debug, Clone)]
 pub struct LocatedToken<'a> {
     pub token: Token,
     pub position: Span<'a>,
@@ -275,6 +276,10 @@ pub enum Token {
     Neg,      // UMINUS
     LParen,   // '('
     RParen,   // ')'
+
+    // Illegal tokens. yabasic doesn't have this, but monkey-lang does, and
+    // I think it will help with debugging.
+    Illegal(String)
 }
 
 // A data structure for collections of tokens. Borrows VERY heavily from:
@@ -289,13 +294,13 @@ pub enum Token {
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(C)]
 pub struct Tokens<'a> {
-    pub token: &'a [Token],
+    pub token: &'a [LocatedToken<'a>],
     pub start: usize,
     pub end: usize,
 }
 
 impl<'a> Tokens<'a> {
-    pub fn new(vec: &'a [Token]) -> Self {
+    pub fn new(vec: &'a [LocatedToken<'a>]) -> Self {
         Tokens {
             token: vec,
             start: 0,
@@ -338,7 +343,7 @@ impl<'a> InputTake for Tokens<'a> {
     }
 }
 
-impl InputLength for Token {
+impl InputLength for LocatedToken<'_> {
     #[inline]
     fn input_len(&self) -> usize {
         1
@@ -382,16 +387,16 @@ impl<'a> Slice<RangeFull> for Tokens<'a> {
 }
 
 impl<'a> InputIter for Tokens<'a> {
-    type Item = &'a Token;
-    type Iter = Enumerate<::std::slice::Iter<'a, Token>>;
-    type IterElem = ::std::slice::Iter<'a, Token>;
+    type Item = &'a LocatedToken<'a>;
+    type Iter = Enumerate<::std::slice::Iter<'a, LocatedToken<'a>>>;
+    type IterElem = ::std::slice::Iter<'a, LocatedToken<'a>>;
 
     #[inline]
-    fn iter_indices(&self) -> Enumerate<::std::slice::Iter<'a, Token>> {
+    fn iter_indices(&self) -> Enumerate<::std::slice::Iter<'a, LocatedToken<'a>>> {
         self.token.iter().enumerate()
     }
     #[inline]
-    fn iter_elements(&self) -> ::std::slice::Iter<'a, Token> {
+    fn iter_elements(&self) -> ::std::slice::Iter<'a, LocatedToken<'a>> {
         self.token.iter()
     }
     #[inline]

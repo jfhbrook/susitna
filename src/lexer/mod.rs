@@ -404,6 +404,28 @@ syntax!(str_, "STR$", Token::Str);
 syntax!(inkey, "INKEY$", Token::InKey);
 syntax!(mousex, "MOUSEX", Token::MouseX);
 syntax!(mousey, "MOUSEY", Token::MouseY);
+syntax!(
+    mouseb,
+    alt((tag_no_case("MOUSEBUTTON"), tag_no_case("MOUSEB"))),
+    Token::MouseB
+);
+syntax!(
+    mousemod,
+    alt((tag_no_case("MOUSEMODIFIER"), tag_no_case("MOUSEMOD"))),
+    Token::MouseMod
+);
+syntax!(chr_, "CHR$", Token::Chr);
+syntax!(asc, "ASC", Token::Asc);
+syntax!(hex, "HEX$", Token::Hex);
+syntax!(bin, "BIN$", Token::Bin);
+syntax!(dec, "DEC", Token::Dec);
+syntax!(at, alt((tag_no_case("AT"), tag_no_case("@"))), Token::At);
+syntax!(screen, "SCREEN", Token::Screen);
+syntax!(system, "SYSTEM", Token::System);
+syntax!(system2, "SYSTEM$", Token::System2);
+syntax!(date, "DATE$", Token::Date);
+syntax!(time, "TIME$", Token::Time);
+syntax!(peek_, "PEEK", Token::Peek);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
 
@@ -437,10 +459,9 @@ fn symbol(input: Span) -> IResult<Span, Token> {
 }
 
 fn illegal(input: Span) -> IResult<Span, Token> {
-    map(
-        take_till(|c: char| c.is_whitespace()),
-        |s: Span| Token::Illegal(s.fragment().to_string())
-    )(input)
+    map(take_till(|c: char| c.is_whitespace()), |s: Span| {
+        Token::Illegal(s.fragment().to_string())
+    })(input)
 }
 
 // giddyup!
@@ -541,6 +562,13 @@ fn part_eleven(input: Span) -> IResult<Span, Token> {
         strsym,
         symbol,
         string_literal,
+        mouseb,
+    ))(input)
+}
+
+fn part_twelve(input: Span) -> IResult<Span, Token> {
+    alt((
+        mousemod, chr_, asc, hex, bin, dec, at, screen, system, system2, date, time, peek_,
     ))(input)
 }
 
@@ -558,7 +586,8 @@ fn token(input: Span) -> IResult<Span, LocatedToken> {
         part_nine,
         part_ten,
         part_eleven,
-        illegal
+        part_twelve,
+        illegal,
     ))(s)?;
 
     Ok((s, LocatedToken { token, position }))

@@ -279,7 +279,7 @@ pub enum Token {
 
     // Illegal tokens. yabasic doesn't have this, but monkey-lang does, and
     // I think it will help with debugging.
-    Illegal(String)
+    Illegal(String),
 }
 
 // A data structure for collections of tokens. Borrows VERY heavily from:

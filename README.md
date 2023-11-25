@@ -30,3 +30,8 @@ Building a BASIC is a little involved, and this is roughly my third attempt.
   need to do some heavy lifting to get useful errors out of it.
 - [miette](https://crates.io/crates/miette) - when I'm ready, this should
   help me print dank errors.
+
+# Licenses
+
+- monkey-rust: BSD 3-clause
+- yabasic: MIT

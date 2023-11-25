@@ -3,7 +3,6 @@
 // those tokens into expressions, statements, and so on.
 //
 // TODO: Bang out the rest of the "simple" syntax parsers.
-// TODO: Implement string literals
 //
 // TODO: put it all together. monkey-rust has good examples to
 // follow here, but basically any given input will be some whitespace, plus

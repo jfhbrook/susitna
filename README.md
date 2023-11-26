@@ -13,6 +13,69 @@ Building a BASIC is a little involved, and this is roughly my third attempt.
   progress on porting yabasic's lexer to nom, but I ran into a lot of issues I
   had to research to get past. The parser was a bit less fleshed out.
 
+## Architecture
+
+These notes describe the intended architecture, based on what I know from
+my prior experiments and/or studying yabasic.
+
+### lexing/parsing/etc
+
+I'm confident in these parts:
+
+- lexer - parser combinators which break up input into `Vec<Token>`s. this is
+  actually more or less good enough to work off, minus ambiguity with seps.
+- parser - parser combinators which turn `Tokens` into `Expr`s, `Statement`s, `Program`s etc
+
+But I need to think about how commands work. I think bison actually
+generates the commands as a side effect of parsing - I'll probably want a
+separate layer for that.
+
+### stacks
+
+yabasic has two stacks, which I'll probably need some variation of:
+
+- symbol stack - a stack for managing symbols - things like variables, but more broad
+- call stack - a stack for managing function calls, gosubs etc
+
+I'm not confident in yabasic's implementation, though. I kinda want to
+"step back" and implement smaller versions of these, referencing them if I
+ever need them.
+
+### commands
+
+There are a few concepts here:
+
+- the commands themselves, which are distinct from AST and token concerns
+- the command runner, which for yabasic is basically just a big fat loop/match
+  in main.c
+
+I'll need some kind of "virtual machine" or "interpreter" abstraction for
+actually running the commands.
+
+### editor
+
+I implemented an Editor abstraction in s7bas. It's actually quite a bit better
+than what's in yabasic, so I should probably reference it.
+
+### host
+
+I implemented a `Host` abstraction in s7bas, which dealt with IO concerns and
+which could be plugged into the Editor and/or the headless runtime. I was
+pretty happy with it! I think it could be useful going forward.
+
+## Next Steps
+
+I made good progress studying yabasic's parsing code. I now have a pretty
+robust lexer, I have some ideas for parsing, and I know that I need a call
+stack and symbol stack. But I think my ability to learn from yabasic is
+going to be limited going forward - its penchant for side effects is very
+different from what I'm doing!
+
+I think the next stage might actually be to step through an interpreters
+book? Like the one monkey-rust is based on? Maybe I read that book and
+reference monkey-rust, and I'll know enough to make a clean attempt at the
+other abstractions.
+
 ## Resources
 
 - [choosing a combinator](https://github.com/rust-bakery/nom/blob/main/doc/choosing_a_combinator.md) - the

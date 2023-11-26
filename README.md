@@ -122,6 +122,12 @@ here are some thing I know I need to do just to get a basic feature set:
   level. this should make it easier.
 * `Editor` needs to be ported from s7bas. this is probably straightforward,
   aside from there being no interpreter.
+* saving/loading of scripts is going to need some serde work. traditional
+  BASICs can save "binary" files in pickle-like data structures (consider
+  literally using `serde_pickle`) but even without that: if we're storing
+  edited text as tokens, we'll need to write tokens back out as text. if
+  we're doing that already, it may not be a stretch to have that be
+  configurable - ie., prettifying and minifying.
 * go through tokens and the scanner and delete most of the yabasic stuff. I
   only need/want a few features from yabasic - I don't need to include the
   tokens for those things! they'll only stand to confuse me.

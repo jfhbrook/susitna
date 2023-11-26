@@ -115,11 +115,14 @@ first of all, I should do a "real" interpreters book. I think I'm gonna do
 
 here are some thing I know I need to do just to get a basic feature set:
 
-* `Script` and `Module` from s7bas should be ported over as a single
-  abstraction. This was a challenge previously because lines from scripts
-  were unparsed. In this version, though, we'll scan the command into tokens
-  when it's entered into the editor and execute instructions on the token
-  level. this should make it easier.
+* port over `Script` and `Module` from s7bas. it's tempting to combine them
+  into a single abstraction now that we have a scanner, however:
+  * modules should be scanned into tokens, but keeping scripts in string
+    format maintains formatting. if space were at a premium that would be
+    a worthwhile trade, but in our case we can afford to be inefficient.
+  * when running a program, we want to reset the main module to get clean
+    state. this is a lot easier if you builder-pattern the module from a
+    script and replace it wholesale.
 * `Editor` needs to be ported from s7bas. this is probably straightforward,
   aside from there being no interpreter.
 * saving/loading of scripts is going to need some serde work. traditional

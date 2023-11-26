@@ -2,9 +2,7 @@
 // converting it into a collection of Tokens. The parser will then convert
 // those tokens into expressions, statements, and so on.
 //
-// TODO: Bang out the rest of the "simple" syntax parsers.
-//
-// If I get this far, I should be ready to tackle the parser!
+// This is basically ready for an attempt at writing a parser!
 
 use nom::{
     branch::alt,
@@ -272,7 +270,6 @@ syntax!(data, "DATA", Token::Data);
 syntax!(restore, "RESTORE", Token::Restore);
 syntax!(and, "AND", Token::And);
 syntax!(or, "OR", Token::Or);
-syntax!(not, "NOT", Token::Not);
 // TODO: Can I use more C-like syntax for bitwise not?
 syntax!(bitnot, "BITNOT", Token::BitNot);
 syntax!(eor, "EOR", Token::EOr);
@@ -519,6 +516,32 @@ syntax!(
     )),
     Token::FrnbfFree
 );
+syntax!(token_, "TOKEN", Token::Token);
+syntax!(token2, "TOKEN$", Token::Token2);
+syntax!(split, "SPLIT", Token::Split);
+syntax!(split2, "SPLIT$", Token::Split2);
+syntax!(glob, "GLOB", Token::Glob);
+syntax!(pow, alt((tag("^"), tag("**"))), Token::Pow);
+syntax!(ne, alt((tag("<>"), tag("!="))), Token::Ne);
+syntax!(le, "<=", Token::Le);
+syntax!(ge, ">-", Token::Ge);
+syntax!(eq, "=", Token::Eq);
+syntax!(eq2, "==", Token::Eq2);
+syntax!(lt, "<", Token::Lt);
+syntax!(gt, ">", Token::Gt);
+syntax!(not, alt((tag("!"), tag_no_case("NOT"))), Token::Not);
+syntax!(subtract, "-", Token::Subtract);
+syntax!(add, "+", Token::Add);
+syntax!(multiply, "*", Token::Multiply);
+syntax!(divide, "/", Token::Divide);
+// TODO: yabasic defines colon as its own token, but also as Token::Sep
+// this is probably a bug but might matter later?
+// syntax!(colon, ":", Token::Colon);
+syntax!(lparen, "(", Token::LParen);
+syntax!(rparen, ")", Token::RParen);
+syntax!(comma, ",", Token::Comma);
+syntax!(period, ".", Token::Period);
+syntax!(semicolon, ";", Token::Semicolon);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
 
@@ -567,7 +590,8 @@ fn illegal(input: Span) -> IResult<Span, Token> {
 fn part_one(input: Span) -> IResult<Span, Token> {
     alt((
         // NOTE: line_no is currently indistinguishable from a digit at the
-        // lexer level, but yabasic bakes it in at the lexer level.
+        // lexer level. yabasic solves this by carrying state at the lexer
+        // level, but we'll need to manage that at the parser level.
         digits,
         rem,
         comment,
@@ -612,7 +636,7 @@ fn part_five(input_: Span) -> IResult<Span, Token> {
 
 fn part_six(input: Span) -> IResult<Span, Token> {
     alt((
-        restore, and, or, not, eor, xor, shl, shr, window, origin, printer, dot, line,
+        restore, and, or, bitnot, eor, xor, shl, shr, window, origin, printer, dot, line,
     ))(input)
 }
 
@@ -683,6 +707,19 @@ fn part_thirteen(input: Span) -> IResult<Span, Token> {
     ))(input)
 }
 
+fn part_fourteen(input: Span) -> IResult<Span, Token> {
+    alt((
+        token_, token2, split, split2, glob, pow, ne, le, ge, eq, eq2, lt, gt,
+    ))(input)
+}
+
+fn part_fifteen(input: Span) -> IResult<Span, Token> {
+    alt((
+        not, subtract, add, multiply, divide, // colon,
+        lparen, rparen, comma, period, semicolon,
+    ))(input)
+}
+
 fn token(input: Span) -> IResult<Span, LocatedToken> {
     let (s, position) = position(input)?;
     let (s, token) = alt((
@@ -699,6 +736,8 @@ fn token(input: Span) -> IResult<Span, LocatedToken> {
         part_eleven,
         part_twelve,
         part_thirteen,
+        part_fourteen,
+        part_fifteen,
         illegal,
     ))(s)?;
 

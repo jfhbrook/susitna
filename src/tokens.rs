@@ -133,13 +133,13 @@ pub enum Token {
     Shl,
     Shr,
 
-    Neq,
-    Leq,
-    Geq,
-    Ltn,
-    Gtn,
-    Equ,
-    Equ2,
+    Ne,
+    Le,
+    Ge,
+    Lt,
+    Gt,
+    Eq,
+    Eq2,
     Pow,
 
     Read,
@@ -254,9 +254,9 @@ pub enum Token {
     Date,
     Time,
     Token,
-    TokenAlt,
+    Token2,
     Split,
-    SplitAlt,
+    Split2,
     Glob,
 
     StartProgram,
@@ -269,13 +269,16 @@ pub enum Token {
     Eval2,
 
     // These are represented as individual characters in yabasic
-    Subtract, // '-'
-    Add,      // '+'
-    Multiply, // '*'
-    Divide,   // '/'
-    Neg,      // UMINUS
-    LParen,   // '('
-    RParen,   // ')'
+    Subtract,  // '-'
+    Add,       // '+'
+    Multiply,  // '*'
+    Divide,    // '/'
+    // Colon,     // ':'
+    LParen,    // '('
+    RParen,    // ')'
+    Comma,     // ','
+    Period,    // '.'
+    Semicolon, // ';'
 
     // Illegal tokens. yabasic doesn't have this, but monkey-lang does, and
     // I think it will help with debugging.

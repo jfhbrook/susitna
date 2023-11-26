@@ -6,12 +6,12 @@ Building a BASIC is a little involved, and this is roughly my third attempt.
 
 ## Prior Attempts
 
-- joshiverse/s7bas - a YOLO attempt at writing a basic from scratch. I learned
-  at TON but ultimately realized I needed to step back and figure out how a
-  "real" BASIC works.
-- joshiverse/yabasic-rs - an attempt to port yabasic to rust. really good
-  progress on porting yabasic's lexer to nom, but I ran into a lot of issues I
-  had to research to get past. The parser was a bit less fleshed out.
+- joshiverse/s7bas - a YOLO attempt at writing a basic from scratch, based
+  largely on the MSX Technical Handbook. I learned at TON but ultimately
+  realized I needed to step back and figure out how you would actually
+  architect a modern BASIC interpreter.
+- joshiverse/yabasic-rs - an attempt to port yabasic to rust. everything
+  worthwhile from there has been moved to this repo.
 
 ## Architecture
 
@@ -37,9 +37,17 @@ yabasic has two stacks, which I'll probably need some variation of:
 - symbol stack - a stack for managing symbols - things like variables, but more broad
 - call stack - a stack for managing function calls, gosubs etc
 
-I'm not confident in yabasic's implementation, though. I kinda want to
-"step back" and implement smaller versions of these, referencing them if I
-ever need them.
+this is quite a bit more sophisticated than what MSX BASIC does, which is
+have various areas:
+
+- program area (see "program, module")
+- various variable and array areas - symbols, sure, but not a *stack*
+- stack area - ie. the call stack, but simpler because MSX BASIC did less
+
+I think I ultimately want both a symbol and a call stack, but I don't know
+that I want to copy yabasic's implementation. I'd kinda rather learn how those
+work from other examples, and then step back and derive them from first
+principles.
 
 ### program, module
 
@@ -119,6 +127,8 @@ other abstractions.
 
 ## Resources
 
+- [MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html) - the
+  language spec, plus a bunch of detail on the internal memory structure of MSX BASIC
 - [choosing a combinator](https://github.com/rust-bakery/nom/blob/main/doc/choosing_a_combinator.md) - the
   go-to resource for figuring out what combinator I need to do rusty things
 - [yabasic](https://github.com/marcIhm/yabasic) - a BASIC with good language

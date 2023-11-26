@@ -426,6 +426,99 @@ syntax!(system2, "SYSTEM$", Token::System2);
 syntax!(date, "DATE$", Token::Date);
 syntax!(time, "TIME$", Token::Time);
 syntax!(peek_, "PEEK", Token::Peek);
+syntax!(poke, "POKE", Token::Poke);
+syntax!(
+    frnfn_call,
+    alt((
+        tag_no_case("FOREIGN_FUNCTION_CALL"),
+        tag_no_case("FRNFN_CALL")
+    )),
+    Token::FrnfnCall
+);
+syntax!(
+    frnfn_call2,
+    alt((
+        tag_no_case("FOREIGN_FUNCTION_CALL$"),
+        tag_no_case("FRNFN_CALL$")
+    )),
+    Token::FrnfnCall2
+);
+
+syntax!(
+    frnfn_size,
+    alt((
+        tag_no_case("FOREIGN_FUNCTION_SIZE"),
+        tag_no_case("FRNFN_SIZE")
+    )),
+    Token::FrnfnSize
+);
+syntax!(
+    frnbf_get,
+    alt((tag_no_case("FOREIGN_BUFFER_GET"), tag_no_case("FRNBF_GET"))),
+    Token::FrnbfGet
+);
+syntax!(
+    frnbf_get2,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_GET$"),
+        tag_no_case("FRNBF_GET$")
+    )),
+    Token::FrnbfGet2
+);
+syntax!(
+    frnbf_get_buffer,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_GET_BUFFER$"),
+        tag_no_case("FRNBF_GET_BUFFER$"),
+    )),
+    Token::FrnbfGetBuffer
+);
+syntax!(
+    frnbf_set,
+    alt((tag_no_case("FOREIGN_BUFFER_SET"), tag_no_case("FRNBF_SET"))),
+    Token::FrnbfSet
+);
+syntax!(
+    frnbf_set_buffer,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_SET_BUFFER"),
+        tag_no_case("FRNBF_SET_BUFFER")
+    )),
+    Token::FrnbfSetBuffer
+);
+syntax!(
+    frnbf_alloc,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_ALLOCATE$"),
+        tag_no_case("FOREIGN_BUFFER_ALLOC$"),
+        tag_no_case("FRNBF_ALLOC$")
+    )),
+    Token::FrnbfAlloc
+);
+syntax!(
+    frnbf_dump,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_DUMP$"),
+        tag_no_case("FRNBF_DUMP")
+    )),
+    Token::FrnbfDump
+);
+syntax!(
+    frnbf_size,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_SIZE"),
+        tag_no_case("FRNBF_SIZE")
+    )),
+    Token::FrnbfSize
+);
+syntax!(
+    frnbf_free,
+    alt((
+        tag_no_case("FOREIGN_BUFFER_FREE"),
+        tag_no_case("FRNBF_FREE")
+    )),
+    Token::FrnbfFree
+);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
 
@@ -572,6 +665,24 @@ fn part_twelve(input: Span) -> IResult<Span, Token> {
     ))(input)
 }
 
+fn part_thirteen(input: Span) -> IResult<Span, Token> {
+    alt((
+        poke,
+        frnfn_call,
+        frnfn_call2,
+        frnfn_size,
+        frnbf_get,
+        frnbf_get2,
+        frnbf_get_buffer,
+        frnbf_set,
+        frnbf_set_buffer,
+        frnbf_alloc,
+        frnbf_dump,
+        frnbf_size,
+        frnbf_free,
+    ))(input)
+}
+
 fn token(input: Span) -> IResult<Span, LocatedToken> {
     let (s, position) = position(input)?;
     let (s, token) = alt((
@@ -587,6 +698,7 @@ fn token(input: Span) -> IResult<Span, LocatedToken> {
         part_ten,
         part_eleven,
         part_twelve,
+        part_thirteen,
         illegal,
     ))(s)?;
 

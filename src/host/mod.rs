@@ -1,4 +1,4 @@
-mod console;
+pub(crate) mod console;
 
 use crate::ast::Exception;
 use crate::error::Error;

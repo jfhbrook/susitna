@@ -10,8 +10,8 @@ use nom::{
     character::complete::{anychar, digit1, line_ending, space0, space1},
     character::{is_alphabetic, is_alphanumeric},
     combinator::{map, map_res, opt, peek, recognize},
-    multi::{many0, many_till, separated_list1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
+    multi::{many0, many1, many_till, separated_list0, separated_list1},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     IResult,
 };
 use nom_locate::position;
@@ -765,9 +765,9 @@ fn single_line_ending(input: Span) -> IResult<Span, LocatedToken> {
     ))
 }
 
-// this is public, since there may be novel cases where I want to parse
+// these public, since there may be novel cases where I want to parse
 // line endings outside of the supplied combinators.
-pub fn line_endings(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+pub fn line_endings0(input: Span) -> IResult<Span, Vec<LocatedToken>> {
     many0(delimited(
         space0,
         alt((double_line_ending, single_line_ending)),
@@ -775,40 +775,70 @@ pub fn line_endings(input: Span) -> IResult<Span, Vec<LocatedToken>> {
     ))(input)
 }
 
+pub fn line_endings1(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    many1(delimited(
+        space0,
+        alt((double_line_ending, single_line_ending)),
+        space0,
+    ))(input)
+}
+
 // a line is made up of a line number, then a command (a series of
-// non-line-ending tokens), then any number of line endings. note that this
-// does not absorb *initial* line endings, only trailing line endings.
-pub fn line(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+// non-line-ending tokens), then any number of line endings.
+
+// parsing a line without trying to grab the line endings
+fn line_no_ending(input: Span) -> IResult<Span, Vec<LocatedToken>> {
     let (s, ln) = delimited(space0, line_no, space0)(input)?;
     let (s, cmd) = command(s)?;
-    let (s, les) = line_endings(s)?;
 
     let mut tok = vec![ln];
     tok.extend(cmd);
+
+    Ok((s, tok))
+}
+
+// when parsing a line in isolation, we allow for any number of trailing
+// newlines. note, this does not absorb *initial* line endings, only trailing
+// line endings.
+pub fn line(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    let (s, ln) = line_no_ending(input)?;
+    let (s, les) = line_endings0(s)?;
+
+    let mut tok = ln.clone();
     tok.extend(les);
 
     Ok((s, tok))
 }
 
-// a module is made up of multiple lines, and *may* contain initial
-// newlines.
+// a module is made up of multiple lines. these lines MUST be separated by some
+// amount of newlines, and *may* contain both leading and trailing newlines.
 pub fn module(input: Span) -> IResult<Span, Vec<LocatedToken>> {
-    let (s, les) = line_endings(input)?;
-    let (s, lines) = many0(line)(s)?;
+    let (s, leading) = line_endings0(input)?;
+    let (s, lines) = separated_list0(line_endings1, line_no_ending)(s)?;
+    let (s, trailing) = line_endings0(s)?;
 
-    let mut tok = les.clone();
-
+    let mut tok = leading.clone();
     tok.extend(lines.into_iter().flatten().collect::<Vec<LocatedToken>>());
+    tok.extend(trailing);
 
     Ok((s, tok))
 }
 
-// chances are good that, in practice, I'll know whether I expect to parse a
-// command or multiple lines. however, if I have completely unknown input, I
-// can try out multiple parsers anyway.
+// chances are good that, in practice, I'll know what we expect to parse.
+// however, if I have completely unknown input, I can try out multiple
+// parsers anyway. this is in-line, very roughly, with what yabasic does.
+// this will probably get deleted when I prove I don't need it.
 pub fn tokens(input: Span) -> IResult<Span, Vec<LocatedToken>> {
     let (s, tok) = many0(map(
-        tuple((line_endings, alt((line, command)), line_endings)),
+        tuple((
+            line_endings0,
+            alt((
+                // any number of lines definitely separated by line endings
+                module, // a non-numbered command in isolation
+                command,
+            )),
+            line_endings0,
+        )),
         |(a, b, c)| {
             let mut tok = a.clone();
             tok.extend(b);

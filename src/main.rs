@@ -18,9 +18,9 @@ mod scanner;
 mod symbol;
 mod tokens;
 
-use crate::host::console::ConsoleHost;
-use crate::editor::Editor;
 use crate::ast::Exception;
+// use crate::editor::Editor;
+use crate::host::console::ConsoleHost;
 // use crate::interpreter::{interactive, run, Interpreter};
 
 #[derive(Parser)]
@@ -36,7 +36,7 @@ fn main() -> Result<(), Exception> {
 
     // let interpreter = Interpreter::new();
     let mut host = ConsoleHost::new();
-    let mut editor = Editor::new();
+    // let mut editor = Editor::new();
 
     /*
     match cli.file {

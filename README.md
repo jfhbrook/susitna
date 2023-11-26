@@ -202,7 +202,7 @@ to make a BASIC which can replace bash:
 - shell pt 2: starship
   - `PS1` analogue
   - before/after hooks prompt and spawning/shelling
-  - dates, datetimes + durations - yikes, but needed for function timing
+  - NOTE: needs dates, datetimes + durations
   - script that can be pasted into`autoexec.bas`
   - examples: <https://github.com/starship/starship/tree/master/src/init>
 - shell pt 3: shell expressions?
@@ -218,12 +218,15 @@ third, I want MUCH better data structures. in very loose order of priority:
   - should be able to cast 1-d and 2-d to vectors and matrices
   - implement `.\` and `.*`
   - add `'` (transpose)
+- dates/datetimes/durations
+  - needed for timings, which is a loose prereq for starship support
 - objects
   - almost certainly prototypal, no such thing as a class
   - has js-like key iterability but treated as public/private properties
 - tables + sqlite support
   - inspired by posh
-  - possibly inspired by cobol? lol
+  - possibly inspired by cobol?
+  - *possibly* inspired by lua??
   - `select` expression?
 
 ## Resources

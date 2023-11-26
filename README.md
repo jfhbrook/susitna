@@ -67,8 +67,8 @@ we don't necessarily need to do it *exactly* like an old school BASIC - that
 was a pathological memory optimization at the end of the day - and in the case
 of yabasic it manages all that stuff through its commands and stacks. I'm
 however a little partial to doing it the old school way, perhaps plus-or-minus
-some optimizations - for example, storing commands in that `Module` data
-structure instead of tokens.
+some optimizations - for example, storing instructions or commands in that
+`Module` data structure instead of tokens.
 
 in my case, there's also a lot of overlap between the needs of a "program"
 and a "module". would a program actually be a collection of modules? in the

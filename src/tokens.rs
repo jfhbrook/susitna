@@ -269,10 +269,10 @@ pub enum Token {
     Eval2,
 
     // These are represented as individual characters in yabasic
-    Subtract,  // '-'
-    Add,       // '+'
-    Multiply,  // '*'
-    Divide,    // '/'
+    Subtract, // '-'
+    Add,      // '+'
+    Multiply, // '*'
+    Divide,   // '/'
     // Colon,     // ':'
     LParen,    // '('
     RParen,    // ')'
@@ -297,7 +297,7 @@ pub enum Token {
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(C)]
 pub struct Tokens<'a> {
-    pub token: &'a [LocatedToken<'a>],
+    pub tokens: &'a [LocatedToken<'a>],
     pub start: usize,
     pub end: usize,
 }
@@ -305,7 +305,7 @@ pub struct Tokens<'a> {
 impl<'a> Tokens<'a> {
     pub fn new(vec: &'a [LocatedToken<'a>]) -> Self {
         Tokens {
-            token: vec,
+            tokens: vec,
             start: 0,
             end: vec.len(),
         }
@@ -315,7 +315,7 @@ impl<'a> Tokens<'a> {
 impl<'a> InputLength for Tokens<'a> {
     #[inline]
     fn input_len(&self) -> usize {
-        self.token.len()
+        self.tokens.len()
     }
 }
 
@@ -323,7 +323,7 @@ impl<'a> InputTake for Tokens<'a> {
     #[inline]
     fn take(&self, count: usize) -> Self {
         Tokens {
-            token: &self.token[0..count],
+            tokens: &self.tokens[0..count],
             start: 0,
             end: count,
         }
@@ -331,14 +331,14 @@ impl<'a> InputTake for Tokens<'a> {
 
     #[inline]
     fn take_split(&self, count: usize) -> (Self, Self) {
-        let (prefix, suffix) = self.token.split_at(count);
+        let (prefix, suffix) = self.tokens.split_at(count);
         let first = Tokens {
-            token: prefix,
+            tokens: prefix,
             start: 0,
             end: prefix.len(),
         };
         let second = Tokens {
-            token: suffix,
+            tokens: suffix,
             start: 0,
             end: suffix.len(),
         };
@@ -357,7 +357,7 @@ impl<'a> Slice<Range<usize>> for Tokens<'a> {
     #[inline]
     fn slice(&self, range: Range<usize>) -> Self {
         Tokens {
-            token: self.token.slice(range.clone()),
+            tokens: self.tokens.slice(range.clone()),
             start: self.start + range.start,
             end: self.start + range.end,
         }
@@ -382,7 +382,7 @@ impl<'a> Slice<RangeFull> for Tokens<'a> {
     #[inline]
     fn slice(&self, _: RangeFull) -> Self {
         Tokens {
-            token: self.token,
+            tokens: self.tokens,
             start: self.start,
             end: self.end,
         }
@@ -396,22 +396,22 @@ impl<'a> InputIter for Tokens<'a> {
 
     #[inline]
     fn iter_indices(&self) -> Enumerate<::std::slice::Iter<'a, LocatedToken<'a>>> {
-        self.token.iter().enumerate()
+        self.tokens.iter().enumerate()
     }
     #[inline]
     fn iter_elements(&self) -> ::std::slice::Iter<'a, LocatedToken<'a>> {
-        self.token.iter()
+        self.tokens.iter()
     }
     #[inline]
     fn position<P>(&self, predicate: P) -> Option<usize>
     where
         P: Fn(Self::Item) -> bool,
     {
-        self.token.iter().position(predicate)
+        self.tokens.iter().position(predicate)
     }
     #[inline]
     fn slice_index(&self, count: usize) -> Result<usize, Needed> {
-        if self.token.len() >= count {
+        if self.tokens.len() >= count {
             Ok(count)
         } else {
             Err(Needed::Unknown)

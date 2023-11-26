@@ -7,7 +7,7 @@
 
 use thiserror::Error;
 
-use crate::tokens::Symbol;
+use crate::tokens::Ident;
 
 // As mentioned in crate::error, exception handling needs a lot of work.
 //
@@ -82,11 +82,11 @@ pub(crate) enum Literal {
 //
 // TODO: iron out these semantic issues, here and in the lexer.
 #[derive(PartialEq, Debug, Clone)]
-pub(crate) enum Ident {
-    SymbolOrLineno(Symbol),
-    FunctionName(Symbol),
-    FunctionOrArray(Symbol),
-    StringFunctionOrArray(Symbol),
+pub(crate) enum Identifier {
+    SymbolOrLineno(Ident),
+    FunctionName(Ident),
+    FunctionOrArray(Ident),
+    StringFunctionOrArray(Ident),
 }
 
 // In a classic BASIC, the basic building blocks are called instructions.

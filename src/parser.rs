@@ -17,7 +17,7 @@
 //
 
 use crate::ast::{Command, Expr, Instruction, Line};
-use crate::tokens::{Symbol, Token, Tokens};
+use crate::tokens::{Ident, Token, Tokens};
 use nom::{
     branch::alt,
     bytes::complete::take,
@@ -41,7 +41,7 @@ fn token<'a>(tag: Token) -> impl FnMut(Tokens<'a>) -> IResult<Tokens<'a>, Tokens
 // TODO: I'm going to need to write a whole family of these parsers - that
 // is, combinators which match the token's variant and then pull the insides
 // out into a useful type for mapping purposes. A macro might help?
-fn strsym(input: Tokens) -> IResult<Tokens, Symbol> {
+fn strsym(input: Tokens) -> IResult<Tokens, Ident> {
     unimplemented!("strsym");
 }
 

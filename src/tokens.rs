@@ -18,13 +18,13 @@ pub struct LocatedToken<'a> {
 
 // A symbol - a variable, an import path, etc
 #[derive(PartialEq, Debug, Clone)]
-pub struct Symbol {
+pub struct Ident {
     pub identifier: Vec<String>,
 }
 
-impl Symbol {
-    pub fn new(identifier: Vec<String>) -> Symbol {
-        Symbol { identifier }
+impl Ident {
+    pub fn new(identifier: Vec<String>) -> Ident {
+        Ident { identifier }
     }
 }
 
@@ -35,8 +35,8 @@ pub enum Token {
     // NOTE: yabasic uses digits to represent booleans; I'm using a dedicated
     // type.
     Bool(bool),
-    Symbol(Symbol),
-    StrSym(Symbol),
+    Ident(Ident),
+    StrSym(Ident),
     Docu(String),
     Digits(i64),
     HexDigits(i64),
@@ -55,7 +55,7 @@ pub enum Token {
     Until,
     // NOTE: yabasic loads the library as a side effect of lexing, but in
     // our case we hold onto the name for loading later
-    Import(Symbol),
+    Import(Ident),
 
     Goto,
     Gosub,

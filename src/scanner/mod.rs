@@ -19,7 +19,7 @@ use nom_locate::position;
 mod numbers;
 mod strings;
 
-use crate::tokens::{LocatedToken, Span, Symbol, Token};
+use crate::tokens::{Ident, LocatedToken, Span, Token};
 use numbers::{digits, float};
 use strings::string_literal;
 
@@ -38,7 +38,7 @@ macro_rules! syntax {
     };
 }
 
-fn name(input: Span) -> IResult<Span, Symbol> {
+fn name(input: Span) -> IResult<Span, Ident> {
     // first character can't be a number
     let starts_with = take_while(|c: char| is_alphabetic(c as u8) || c == '_');
     // subsequent characters CAN include numbers
@@ -49,7 +49,7 @@ fn name(input: Span) -> IResult<Span, Symbol> {
     });
 
     map(separated_list1(tag("."), simple_name), |names| {
-        Symbol::new(names)
+        Ident::new(names)
     })(input)
 }
 
@@ -92,7 +92,7 @@ fn comment(input: Span) -> IResult<Span, Token> {
     )(input)
 }
 
-// NOTE: yabasic emits three tokens for this: a Label, a Symbol and a Sep. In
+// NOTE: yabasic emits three tokens for this: a Label, a Ident and a Sep. In
 // our case, we emit a single Import token.
 fn import(input: Span) -> IResult<Span, Token> {
     // NOTE: yabasic either consumes a newline or injects a separator after
@@ -327,7 +327,7 @@ fn numparam(input: Span) -> IResult<Span, Token> {
             opt(tag_no_case("S")),
             opt(tuple((space0, tag("("), space0, tag(")")))),
         )),
-        |_| Token::Symbol(Symbol::new(vec!["numparams".to_string()])),
+        |_| Token::Ident(Ident::new(vec!["numparams".to_string()])),
     )(input)
 }
 syntax!(bind, "BIND", Token::Bind);
@@ -515,7 +515,7 @@ syntax!(semicolon, ";", Token::Semicolon);
 
 // TODO: Finish banging out all the basic syntax matchers - whew!
 
-// TODO: Would rather encode these constants as Symbols or tokens
+// TODO: Would rather encode these constants as Idents or tokens
 fn pi(input: Span) -> IResult<Span, Token> {
     map(tag_no_case("PI"), |_| Token::Num(std::f64::consts::PI))(input)
 }
@@ -541,7 +541,7 @@ fn strsym(input: Span) -> IResult<Span, Token> {
 }
 
 fn symbol(input: Span) -> IResult<Span, Token> {
-    map(name, |sym| Token::Symbol(sym))(input)
+    map(name, |sym| Token::Ident(sym))(input)
 }
 
 fn illegal(input: Span) -> IResult<Span, Token> {

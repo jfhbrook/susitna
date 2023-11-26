@@ -30,7 +30,7 @@ But I need to think about how commands work. I think bison actually
 generates the commands as a side effect of parsing - I'll probably want a
 separate layer for that.
 
-### stacks
+### symbol and call stacks
 
 yabasic has two stacks, which I'll probably need some variation of:
 
@@ -41,21 +41,62 @@ I'm not confident in yabasic's implementation, though. I kinda want to
 "step back" and implement smaller versions of these, referencing them if I
 ever need them.
 
-### commands
+### program, module
 
-There are a few concepts here:
+yabasic parses a `Program` as being a collection of separated statements, and
+it rips through those statements to get a list of `Command`s, which it then
+executes in a VM. by the time you reach this abstraction, all the libraries
+have been imported and the line numbers more or less stripped, and otherwise
+the commands do the heavy lifting.
 
-- the commands themselves, which are distinct from AST and token concerns
-- the command runner, which for yabasic is basically just a big fat loop/match
-  in main.c
+s7bas, however, has an abstraction called a `Module`, which constitutes
+indexed lines that it can seek through. this is almost certainly more true to
+an old school BASIC, where you would represent the program as ordered lines
+parsed to the token level in memory. executing code would be a matter of
+reading the line and parsing it anew every time.
 
-I'll need some kind of "virtual machine" or "interpreter" abstraction for
-actually running the commands.
+we don't necessarily need to do it *exactly* like an old school BASIC - that
+was a pathological memory optimization at the end of the day - and in the case
+of yabasic it manages all that stuff through its commands and stacks. I'm
+however a little partial to doing it the old school way, perhaps plus-or-minus
+some optimizations - for example, storing commands in that `Module` data
+structure instead of tokens.
+
+in my case, there's also a lot of overlap between the needs of a "program"
+and a "module". would a program actually be a collection of modules? in the
+case of s7bas I punted on that and, while I named my thing `Module`, I was
+just treating it as a singular program.
+
+### execution
+
+yabasic has a series of "command" data structures, distinct from AST and token
+concerns; and it has a command runner, which is basically a big fat while loop
+and match statement. the "interpreter" abstraction in s7bas does something
+somewhat similar, though against more or less parsed statements (called
+"instructions" - possibly the technical term).
+
+what I like about yabasic's "command" system is that it represents a simplified
+"virtual machine" that:
+
+1. has a much smaller surface area than the full statement and expression
+   language
+2. becomes a loose replacement for the space assembly would've filled in an
+   old school BASIC
+
+what I don't like about it as much is that the old school BASIC more or less
+models the program in-memory as a kind of vm already - it steps through the
+"program" data structure and loads "instructions" into memory much like a
+z80 would already.
+
+probably what I'll do is implement "commands" as methods instead of as
+enums that get matched. that will help me encapsulate some common tasks
+that would need to happen for any given instruction, but will be more direct.
 
 ### editor
 
 I implemented an Editor abstraction in s7bas. It's actually quite a bit better
-than what's in yabasic, so I should probably reference it.
+than what's in yabasic, so I should probably reference it. The `Script`
+abstraction will also be useful here.
 
 ### host
 

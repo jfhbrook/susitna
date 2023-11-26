@@ -11,6 +11,265 @@ mod lexer;
 mod parser;
 mod tokens;
 
+// Various enums copied over from yabasic.h - may or may not be helpful
+
+// Logging severity
+pub enum Severity {
+    Parse,
+    Debug,
+    Note,
+    Warning,
+    Dump,
+    Info,
+    Error,
+    Fatal,
+}
+
+// ways to end the program
+enum EndReason {
+    None,
+    Error,
+    Request,
+    Eof,
+}
+
+// ways to access a stream
+// NOTE: Values of 0, 1, 2 and 4 - probably significant on a bit level
+// TODO: move to io
+enum StreamModes {
+    Close,
+    Read,
+    Write,
+    Print,
+}
+
+enum ArrayMode {
+    CallArray,
+    AssignArray,
+    CallStringArray,
+    AssignStringArray,
+    GetStringPointer,
+}
+
+// TODO: values 0, 1 and 2
+// TODO: can I even support this? maybe with callbacks?
+enum DrawingModes {
+    Normal,
+    Clear,
+    Fill,
+}
+
+// "different eval types"
+// TODO: what's an eval type?
+// TODO: values 0, 1 and 2
+enum EvalTypes {
+    None,
+    Number,
+    String,
+}
+
+enum CommandType {
+    // flow control
+    Label,
+    LinkSubr,
+    Goto,
+    QGoto,
+    Gosub,
+    QGosub,
+    ReturnFromGosub,
+
+    End,
+    Exit,
+    Bind,
+    Decide,
+    Skipper,
+    Nop,
+    FindNop,
+    Exception,
+
+    AndShort,
+
+    OrShort,
+    SkipOnce,
+    ResetSkipOnce,
+    RestSkipOnce2,
+    Compile,
+    Execute,
+    Execute2,
+    Eval,
+    EvalCode,
+
+    // everything with "()"
+    Dim,
+    Function,
+    DoArray,
+    ArrayLink,
+    PushArrayRef,
+    ClearSymRefs,
+
+    ArDim,
+    ArSize,
+    Token,
+    Token2,
+    TokenAlt,
+    TokenAlt2,
+
+    Split,
+    Split2,
+    SplitAlt,
+    SplitAlt2,
+
+    // for for-loops
+    StartFor,
+    ForCheck,
+    ForIncrement,
+
+    // break-continue-switch
+    SwitchCompare,
+    NextCase,
+    NextCaseHere,
+    BreakMulti,
+
+    Continue,
+    BreakHere,
+    ContinueHere,
+    PopMulti,
+
+    BeginLoopMark,
+    EndLoopMark,
+    BeginSwitchMark,
+    EndSwitchMark,
+
+    // double operations
+    BdlAdd,
+    DblMin,
+    DblMul,
+    DblDiv,
+    DblPow,
+
+    Negative,
+    PushDblSym,
+    Pop,
+    PopDblSym,
+    PushDbl,
+
+    // functions and procedures
+    Require,
+    PushFree,
+    MakeLocal,
+    MakeStatic,
+    CountParams,
+
+    Call,
+    QCall,
+    PushSymList,
+    PopSymList,
+    ReturnFromCall,
+
+    UserFunction,
+    CheckReturnValue,
+    EndFunction,
+
+    FunctionOrArray,
+    StringFunctionOrArray,
+
+    // internals
+    Poke,
+    PokeFile,
+    Swap,
+    Duplicate,
+    Docu,
+
+    // comparisons
+    And,
+    Or,
+    Not,
+    Lt,
+    Gt,
+    Le,
+    Ge,
+    Eq,
+    Ne,
+
+    StrEq,
+    StrNe,
+    StrLt,
+    StrLe,
+    StrGt,
+    StrGe,
+
+    // string operations
+    PushStrSym,
+    PopStrSym,
+    PushStr,
+    Concat,
+
+    PushStrPtr,
+    ChangeString,
+    Glob,
+
+    // io operations
+    Print,
+    Read,
+    Restore,
+    QRestore,
+    OneString,
+
+    ReadData,
+    Data,
+    Open,
+    CheckOpen,
+    CheckSeek,
+    Close,
+    PushStream,
+
+    PopStream,
+
+    Seek,
+    Seek2,
+    TestEof,
+    Wait,
+    Bell,
+    Move,
+
+    ClearScr,
+    Colour,
+    ChkPrompt,
+    Error,
+
+    // graphics
+    OpenWin,
+    Dot,
+    Line,
+    Circle,
+    Triangle,
+    Text1,
+    Text2,
+    Text3,
+    CloseWin,
+    ClearWin,
+
+    OpenPrn,
+    ClosePrn,
+    MoveOrigin,
+    Rect,
+    GColour,
+    GColour2,
+
+    GBackColour,
+    GBackColour2,
+    PutBit,
+    PutChar,
+
+    // foreign libraries
+    FrnBfSetNumber,
+    FrnBfSetString,
+    FrnBfFree,
+    FrnBfSetBuffer,
+}
+
+
+
 fn main() {
     println!("Hello, world!");
 }

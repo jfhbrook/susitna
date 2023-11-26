@@ -16,7 +16,7 @@
 //    know I won't use.
 //
 
-use crate::ast::{Command, Expr, Instruction};
+use crate::ast::{Command, Expr, Instruction, Line};
 use crate::tokens::{Symbol, Token, Tokens};
 use nom::{
     branch::alt,
@@ -45,43 +45,19 @@ fn strsym(input: Tokens) -> IResult<Tokens, Symbol> {
     unimplemented!("strsym");
 }
 
+fn rem(input: Tokens) -> IResult<Tokens, String> {
+    unimplemented!("rem");
+}
+
 // TODO: we should be able to parse open/close statements which are missing
 // the close - loop, endif, next, until, wend
 
-// TODO: programs are actually made up of numbered lines, which are in turn
-// made of statements broken up by separators. generally speaking, yabasic
-// tokenizes all of the following into separators:
+// TODO: I would like this to return Tokens instead of Vec<LocatedToken>, but
+// the reference implementation actually expects to *borrow* the vec. They
+// allocate the Vec, lend it to create Tokens, then pass that into the parser
+// inside a function - example here:
 //
-// - double line ending
-// - single line ending
-// - colon
-// - rem
-// - comment
-//
-// however, yabasic also tracks a bunch of state in its lexer, and in practice
-// these are treated differently:
-//
-// - double line endings can signal the end of repl input
-// - single line endings separate lines, but colons separate statements on the
-//   same line
-// - remarks and comments aren't separators /as such/, but they also mark the
-//   end of a prior statement
-//
-// finally, unlike other open-close statement types, if statements can end
-// implicitly if/when they cross a separator.
-//
-// ultimately, what this means is that the lexer needs to be refactored to
-// use separate token types for these types of separators, and the logic
-// for numbering lines / breaking input / etc needs to be lifted into the
-// parser.
-/*
-pub(crate) fn program(input: Tokens) -> IResult<Tokens, Program> {
-    map(
-        separated_list0(token(Token::Sep), statement),
-        |s: Vec<Statement>| Program::new(s),
-    )(input)
-}
-*/
+//     https://github.com/Rydgel/monkey-rust/blob/master/lib/parser/mod.rs#L331-L336
 
 fn instruction(input: Tokens) -> IResult<Tokens, Instruction> {
     unimplemented!("instruction");
@@ -91,9 +67,22 @@ fn command(input: Tokens) -> IResult<Tokens, Command> {
     unimplemented!("command");
 }
 
-pub(crate) fn expr(input: Tokens) -> IResult<Tokens, Expr> {
+pub fn expr(input: Tokens) -> IResult<Tokens, Expr> {
     unimplemented!("expr");
 }
+
+// yabasic includes scanning code which detects and emits a special token to
+// mark an implicit endif. if we are to implement similar logic, it will
+// happen in the parser code.
+/*
+pub fn implicit_endif(input: Span) -> IResult<Span, Token> {
+    alt((
+        token(Token::DoubleLineEnding),
+        token(Token::SingleLineEnding),
+        rem,
+    ))(input)
+}
+*/
 
 // This is some code where I started trying to write an assignment parser. It's
 // not particularly useful at this stage, but it shows a bit of how the

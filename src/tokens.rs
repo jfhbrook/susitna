@@ -41,7 +41,7 @@ pub enum Token {
     Digits(i64),
     HexDigits(i64),
     BinDigits(i64),
-    LineNo(i64),
+    LineNo(u16),
     String(String),
 
     // In yabasic, don't have a value associated with them

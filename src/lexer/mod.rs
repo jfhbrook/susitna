@@ -7,11 +7,11 @@
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_till, take_while},
-    character::complete::{anychar, line_ending, space0, space1},
+    character::complete::{anychar, digit1, line_ending, space0, space1},
     character::{is_alphabetic, is_alphanumeric},
-    combinator::{map, opt, peek, recognize},
+    combinator::{map, map_res, opt, peek, recognize},
     multi::{many0, many_till, separated_list1},
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
 use nom_locate::position;
@@ -53,18 +53,22 @@ fn name(input: Span) -> IResult<Span, Symbol> {
     })(input)
 }
 
-// kinds of significant whitespace
+// colons separate multiple instructions within a command.
+syntax!(sep, ":", Token::Sep);
 
-// used specifically to end loading in interactive mode
-syntax!(
-    double_line_ending,
-    pair(line_ending, line_ending),
-    Token::DoubleLineEnding
-);
-syntax!(single_line_ending, line_ending, Token::SingleLineEnding);
-syntax!(colon, ":", Token::Sep);
+// Used to get everything until the end of the line. We take pains not to
+// consume \n or \r\n so that those are parsed as separators.
+fn until_line_ending(input: Span) -> IResult<Span, Span> {
+    // TODO: test for happy path
+    // TODO: test for immediate line ending
+    // TODO: how to handle end-of-input?
+    //   - assume input is complete and read rest
+    //   - return incomplete and wait for a line ending
+    //   - might be able to use flags w/ cond
+    //   - may be most straightforward with a stateful Vec<Token> parser
+    recognize(many_till(opt(anychar), line_ending))(input)
+}
 
-// TODO: Fix type disaster going on in here
 fn rem(input: Span) -> IResult<Span, Token> {
     preceded(
         tag_no_case("REM"),
@@ -86,37 +90,6 @@ fn comment(input: Span) -> IResult<Span, Token> {
         preceded(alt((tag("//"), tag("#"), tag("'"))), until_line_ending),
         |comment: Span| Token::Comment(comment.fragment().to_string()),
     )(input)
-}
-
-syntax!(
-    sep,
-    alt((double_line_ending, single_line_ending, colon, rem, comment)),
-    Token::Sep
-);
-
-// NOTE: match kinds of whitespace that would constitute an implicit endif,
-// to be used in an if statement parser
-pub fn implicit_endif(input: Span) -> IResult<Span, Token> {
-    alt((
-        double_line_ending,
-        single_line_ending,
-        // NOTE: yabasic emits a Sep in all rem cases, but only treats a REM
-        // *without* a comment as an implicit endif. This is probably a bug.
-        rem,
-    ))(input)
-}
-
-// Used to get everything until the end of the line. We take pains not to
-// consume \n or \r\n so that those are parsed as separators.
-fn until_line_ending(input: Span) -> IResult<Span, Span> {
-    // TODO: test for happy path
-    // TODO: test for immediate line ending
-    // TODO: how to handle end-of-input?
-    //   - assume input is complete and read rest
-    //   - return incomplete and wait for a line ending
-    //   - might be able to use flags w/ cond
-    //   - may be most straightforward with a stateful Vec<Token> parser
-    recognize(many_till(opt(anychar), line_ending))(input)
 }
 
 // NOTE: yabasic emits three tokens for this: a Label, a Symbol and a Sep. In
@@ -281,7 +254,7 @@ syntax!(window, "WINDOW", Token::Window);
 syntax!(origin, "ORIGIN", Token::Origin);
 syntax!(printer, "PRINTER", Token::Printer);
 syntax!(dot, "DOT", Token::Dot);
-syntax!(line, "LINE", Token::Line);
+syntax!(line_, "LINE", Token::Line);
 syntax!(curve, "CURVE", Token::Curve);
 syntax!(circle, "CIRCLE", Token::Circle);
 syntax!(triangle, "TRIANGLE", Token::Triangle);
@@ -534,9 +507,6 @@ syntax!(subtract, "-", Token::Subtract);
 syntax!(add, "+", Token::Add);
 syntax!(multiply, "*", Token::Multiply);
 syntax!(divide, "/", Token::Divide);
-// TODO: yabasic defines colon as its own token, but also as Token::Sep
-// this is probably a bug but might matter later?
-// syntax!(colon, ":", Token::Colon);
 syntax!(lparen, "(", Token::LParen);
 syntax!(rparen, ")", Token::RParen);
 syntax!(comma, ",", Token::Comma);
@@ -636,7 +606,7 @@ fn part_five(input_: Span) -> IResult<Span, Token> {
 
 fn part_six(input: Span) -> IResult<Span, Token> {
     alt((
-        restore, and, or, bitnot, eor, xor, shl, shr, window, origin, printer, dot, line,
+        restore, and, or, bitnot, eor, xor, shl, shr, window, origin, printer, dot, line_,
     ))(input)
 }
 
@@ -715,8 +685,7 @@ fn part_fourteen(input: Span) -> IResult<Span, Token> {
 
 fn part_fifteen(input: Span) -> IResult<Span, Token> {
     alt((
-        not, subtract, add, multiply, divide, // colon,
-        lparen, rparen, comma, period, semicolon,
+        not, subtract, add, multiply, divide, lparen, rparen, comma, period, semicolon,
     ))(input)
 }
 
@@ -744,12 +713,109 @@ fn token(input: Span) -> IResult<Span, LocatedToken> {
     Ok((s, LocatedToken { token, position }))
 }
 
-// TODO: I would like this to return Tokens instead of Vec<LocatedToken>, but
-// the reference implementation actually expects to *borrow* the vec. They
-// allocate the Vec, lend it to create Tokens, then pass that into the parser
-// inside a function - example here:
-//
-//     https://github.com/Rydgel/monkey-rust/blob/master/lib/parser/mod.rs#L331-L336
-pub fn tokens(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+// any tokens which can show up in a command. this does not include line
+// numbers or newlines.
+pub fn command(input: Span) -> IResult<Span, Vec<LocatedToken>> {
     many0(delimited(space0, token, space0))(input)
+}
+
+// properly scanning a line requires maintaining state - that is, knowing if
+// you're at the beginning of a line. yabasic handles this by maintaining
+// state in global variables. here, I get a little fancier with the
+// combinators.
+
+// a line number looks a heck of a lot like a decimal integer, but the type
+// is constrained to a u16 and is only looked for at the beginning of a line.
+fn line_no(input: Span) -> IResult<Span, LocatedToken> {
+    let (s, position) = position(input)?;
+    let (s, token) = map(
+        map_res(digit1, |s: Span| s.fragment().parse::<u16>()),
+        |n: u16| Token::LineNo(n),
+    )(s)?;
+
+    Ok((s, LocatedToken { token, position }))
+}
+
+// double line endings are used by yabasic to trigger state changes in the
+// repl. I'm not sure we'll need anything similar, but we support parsing
+// these as a separate case for now.
+fn double_line_ending(input: Span) -> IResult<Span, LocatedToken> {
+    let (s, position) = position(input)?;
+    let (s, _) = pair(line_ending, line_ending)(s)?;
+
+    Ok((
+        s,
+        LocatedToken {
+            token: Token::DoubleLineEnding,
+            position,
+        },
+    ))
+}
+
+fn single_line_ending(input: Span) -> IResult<Span, LocatedToken> {
+    let (s, position) = position(input)?;
+    let (s, _) = line_ending(s)?;
+
+    Ok((
+        s,
+        LocatedToken {
+            token: Token::SingleLineEnding,
+            position,
+        },
+    ))
+}
+
+// this is public, since there may be novel cases where I want to parse
+// line endings outside of the supplied combinators.
+pub fn line_endings(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    many0(delimited(
+        space0,
+        alt((double_line_ending, single_line_ending)),
+        space0,
+    ))(input)
+}
+
+// a line is made up of a line number, then a command (a series of
+// non-line-ending tokens), then any number of line endings. note that this
+// does not absorb *initial* line endings, only trailing line endings.
+pub fn line(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    let (s, ln) = delimited(space0, line_no, space0)(input)?;
+    let (s, cmd) = command(s)?;
+    let (s, les) = line_endings(s)?;
+
+    let mut tok = vec![ln];
+    tok.extend(cmd);
+    tok.extend(les);
+
+    Ok((s, tok))
+}
+
+// a module is made up of multiple lines, and *may* contain initial
+// newlines.
+pub fn module(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    let (s, les) = line_endings(input)?;
+    let (s, lines) = many0(line)(s)?;
+
+    let mut tok = les.clone();
+
+    tok.extend(lines.into_iter().flatten().collect::<Vec<LocatedToken>>());
+
+    Ok((s, tok))
+}
+
+// chances are good that, in practice, I'll know whether I expect to parse a
+// command or multiple lines. however, if I have completely unknown input, I
+// can try out multiple parsers anyway.
+pub fn tokens(input: Span) -> IResult<Span, Vec<LocatedToken>> {
+    let (s, tok) = many0(map(
+        tuple((line_endings, alt((line, command)), line_endings)),
+        |(a, b, c)| {
+            let mut tok = a.clone();
+            tok.extend(b);
+            tok.extend(c);
+            tok
+        },
+    ))(input)?;
+
+    Ok((s, tok.into_iter().flatten().collect::<Vec<LocatedToken>>()))
 }

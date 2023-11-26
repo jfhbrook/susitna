@@ -207,3 +207,10 @@ pub enum Expr {
     Xor(Box<Expr>, Box<Expr>),
     Not(Box<Expr>),
 }
+
+// Lines are "numbered commands".
+#[derive(Debug, Clone)]
+pub struct Line {
+    line_no: u16,
+    command: Command,
+}

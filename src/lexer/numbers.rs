@@ -17,19 +17,6 @@ use nom::{
 
 use crate::tokens::{Span, Token};
 
-// TODO: yabasic's parser matches line_no in compile mode and uses state to
-// trigger loading a separator and potentially a number for the next two
-// tokens. my plan is to match these at the parser level, something like
-// pair(line_no, alt((single_newline, preceded(space0, alt((eval_digits, etc)))))).
-//
-// NOTE: the "cond" combinator might let us use flags to generate parsers
-pub(crate) fn line_no(input: Span) -> IResult<Span, Token> {
-    map(
-        map_res(digit1, |s: Span| s.fragment().parse::<i64>()),
-        |i: i64| Token::LineNo(i),
-    )(input)
-}
-
 pub(crate) fn float(input: Span) -> IResult<Span, Token> {
     map(double, |n| Token::Num(n))(input)
 }

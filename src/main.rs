@@ -9,8 +9,8 @@
 mod ast;
 mod error;
 mod host;
-mod lexer;
 mod parser;
+mod scanner;
 mod symbol;
 mod tokens;
 

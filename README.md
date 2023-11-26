@@ -96,10 +96,6 @@ models the program in-memory as a kind of vm already - it steps through the
 "program" data structure and loads "instructions" into memory much like a
 z80 would already.
 
-probably what I'll do is implement "commands" as methods instead of as
-enums that get matched. that will help me encapsulate some common tasks
-that would need to happen for any given instruction, but will be more direct.
-
 ### editor
 
 I implemented an Editor abstraction in s7bas. It's actually quite a bit better
@@ -114,16 +110,121 @@ pretty happy with it! I think it could be useful going forward.
 
 ## Next Steps
 
-I made good progress studying yabasic's parsing code. I now have a pretty
-robust lexer, I have some ideas for parsing, and I know that I need a call
-stack and symbol stack. But I think my ability to learn from yabasic is
-going to be limited going forward - its penchant for side effects is very
-different from what I'm doing!
+first of all, I should do a "real" interpreters book. I think I'm gonna do
+`Crafting Interpreters` by robert nystrom. he's chill.
 
-I think the next stage might actually be to step through an interpreters
-book? Like the one monkey-rust is based on? Maybe I read that book and
-reference monkey-rust, and I'll know enough to make a clean attempt at the
-other abstractions.
+here are some thing I know I need to do just to get a basic feature set:
+
+* `Script` and `Module` from s7bas should be ported over as a single
+  abstraction. This was a challenge previously because lines from scripts
+  were unparsed. In this version, though, we'll scan the command into tokens
+  when it's entered into the editor and execute instructions on the token
+  level. this should make it easier.
+* `Editor` needs to be ported from s7bas. this is probably straightforward,
+  aside from there being no interpreter.
+* go through tokens and the scanner and delete most of the yabasic stuff. I
+  only need/want a few features from yabasic - I don't need to include the
+  tokens for those things! they'll only stand to confuse me.
+* start implementing parser code. following yabasic's example isn't going to
+  work well for me - instead, reference the parsers I have in s7bas for
+  instructions and expressions, but move them over to using `Tokens`.
+* clean up the `Tokens` struct. right now it's a straight copy, more or less,
+  from monkey-rust, and it has a bunch of optimizations I don't think I need.
+  **this will be easiest to test after "hello world" works!**
+* implement an interpreter. s7bas uses a program counter variable called `pc`
+  to track which line it's executing from a module at a given time. we don't
+  want to copy it though - rather, we'd like to try clocking the memory layout
+  of MSX BASIC, starting fresh. it also contained the concept of "flags" as
+  in a z80, which I think is cute. **this is something more formal knowledge
+  of interpreters will help with!**
+* implement a symbol stack. I can reference yabasic here to an extent, but
+  overall I'm going to want to do this from-scratch. start with cleaning up
+  the domain model for symbols and implementing a non-stacking stack which
+  just tracks variables. then, start adding contexts and go from there.
+  **more formal interpreters experience will help here!**
+* implement a call stack. this will be necessary for implementing control flow.
+  **more formal interpreters experience will help!!**
+* completely overhauling exceptions. right now they're a huge mess - the
+  details are noted in the source code. I'll probably want to do this sooner
+  rather than later, since I'll have to cheese a lot of stuff to get it all
+  working otherwise. `miette` might be useful here.
+* implement starter arrays/dims. arrays can have 1 or 2 dimensions, if memory
+  serves.
+* implement configuration through `~/.autoexec.bas`.
+
+at some point, I'll really need to write some tests. something I found I really
+wanted while writing s7bas was a test framework:
+
+* `assert` command that understands top-level operators in exprs
+* `Host::assert` method that throws an `AssertError` on `ConsoleHost`
+* `test`/`end test` block
+* `flags.test` flag that disables the `test` block in non-test modes
+* `TestHost` that outputs TAP w/ `testanything` crate
+* `s8bas test *.bas` test runner that uses `TestHost` and `flag.test == true`
+
+this would let me write unit tests *in basic*, which would not only help me
+actually test the functionality of everything; it would just be a cool feature.
+
+finally, I'll want to implement import. it will help to have the base
+interpreter without import fully working, but I should do this sooner rather
+than later. in my head, it means extending `pc` to be module-aware, which might
+be easy if I decide to make it loop-aware.
+
+a big question is how I want to resolve import paths. I think I want to do a
+python/java-like pattern, using a `MODULE_PATH` variable to set where to look
+for modules. this pattern also matches with bash's `PATH` variable. it should
+also be amenable to virtuelenv-like patterns.
+
+## The Future
+
+once I actually have the bedrock of a working BASIC, there are three general
+directions to go in.
+
+first, I'll want to get the base language completed and tested, and have a good
+idea of how it's the same or different from other classic BASICs, like
+MSX BASIC or C64 BASIC. this may involve porting old BASIC games to s7bas, such
+as "acey ducey".
+
+second, the *actual* goal for this project isn't just to write a BASIC, it's
+to make a BASIC which can replace bash:
+
+- shell pt 1: the basics
+  - `spawn <REDIRECTS>;ARGS` instruction - args can be unquoted but variables must be in `()` or template string
+  - `shell <REDIRECTS>;SCRIPT` instruction - minimal script parsing, pass directly to SHELL
+    - BONUS: sessions
+  - `export VARIABLE`/`unset VARLABLE` - export/unset variable to the env created by spawn/shell
+  - `cd`, `dir`, etc - "disk BASIC" inspired directory/file navigation/operations
+  - bash-inspired template strings
+  - reading and writing files through "named file descriptors"
+  - `source FILENAME`
+  - `~/.autoexec.bas` support (a la `~/.bashrc`) using `source` functionality
+  - did you know about bash's `jobs` command? that could influence how processes are modeled
+- shell pt 2: starship
+  - `PS1` analogue
+  - before/after hooks prompt and spawning/shelling
+  - dates, datetimes + durations - yikes, but needed for function timing
+  - script that can be pasted into`autoexec.bas`
+  - examples: <https://github.com/starship/starship/tree/master/src/init>
+- shell pt 3: shell expressions?
+  - `spawn`, `shell`, `call` as expressions
+  - bitwise operations, ie pipes
+  - note that we can already redirect streams to named pipes through instruction syntax
+
+third, I want MUCH better data structures. in very loose order of priority:
+
+- hashes/dicts - be thoughtful about this!! maybe ruby or posh flavored? maybe an associative `dim`?
+- vector/tensor-like arrays/dims
+  - should be able to do n-dimensional w/ research and testing
+  - should be able to cast 1-d and 2-d to vectors and matrices
+  - implement `.\` and `.*`
+  - add `'` (transpose)
+- objects
+  - almost certainly prototypal, no such thing as a class
+  - has js-like key iterability but treated as public/private properties
+- tables + sqlite support
+  - inspired by posh
+  - possibly inspired by cobol? lol
+  - `select` expression?
 
 ## Resources
 

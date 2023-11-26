@@ -839,10 +839,10 @@ pub fn tokens(input: Span) -> IResult<Span, Vec<LocatedToken>> {
             )),
             line_endings0,
         )),
-        |(a, b, c)| {
-            let mut tok = a.clone();
-            tok.extend(b);
-            tok.extend(c);
+        |(leading, commands, trailing)| {
+            let mut tok = leading.clone();
+            tok.extend(commands);
+            tok.extend(trailing);
             tok
         },
     ))(input)?;

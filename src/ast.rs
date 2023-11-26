@@ -57,6 +57,8 @@ pub(crate) enum Exception {
     // Goto(i64, Interpreter<GlobalContext>),
 }
 
+// Literal values. This is somewhat borrowed from yabasic, but will probably
+// end up evolving a lot.
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Literal {
     Const(f64),
@@ -65,6 +67,20 @@ pub(crate) enum Literal {
     String(String),
 }
 
+// yabasic calls these identifiers. s7bas didn't really have this concept, and
+// in general there's some semantic confusion between symbols, variables,
+// identifiers and values.
+//
+// my read is:
+//
+// - variables are specific to things you can assign and read from as
+//   variables in the language
+// - symbols are anything that has an identifier (called a "name" in the
+//   current lexer
+// - identifiers are "names" for symbols
+// - values are what symbols actually contain
+//
+// TODO: iron out these semantic issues, here and in the lexer.
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Ident {
     SymbolOrLineno(Symbol),
@@ -73,30 +89,121 @@ pub(crate) enum Ident {
     StringFunctionOrArray(Symbol),
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) enum Expr {
-    Literal(Literal),
-    Ident(Ident),
+// In a classic BASIC, the basic building blocks are called instructions.
+#[derive(Debug, Clone)]
+pub enum Instruction {
+    Print(Option<i64>, Vec<Expr>),
+    Remark(String),
+    // Let(Id, Expr),
+
+    // Conditionals (see: Boolean logic, comparisons)
+    // If(Expr, Box<Instruction>),
+
+    // Goto(Expr),
+
+    // For(Id, Expr, Expr, Option<i64>),
+    // Next(Vec<Id>),
+    // End,
+
+    // Gosub(Expr),
+    // Return,
+
+    // Dim(Id, Vec<i64>),
+    // Data(Vec<Constant>),
+
+    // Input(Option<i64>, Vec<Id>),
+    // Open(Value, Access, FileDescriptor),
+    // Close(FileDescriptor),
+    // Poke(Vec<Value>),
+    // Read(Vec<Id>),
+    List(Option<i64>, Option<i64>),
+    Save(String),
+    Load(String),
+    Run(Option<i64>),
+    // Restore,
+    // Stop,
+
+    // Sys(Value),
+    // Wait(Vec<Value>),
+    Expr(Expr),
+    // TODO: yabasic supports "docstrings". Kinda a cool feature - do I
+    // want it?
+    // Docu(String)
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) struct Docu(pub String);
-
-// NOTE: yabasic tracks "the number of newlines" - do we need to track
-// the count of separators? or the values of the separators?
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) struct Sep(pub i64);
-
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) struct Program {
-    statements: Vec<Statement>,
+// Commands are made up of a series of Instructions separated by colon
+// separators. These are generally numbered and entered as Lines.
+#[derive(Debug, Clone)]
+pub struct Command {
+    instructions: Vec<Instruction>,
 }
 
-impl Program {
-    pub fn new(statements: Vec<Statement>) -> Program {
-        Program { statements }
+impl Command {
+    fn new(instructions: Vec<Instruction>) -> Command {
+        Command { instructions }
     }
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub(crate) enum Statement {}
+// Instructions may contain expressions. Expressions can be evaluated into
+// values. These are all expression types I intended to define in s7bas.
+#[derive(Debug, Clone)]
+pub enum Expr {
+    // Operators, in order of precedence in Visual Basic. Operators of equal
+    // precedence are evaluated left to right.
+
+    // 0. Value literals
+    Literal(Literal),
+    Ident(Ident),
+
+    // 1. parens
+    Parens(Box<Expr>),
+
+    // 2. VB has an Await keyword...
+    // Await(Box<Expr>)
+    // (other keywords here too, such as...)
+    // Call(Vec<Expr>, IndexMap<String, Expr>)
+
+    // 3. Exponentiation
+    Pow(Box<Expr>, Box<Expr>),
+
+    // 4. +/- signs
+    Negative(Box<Expr>),
+    Positive(Box<Expr>),
+
+    // 5. times/divide
+    Multiply(Box<Expr>, Box<Expr>),
+    Divide(Box<Expr>, Box<Expr>),
+    // (A .\ b as solving for x in Ax=b, as in MATLAB)
+    LeftDivide(Box<Expr>, Box<Expr>),
+    // (A .* B) as element-wise multiplication, as in MATLAB)
+    ElementWiseMultiply(Box<Expr>, Box<Expr>),
+
+    // 6. VB has a Mod operator
+    Mod(Box<Expr>, Box<Expr>),
+
+    // 7. add/subtract
+    Add(Box<Expr>, Box<Expr>),
+    Subtract(Box<Expr>, Box<Expr>),
+    // 8. string concatenation - VB has a separate cat operator, however
+    // OG basic dialects overload + - but this is always an option!
+    // Cat(Box<Expr>, Box<Expr>)
+
+    // 9. bitshift operators
+    LeftShift(Box<Expr>, Box<Expr>),
+    RightShift(Box<Expr>, Box<Expr>),
+
+    // 10. Comparisons
+    Eq(Box<Expr>, Box<Expr>),
+    Ne(Box<Expr>, Box<Expr>),
+    Lt(Box<Expr>, Box<Expr>),
+    Gt(Box<Expr>, Box<Expr>),
+    Le(Box<Expr>, Box<Expr>),
+    Ge(Box<Expr>, Box<Expr>),
+    // VB does Is/IsNot for object identity, Like, etc
+
+    // 11. Logical operators
+    And(Box<Expr>, Box<Expr>),
+    Or(Box<Expr>, Box<Expr>),
+    Xor(Box<Expr>, Box<Expr>),
+    Not(Box<Expr>),
+}

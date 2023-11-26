@@ -16,7 +16,7 @@
 //    know I won't use.
 //
 
-use crate::ast::{Expr, Program, Statement};
+use crate::ast::{Command, Expr, Instruction};
 use crate::tokens::{Symbol, Token, Tokens};
 use nom::{
     branch::alt,
@@ -74,15 +74,21 @@ fn strsym(input: Tokens) -> IResult<Tokens, Symbol> {
 // use separate token types for these types of separators, and the logic
 // for numbering lines / breaking input / etc needs to be lifted into the
 // parser.
+/*
 pub(crate) fn program(input: Tokens) -> IResult<Tokens, Program> {
     map(
         separated_list0(token(Token::Sep), statement),
         |s: Vec<Statement>| Program::new(s),
     )(input)
 }
+*/
 
-fn statement(input: Tokens) -> IResult<Tokens, Statement> {
-    unimplemented!("statement");
+fn instruction(input: Tokens) -> IResult<Tokens, Instruction> {
+    unimplemented!("instruction");
+}
+
+fn command(input: Tokens) -> IResult<Tokens, Command> {
+    unimplemented!("command");
 }
 
 pub(crate) fn expr(input: Tokens) -> IResult<Tokens, Expr> {

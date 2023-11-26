@@ -58,10 +58,10 @@ have been imported and the line numbers more or less stripped, and otherwise
 the commands do the heavy lifting.
 
 s7bas, however, has an abstraction called a `Module`, which constitutes
-indexed lines that it can seek through. this is almost certainly more true to
-an old school BASIC, where you would represent the program as ordered lines
-parsed to the token level in memory. executing code would be a matter of
-reading the line and parsing it anew every time.
+indexed lines that it can seek through. this is based on how MSX BASIC does
+it, but with more modern data structures - though MSX BASIC would represent
+the tokens in memory, not the parsed statements as such. executing code would
+be a matter of reading the line and parsing it anew every time.
 
 we don't necessarily need to do it *exactly* like an old school BASIC - that
 was a pathological memory optimization at the end of the day - and in the case

@@ -7,8 +7,11 @@
 // a big ol' switch/case statement. In other words, a big match statement.
 
 mod ast;
+mod error;
+mod host;
 mod lexer;
 mod parser;
+mod symbol;
 mod tokens;
 
 // Various enums copied over from yabasic.h - may or may not be helpful
@@ -267,8 +270,6 @@ enum CommandType {
     FrnBfFree,
     FrnBfSetBuffer,
 }
-
-
 
 fn main() {
     println!("Hello, world!");

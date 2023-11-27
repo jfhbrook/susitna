@@ -18,6 +18,8 @@ mod scanner;
 mod symbol;
 mod tokens;
 
+mod visitor;
+
 use crate::ast::Exception;
 // use crate::editor::Editor;
 use crate::host::console::ConsoleHost;

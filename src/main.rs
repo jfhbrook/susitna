@@ -17,6 +17,7 @@ mod parser;
 mod scanner;
 mod symbol;
 mod tokens;
+mod dim;
 
 mod visitor;
 

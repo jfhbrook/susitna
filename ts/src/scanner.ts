@@ -68,13 +68,13 @@ export enum TokenKind {
   Pwd='PWD',
   Export='EXPORT',
 
+  LineEnding='\\n',
   Whitespace='<whitespace>'
 }
 
 // Naively using the keyword lookup technique from Crafting Interpreters at
-// the scanner level. But this needs to be implemented as a combinator - esp.
-// because next is implemented as a getter, meaning this loads all tokens at
-// once.
+// the scanner level. It may, however, be more appropriate to implement as
+// a combinator.
 const KEYWORDS: Record<string, TokenKind> = {
   // loading, saving, running etc
   new: TokenKind.New,
@@ -201,34 +201,30 @@ const baseScanner = buildLexer([
   // TODO: rem
   // TODO: ident
   // TODO: significant newlines
+  [true, /^\n+/g, TokenKind.LineEnding],
   [false, /^\s+/g, TokenKind.Whitespace]
 ]);
 
-function mapKeyword(token: Token<TokenKind>): Token<TokenKind> {
+function scanKeyword(token: Token<TokenKind> | undefined): Token<TokenKind> | undefined {
+  if (!token) return undefined;
+
   if (token.kind === TokenKind.Ident && KEYWORDS[token.text]) {
     return {
       ...token,
-      kind: KEYWORDS[token.text]
+      kind: KEYWORDS[token.text],
+      get next(): Token<TokenKind> | undefined {
+        return scanKeyword(token.next);
+      }
     };
   }
 
   return token;
 }
 
+// TODO: Do I want to implement line numbers at the scanner level too? lol
+
 export const scanner: Lexer<TokenKind> = {
   parse(input: string): Token<TokenKind> | undefined {
-    let head = baseScanner.parse(input);
-
-    if (!head) return undefined;
-
-    head = mapKeyword(head);
-    let token = head.next;
-
-    while (token) {
-      token = mapKeyword(token);
-      token = token.next;
-    }
-
-    return head;
+    return scanKeyword(baseScanner.parse(input));
   }
 }

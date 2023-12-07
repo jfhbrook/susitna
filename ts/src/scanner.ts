@@ -1,10 +1,7 @@
-import { buildLexer } from 'typescript-parsec';
+import { buildLexer, Lexer, Token } from 'typescript-parsec';
 
 export enum TokenKind {
-  // A subset of the MSX language. I'll want to support more of the language,
-  // but I don't want to front-load tokenization too much - I can add those
-  // in as I need them pretty easy.
-  //
+  // A subset of the MSX language, plus a few other things.
   // ref: https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/
   LParen='(',
   RParen=')',
@@ -16,111 +13,179 @@ export enum TokenKind {
   IntLiteral='<int>',
   RealLiteral='<real>',
   StringLiteral='<string>',
-  Beep='BEEP',
-  BLoad='BLOAD',
-  BSave='BSAVE',
-  Close='CLOSE',
-  Cls='CLS',
-  Color='COLOR',
-  Cont='CONT',
+  Ident='<ident>',
+  PathLiteral='<path>',
+  CommandLiteral='<command>',
+
+  New='NEW',
+  Load='LOAD',
+  Save='SAVE',
+  List='LIST',
+  Run='RUN',
+  End='END',
+
+  Let='LET',
   Data='DATA',
-  DefFn='DEF FN',
+  Def='DEF',
+  Fn='FN',
   DefInt='DEFINT',
-  // TODO: I don't want to support both singles and doubles lol
-  DefSng='DEFSNG',
   DefDbl='DEFDBL',
   DefStr='DEFSTR',
-  DefUsr='DEF USR',
-  Delete='DELETE',
   Dim='DIM',
-  End='END',
-  Eof='EOF',
-  Erl='ERL',
-  Err='ERR',
-  Error='ERROR',
+
   For='FOR',
-  Get='GET',
-  Date='DATE',
-  Time='TIME',
+  To='TO',
+  Step='STEP',
   GoSub='GOSUB',
   GoTo='GOTO',
+  Return='RETURN',
   If='IF',
   Then='THEN',
   Else='ELSE',
-  Input='INPUT',
-  Interval='INTERVAL',
-  On='ON',
-  Off='OFF',
-  Stop='STOP',
-  Len='LEN',
-  Let='LET',
-  List='LIST',
-  Load='LOAD',
-  Using='USING',
-  Merge='MERGE',
-  // as in "new program", not "new object"
-  New='NEW',
   Next='NEXT',
-  Key='KEY',
-  String='STRING',
-  Open='OPEN',
-  Peek='PEEK',
-  Poke='POKE',
-  Print='PRINT',
-  Put='PUT',
-  Read='READ',
-  Rem='REM',
-  Renum='RENUM',
-  Restore='RESTORE',
-  Resume='RESUME',
-  // return [<linenumber>] line number in a subroutine
-  Return='RETURN',
-  Run='RUN',
-  Save='SAVE',
-  Set='SET',
-  Screen='SCREEN',
-  Prompt='PROMPT',
-  Usr='USR',
-  Wait='WAIT',
+  While='WHILE',
 
-  // Basic file operations - MSX's DOS API is clunky and it's a lot of why
-  // DOS basics failed imo
+  Erl='ERL',
+  Err='ERR',
+  Error='ERROR',
+  Resume='RESUME',
+  
+  Date='DATE',
+  Time='TIME',
+
+  Len='LEN',
+
+  Print='PRINT',
+
+  Cls='CLS',
   Cd='CD',
-  MkDir='MKDIR',
-  RmDir='RMDIR',
-  Rm='RM',
   Cp='CP',
+  Rm='RM',
   Touch='TOUCH',
   Mv='MV',
-  PathLiteral='<path>',
-
-  // Child process management
-  Spawn='SPAWN',
-  Job='JOB',
-  Kill='KILL',
-  CommandLiteral='<command>',
-
-  // Reserved for "system" things
-  System='SYSTEM',
-  Process='PROCESS',
-  
-  // Reserved for logging
-  Log='LOG',
-
-  // Reserved for modules
-  Import='IMPORT',
+  MkDir='MKDIR',
+  RmDir='RMDIR',
+  Pwd='PWD',
   Export='EXPORT',
-
-  // Reserved keywords related to others in core language
-  Start='START',
-  Timeout='TIMEOUT',
-  Value='VALUE',
-  Values='VALUES',
 
   Whitespace='<whitespace>'
 }
 
-export const scanner = buildLexer([
+// Naively using the keyword lookup technique from Crafting Interpreters at
+// the scanner level. But this needs to be implemented as a combinator - esp.
+// because next is implemented as a getter, meaning this loads all tokens at
+// once.
+const KEYWORDS: Record<string, TokenKind> = {
+  // loading, saving, running etc
+  new: TokenKind.New,
+  load: TokenKind.Load,
+  save: TokenKind.Save,
+  list: TokenKind.List,
+  run: TokenKind.Run,
+  end: TokenKind.End,
+  // bload: TokenKind.BLoad,
+  // bsave: TokenKind.BSave,
+  // resume execution of a paused program
+  // cont: TokenKind.Cont,
+  // delete: TokenKind.Delete,
+  // merge: TokenKind.Merge,
+  // restore: TokenKind.Restore,
+  // renum: TokenKind.Renum,
+
+  // variable definitions
+  let: TokenKind.Let,
+  data: TokenKind.Data,
+  def: TokenKind.Def,
+  fn: TokenKind.Fn,
+  // usr: TokenKind.Usr,
+  defint: TokenKind.DefInt,
+  // defsng: TokenKind.DefSng,
+  defdbl: TokenKind.DefDbl,
+  defstr: TokenKind.DefStr,
+  dim: TokenKind.Dim,
+  // get: TokenKind.Get,
+  // set: TokenKind.Set,
+  // put: TokenKind.Put,
+  // on: TokenKind.On,
+  // off: TokenKind.Off,
+  // stop: TokenKind.Stop,
+
+  // control flow
+  for: TokenKind.For,
+  to: TokenKind.To,
+  step: TokenKind.Step,
+  gosub: TokenKind.GoSub,
+  goto: TokenKind.GoTo,
+  return: TokenKind.Return,
+  if: TokenKind.If,
+  then: TokenKind.Then,
+  else: TokenKind.Else,
+  next: TokenKind.Next,
+  while: TokenKind.While,
+  
+  // error handling
+  erl: TokenKind.Erl,
+  err: TokenKind.Err,
+  error: TokenKind.Error,
+  resume: TokenKind.Resume,
+
+  // datetime
+  date: TokenKind.Date,
+  time: TokenKind.Time,
+
+  // array operations
+  len: TokenKind.Len,
+
+  // file operations, i/o
+  print: TokenKind.Print,
+  // log: TokenKind.Log,
+  // open: TokenKind.Open,
+  // close: TokenKind.Close,
+  // input: TokenKind.Input,
+  // eof: TokenKind.Eof,
+  // read: TokenKind.Read,
+  // write: TokenKind.Write,
+
+  // internals
+  // peek: TokenKind.Peek,
+  // poke: TokenKind.Poke,
+  // system: TokenKind.System,
+  // process: TokenKind.Process
+
+  // shell operations
+  // clear screen
+  cls: TokenKind.Cls,
+  // as in SET PROMPT
+  // prompt: TokenKind.Prompt,
+  cd: TokenKind.Cd,
+  cp: TokenKind.Cp,
+  rm: TokenKind.Rm,
+  touch: TokenKind.Touch,
+  mv: TokenKind.Mv,
+  mkdir: TokenKind.MkDir,
+  rmdir: TokenKind.RmDir,
+  pwd: TokenKind.Pwd,
+  export: TokenKind.Export,
+  // spawn: TokenKind.Spawn,
+  // kill: TokenKind.Kill,
+  // job: TokenKind.Job,
+
+  // events and lifecycle
+  // interval: TokenKind.Interval,
+  // timeout: TokenKind.Timeout,
+  // start: TokenKind.Start,
+  // key: TokenKind.Key,
+  // wait: TokenKind.Wait,
+
+  // modules
+  // import: TokenKind.Import
+
+  // contexts, etc
+  // with: TokenKind.With,
+  // using: TokenKind.Using,
+}
+
+const baseScanner = buildLexer([
   [true, /^(/g, TokenKind.LParen],
   [true, /^)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
@@ -134,84 +199,36 @@ export const scanner = buildLexer([
   // TODO: command literal
   // TODO: path literal
   // TODO: rem
-  [true, /^BEEP(?![a-zA-Z_\-\/.])/ig, TokenKind.Beep],
-  [true, /^BLOAD(?![a-zA-Z_\-\/.])/ig, TokenKind.BLoad],
-  [true, /^BSAVE(?![a-zA-Z_\-\/.])/ig, TokenKind.BSave],
-  [true, /^CLOSE(?![a-zA-Z_-/.])/ig, TokenKind.Close],
-  [true, /^CLS(?![a-zA-Z_-/.])/ig, TokenKind.Cls],
-  [true, /^COLOR(?![a-zA-Z_-/.])/ig, TokenKind.Color],
-  [true, /^CONT(?![a-zA-Z_-/.])/ig, TokenKind.Cont],
-  [true, /^DATA(?![a-zA-Z_-/.])/ig, TokenKind.Data],
-  [true, /^DEF FN(?![a-zA-Z_-/.])/ig, TokenKind.DefFn],
-  [true, /^DEFINT(?![a-zA-Z_-/.])/ig, TokenKind.DefInt],
-  [true, /^DEFSNG(?![a-zA-Z_-/.])/ig, TokenKind.DefSng],
-  [true, /^DEFDBL(?![a-zA-Z_-/.])/ig, TokenKind.DefDbl],
-  [true, /^DEFSTR(?![a-zA-Z_-/.])/ig, TokenKind.DefStr],
-  [true, /^DEF USR(?![a-zA-Z_-/.])/ig, TokenKind.DefUsr],
-  [true, /^DELETE(?![a-zA-Z_-/.])/ig, TokenKind.Delete],
-  [true, /^DIM(?![a-zA-Z_-/.])/ig, TokenKind.Dim],
-  [true, /^END(?![a-zA-Z_-/.])/ig, TokenKind.End],
-  [true, /^EOF(?![a-zA-Z_-/.])/ig, TokenKind.Eof],
-  [true, /^ERL(?![a-zA-Z_-/.])/ig, TokenKind.Erl],
-  [true, /^ERROR(?![a-zA-Z_-/.])/ig, TokenKind.Error],
-  [true, /^ERR(?![a-zA-Z_-/.])/ig, TokenKind.Err],
-  [true, /^FOR(?![a-zA-Z_-/.])/ig, TokenKind.For],
-  [true, /^GET(?![a-zA-Z_-/.])/ig, TokenKind.Get],
-  [true, /^DATE(?![a-zA-Z_-/.])/ig, TokenKind.Date],
-  [true, /^TIME(?![a-zA-Z_-/.])/ig, TokenKind.Time],
-  [true, /^GOSUB(?![a-zA-Z_-/.])/ig, TokenKind.GoSub],
-  [true, /^GOTO(?![a-zA-Z_-/.])/ig, TokenKind.GoTo],
-  [true, /^IF(?![a-zA-Z_-/.])/ig, TokenKind.If],
-  [true, /^THEN(?![a-zA-Z_-/.])/ig, TokenKind.Then],
-  [true, /^ELSE(?![a-zA-Z_-/.])/ig, TokenKind.Else],
-  [true, /^INPUT(?![a-zA-Z_-/.])/ig, TokenKind.Input],
-  [true, /^INTERVAL(?![a-zA-Z_-/.])/ig, TokenKind.Interval],
-  [true, /^ON(?![a-zA-Z_-/.])/ig, TokenKind.On],
-  [true, /^OFF(?![a-zA-Z_-/.])/ig, TokenKind.Off],
-  [true, /^STOP(?![a-zA-Z_-/.])/ig, TokenKind.Stop],
-  [true, /^LEN(?![a-zA-Z_-/.])/ig, TokenKind.Len],
-  [true, /^LET(?![a-zA-Z_-/.])/ig, TokenKind.Let],
-  [true, /^LIST(?![a-zA-Z_-/.])/ig, TokenKind.List],
-  [true, /^LOAD(?![a-zA-Z_-/.])/ig, TokenKind.Load],
-  [true, /^USING(?![a-zA-Z_-/.])/ig, TokenKind.Using],
-  [true, /^MERGE(?![a-zA-Z_-/.])/ig, TokenKind.Merge],
-  [true, /^NEW(?![a-zA-Z_-/.])/ig, TokenKind.New],
-  [true, /^NEXT(?![a-zA-Z_-/.])/ig, TokenKind.Next],
-  [true, /^KEY(?![a-zA-Z_-/.])/ig, TokenKind.Key],
-  [true, /^STRING(?![a-zA-Z_-/.])/ig, TokenKind.String],
-  [true, /^OPEN(?![a-zA-Z_-/.])/ig, TokenKind.Open],
-  [true, /^PEEK(?![a-zA-Z_-/.])/ig, TokenKind.Peek],
-  [true, /^POKE(?![a-zA-Z_-/.])/ig, TokenKind.Poke],
-  [true, /^PRINT(?![a-zA-Z_-/.])/ig, TokenKind.Print],
-  [true, /^PUT(?![a-zA-Z_-/.])/ig, TokenKind.Put],
-  [true, /^READ(?![a-zA-Z_-/.])/ig, TokenKind.Read],
-  [true, /^RENUM(?![a-zA-Z_-/.])/ig, TokenKind.Renum],
-  [true, /^RESTORE(?![a-zA-Z_-/.])/ig, TokenKind.Restore],
-  [true, /^RESUME(?![a-zA-Z_-/.])/ig, TokenKind.Resume],
-  [true, /^RETURN(?![a-zA-Z_-/.])/ig, TokenKind.Return],
-  [true, /^RUN(?![a-zA-Z_-/.])/ig, TokenKind.Run],
-  [true, /^SAVE(?![a-zA-Z_-/.])/ig, TokenKind.Save],
-  [true, /^SET(?![a-zA-Z_-/.])/ig, TokenKind.Set],
-  [true, /^SCREEN(?![a-zA-Z_-/.])/ig, TokenKind.Screen],
-  [true, /^PROMPT(?![a-zA-Z_-/.])/ig, TokenKind.Prompt],
-  [true, /^USR(?![a-zA-Z_-/.])/ig, TokenKind.Usr],
-  [true, /^WAIT(?![a-zA-Z_-/.])/ig, TokenKind.Wait],
-  [true, /^CD(?![a-zA-Z_-/.])/ig, TokenKind.Cd],
-  [true, /^MKDIR(?![a-zA-Z_-/.])/ig, TokenKind.MkDir],
-  [true, /^RMDIR(?![a-zA-Z_-/.])/ig, TokenKind.RmDir],
-  [true, /^RM(?![a-zA-Z_-/.])/ig, TokenKind.Rm],
-  [true, /^CP(?![a-zA-Z_-/.])/ig, TokenKind.Cp],
-  [true, /^TOUCH(?![a-zA-Z_-/.])/ig, TokenKind.Touch],
-  [true, /^MV(?![a-zA-Z_-/.])/ig, TokenKind.Mv],
-  [true, /^SPAWN(?![a-zA-Z_-/.])/ig, TokenKind.Spawn],
-  [true, /^JOB(?![a-zA-Z_-/.])/ig, TokenKind.Job],
-  [true, /^KILL(?![a-zA-Z_-/.])/ig, TokenKind.Kill],
-  [true, /^SYSTEM(?![a-zA-Z_-/.])/ig, TokenKind.System],
-  [true, /^PROCESS(?![a-zA-Z_-/.])/ig, TokenKind.Process],
-  [true, /^LOG(?![a-zA-Z_-/.])/ig, TokenKind.Beep],
-  [true, /^START(?![a-zA-Z_-/.])/ig, TokenKind.Start],
-  [true, /^TIMEOUT(?![a-zA-Z_-/.])/ig, TokenKind.Timeout],
-  [true, /^VALUE(?![a-zA-Z_-/.])/ig, TokenKind.Value],
-  [true, /^VALUES(?![a-zA-Z_-/.])/ig, TokenKind.Values],
+  // TODO: ident
+  // TODO: significant newlines
   [false, /^\s+/g, TokenKind.Whitespace]
 ]);
+
+function mapKeyword(token: Token<TokenKind>): Token<TokenKind> {
+  if (token.kind === TokenKind.Ident && KEYWORDS[token.text]) {
+    return {
+      ...token,
+      kind: KEYWORDS[token.text]
+    };
+  }
+
+  return token;
+}
+
+export const scanner: Lexer<TokenKind> = {
+  parse(input: string): Token<TokenKind> | undefined {
+    let head = baseScanner.parse(input);
+
+    if (!head) return undefined;
+
+    head = mapKeyword(head);
+    let token = head.next;
+
+    while (token) {
+      token = mapKeyword(token);
+      token = token.next;
+    }
+
+    return head;
+  }
+}

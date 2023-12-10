@@ -1,4 +1,4 @@
-# shell-basic
+# Susitna BASIC
 
 My intent is to build a BASIC which can be practically used as a shell.
 
@@ -12,6 +12,10 @@ Building a BASIC is a little involved, and this is roughly my third attempt.
   architect a modern BASIC interpreter.
 - joshiverse/yabasic-rs - an attempt to port yabasic to rust. everything
   worthwhile from there has been moved to this repo.
+- ./rs - wherein I successfully ported most of the scanner from yabasic,
+  changed focus to doing Crafting Interpreters, sketched out a few patterns,
+  then realized I should be prototyping in typescript
+- this project, which has a basic scanner written in typescript
 
 ## Architecture
 

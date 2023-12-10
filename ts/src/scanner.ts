@@ -1,4 +1,4 @@
-import { buildLexer, Lexer, Parser, ParserOutput, Token } from 'typescript-parsec';
+import { buildLexer, Lexer, Parser, ParserOutput, Token, unableToConsumeToken } from 'typescript-parsec';
 
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
@@ -185,31 +185,47 @@ const KEYWORDS: Record<string, TokenKind> = {
   // using: TokenKind.Using,
 }
 
-function keywords(scanner: Lexer<TokenKind>): Lexer<TokenKind> {
-  function scan(token: Token<TokenKind> | undefined): Token<TokenKind> | undefined {
-    if (!token) return undefined;
-
-    if (token.kind === TokenKind.Ident && KEYWORDS[token.text]) {
-      return {
-        ...token,
-        kind: KEYWORDS[token.text],
-        get next(): Token<TokenKind> | undefined {
-          return scan(token.next);
-        }
-      };
-    }
-
-    return token;
-  }
-
+// The lexer in Crafting Interpreters looks up keywords from a map after
+// parsing them as idents. I decided to try implementing that as a parser
+// combinator. The alternatives were to implement as a map Lexer -> Lexer, 
+// or to use lookahead assertions in the regexp for every keyword. The
+// easiest approach was probably the lexer map, but this seems the most
+// idiomatic.
+export function keywords<TK>(ident: TK, kw: Record<string, TK>): Parser<TK, Token<TK>> {
   return {
-    parse(input: string): Token<TokenKind> | undefined {
-      return scan(scanner.parse(input));
+    parse(token: Token<TK> | undefined): ParserOutput<TK, Token<TK>> {
+      if (!token) {
+        return {
+          successful: false,
+          error: unableToConsumeToken(token)
+        };
+      }
+
+      let mapped: Token<TK> = token;
+
+      if (token.kind === ident && kw[token.text]) {
+        mapped = {
+          ...mapped,
+          kind: kw[token.text],
+        };
+      }
+
+      return {
+        candidates: [
+          {
+            firstToken: token,
+            nextToken: token ? token.next : undefined,
+            result: mapped
+          }
+        ],
+        successful: true,
+        error: undefined
+      }
     }
   }
 }
 
-export const scanner: Lexer<TokenKind> = keywords(buildLexer([
+export const scanner: Lexer<TokenKind> = buildLexer([
   [true, /^(/g, TokenKind.LParen],
   [true, /^)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
@@ -227,4 +243,4 @@ export const scanner: Lexer<TokenKind> = keywords(buildLexer([
   // TODO: significant newlines
   [true, /^\n+/g, TokenKind.LineEnding],
   [false, /^\s+/g, TokenKind.Whitespace]
-]));
+]);

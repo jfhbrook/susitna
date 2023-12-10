@@ -1,4 +1,4 @@
-import { buildLexer, Lexer, Token } from 'typescript-parsec';
+import { buildLexer, Lexer, Parser, ParserOutput, Token } from 'typescript-parsec';
 
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
@@ -185,7 +185,31 @@ const KEYWORDS: Record<string, TokenKind> = {
   // using: TokenKind.Using,
 }
 
-const baseScanner = buildLexer([
+function keywords(scanner: Lexer<TokenKind>): Lexer<TokenKind> {
+  function scan(token: Token<TokenKind> | undefined): Token<TokenKind> | undefined {
+    if (!token) return undefined;
+
+    if (token.kind === TokenKind.Ident && KEYWORDS[token.text]) {
+      return {
+        ...token,
+        kind: KEYWORDS[token.text],
+        get next(): Token<TokenKind> | undefined {
+          return scan(token.next);
+        }
+      };
+    }
+
+    return token;
+  }
+
+  return {
+    parse(input: string): Token<TokenKind> | undefined {
+      return scan(scanner.parse(input));
+    }
+  }
+}
+
+export const scanner: Lexer<TokenKind> = keywords(buildLexer([
   [true, /^(/g, TokenKind.LParen],
   [true, /^)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
@@ -203,28 +227,4 @@ const baseScanner = buildLexer([
   // TODO: significant newlines
   [true, /^\n+/g, TokenKind.LineEnding],
   [false, /^\s+/g, TokenKind.Whitespace]
-]);
-
-function scanKeyword(token: Token<TokenKind> | undefined): Token<TokenKind> | undefined {
-  if (!token) return undefined;
-
-  if (token.kind === TokenKind.Ident && KEYWORDS[token.text]) {
-    return {
-      ...token,
-      kind: KEYWORDS[token.text],
-      get next(): Token<TokenKind> | undefined {
-        return scanKeyword(token.next);
-      }
-    };
-  }
-
-  return token;
-}
-
-// TODO: Do I want to implement line numbers at the scanner level too? lol
-
-export const scanner: Lexer<TokenKind> = {
-  parse(input: string): Token<TokenKind> | undefined {
-    return scanKeyword(baseScanner.parse(input));
-  }
-}
+]));

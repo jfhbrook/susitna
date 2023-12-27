@@ -18,8 +18,12 @@ export async function main() {
   // - serial
   // - sockets
   // - i/o events, such as CTRL-C and CTRL-D
+  // - drawing, curses
   //
-  // It does NOT include formatting internal representations.
+  // This component is the one which is expected to differ based on the
+  // environment - console, graphical, and so on.
+  //
+  // Notable, it does NOT include formatting internal representations.
   const host = new ConsoleHost();
 
   // Multiple components can generate errors. This is a central component

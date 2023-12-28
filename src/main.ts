@@ -4,6 +4,7 @@ import { Commander } from './commander';
 import { Editor } from './editor';
 import { Runtime } from './runtime';
 import { Errors } from './errors';
+import { Debugger } from './debug';
 
 export async function main() {
   // TODO: where do global variables live? Especially if global variables
@@ -30,9 +31,13 @@ export async function main() {
   // to handle those errors.
   const errors = new Errors({ host });
 
+  // An object to manage state for debugging - triggering break points, etc
+  // other objects do most of the logic, but shared state lives here.
+  const debug = new Debugger();
+
   // Runtime runs programs. This is where the program counter lives. Unlike
   // the commander, it can handle looping.
-  const runtime = new Runtime({ host, errors });
+  const runtime = new Runtime({ host, debug, errors });
 
   // Editor handles adding/removing lines from the program you're editing,
   // abstracting dictionary-like operations.
@@ -43,7 +48,7 @@ export async function main() {
   // - RUN, which calls preRun and kicks off the runtime
   // - LIST, which calls the recreator and passes the results to the Host
   //   directly
-  const commander = new Commander({ host, editor, runtime });
+  const commander = new Commander({ host, debug, editor, runtime });
 
   // The translator is where the main REPL logic lives:
   //

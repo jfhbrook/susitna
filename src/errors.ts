@@ -1,13 +1,13 @@
 import { Host } from './host';
 
-export interface ErrorOptions {
+export interface ErrorHandlerOptions {
   host: Host;
 }
 
-export class Errors {
+export class ErrorHandler {
   private readonly host: Host;
 
-  constructor({ host }: ErrorOptions) {
+  constructor({ host }: ErrorHandlerOptions) {
     this.host = host;
   }
 }

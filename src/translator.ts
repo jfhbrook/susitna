@@ -1,21 +1,21 @@
 import { Host } from './host';
-import { Commander } from './commander';
+import { CommandRunner } from './commander';
 import { Editor } from './editor';
 
 export interface TranslatorOptions {
   host: Host;
-  commander: Commander;
+  commandRunner: CommandRunner;
   editor: Editor;
 }
 
 export class Translator {
   private readonly host: Host;
-  private readonly commander: Commander;
+  private readonly commandRunner: CommandRunner;
   private readonly editor: Editor;
 
-  constructor({ host, commander, editor }: TranslatorOptions) {
+  constructor({ host, commandRunner, editor }: TranslatorOptions) {
     this.host = host;
-    this.commander = commander;
+    this.commandRunner = commandRunner;
     this.editor = editor;
   }
 

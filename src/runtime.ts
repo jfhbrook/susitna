@@ -1,5 +1,5 @@
 import { Host } from './host';
-import { Errors } from './errors';
+import { ErrorHandler } from './errors';
 import { Interrupts } from './interrupts';
 import { Program } from './internal';
 
@@ -15,17 +15,17 @@ export function preRun(program: Program): void {
 export interface RuntimeOptions {
   host: Host;
   interrupts: Interrupts;
-  errors: Errors;
+  errorHandler: ErrorHandler;
 }
 
 export class Runtime {
   private readonly host: Host;
   private readonly interrupts: Interrupts;
-  private readonly errors: Errors;
+  private readonly errorHandler: ErrorHandler;
 
-  constructor({ host, interrupts, errors }: RuntimeOptions) {
+  constructor({ host, interrupts, errorHandler }: RuntimeOptions) {
     this.host = host;
     this.interrupts = interrupts;
-    this.errors = errors;
+    this.errorHandler = errorHandler;
   }
 }

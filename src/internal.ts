@@ -53,12 +53,12 @@ export enum Op {
 
 export type Code = Op | Value;
 
-export function isValue(code: Code): code is Value {
-  return typeof (code as any).value !== 'undefined';
+export function isOperator(code: Code): code is Op {
+  return typeof code === 'number';
 }
 
-export function isOperator(code: Code): code is Op {
-  return !isValue(code);
+export function isValue(code: Code): code is Value {
+  return typeof code !== 'number';
 }
 
 // An individual line starts with a LineNo and then a series of operations

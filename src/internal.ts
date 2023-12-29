@@ -61,3 +61,8 @@ export class Program {
     this.lines = [];
   }
 }
+
+// TODO: I'd like to encode and test stack effects at some point
+// Factor encodes stack effects like `(A B C -- D)`, and for now I'm clocking
+// that here.
+// export type Effect = Array<Value | "--">

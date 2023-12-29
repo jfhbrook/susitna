@@ -26,22 +26,25 @@ export type Pointer<T> = T | null;
 // integer indexes. I don't have a particular type for them - interpreting
 // the type will be delegated to the operator.
 
-// A Value needs to be marked as *a* value as opposed to an operation, but the
-// *type* of the value is assumed by the operation.
-export interface Value {
-  value: Int | Real | string | Pointer<any>;
-}
-
 // If using a proper bytecode, operators would be represented as bytes, with
 // operands using a special marker bit/byte. WIC&I uses 0x00 to 0x7F for
-// bytecode and (0x80 | value) to store 7-bit operands. We would probably use
-// a bytecode for "the next thing is a constant".
+// bytecode and (0x80 | value) to store 7-bit operands. Following WIC&I's
+// example, we track values using a small wrapper interface which simulates
+// this marker bit.
 //
-// Note that an operator's implementation is generally in charge of
-// interpreting the type of an operand - this means that as long as ints,
-// reals and pointers all use 64 bits, then we can treat those fields more
-// or less agnostically up and until the operator indicates what the type
-// is.
+// Note that we don't track the *type* of a value. This is because the
+// operator assumes a value type. In a lower level representation, we could
+// store 64 bits and cast them to an int, float or pointer based on the
+// opcode.
+//
+// Following CI's example, I would probably use a bytecode for "the next
+// bit of stuff is a constant" instead of using a marker bit. The idea is
+// similar, just less frugal.
+
+export interface Value {
+  value: Int | Real | String | Pointer<any>;
+}
+
 export enum Op {
   PrintInt,
   PrintReal,
@@ -50,9 +53,18 @@ export enum Op {
 
 export type Code = Op | Value;
 
+export function isValue(code: Code): code is Value {
+  return typeof (code as any).value !== 'undefined';
+}
+
+export function isOperator(code: Code): code is Op {
+  return !isValue(code);
+}
+
 // An individual line starts with a LineNo and then a series of operations
 // and/or values
 export type Line = Array<LineNo | Op | Value>;
+
 // Within a collection of lines, each record is prefixed by a field
 // length.
 export type Lines = Array<FieldLength | LineNo | Op | Value>;

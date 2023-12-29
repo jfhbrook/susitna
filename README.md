@@ -1,4 +1,4 @@
-# Susitna BASIC
+# Matanuska BASIC
 
 My intent is to build a BASIC which can be practically used as a shell.
 

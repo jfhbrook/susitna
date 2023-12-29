@@ -26,7 +26,11 @@ export type Pointer<T> = T | null;
 // integer indexes. I don't have a particular type for them - interpreting
 // the type will be delegated to the operator.
 
-export type Value = Int | Real | string | Pointer<any>;
+// A Value needs to be marked as *a* value as opposed to an operation, but the
+// *type* of the value is assumed by the operation.
+export interface Value {
+  value: Int | Real | string | Pointer<any>;
+}
 
 // If using a proper bytecode, operators would be represented as bytes, with
 // operands using a special marker bit/byte. WIC&I uses 0x00 to 0x7F for
@@ -44,18 +48,20 @@ export enum Op {
   PrintString
 }
 
-export type Code = FieldLength | LineNo | Op | Value;
+export type Code = Op | Value;
 
-export interface Line {
-  lineNo: LineNo;
-  commands: Code[]
-}
+// An individual line starts with a LineNo and then a series of operations
+// and/or values
+export type Line = Array<LineNo | Op | Value>;
+// Within a collection of lines, each record is prefixed by a field
+// length.
+export type Lines = Array<FieldLength | LineNo | Op | Value>;
 
 // a Program at its core is a collection of lines, but it will also be the
 // owner of the environment - ie, variables. We'll define how that works
 // later.
 export class Program {
-  public lines: Line[];
+  public lines: Lines;
 
   constructor() {
     this.lines = [];

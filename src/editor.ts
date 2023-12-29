@@ -9,14 +9,15 @@ export class Editor {
 
   // dictionary operations on a program will either require lots of
   // indexing or lots of linear scans - probably both.
-  getLine(key: LineNo): Line {
-    return { lineNo: 1, commands: []};
+  getLine(lineNo: LineNo): Line {
+    return [1];
   }
 
-  setLine(key: LineNo, value: Line): void {
+  setLine(line: Line): void {
+    const lineNo = line[0] as LineNo;
   }
 
-  deleteLine(key: LineNo): void {
+  deleteLine(lineNo: LineNo): void {
   }
 
   // a program may be loaded entirely from scratch. this would involve

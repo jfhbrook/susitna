@@ -66,8 +66,135 @@ export function isValue(code: Code): code is Value {
 export type Line = Array<LineNo | Op | Value>;
 
 // Within a collection of lines, each record is prefixed by a field
-// length.
+// length:
+//
+// [FieldLength, LineNo, ...Op | Value, FieldLength, LineNo, ...Op | Value, ...]
+//
+// Field length is the count of all Ops/Values plus the line number - it does
+// not include the field length itself. For example:
+//
+// [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
+//
 export type Lines = Array<FieldLength | LineNo | Op | Value>;
+
+//
+// Cursor! For iterating/seeking over the program!
+//
+
+// Cursors start at the first code. Therefore, the cursor starts at index 2:
+//
+//      (0)      v          (2)           (3)           (4)
+// [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
+const OP_START = 2;
+
+// Line number and field length are offset respectively:
+const LINE_NO_OFFSET = -1;
+const FIELD_LENGTH_OFFSET = -2;
+
+// If you add field length to start, you'll get the index of the next line
+// number - we need to apply offsets to that in order to get the end of the
+// prior line and the start of the next line accordingly
+//
+//             start                                                 5
+//               v          (1)           (2)           (3)     (4)  V
+// [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
+const END_OFFSET = -1;
+const START_OFFSET = 1;
+
+export interface CursorOptions {
+  start?: number | null;
+}
+
+export class Cursor {
+  public start: number | null;
+
+  constructor(private program: Program, options?: CursorOptions) {
+    if (typeof options?.start !== 'undefined') {
+      this.start = options.start;
+    } else if (!this.program.lines.length) {
+      // If the program is empty, there *isn't* a start position
+      this.start = null;
+    } else {
+      this.start = OP_START;
+    }
+  }
+
+  // If there's no meaningful start position, that means the cursor is
+  // exhuasted - either the program starts empty or we've gone to the end
+  get exhausted(): boolean {
+    return this.start === null;
+  }
+
+  get lineNo(): LineNo | null {
+    if (!this.start) {
+      return null;
+    }
+
+    return this.program.lines[this.start + LINE_NO_OFFSET] as LineNo;
+  }
+
+  get end(): number | null {
+    if (!this.start) {
+      return null;
+    }
+    const fieldLength = this.program.lines[this.start + FIELD_LENGTH_OFFSET] as FieldLength;
+    return this.start + fieldLength + END_OFFSET;
+  }
+
+  next(): void {
+    if (!this.start) {
+      return;
+    }
+
+    const fieldLength = this.program.lines[this.start + FIELD_LENGTH_OFFSET] as FieldLength | undefined;
+
+    // If there's no field length, we've gone past the end of the array
+    if (typeof fieldLength === 'undefined') {
+      this.start = null;
+      return;
+    }
+    this.start += fieldLength + START_OFFSET;
+  }
+
+  // Seek to the start of a given line. If a line doesn't exist, seek to the
+  // *prior* line.
+  seek(lineNo: LineNo): void {
+    // Empty program? we're done.
+    if (!this.start || !this.lineNo) {
+      return;
+    }
+
+    // Are we there already?
+    if (this.lineNo === lineNo) {
+      return;
+    }
+
+    // We don't really have a way of seeking backwards, so if we overshoot
+    // we *unfortunately* have to go back to the start. It's best to avoid
+    // this, but it's supported.
+    if (this.lineNo > lineNo) {
+      this.start = 0;
+    }
+
+    // The start index of the previous line. The while loop should always
+    // run once, so this will get initialized properly.
+    let previous: number = -1;
+
+    while (this.lineNo !== null && this.lineNo < lineNo) {
+      previous = this.start;
+      this.next();
+    }
+
+    // If we overshot, then we want the field seen previously
+    if (this.start === null || this.lineNo > lineNo) {
+      this.start = previous;
+    }
+  }
+
+  clone(): Cursor {
+    return new Cursor(this.program, { start: this.start });
+  }
+}
 
 // a Program at its core is a collection of lines, but it will also be the
 // owner of the environment - ie, variables. We'll define how that works
@@ -77,6 +204,10 @@ export class Program {
 
   constructor() {
     this.lines = [];
+  }
+
+  cursor(options?: CursorOptions): Cursor {
+    return new Cursor(this, options);
   }
 }
 

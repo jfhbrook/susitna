@@ -120,7 +120,10 @@ export class Cursor {
   }
 
   // If there's no meaningful start position, that means the cursor is
-  // exhuasted - either the program starts empty or we've gone to the end
+  // exhuasted - either the program starts empty or we've gone to the end.
+  //
+  // Note that, for type checking purposes, we internally check this.start
+  // instead of exhuasted.
   get exhausted(): boolean {
     return this.start === null;
   }

@@ -73,6 +73,7 @@ export type Line = Array<LineNo | Op | Value>;
 // Field length is the count of all Ops/Values plus the line number - it does
 // not include the field length itself. For example:
 //
+//  v  (0)      (1)          (2)           (3)           (4)
 // [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
 //
 export type Lines = Array<FieldLength | LineNo | Op | Value>;
@@ -83,7 +84,7 @@ export type Lines = Array<FieldLength | LineNo | Op | Value>;
 
 // Cursors start at the first code. Therefore, the cursor starts at index 2:
 //
-//      (0)      v          (2)           (3)           (4)
+//     (0)       v          (2)           (3)           (4)
 // [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
 const OP_START = 2;
 
@@ -199,6 +200,8 @@ export class Cursor {
   }
 }
 
+// TODO: cursor tests
+
 // a Program at its core is a collection of lines, but it will also be the
 // owner of the environment - ie, variables. We'll define how that works
 // later.
@@ -217,4 +220,4 @@ export class Program {
 // TODO: I'd like to encode and test stack effects at some point
 // Factor encodes stack effects like `(A B C -- D)`, and for now I'm clocking
 // that here.
-// export type Effect = Array<Value | "--">
+// export type Effect = [Value[], Value[]];

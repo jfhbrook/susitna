@@ -99,6 +99,9 @@ const FIELD_LENGTH_OFFSET = -2;
 //             start                                                 5
 //               v          (1)           (2)           (3)     (4)  V
 // [5, 100, { value: 1}, {value: 1}, Op.PlusIntInt, Op.PrintInt, 5, 200, ...]
+//
+// (`end` actually needs to be one past the last instruction, so the for
+// loop condition is < instead of <=)
 const END_OFFSET = -1;
 const START_OFFSET = 1;
 

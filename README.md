@@ -1,10 +1,12 @@
 # Matanuska BASIC
 
-My intent is to build a BASIC which can be practically used as a shell.
-
-Building a BASIC is a little involved, and this is roughly my third attempt.
+Matanuska will be a BASIC intended to run as a shell. It asks what it would've
+been like if the classic 80s BASIC was better able to rise to the occasion
+when it came to disk features and/or competing with DOS.
 
 ## Prior Attempts
+
+This is roughly my fourth attempt. Here are some notes on prior attempts:
 
 - joshiverse/s7bas - a YOLO attempt at writing a basic from scratch, based
   largely on the MSX Technical Handbook. I learned at TON but ultimately
@@ -15,178 +17,386 @@ Building a BASIC is a little involved, and this is roughly my third attempt.
 - ./rs - wherein I successfully ported most of the scanner from yabasic,
   changed focus to doing Crafting Interpreters, sketched out a few patterns,
   then realized I should be prototyping in typescript
-- this project, which has a basic scanner written in typescript
+- this project, which has a basic scanner and some architectural structure,
+  written in typescript
+
+## Resources
+
+My two major resources are [Crafting Interpreters by Robert Nystrom](https://craftinginterpreters.com/contents.html)
+and `Writing Interactive Compilers and Interpreters` by PJ Brown. The former shows
+how to write a lox interpreter in both java (tree-walking) and C (bytecode).
+The latter is from 1979 and is BASIC-oriented, but less example-driven.
+
+I haven't finished either. In `Crafting Interpreters`, here are things I
+*haven't* done:
+
+- Ch. 12 and 13 - classes and inheritance in Java (which I *might* implement)
+- Ch. 22 - local variables on a stack (which I *probably* want)
+- Ch. 23 and 24 - jmp/GOTO and call stack shenanigans (which I definitely need)
+- Ch. 25 - closures (which I don't intend to implement)
+- Ch. 26 - garbage collection (which typescript solves For Now)
+- ch. 27 through 29 - classes in C (which, again, I *might* implement)
+
+In `Writing Interactive Compilers and Interpreters`, I made it up to Ch. 5.2,
+which is on executing "reverse polish notation" (which is not unlike the modern
+concept of bytecode). Broad strokes, this is what I expect the rest of the
+book to cover:
+
+- The rest of Ch 5, on the runtime
+  - Ch. 5.2 - advice on executing stack-based bytecode
+  - Ch. 5.3 - variables, likely global-oriented and relatively low-level
+  - Ch. 5.4 - some finer points on executing statements
+  - Ch. 5.5 - subtleties on handling stack-allocated strings in a low-level context
+- Ch. 6.1 - the pre-run module, which is expected to fill in details and do
+  syntax checks after editing and before running
+- Ch. 6.2 - the re-creator module, which is in charge of converting our bytecode
+  back into valid source code
+- Ch 6.3 - the command module, which I need to study more in terms of architecture
+  and responsibilities
+- Ch. 7 - testing and release advice
+- Ch. 8 - "some advanced and specialized topics"
+
+PJ says the 14th deadly sin isn't finishing the book ;) I think between these
+two, WIC&I is more important to finish due to its outsized influence on my
+architecture, while CI can be used to show me *how* to do something once I
+know *what* I want to do.
+
+## Languages
+
+### Source Language
+
+This is the BASIC code itself. I intend to implement a pretty classic BASIC
+to start, and then add features over time. The most important of those are
+shell-related - supporting spawning [jobs](https://www.baeldung.com/linux/jobs-job-control-bash),
+stream redirection, pipelines etc. Another big one will be a built-in test
+framework, if only so I can easily test Matanuska *in* Matanuska.
+
+#### Sigils
+
+BASIC uses sigils to mark strings, and - for various reasons - I may adopt
+sigils more broadly, a la perl.
+
+#### Hashes
+
+A big open question is how I'm going to support hash-like data structures.
+There are two big alternatives:
+
+1. Augment arrays to support associative array features, similar to Lua tables
+2. Implement a separate Record type, inspired by Pascal
+
+I'm tickled by the tables idea, but it makes the typing a lot more squishy
+than a standard BASIC.
+
+### Encoding Language
+
+This is the language used to *implement* the interpreter. I'm *starting* with
+typescript and node.js. This is because typescript is one of my strongest
+languages - writing an interpreter is hard enough and I don't want the added
+overhead of fighting a language I'm bad at. Plus, I *like* typescript, *and*
+I think it will make a really nice extension language.
+
+That said, if I want to make my interpreter *performant*, I'll want to
+implement it in a compiled language. I've historically been leaning towards
+Rust, and in fact have prototyped a lot of stuff in Rust. Rust comes with
+a number of advantages:
+
+1. Decent [toolkits](https://neon-bindings.com/docs/introduction) for implementing
+   node bindings
+2. A lot more high level abstractions and data structures than something like
+   C
+3. Good building and testing facilities
+4. A nice ecosystem to work with
+5. Memory safety when viable
+6. "unsafe" abstractions when necessary
+
+However, using C++ to implement a Node addon may be a better fit:
+
+1. Is the [official extension mechanism](https://github.com/nodejs/node-addon-api)
+2. With [cmake.js](https://github.com/cmake-js/cmake-js), supports a build system I don't hate
+3. Unsafe abstractions are "normal" and don't require the same amount of rigmarole as Rust does
+4. C-like language means plagiarizing Crafting Interpreters is easier, less "translation" effort
+
+Using C++ will mean some potential testing issues - do I call test functions
+from typescript? Use callbacks to the test harness in C++? Etc. It also means
+not having some of the nicer abstractions in Rust.
+
+Note, however, that I can mix and match - I can expose Rust abstactions over
+a C-style API if I want to link into the C++ addon, and if I glue together
+multiple addons in Node.JS then I can choose language per addon.
+
+All that said, this is all stuff I plan on punting on until I have a
+practically usable language.
+
+### Internal Language (Internal Representation)
+
+I'm implementing what's very similar to a bytecode - what PJ Brown calls
+"reverse Polish notation". However, a big difference is that it's line-aware.
+Each line is encoded like so:
+
+```
+... Field Length, LineNo, <Code | Value>...,
+```
+
+Field length includes the line number, but not the field length itself.
+Values are currently marked by being stored in an object (`{ value: RawValue }`),
+but this would likely use a bytecode marking the following 64 bits as a
+value if re-implemented in a lower level language.
+
+More on this can be seen in `./src/internal.ts`.
 
 ## Architecture
 
-These notes describe the intended architecture, based on what I know from
-my prior experiments and/or studying yabasic.
+These notes describe the intended architecture. This is based partly on
+what I've learned through my prior experiences but is largely influenced by
+WIC&I and augmented by modern ideas from CI.
 
-### lexing/parsing/etc
+A loose architecture diagram may be seen here:
 
-I'm confident in these parts:
+<https://oldbytes.space/@jfhbrook/111654216080409628>
 
-- lexer - parser combinators which break up input into `Vec<Token>`s. this is
-  actually more or less good enough to work off, minus ambiguity with seps.
-- parser - parser combinators which turn `Tokens` into `Expr`s, `Statement`s, `Program`s etc
+Though I'd like to generate a better one. One idea is to leverage a DI
+pattern to inject dependencies which procedurally generate an architecture
+diagram with `mermaid` or something.
 
-But I need to think about how commands work. I think bison actually
-generates the commands as a side effect of parsing - I'll probably want a
-separate layer for that.
+### Host
 
-### symbol and call stacks
+WIC&I refers to this as the I/O module. I'm borrowing a page from posh and
+calling it the Host.
 
-yabasic has two stacks, which I'll probably need some variation of:
+This is the one component which varies based on environment or frontend - that
+is, `Host` is an interface, and while I use a `ConsoleHost` in my implementation
+I could easily plug in a `BrowserHost` in the future.
 
-- symbol stack - a stack for managing symbols - things like variables, but more broad
-- call stack - a stack for managing function calls, gosubs etc
+Host has a lot of responsibilities, *because* it's the primary interface to
+the system:
 
-this is quite a bit more sophisticated than what MSX BASIC does, which is
-have various areas:
+- prompting/reading input
+- writing simple output and/or logging - this it shares with a posh host
+- file reading/writing and tracking file handles
+- process spawning, stdio redirection and tracking child processes/PIDs
+- ports - both serial and networking, as well as HTTP
+- drawing procedures - ie, wrapping [ink](https://github.com/vadimdemedes/ink),
+  [ratatui](https://github.com/ratatui-org/ratatui), etc.
 
-- program area (see "program, module")
-- various variable and array areas - symbols, sure, but not a *stack*
-- stack area - ie. the call stack, but simpler because MSX BASIC did less
+### Translator
 
-I think I ultimately want both a symbol and a call stack, but I don't know
-that I want to copy yabasic's implementation. I'd kinda rather learn how those
-work from other examples, and then step back and derive them from first
-principles.
+This component contains the main REPL loop and feeds parsed lines to other
+components. The basic loop is:
 
-### program, module
+1. Read source code input from the prompt
+2. Use the scanner and parser to generate IR in a "buffer"
+3. If prefixed by a line number, feed to the Editor
+4. If *not* prefixed by a line number, feed to the command module directly
 
-yabasic parses a `Program` as being a collection of separated statements, and
-it rips through those statements to get a list of `Command`s, which it then
-executes in a VM. by the time you reach this abstraction, all the libraries
-have been imported and the line numbers more or less stripped, and otherwise
-the commands do the heavy lifting.
+It's likely that my Translator would also have the ability to directly read
+and run "headless" from a file.
 
-s7bas, however, has an abstraction called a `Module`, which constitutes
-indexed lines that it can seek through. this is based on how MSX BASIC does
-it, but with more modern data structures - though MSX BASIC would represent
-the tokens in memory, not the parsed statements as such. executing code would
-be a matter of reading the line and parsing it anew every time.
+### Editor
 
-we don't necessarily need to do it *exactly* like an old school BASIC - that
-was a pathological memory optimization at the end of the day - and in the case
-of yabasic it manages all that stuff through its commands and stacks. I'm
-however a little partial to doing it the old school way, perhaps plus-or-minus
-some optimizations - for example, storing instructions or commands in that
-`Module` data structure instead of tokens.
+The editor is what's in charge of taking lines from the Translator and updating
+a `Program` accordingly. Its interface is similar to a dictionary.
 
-in my case, there's also a lot of overlap between the needs of a "program"
-and a "module". would a program actually be a collection of modules? in the
-case of s7bas I punted on that and, while I named my thing `Module`, I was
-just treating it as a singular program.
+### Recreator
 
-### execution
+Suppose that, when I edit a `Program`, I'm *not* saving the original source
+code along with the IR. This means I'll need a component which can take IR
+and convert it *back* to valud source code.
 
-yabasic has a series of "command" data structures, distinct from AST and token
-concerns; and it has a command runner, which is basically a big fat while loop
-and match statement. the "interpreter" abstraction in s7bas does something
-somewhat similar, though against more or less parsed statements (called
-"instructions" - possibly the technical term).
+My current feeling is that I should implement a recreator, because I'd like to
+put formatting concerns to bed - similar to go. There are some challenges
+here, but I think with good testing it should give me auto-formatting almost
+for free.
 
-what I like about yabasic's "command" system is that it represents a simplified
-"virtual machine" that:
+### Program
 
-1. has a much smaller surface area than the full statement and expression
-   language
-2. becomes a loose replacement for the space assembly would've filled in an
-   old school BASIC
+A `Program` is the core abstraction for storing IR. As mentioned, IR is in
+a flat array, which includes field lengths before each encoded line.
 
-what I don't like about it as much is that the old school BASIC more or less
-models the program in-memory as a kind of vm already - it steps through the
-"program" data structure and loads "instructions" into memory much like a
-z80 would already.
+But note that `Program` *also* owns storing variables. This means it maintains
+some sense of an `Environment` internally.
 
-### editor
+#### Cursor
 
-I implemented an Editor abstraction in s7bas. It's actually quite a bit better
-than what's in yabasic, so I should probably reference it. The `Script`
-abstraction will also be useful here.
+I need an abstraction to iterate over the lines of a program. In my head,
+you can call `cursor.next()` or `cursor.seek(lineNo)` on the cursor, and then
+do `for (const i = cursor.start; i < cursor.end; i++) { ... }` or similar.
+Note, this abstraction may require some changes to support a proper bytecode
+if ported to a lower level language.
 
-### host
+#### Environment
 
-I implemented a `Host` abstraction in s7bas, which dealt with IO concerns and
-which could be plugged into the Editor and/or the headless runtime. I was
-pretty happy with it! I think it could be useful going forward.
+The Java implementation of Lox in CI stores all variables in a Map that can
+look upwards into ancestor scopes. But in my case, things might be different:
+
+1. I intend to know types at the time I compile to IR, largely due to the use
+   of sigils, and therefore can benefit from multiple narrowly-typed dicts
+2. I don't intend to implement nested functions and may only have builtin,
+   global and local scope - or similar.
+3. I will likely implement local variables on a values stack, like the C
+   implementation
+
+### Scanning and Parsing
+
+I'm starting out with using parser combinators, namely typescript-parsec.
+This should let me write a lexer and parser which map pretty closely to
+a recursive descent style parser, as seen in both WIC&I and CI. However, I
+might implement expressions using a Pratt parser (a great example in CI) and
+I may hand-roll a scanner in the future.
+
+One open question is how I want to handle shell commands in the scanner. I want
+to take bare cli commands and execute them with minimal friction, which means:
+
+1. Treating "commands" which map to bins in the PATH as being roughly
+   equivalent to BASIC commands
+2. Allowing for a standard-ish way of doing stream redirects that's idiomatic
+   for a BASIC
+3. Scanning `--option`s and `-sHoRtOpTs` as CLI arguments instead of parts of
+   an expression. I'm going to make this a later milestone and concentrate on
+   a base language to start so I can punt on this problem, but the big
+   question is whether to introduce context and use different scanning logic
+   when handling shell commands, versus having context-independent scanning
+   rules that parse those as flags/options regardless of command and treat
+   them as syntax errors for native commands. Probably the latter, especially
+   if it lets native commands or cmdlets support options/flags.
+
+I'm hopeful that, as I develop the scanner and parser, that I'll be able to
+make new combinators which make it easier to define "standard" commands.
+
+One combinator I need to think about is a `synchronize` combinator, which can
+eat invalid tokens to the end of the malformed command in an effort to recover.
+The point of recovering here is to flag the rest of the obvious syntax errors
+in the input without having an avalanche of cascading issues.
+
+I'm doing this in typescript for now, but I may port to rust and nom in the
+future. Though, note, rust/nom will require either implementing a `Token` type
+or foregoing tokens in favor of lower level str-based combinators.
+
+### Pre-Run Module
+
+Lines are initially parsed without knowing the context of the rest of the
+program. A lot can be checked ahead of time - you can even allocate space for
+variables ahead of time! But a lot of things will need to be checked or
+"filled in" after editing is done but before actually running the `Program`.
+
+This component will basically do a linear scan across the resulting `Program`
+and:
+
+1. Ensure variables are defined before they're used
+2. Ensure for loops, if statements, and so on, are properly nested/closed
+3. Resolve addresses for GOTOs and the like
+
+### Runtime
+
+The runtime maps loosely to `vm.c` in the C lox implementation from CI. It owns
+the program counter (instruction pointer) (a `Cursor`) and, most likely, the
+call stack and symbol stack as well.
+
+The call stack will likely contain `Cursors`. Note that, when reporting
+errors, I can reference line numbers from this stack and look up the
+originating code through the `Editor`.
+
+### Command Module
+
+I have some reading to do, frankly, before I fully understand the
+responsibilities of this component. I *do* know that it evals the RUN command.
+I also suspect it's in charge of loading `autoexec.bas`. This should be
+clarified in 6.3 of WIC&I.
+
+### Errors
+
+Errors are going to be a BIG part of the interpreter, especially since most
+arbitrary input is going to be a syntax error of some kind. I'm intending
+on having a centralized component for now, since Java lox in CI had a
+centralized component. In my head, it's in charge of taking error inputs,
+formatting them to text, and passing that text to the Host. I suspect other
+components will be able to manage their own *state* without its help.
+
+### Interrupts
+
+Interrupts will be interesting, especially in an async context. The primary
+use cases for interrupts so far are keyboard interrupts and/or breaking to
+debugger, but basically any event will involve an interrupt of some kind.
+
+### Testing
+
+#### Source Language
+
+My thinking here is to make `TEST` and `ASSERT` commands, which - when testing
+mode is enabled in the `Runtime` - generate [tape](https://www.npmjs.com/package/tape)
+tests. Then, if testing mode is enabled, actually run the tests.
+
+I'll need a pretty reporter. I'm thinking about hooking tape up to
+[node-tap's reporter module](https://github.com/tapjs/tapjs/tree/main/src/reporter).
+
+#### Encoding Language
+
+I'll of course need to write tests for *everything*. Because I'm probably
+using `tape` to write the source language tests, I'll probably use it to write
+the typescript tests too.
+
+Something I want to do for tests is stack effects. Each operation should have
+an expected and consistent stack effect. I plan on making a simple DSL that
+clocks [factor](https://github.com/factor/factor/blob/master/extra/rot13/rot13.factor#L6)
+and generating tests off that.
+
+### Debugging
+
+#### Break-In
+
+I want ctrl-d to pause execution and enter a "debugger" state. This will mean
+having to get interrupts right, but it should be a really neat feature.
+
+#### Symbol Dump
+
+See also "heap dumps". In fact, implementing the
+[v8 format](https://github.com/jwalton/node-heapsnapshot-parser/blob/master/src/HeapSnapshot.coffee)
+might be a good idea.
+
+#### Profiler
+
+I think I can actually leverage some bleeding edge otel shit here. But also,
+check out these links:
+
+- <https://github.com/open-telemetry/oteps/blob/main/text/profiles/0212-profiling-vision.md>
+- <https://github.com/google/pprof>
+- <https://github.com/VictoriaMetrics/VictoriaMetrics#profiling>
+
+A really cool stretch goal would be to implement flame graphs.
+
+#### Help
+
+PJ actually says good errors are better than interactive help. That said, I
+should still write documentation.
+
+### Cmdlets
+
+I *think* I can implement commands using classes similar to powershell cmdlets.
+Basically a cmdlet would use parser combinators and/or an IR Builder to
+implement commands. This could be a REALLY cool way to extend the base
+language. But we'll see.
+
+### Require/Import/Source
+
+None of my resources give a treatment to imports. My guess is that each
+"import" is basically a separate `Program` keyed by a namespace, and that my
+call stack becomes namespace-aware. But this should be pretty late in the
+game.
+
+Note that I can't really use the `export` keyword, since that term's overloaded
+by exporting env variables. Instead, I'll probably just export "everything"
+like Python does by default.
 
 ## Next Steps
 
-first of all, I should do a "real" interpreters book. I think I'm gonna do
-`Crafting Interpreters` by robert nystrom. he's chill.
+First, I need to at LEAST finish WIC&I. Doing more of CI would be valuable too.
 
-here are some thing I know I need to do just to get a basic feature set:
+Then, I just need to implement the base language. I can loosely follow the
+structure of CI to inform what direction I go. Unlike CI, I'll want to use
+some level of TDD.
 
-* port over `Script` and `Module` from s7bas. it's tempting to combine them
-  into a single abstraction now that we have a scanner, however:
-  * modules should be scanned into tokens, but keeping scripts in string
-    format maintains formatting. if space were at a premium that would be
-    a worthwhile trade, but in our case we can afford to be inefficient.
-  * when running a program, we want to reset the main module to get clean
-    state. this is a lot easier if you builder-pattern the module from a
-    script and replace it wholesale.
-* `Editor` needs to be ported from s7bas. this is probably straightforward,
-  aside from there being no interpreter.
-* saving/loading of scripts is going to need some serde work. traditional
-  BASICs can save "binary" files in pickle-like data structures (consider
-  literally using `serde_pickle`) but even without that: if we're storing
-  edited text as tokens, we'll need to write tokens back out as text. if
-  we're doing that already, it may not be a stretch to have that be
-  configurable - ie., prettifying and minifying.
-* go through tokens and the scanner and delete most of the yabasic stuff. I
-  only need/want a few features from yabasic - I don't need to include the
-  tokens for those things! they'll only stand to confuse me.
-* start implementing parser code. following yabasic's example isn't going to
-  work well for me - instead, reference the parsers I have in s7bas for
-  instructions and expressions, but move them over to using `Tokens`.
-* clean up the `Tokens` struct. right now it's a straight copy, more or less,
-  from monkey-rust, and it has a bunch of optimizations I don't think I need.
-  **this will be easiest to test after "hello world" works!**
-* implement an interpreter. s7bas uses a program counter variable called `pc`
-  to track which line it's executing from a module at a given time. we don't
-  want to copy it though - rather, we'd like to try clocking the memory layout
-  of MSX BASIC, starting fresh. it also contained the concept of "flags" as
-  in a z80, which I think is cute. **this is something more formal knowledge
-  of interpreters will help with!**
-* implement a symbol stack. I can reference yabasic here to an extent, but
-  overall I'm going to want to do this from-scratch. start with cleaning up
-  the domain model for symbols and implementing a non-stacking stack which
-  just tracks variables. then, start adding contexts and go from there.
-  **more formal interpreters experience will help here!**
-* implement a call stack. this will be necessary for implementing control flow.
-  **more formal interpreters experience will help!!**
-* completely overhauling exceptions. right now they're a huge mess - the
-  details are noted in the source code. I'll probably want to do this sooner
-  rather than later, since I'll have to cheese a lot of stuff to get it all
-  working otherwise. `miette` might be useful here.
-* implement starter arrays/dims. arrays can have 1 or 2 dimensions, if memory
-  serves.
-* implement configuration through `~/.autoexec.bas`.
-
-at some point, I'll really need to write some tests. something I found I really
-wanted while writing s7bas was a test framework:
-
-* `assert` command that understands top-level operators in exprs
-* `Host::assert` method that throws an `AssertError` on `ConsoleHost`
-* `test`/`end test` block
-* `flags.test` flag that disables the `test` block in non-test modes
-* `TestHost` that outputs TAP w/ `testanything` crate
-* `s8bas test *.bas` test runner that uses `TestHost` and `flag.test == true`
-
-this would let me write unit tests *in basic*, which would not only help me
-actually test the functionality of everything; it would just be a cool feature.
-
-finally, I'll want to implement import. it will help to have the base
-interpreter without import fully working, but I should do this sooner rather
-than later. in my head, it means extending `pc` to be module-aware, which might
-be easy if I decide to make it loop-aware.
-
-a big question is how I want to resolve import paths. I think I want to do a
-python/java-like pattern, using a `MODULE_PATH` variable to set where to look
-for modules. this pattern also matches with bash's `PATH` variable. it should
-also be amenable to virtuelenv-like patterns.
+In pretty short order - probably after I have call stacks - I'll want to
+implement relevant source language testing features. This should open up
+possibilities for writing even more tests.
 
 ## The Future
 
@@ -233,7 +443,7 @@ third, I want MUCH better data structures. in very loose order of priority:
   - add `'` (transpose)
 - dates/datetimes/durations
   - needed for timings, which is a loose prereq for starship support
-- objects
+- objects/records
   - almost certainly prototypal, no such thing as a class
   - has js-like key iterability but treated as public/private properties
 - tables + sqlite support
@@ -242,7 +452,7 @@ third, I want MUCH better data structures. in very loose order of priority:
   - *possibly* inspired by lua??
   - `select` expression?
 
-## Resources
+## Other Resources
 
 - [MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html) - the
   language spec, plus a bunch of detail on the internal memory structure of MSX BASIC

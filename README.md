@@ -26,6 +26,8 @@ My two major resources are [Crafting Interpreters by Robert Nystrom](https://cra
 and `Writing Interactive Compilers and Interpreters` by PJ Brown. The former shows
 how to write a lox interpreter in both java (tree-walking) and C (bytecode).
 The latter is from 1979 and is BASIC-oriented, but less example-driven.
+The outputs from my work with `Crafting Interpreters` can be viewed at
+<https://github.com/jfhbrook/crafting-interpreters>.
 
 I haven't finished either. In `Crafting Interpreters`, here are things I
 *haven't* done:

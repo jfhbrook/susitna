@@ -17,8 +17,9 @@ import { pino, BaseLogger } from 'pino';
 // app.get/app.use to make NestJS use that logger internally.
 
 // TODO: OpenTelemetry-style tracing support would be *extremely* useful.
-// That's a big project, though. The easist way to support it may be to
-// implement logging/tracing in rust with the tracing crate - yikes.
+// This might not even be that hard:
+//
+// https://github.com/open-telemetry/opentelemetry-js
 
 export class Logger implements LoggerService {
   private readonly logger: BaseLogger;

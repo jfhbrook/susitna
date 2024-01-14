@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 
 import { HostModule } from '../host/host.module';
 import { EditorModule } from '../editor/editor.module';
+import { RecreatorModule } from '../recreator/recreator.module';
+import { PreRunModule } from '../pre-run/pre-run.module';
 import { RuntimeModule } from '../runtime/runtime.module';
 
 import { CommandService } from './command.service';
@@ -13,7 +15,15 @@ import { CommandService } from './command.service';
 //   directly
 
 @Module({
-  imports: [HostModule, EditorModule, RuntimeModule],
+  imports: [
+    HostModule,
+    EditorModule,
+    // TODO: Should commander call recreate? My guess is yes, since it will
+    // be particular commands that recreate code.
+    RecreatorModule,
+    PreRunModule,
+    RuntimeModule
+  ],
   providers: [CommandService],
   exports: [CommandService],
 })

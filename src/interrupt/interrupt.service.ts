@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-export class Interrupts {
+export class Interrupt {
   private readonly events: EventEmitter;
 
   constructor() {

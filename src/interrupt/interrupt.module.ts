@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { Interrupts } from './interrupts.service';
+import { Interrupt } from './interrupt.service';
 
 // Various things will be able to interrupt the interpreter. The main use
 // case I have in mind is breaking into debug mode, but it will probably
@@ -12,7 +12,7 @@ import { Interrupts } from './interrupts.service';
 
 @Module({
   imports: [],
-  providers: [Interrupts],
-  exports: [Interrupts],
+  providers: [Interrupt],
+  exports: [Interrupt],
 })
-export class InterruptsModule {}
+export class InterruptModule {}

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { HostModule } from '../host/host.module';
 import { ErrorModule } from '../error/error.module';
-import { InterruptsModule } from '../interrupts/interrupts.module';
+import { InterruptModule } from '../interrupt/interrupt.module';
 
 import { Runtime } from './runtime.service';
 
@@ -10,7 +10,7 @@ import { Runtime } from './runtime.service';
 // the commander, it can handle looping.
 
 @Module({
-  imports: [HostModule, InterruptsModule, ErrorModule],
+  imports: [HostModule, InterruptModule, ErrorModule],
   providers: [Runtime],
   exports: [Runtime],
 })

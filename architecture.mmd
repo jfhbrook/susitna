@@ -5,8 +5,11 @@ graph LR
   TranslatorModule-->CommandModule
   CommandModule-->HostModule
   CommandModule-->EditorModule
+  CommandModule-->RecreatorModule
+  CommandModule-->PreRunModule
+  PreRunModule-->ErrorModule
+  ErrorModule-->HostModule
   CommandModule-->RuntimeModule
   RuntimeModule-->HostModule
-  RuntimeModule-->InterruptsModule
+  RuntimeModule-->InterruptModule
   RuntimeModule-->ErrorModule
-  ErrorModule-->HostModule

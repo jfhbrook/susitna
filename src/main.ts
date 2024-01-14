@@ -10,7 +10,6 @@ export async function bootstrap() {
 
   await translator.run();
 }
-bootstrap();
 
 if (require.main === module) {
   bootstrap();

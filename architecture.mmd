@@ -1,1 +1,12 @@
 graph LR
+  AppModule-->TranslatorModule
+  TranslatorModule-->HostModule
+  TranslatorModule-->EditorModule
+  TranslatorModule-->CommandModule
+  CommandModule-->HostModule
+  CommandModule-->EditorModule
+  CommandModule-->RuntimeModule
+  RuntimeModule-->HostModule
+  RuntimeModule-->InterruptsModule
+  RuntimeModule-->ErrorModule
+  ErrorModule-->HostModule

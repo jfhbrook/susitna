@@ -178,13 +178,9 @@ These notes describe the intended architecture. This is based partly on
 what I've learned through my prior experiences but is largely influenced by
 WIC&I and augmented by modern ideas from CI.
 
-A loose architecture diagram may be seen here:
+An auto-generated architecture diagram may be seen here:
 
-<https://oldbytes.space/@jfhbrook/111654216080409628>
-
-Though I'd like to generate a better one. One idea is to leverage a DI
-pattern to inject dependencies which procedurally generate an architecture
-diagram with `mermaid` or something.
+![](./architecture.png)
 
 ### Host
 

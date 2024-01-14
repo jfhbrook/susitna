@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Host } from './host.service';
-import { ErrorService } from './error.service';
-import { Interrupts } from './interrupts.service';
-import { Program } from './internal';
+import { Host } from '../host/host.service';
+import { ErrorService } from '../error/error.service';
+import { Interrupts } from '../interrupts/interrupts.service';
+import { Program } from '../internal';
 
 // Validates the program prior to running. The editor can do a lot of syntax
 // error checking during edit time, but anything involving context happens

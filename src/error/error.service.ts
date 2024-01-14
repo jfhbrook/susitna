@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Host } from './host.service';
+import { Host } from '../host/host.service';
 
 @Injectable()
 export class ErrorService {

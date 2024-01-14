@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Host } from './host.service';
-import { Editor } from './editor.service';
-import { preRun, Runtime } from './runtime.service';
+import { Host } from '../host/host.service';
+import { Editor } from '../editor/editor.service';
+import { preRun, Runtime } from '../runtime/runtime.service';
 
 @Injectable()
 export class CommandService {

@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "nest build",
-    "build:diagram": "npm run build && node ./dist/mermaid architecture.mmd && mmdc -i architecture.mmd -o architecture.png -t dark -b transparent",
+    "build:mermaid": "npm run build && node ./dist/mermaid architecture.mmd && mmdc -i architecture.mmd -o architecture.png -t dark -b transparent",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

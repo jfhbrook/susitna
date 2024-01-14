@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Host } from './host.service';
-import { CommandService } from './command.service';
-import { Editor } from './editor.service';
+import { Host } from '../host/host.service';
+import { CommandService } from '../command/command.service';
+import { Editor } from '../editor/editor.service';
 
 @Injectable()
 export class Translator {

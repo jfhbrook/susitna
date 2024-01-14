@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Translator } from './translator.service';
+import { Translator } from './translator/translator.service';
 
 export async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);

@@ -1,7 +1,10 @@
-import * as minimist from 'minimist';
 import { createWriteStream } from 'fs';
+
+import minimist from 'minimist';
 import { NestFactory } from '@nestjs/core';
 import { SpelunkerModule } from 'nestjs-spelunker';
+
+import { Logger } from './logger';
 import { AppModule } from './app.module';
 
 export async function bootstrap() {
@@ -10,7 +13,10 @@ export async function bootstrap() {
   // TODO: Spelunker finds relationships between *modules*, not *services*.
   // For this to work, I'll need to refactor the app to use modules for each
   // and every service.
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const app = await NestFactory.createApplicationContext(AppModule, {
+    logger: new Logger(),
+  });
+
   const tree = SpelunkerModule.explore(app);
   const root = SpelunkerModule.graph(tree);
   const edges = SpelunkerModule.findGraphEdges(root);

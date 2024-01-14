@@ -7,10 +7,7 @@ export function preRun(program: Program): void {}
 
 @Injectable()
 export class PreRun {
-  constructor(
-    private readonly errorService: ErrorService
-  ) {}
+  constructor(private readonly errorService: ErrorService) {}
 
-  process(program: Program): void {
-  }
+  process(program: Program): void {}
 }

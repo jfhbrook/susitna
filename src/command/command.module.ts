@@ -22,7 +22,7 @@ import { CommandService } from './command.service';
     // be particular commands that recreate code.
     RecreatorModule,
     PreRunModule,
-    RuntimeModule
+    RuntimeModule,
   ],
   providers: [CommandService],
   exports: [CommandService],

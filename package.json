@@ -5,14 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "build": "nest build",
-    "build:test": "nest build -p tsconfig.test.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "npm run build:test && tap ./dist/test/*.js",
+    "test": "npm run build && tap ./dist/**.spec.js",
     "console": "npm run build && node"
   },
   "keywords": [

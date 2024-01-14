@@ -16,10 +16,15 @@ import { pino, BaseLogger } from 'pino';
 // this logger elsewhere, I should inject it as a Logger and then call
 // app.get/app.use to make NestJS use that logger internally.
 
-// TODO: OpenTelemetry-style tracing support would be *extremely* useful.
-// This might not even be that hard:
+// TODO: A semblance of "tracing" would be really cool. Unfortunately, otel
+// only exports traces when they close, without any event for when they open.
+// This is great if you want to collect close events and assemble the full
+// traces after the fact, but is less useful for console logging.
 //
-// https://github.com/open-telemetry/opentelemetry-js
+// I see two ways to move forward: either collect traces in memory and emit
+// the trace log on command; or cheese it with named child loggers. The
+// latter is straightforward and probably better for internal logging. The
+// former could be interesting as a feature of the runtime.
 
 export class Logger implements LoggerService {
   private readonly logger: BaseLogger;

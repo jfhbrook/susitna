@@ -48,7 +48,7 @@ export interface Value {
 export enum Op {
   PrintInt,
   PrintReal,
-  PrintString
+  PrintString,
 }
 
 export type Code = Op | Value;
@@ -112,7 +112,10 @@ export interface CursorOptions {
 export class Cursor {
   public start: number | null;
 
-  constructor(private program: Program, options?: CursorOptions) {
+  constructor(
+    private program: Program,
+    options?: CursorOptions,
+  ) {
     if (typeof options?.start !== 'undefined') {
       this.start = options.start;
     } else if (!this.program.lines.length) {
@@ -144,7 +147,9 @@ export class Cursor {
     if (!this.start) {
       return null;
     }
-    const fieldLength = this.program.lines[this.start + FIELD_LENGTH_OFFSET] as FieldLength;
+    const fieldLength = this.program.lines[
+      this.start + FIELD_LENGTH_OFFSET
+    ] as FieldLength;
     return this.start + fieldLength + END_OFFSET;
   }
 
@@ -153,7 +158,9 @@ export class Cursor {
       return;
     }
 
-    const fieldLength = this.program.lines[this.start + FIELD_LENGTH_OFFSET] as FieldLength | undefined;
+    const fieldLength = this.program.lines[this.start + FIELD_LENGTH_OFFSET] as
+      | FieldLength
+      | undefined;
 
     // If there's no field length, we've gone past the end of the array
     if (typeof fieldLength === 'undefined') {

@@ -1,75 +1,82 @@
-import { buildLexer, Lexer, Parser, ParserOutput, Token, unableToConsumeToken } from 'typescript-parsec';
+import {
+  buildLexer,
+  Lexer,
+  Parser,
+  ParserOutput,
+  Token,
+  unableToConsumeToken,
+} from 'typescript-parsec';
 
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
   // ref: https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/
-  LParen='(',
-  RParen=')',
-  Comma=',',
-  Semicolon=';',
-  Colon=':',
-  Equals='=',
-  FileNo='#',
-  IntLiteral='<int>',
-  RealLiteral='<real>',
-  StringLiteral='<string>',
-  Ident='<ident>',
-  PathLiteral='<path>',
-  CommandLiteral='<command>',
+  LParen = '(',
+  RParen = ')',
+  Comma = ',',
+  Semicolon = ';',
+  Colon = ':',
+  Equals = '=',
+  FileNo = '#',
+  IntLiteral = '<int>',
+  RealLiteral = '<real>',
+  StringLiteral = '<string>',
+  Ident = '<ident>',
+  PathLiteral = '<path>',
+  CommandLiteral = '<command>',
 
-  New='NEW',
-  Load='LOAD',
-  Save='SAVE',
-  List='LIST',
-  Run='RUN',
-  End='END',
+  New = 'NEW',
+  Load = 'LOAD',
+  Save = 'SAVE',
+  List = 'LIST',
+  Run = 'RUN',
+  End = 'END',
 
-  Let='LET',
-  Data='DATA',
-  Def='DEF',
-  Fn='FN',
-  DefInt='DEFINT',
-  DefDbl='DEFDBL',
-  DefStr='DEFSTR',
-  Dim='DIM',
+  Let = 'LET',
+  Data = 'DATA',
+  Def = 'DEF',
+  Fn = 'FN',
+  DefInt = 'DEFINT',
+  DefDbl = 'DEFDBL',
+  DefStr = 'DEFSTR',
+  Dim = 'DIM',
 
-  For='FOR',
-  To='TO',
-  Step='STEP',
-  GoSub='GOSUB',
-  GoTo='GOTO',
-  Return='RETURN',
-  If='IF',
-  Then='THEN',
-  Else='ELSE',
-  Next='NEXT',
-  While='WHILE',
+  For = 'FOR',
+  To = 'TO',
+  Step = 'STEP',
+  GoSub = 'GOSUB',
+  GoTo = 'GOTO',
+  Return = 'RETURN',
+  If = 'IF',
+  Then = 'THEN',
+  Else = 'ELSE',
+  Next = 'NEXT',
+  While = 'WHILE',
 
-  Erl='ERL',
-  Err='ERR',
-  Error='ERROR',
-  Resume='RESUME',
-  
-  Date='DATE',
-  Time='TIME',
+  Erl = 'ERL',
+  Err = 'ERR',
+  Error = 'ERROR',
+  Resume = 'RESUME',
 
-  Len='LEN',
+  Date = 'DATE',
+  Time = 'TIME',
 
-  Print='PRINT',
+  Len = 'LEN',
 
-  Cls='CLS',
-  Cd='CD',
-  Cp='CP',
-  Rm='RM',
-  Touch='TOUCH',
-  Mv='MV',
-  MkDir='MKDIR',
-  RmDir='RMDIR',
-  Pwd='PWD',
-  Export='EXPORT',
+  Print = 'PRINT',
 
-  LineEnding='\\n',
-  Whitespace='<whitespace>'
+  Cls = 'CLS',
+  Cd = 'CD',
+  Cp = 'CP',
+  Rm = 'RM',
+  Touch = 'TOUCH',
+  Mv = 'MV',
+  MkDir = 'MKDIR',
+  RmDir = 'RMDIR',
+  Pwd = 'PWD',
+  Export = 'EXPORT',
+
+  LineEnding = '\\n',
+  Whitespace = '<whitespace>',
 }
 
 // Naively using the keyword lookup technique from Crafting Interpreters at
@@ -122,7 +129,7 @@ const KEYWORDS: Record<string, TokenKind> = {
   else: TokenKind.Else,
   next: TokenKind.Next,
   while: TokenKind.While,
-  
+
   // error handling
   erl: TokenKind.Erl,
   err: TokenKind.Err,
@@ -183,21 +190,24 @@ const KEYWORDS: Record<string, TokenKind> = {
   // contexts, etc
   // with: TokenKind.With,
   // using: TokenKind.Using,
-}
+};
 
 // The lexer in Crafting Interpreters looks up keywords from a map after
 // parsing them as idents. I decided to try implementing that as a parser
-// combinator. The alternatives were to implement as a map Lexer -> Lexer, 
+// combinator. The alternatives were to implement as a map Lexer -> Lexer,
 // or to use lookahead assertions in the regexp for every keyword. The
 // easiest approach was probably the lexer map, but this seems the most
 // idiomatic.
-export function keywords<TK>(ident: TK, kw: Record<string, TK>): Parser<TK, Token<TK>> {
+export function keywords<TK>(
+  ident: TK,
+  kw: Record<string, TK>,
+): Parser<TK, Token<TK>> {
   return {
     parse(token: Token<TK> | undefined): ParserOutput<TK, Token<TK>> {
       if (!token) {
         return {
           successful: false,
-          error: unableToConsumeToken(token)
+          error: unableToConsumeToken(token),
         };
       }
 
@@ -215,14 +225,14 @@ export function keywords<TK>(ident: TK, kw: Record<string, TK>): Parser<TK, Toke
           {
             firstToken: token,
             nextToken: token ? token.next : undefined,
-            result: mapped
-          }
+            result: mapped,
+          },
         ],
         successful: true,
-        error: undefined
-      }
-    }
-  }
+        error: undefined,
+      };
+    },
+  };
 }
 
 export const scanner: Lexer<TokenKind> = buildLexer([
@@ -242,5 +252,5 @@ export const scanner: Lexer<TokenKind> = buildLexer([
   // TODO: ident
   // TODO: significant newlines
   [true, /^\n+/g, TokenKind.LineEnding],
-  [false, /^\s+/g, TokenKind.Whitespace]
+  [false, /^\s+/g, TokenKind.Whitespace],
 ]);

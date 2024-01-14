@@ -4,6 +4,32 @@ Matanuska will be a BASIC intended to run as a shell. It asks what it would've
 been like if the classic 80s BASIC was better able to rise to the occasion
 when it came to disk features and/or competing with DOS.
 
+## Installation
+
+```bash
+$ npm install
+```
+
+## Running the app
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Test
+
+```bash
+# unit tests
+$ npm test
+```
+
 ## Prior Attempts
 
 This is roughly my fourth attempt. Here are some notes on prior attempts:

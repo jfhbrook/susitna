@@ -1,5 +1,7 @@
+import { Injectable } from '@nestjs/common';
 import { Line, LineNo, Program } from './internal';
 
+@Injectable()
 export class Editor {
   public program: Program;
 
@@ -17,12 +19,10 @@ export class Editor {
     const lineNo = line[0] as LineNo;
   }
 
-  deleteLine(lineNo: LineNo): void {
-  }
+  deleteLine(lineNo: LineNo): void {}
 
   // a program may be loaded entirely from scratch. this would involve
   // completely replacing lines within the program, as well as re-initializing
   // the environment and other lookups.
-  load(lines: Line[]): void {
-  }
+  load(lines: Line[]): void {}
 }

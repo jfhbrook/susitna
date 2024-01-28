@@ -97,7 +97,7 @@ framework, if only so I can easily test Matanuska *in* Matanuska.
 #### Sigils
 
 BASIC uses sigils to mark strings, and - for various reasons - I may adopt
-sigils more broadly, a la perl.
+sigils more broadly, [a la perl](https://www.perl.com/article/on-sigils/).
 
 - `null`: number
 - `$`: strings

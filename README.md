@@ -102,7 +102,11 @@ sigils more broadly, a la perl.
 - `null`: number
 - `$`: strings
 - `#`: file descriptor
-- `%`: array
+- `%`: array - collides with mod operator, but matches perl
+  - `mod(a, b)` OK by me and aligns with traditional BASIC
+  - allowing whitespace to separate int identifier and `%` operator OK by me
+
+Characters which could potentially be other sigils: `~`, `!`, `@`, `&`
 
 #### Arrays
 
@@ -194,6 +198,19 @@ but this would likely use a bytecode marking the following 64 bits as a
 value if re-implemented in a lower level language.
 
 More on this can be seen in `./src/internal.ts`.
+
+#### Flags/Opts
+
+Because I want to do a shell, parsing `--long-opt` and `-abc` as long and
+short CLI options is a thing I want to do. If you really want to negate a
+value, you can wrap in parens, I figure.
+
+That said, I think I'll require that non-option strings are as strings, instead
+of trying to context switch between cli commands and BASIC-style commands.
+That's not the worst thing.
+
+Having options actually opens up interesting possibilities for commands and/or
+cmdlets - cmdlets can specify "params" a la powershell.
 
 #### Variables
 

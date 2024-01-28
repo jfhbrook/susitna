@@ -70,11 +70,6 @@ which is on executing "reverse polish notation" (which is not unlike the modern
 concept of bytecode). Broad strokes, this is what I expect the rest of the
 book to cover:
 
-- The rest of Ch 5, on the runtime
-  - Ch. 5.2 - advice on executing stack-based bytecode
-  - Ch. 5.3 - variables, likely global-oriented and relatively low-level
-  - Ch. 5.4 - some finer points on executing statements
-  - Ch. 5.5 - subtleties on handling stack-allocated strings in a low-level context
 - Ch. 6.1 - the pre-run module, which is expected to fill in details and do
   syntax checks after editing and before running
 - Ch. 6.2 - the re-creator module, which is in charge of converting our bytecode
@@ -104,16 +99,44 @@ framework, if only so I can easily test Matanuska *in* Matanuska.
 BASIC uses sigils to mark strings, and - for various reasons - I may adopt
 sigils more broadly, a la perl.
 
+- `null`: number
+- `$`: strings
+- `#`: file descriptor
+- `%`: array
+
+#### Arrays
+
+In traditional BASIC, arrays are pre-allocated. I think in my language, if
+you substitute an integer identifier for a 1-d array it should be unallocated?
+So `dim(i)`?
+
 #### Hashes
 
 A big open question is how I'm going to support hash-like data structures.
 There are two big alternatives:
 
 1. Augment arrays to support associative array features, similar to Lua tables
-2. Implement a separate Record type, inspired by Pascal
+2. Implement a separate `Record` type, inspired by Pascal
 
-I'm tickled by the tables idea, but it makes the typing a lot more squishy
-than a standard BASIC.
+If I do associative arrays, consider the syntax `dim($)`, where I use the
+string sigil to represent "this dimension is string-valued". I could also
+support `dim($, i)` or `dim(i, $)` potentially?
+
+Anyway: I'm tickled by the tables idea, but it makes the typing a lot more
+squishy than a standard BASIC.
+
+#### Modules
+
+Variable access in BASIC tends to operate on a namespace, and the operand
+stack is mostly used for evaluating expressions. In fact, subroutines often
+have a namespace under their name.
+
+Modules are also a natural extension of Programs - ie, instead of your program
+being a Program, it's the "main module".
+
+If I combine all of this with a JavaScript-style "with" and perhaps a
+prototype abstraction for modules, it opens up interesting possibilities in
+terms of doing object-oriented stuff.
 
 ### Encoding Language
 
@@ -171,6 +194,23 @@ but this would likely use a bytecode marking the following 64 bits as a
 value if re-implemented in a lower level language.
 
 More on this can be seen in `./src/internal.ts`.
+
+#### Variables
+
+Variables should be contained as indexes in the program and the operand stack.
+These indexes reference two arrays: one contains the actual value of the
+variable, the other contains the name of the variable from the source
+language.
+
+#### For Loops
+
+For loops should have a context data structure which should contain:
+
+- the value of the controlled variable (including uninitialized)
+- the index for the line directly following the for loop
+
+You can jump out of a for loop, but need to jump back in *before* `next` is
+called. This can be enforced at runtime.
 
 ## Architecture
 
@@ -376,10 +416,15 @@ See also "heap dumps". In fact, implementing the
 [v8 format](https://github.com/jwalton/node-heapsnapshot-parser/blob/master/src/HeapSnapshot.coffee)
 might be a good idea.
 
-#### Profiler
+#### Profiler and/or Tracing
 
-I think I can actually leverage some bleeding edge otel shit here. But also,
-check out these links:
+I thought about implementing profiling with opentelemetry, and I haven't
+ruled it out *completely*, but a big limitation of otel spans is that the
+instrumentation emits a single event when a span closes, and the collector and
+query engine has to construct the full picture after the fact. That makes it
+tough to show traces until after execution is complete.
+
+Check out these links:
 
 - <https://github.com/open-telemetry/oteps/blob/main/text/profiles/0212-profiling-vision.md>
 - <https://github.com/google/pprof>

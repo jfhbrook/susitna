@@ -106,7 +106,7 @@ sigils more broadly, a la perl.
   - `mod(a, b)` OK by me and aligns with traditional BASIC
   - allowing whitespace to separate int identifier and `%` operator OK by me
 
-Characters which could potentially be other sigils: `~`, `!`, `@`, `&`
+Characters which could potentially be other sigils: `~`, `!`, `@`, `&`, `?`
 
 #### Arrays
 
@@ -141,6 +141,11 @@ being a Program, it's the "main module".
 If I combine all of this with a JavaScript-style "with" and perhaps a
 prototype abstraction for modules, it opens up interesting possibilities in
 terms of doing object-oriented stuff.
+
+#### String Templating
+
+I won't implement these right out of the gate, but this functionality is
+basically required for a shell.
 
 ### Encoding Language
 
@@ -453,6 +458,15 @@ A really cool stretch goal would be to implement flame graphs.
 
 PJ actually says good errors are better than interactive help. That said, I
 should still write documentation.
+
+#### Tests
+
+I want to include some keywords for `test` and `assert`. If I run my program
+in "test mode", I can run these blocks to generate tests with either
+node-tap or [tape](https://github.com/ljharb/tape). I think tape is more
+flexible here, but I don't like the standard reporting - but I might be able to
+adopt [node-tap's reporter module](https://github.com/tapjs/tapjs/tree/main/src/reporter)
+to my use case?
 
 ### Cmdlets
 

@@ -55,8 +55,8 @@ The latter is from 1979 and is BASIC-oriented, but less example-driven.
 The outputs from my work with `Crafting Interpreters` can be viewed at
 <https://github.com/jfhbrook/crafting-interpreters>.
 
-I haven't finished either. In `Crafting Interpreters`, here are things I
-*haven't* done:
+I finished the latter, but not the former. In `Crafting Interpreters`, here
+are things I *haven't* done:
 
 - Ch. 12 and 13 - classes and inheritance in Java (which I *might* implement)
 - Ch. 22 - local variables on a stack (which I *probably* want)
@@ -64,25 +64,6 @@ I haven't finished either. In `Crafting Interpreters`, here are things I
 - Ch. 25 - closures (which I don't intend to implement)
 - Ch. 26 - garbage collection (which typescript solves For Now)
 - ch. 27 through 29 - classes in C (which, again, I *might* implement)
-
-In `Writing Interactive Compilers and Interpreters`, I made it up to Ch. 5.2,
-which is on executing "reverse polish notation" (which is not unlike the modern
-concept of bytecode). Broad strokes, this is what I expect the rest of the
-book to cover:
-
-- Ch. 6.1 - the pre-run module, which is expected to fill in details and do
-  syntax checks after editing and before running
-- Ch. 6.2 - the re-creator module, which is in charge of converting our bytecode
-  back into valid source code
-- Ch 6.3 - the command module, which I need to study more in terms of architecture
-  and responsibilities
-- Ch. 7 - testing and release advice
-- Ch. 8 - "some advanced and specialized topics"
-
-PJ says the 14th deadly sin isn't finishing the book ;) I think between these
-two, WIC&I is more important to finish due to its outsized influence on my
-architecture, while CI can be used to show me *how* to do something once I
-know *what* I want to do.
 
 ## Languages
 
@@ -96,23 +77,34 @@ framework, if only so I can easily test Matanuska *in* Matanuska.
 
 #### Sigils
 
-BASIC uses sigils to mark strings, and - for various reasons - I may adopt
-sigils more broadly, [a la perl](https://www.perl.com/article/on-sigils/).
+BASIC has *manifest* data types, meaning you can tell what type they are based
+on syntax. Strings use a `$` postfix sigil, integers have no sigil, channels
+use a prefix `#`, and dim syntax always involves parens. This makes it so your
+IR can use codes which assume the data type, while being easy to recreate into
+formatted source code.
 
-- `null`: number
-- `$`: strings
-- `#`: file descriptor
-- `%`: array - collides with mod operator, but matches perl
-  - `mod(a, b)` OK by me and aligns with traditional BASIC
-  - allowing whitespace to separate int identifier and `%` operator OK by me
+In my case, data types will be a bit more complex, and I'll probably need/want
+to adopt sigils more broadly, [a la perl](https://www.perl.com/article/on-sigils/).
 
-Characters which could potentially be other sigils: `~`, `!`, `@`, `&`, `?`
+Here are some sigils perl uses:
+
+- `$` for scalars. we probably can't or shouldn't do that.
+- `@` for arrays.
+- `%` for hashes. It collides with the mod operator, but traditional BASIC uses
+  `mod(a, b)` anyway, and that works for me
+- `&` for subroutines. That seems like an unlikely use for me.
+
+Other characters which could potentially be other sigils: `~`, `!`, `?`
 
 #### Arrays
 
 In traditional BASIC, arrays are pre-allocated. I think in my language, if
 you substitute an integer identifier for a 1-d array it should be unallocated?
 So `dim(i)`?
+
+Question: dim access doesn't seem to have an obvious return type - you can
+store anything as the value in a dim, right? Or are dims in BASIC integer only?
+Do I want to use sigils for dims? ie., `dim$(i)`?
 
 #### Hashes
 
@@ -204,6 +196,25 @@ value if re-implemented in a lower level language.
 
 More on this can be seen in `./src/internal.ts`.
 
+#### Line Numbers
+
+On some level, I will need to map between line numbers and indexes in my
+Program. One idea is to:
+
+- keep an array of line numbers with indexes corresponding to position in the
+  bytecode
+- on GOTO, I'd have to scan the bytecode every time
+- use that array when recreating, rewrite that array when resequencing
+
+Another idea is to:
+
+- store the line number in the bytecode and store the bytecode indexes in a
+  hash
+- on GOTO, it's a simple pointer lookup, no scanning
+- recreating is simple, resequencing requires scanning the bytecode
+
+I think I prefer the latter.
+
 #### Flags/Opts
 
 Because I want to do a shell, parsing `--long-opt` and `-abc` as long and
@@ -223,6 +234,8 @@ Variables should be contained as indexes in the program and the operand stack.
 These indexes reference two arrays: one contains the actual value of the
 variable, the other contains the name of the variable from the source
 language.
+
+BASIC variables are *manifest*
 
 #### For Loops
 
@@ -282,24 +295,45 @@ and run "headless" from a file.
 The editor is what's in charge of taking lines from the Translator and updating
 a `Program` accordingly. Its interface is similar to a dictionary.
 
+The Command module will be in charge of initializing the Program, so either
+Command will delegate to Editor or Editor will delegate to Command.
+
 ### Recreator
 
-Suppose that, when I edit a `Program`, I'm *not* saving the original source
-code along with the IR. This means I'll need a component which can take IR
-and convert it *back* to valud source code.
+In many BASICS (and in mine), you *don't* save the original source when
+converting to an IR. This means that I'd need to be able to convert the IR
+*back* to vaild source code. WIC&I calls this recreating.
 
-My current feeling is that I should implement a recreator, because I'd like to
-put formatting concerns to bed - similar to go. There are some challenges
-here, but I think with good testing it should give me auto-formatting almost
-for free.
+As a consequence, the IR will include no-op bytecodes which are *only*
+necessary for recreating the source. The most obvious example is `REM`s, but
+another example is parentheses.
+
+A nice bonus is that my recreator is effectively also the standard formatter,
+when combined with parsing.
 
 ### Program
 
-A `Program` is the core abstraction for storing IR. As mentioned, IR is in
-a flat array, which includes field lengths before each encoded line.
+A `Program` is the core abstraction for storing IR. As mentioned, the base IR
+is in a flat array, which includes field lengths before each encoded line.
 
-But note that `Program` *also* owns storing variables. This means it maintains
-some sense of an `Environment` internally.
+But there are actually lots of other arrays and hashes in the Program.
+
+The most obvious case is variable values. These would be stored in arrays where
+indexes are inserted into the bytecode by the pre-run procedure. Note that,
+because types are manifest, each type of variable can be stored in a separate
+collection.
+
+But it also has lookups that let you recreate fromm the bytecode. For example,
+variable *names* are also stored in arrays. Depending on architecture, source
+line numbers may also be stored in separate arrays as well.
+
+Finally, the Program contains objects specifying the positions and structures
+of blocks - think for loops, while loops, multi-line ifs, etc. In the case of
+for loops, these objects include the start and end lines (easy jumping) and
+the names/values of their "controlled variables" (i, j, k etc).
+
+All of that said, function/subroutine variable values are likely to be held
+on the stack.
 
 #### Cursor
 
@@ -309,18 +343,6 @@ do `for (const i = cursor.start; i < cursor.end; i++) { ... }` or similar.
 Note, this abstraction may require some changes to support a proper bytecode
 if ported to a lower level language.
 
-#### Environment
-
-The Java implementation of Lox in CI stores all variables in a Map that can
-look upwards into ancestor scopes. But in my case, things might be different:
-
-1. I intend to know types at the time I compile to IR, largely due to the use
-   of sigils, and therefore can benefit from multiple narrowly-typed dicts
-2. I don't intend to implement nested functions and may only have builtin,
-   global and local scope - or similar.
-3. I will likely implement local variables on a values stack, like the C
-   implementation
-
 ### Scanning and Parsing
 
 I'm starting out with using parser combinators, namely typescript-parsec.
@@ -328,25 +350,6 @@ This should let me write a lexer and parser which map pretty closely to
 a recursive descent style parser, as seen in both WIC&I and CI. However, I
 might implement expressions using a Pratt parser (a great example in CI) and
 I may hand-roll a scanner in the future.
-
-One open question is how I want to handle shell commands in the scanner. I want
-to take bare cli commands and execute them with minimal friction, which means:
-
-1. Treating "commands" which map to bins in the PATH as being roughly
-   equivalent to BASIC commands
-2. Allowing for a standard-ish way of doing stream redirects that's idiomatic
-   for a BASIC
-3. Scanning `--option`s and `-sHoRtOpTs` as CLI arguments instead of parts of
-   an expression. I'm going to make this a later milestone and concentrate on
-   a base language to start so I can punt on this problem, but the big
-   question is whether to introduce context and use different scanning logic
-   when handling shell commands, versus having context-independent scanning
-   rules that parse those as flags/options regardless of command and treat
-   them as syntax errors for native commands. Probably the latter, especially
-   if it lets native commands or cmdlets support options/flags.
-
-I'm hopeful that, as I develop the scanner and parser, that I'll be able to
-make new combinators which make it easier to define "standard" commands.
 
 One combinator I need to think about is a `synchronize` combinator, which can
 eat invalid tokens to the end of the malformed command in an effort to recover.
@@ -369,7 +372,8 @@ and:
 
 1. Ensure variables are defined before they're used
 2. Ensure for loops, if statements, and so on, are properly nested/closed
-3. Resolve addresses for GOTOs and the like
+3. Resolve addresses for GOTOs and the like - things that would be `null` in
+   the IR while editing
 
 ### Runtime
 
@@ -383,19 +387,58 @@ originating code through the `Editor`.
 
 ### Command Module
 
-I have some reading to do, frankly, before I fully understand the
-responsibilities of this component. I *do* know that it evals the RUN command.
-I also suspect it's in charge of loading `autoexec.bas`. This should be
-clarified in 6.3 of WIC&I.
+The command module is effectively session management.
+
+#### initializing and resetting sessions
+
+- initting/resetting the Program
+- initting the Host
+- loading history
+- running autoexec.bas
+- printing any startup messages
+
+#### decoding non-runtime commands
+
+Imagine that, in my language, editing commands and things like `run` aren't
+able to be executed by the runtime as part of a Program. In this case, the
+command module would be squarely in charge of accepting that command,
+interpreting it, and delegating it accordingly.
+
+This isn't totally wild. In fact, the node.js repl has a number of non-js
+commands. These are prefixed by periods - an example is `.exit`. If I want,
+I can follow this convention as well.
+
+Immediate statements, however, complicate things. Non-command immediate
+statements *must* be executed by the runtime. But it can still make sense for
+the command runner to delegate the immediate statement, especially if it can
+handle non-runtime commands. Note, however, that if *all* commands are
+runtime statements, this method becomes very small indeed.
+
+#### break-ins and other halts
+
+If there's a break-in interrupt, the command module would be in charge of
+pausing execution, making sure everything is in a good state, and handing
+things back to the translator.
+
+Note that, in the case of errors, the command module would be in charge of
+*recovery*. The errors module can only be in charge of *reporting* errors,
+and otherwise needs to trigger the command module's break-in functionality
+with an interrupt.
+
+#### cleaning up on exit
+
+- gracefully shutting down running jobs (in bash parlance)
+- getting the host to clear handles
+- flushing history
 
 ### Errors
 
 Errors are going to be a BIG part of the interpreter, especially since most
-arbitrary input is going to be a syntax error of some kind. I'm intending
-on having a centralized component for now, since Java lox in CI had a
-centralized component. In my head, it's in charge of taking error inputs,
-formatting them to text, and passing that text to the Host. I suspect other
-components will be able to manage their own *state* without its help.
+arbitrary input is going to be a syntax error of some kind.
+
+For now, I'm intending on having a centralized component that's in charge of
+taking error inputs, formatting them to text, passing that text to the Host,
+and handing off recovery to the command module.
 
 ### Interrupts
 
@@ -425,20 +468,54 @@ an expected and consistent stack effect. I plan on making a simple DSL that
 clocks [factor](https://github.com/factor/factor/blob/master/extra/rot13/rot13.factor#L6)
 and generating tests off that.
 
+In general, tests should cover:
+
+- combinations of various facilities
+- nesting
+- things in, on and out of bounds
+- null values, expected or otherwise
+- infinite and/or "ridiculously large" cases - may need to autogen test programs
+- ridiculous syntax errors
+- any and all error cases - there are a LOT more errors than correct code!
+
+This means one way to test is to try running an obviously incorrect program
+and assert the error output is as-expected. This will probably require a
+vcr-like facility.
+
+Some things - like break-ins or non-runtime command errors - will need to be
+tested interactively. This may be helped with an expect-like module, but worst
+case can be done with a runbook. Definitely have a runbook though.
+
+Finally, it's a good idea to have runtime asserts. These can cause a
+"FLAGRANT ERROR" to occur, which tells the user that it's MY fault, not THEIRS,
+and offers to buy them a beer if they report it (and meet me in person).
+
+#### Performance Tests
+
+PJ suggests writing these sooner rather than later. He says to compare your
+performance to similar languages - for me, that probably means `bash` and
+other shells.
+
 ### Debugging
 
 #### Break-In
 
 I want ctrl-d to pause execution and enter a "debugger" state. This will mean
 having to get interrupts right, but it should be a really neat feature.
+Or, if WIC&I is to be trusted, crucial.
 
 #### Symbol Dump
 
-See also "heap dumps". In fact, implementing the
+These are similar to "heap dumps" in node. However, I'd want these to be easily
+read by a human being without using external tools. Generating the
 [v8 format](https://github.com/jwalton/node-heapsnapshot-parser/blob/master/src/HeapSnapshot.coffee)
-might be a good idea.
+is not the worst idea, but I don't want that to be the only option.
 
-#### Profiler and/or Tracing
+#### Profiler
+
+WIC&I shows this as a map from the line to how often it's been executed. This
+is basically the same idea as modern profiling, but a little simpler due to
+the nature of a classic BASIC.
 
 I thought about implementing profiling with opentelemetry, and I haven't
 ruled it out *completely*, but a big limitation of otel spans is that the
@@ -446,27 +523,13 @@ instrumentation emits a single event when a span closes, and the collector and
 query engine has to construct the full picture after the fact. That makes it
 tough to show traces until after execution is complete.
 
-Check out these links:
-
-- <https://github.com/open-telemetry/oteps/blob/main/text/profiles/0212-profiling-vision.md>
-- <https://github.com/google/pprof>
-- <https://github.com/VictoriaMetrics/VictoriaMetrics#profiling>
-
-A really cool stretch goal would be to implement flame graphs.
+A really cool stretch goal would be to implement flame graphs. But for my own
+sanity, starting simple will still be useful.
 
 #### Help
 
 PJ actually says good errors are better than interactive help. That said, I
 should still write documentation.
-
-#### Tests
-
-I want to include some keywords for `test` and `assert`. If I run my program
-in "test mode", I can run these blocks to generate tests with either
-node-tap or [tape](https://github.com/ljharb/tape). I think tape is more
-flexible here, but I don't like the standard reporting - but I might be able to
-adopt [node-tap's reporter module](https://github.com/tapjs/tapjs/tree/main/src/reporter)
-to my use case?
 
 ### Cmdlets
 
@@ -488,15 +551,27 @@ like Python does by default.
 
 ## Next Steps
 
-First, I need to at LEAST finish WIC&I. Doing more of CI would be valuable too.
+I finished WIC&I. Now I need to finish Crafting Interpreters.
 
-Then, I just need to implement the base language. I can loosely follow the
-structure of CI to inform what direction I go. Unlike CI, I'll want to use
-some level of TDD.
+Then, I just need to implement the base language. This will require some
+strategy. CI can inform this to an extent. WIC&I suggests this ordering, in
+the name of maximum testability early on:
 
-In pretty short order - probably after I have call stacks - I'll want to
-implement relevant source language testing features. This should open up
-possibilities for writing even more tests.
+- Get the Host module so it can do basic IO - prompting and output
+- Get error reporting infrastructure in place, so I can immediately report
+  errors when I cause them
+- Ensure there's a "not implemented" error
+- Get (interactive) print working
+  - MVP of translator and runtime
+  - A stub prerun
+  - A very simple command module
+  - Notably, not editing, as we're not actually editing a program yet
+- MVP of symbol dump and profiler
+- Editing - save/load programs - and non-interactive execution
+- Tests that run example programs and assert their output
+
+Eventually, when I have nesting and/or call stacks, I can implement the
+in-program test harness and start using *that*.
 
 ## The Future
 

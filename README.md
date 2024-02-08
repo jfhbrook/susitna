@@ -7,27 +7,19 @@ when it came to disk features and/or competing with DOS.
 ## Installation
 
 ```bash
-$ npm install
+npm install
 ```
 
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm start
 ```
 
 ## Test
 
 ```bash
-# unit tests
-$ npm test
+npm test
 ```
 
 ## Prior Attempts
@@ -54,16 +46,6 @@ how to write a lox interpreter in both java (tree-walking) and C (bytecode).
 The latter is from 1979 and is BASIC-oriented, but less example-driven.
 The outputs from my work with `Crafting Interpreters` can be viewed at
 <https://github.com/jfhbrook/crafting-interpreters>.
-
-I finished the latter, but not the former. In `Crafting Interpreters`, here
-are things I *haven't* done:
-
-- Ch. 12 and 13 - classes and inheritance in Java (which I *might* implement)
-- Ch. 22 - local variables on a stack (which I *probably* want)
-- Ch. 23 and 24 - jmp/GOTO and call stack shenanigans (which I definitely need)
-- Ch. 25 - closures (which I don't intend to implement)
-- Ch. 26 - garbage collection (which typescript solves For Now)
-- ch. 27 through 29 - classes in C (which, again, I *might* implement)
 
 ## Languages
 
@@ -179,81 +161,65 @@ multiple addons in Node.JS then I can choose language per addon.
 All that said, this is all stuff I plan on punting on until I have a
 practically usable language.
 
-### Internal Language (Internal Representation)
+### Abstract Syntax Tree
 
-I'm implementing what's very similar to a bytecode - what PJ Brown calls
-"reverse Polish notation". However, a big difference is that it's line-aware.
-Each line is encoded like so:
+I will be implementing an AST. This tree will be a collection of
+lines, each of which has an optional line number and a root node representing
+the contents of the line. This is the format which will be stored in the
+Editor.
 
-```
-... Field Length, LineNo, <Code | Value>...,
-```
+One important property of the AST is that it can be recreated back into valid
+source code. This saves us from the responsibility of storing raw source code
+(as well as the corresponding space). But it also gives us opinionated
+formatting for free.
 
-Field length includes the line number, but not the field length itself.
-Values are currently marked by being stored in an object (`{ value: RawValue }`),
-but this would likely use a bytecode marking the following 64 bits as a
-value if re-implemented in a lower level language.
+Another important property of the AST is that its parser captures all syntax
+errors which can be discovered without the context of other lines. This lets
+us give syntax errors to users early, before they try to run a complete
+program.
 
-More on this can be seen in `./src/internal.ts`.
+To start, I will also be interpreting against this AST. This will be easier
+than implementing a full bytecode VM and get me a head start on something
+that *works*. This will allow me to iron out features and behavior, build out
+testing infrastructure, and build out resolving (and other pre-run concerns)
+in relative isolation.
 
 #### Line Numbers
 
-On some level, I will need to map between line numbers and indexes in my
-Program. One idea is to:
+The base collection for lines will likely be an Array. This is really
+convenient for linear scanning, but less convenient if you want to seek to a
+particular line. Lines will need to support many operations - editing,
+compiling (or pre-run and execution), recreating and resequencing
+(re-numbering) being a few.
 
-- keep an array of line numbers with indexes corresponding to position in the
-  bytecode
-- on GOTO, I'd have to scan the bytecode every time
-- use that array when recreating, rewrite that array when resequencing
+The choices are basically between keeping line number inside the AST and
+scanning forward to get to any element you need, and indexing line numbers in
+a hash.
 
-Another idea is to:
+### Bytecode
 
-- store the line number in the bytecode and store the bytecode indexes in a
-  hash
-- on GOTO, it's a simple pointer lookup, no scanning
-- recreating is simple, resequencing requires scanning the bytecode
+Later, I will compile from the AST into a bytecode at runtime. The compiler
+that does this work will effectively replace the "pre-run" abstraction used
+to execute the AST directly. Unlike the bytecode in Writing Interactive
+Compilers and Interpreters, it will *not* be recreateable - instead, I will
+retain the use of the AST for those purposes. While this does mean two ways
+of representing the code, it retains the two-stage aspects of the architecture
+- translation and pre-run - and allows for a simpler bytecode with much higher
+levels of optimization.
 
-I think I prefer the latter.
+#### Bytecode Assembler
 
-#### Flags/Opts
-
-Because I want to do a shell, parsing `--long-opt` and `-abc` as long and
-short CLI options is a thing I want to do. If you really want to negate a
-value, you can wrap in parens, I figure.
-
-That said, I think I'll require that non-option strings are as strings, instead
-of trying to context switch between cli commands and BASIC-style commands.
-That's not the worst thing.
-
-Having options actually opens up interesting possibilities for commands and/or
-cmdlets - cmdlets can specify "params" a la powershell.
-
-#### Variables
-
-Variables should be contained as indexes in the program and the operand stack.
-These indexes reference two arrays: one contains the actual value of the
-variable, the other contains the name of the variable from the source
-language.
-
-BASIC variables are *manifest*
-
-#### For Loops
-
-For loops should have a context data structure which should contain:
-
-- the value of the controlled variable (including uninitialized)
-- the index for the line directly following the for loop
-
-You can jump out of a for loop, but need to jump back in *before* `next` is
-called. This can be enforced at runtime.
+While working on the bytecode, I'll also need an assembler format. Being able
+to parse the format would be extremely cool, likely not that difficult, and
+would stand as a useful tool to test the vm more closely than BASIC can. But
+the more important part is generating it so I can visualize bytecode being
+generated by my interpreter.
 
 ## Architecture
 
-These notes describe the intended architecture. This is based partly on
-what I've learned through my prior experiences but is largely influenced by
-WIC&I and augmented by modern ideas from CI.
+These notes describe the intended architecture. 
 
-An auto-generated architecture diagram may be seen here:
+An architecture diagram for the first milestone can be seen here:
 
 ![](./architecture.png)
 
@@ -283,12 +249,12 @@ This component contains the main REPL loop and feeds parsed lines to other
 components. The basic loop is:
 
 1. Read source code input from the prompt
-2. Use the scanner and parser to generate IR in a "buffer"
+2. Use the scanner and parser to generate the AST for a line
 3. If prefixed by a line number, feed to the Editor
-4. If *not* prefixed by a line number, feed to the command module directly
+4. If *not* prefixed by a line number, feed to the command module as an
+   immediate command
 
-It's likely that my Translator would also have the ability to directly read
-and run "headless" from a file.
+The Translator may also non-interactively read directly from a file.
 
 ### Editor
 
@@ -300,48 +266,29 @@ Command will delegate to Editor or Editor will delegate to Command.
 
 ### Recreator
 
-In many BASICS (and in mine), you *don't* save the original source when
+In many BASICs (and in mine), you *don't* save the original source when
 converting to an IR. This means that I'd need to be able to convert the IR
-*back* to vaild source code. WIC&I calls this recreating.
-
-As a consequence, the IR will include no-op bytecodes which are *only*
-necessary for recreating the source. The most obvious example is `REM`s, but
-another example is parentheses.
+*back* to vaild source code. WIC&I calls this recreating. Unlike traditional
+BASIC, however, we will be recreating from a tree, not a bytecode.
 
 A nice bonus is that my recreator is effectively also the standard formatter,
 when combined with parsing.
 
 ### Program
 
-A `Program` is the core abstraction for storing IR. As mentioned, the base IR
-is in a flat array, which includes field lengths before each encoded line.
+In WIC&I, a `Program` is the core abstraction for storing IR, environment
+information and certain kinds of metadata useful for recreating source from
+IR.
 
-But there are actually lots of other arrays and hashes in the Program.
+CI doesn't have this abstraction as such. Instead, jlox has a parsed AST,
+Environments, and so forth; and clox has chunks, closures, the stack and
+so forth, all stored on its `vm` object (analogous to WIC&I's "runtime").
 
-The most obvious case is variable values. These would be stored in arrays where
-indexes are inserted into the bytecode by the pre-run procedure. Note that,
-because types are manifest, each type of variable can be stored in a separate
-collection.
-
-But it also has lookups that let you recreate fromm the bytecode. For example,
-variable *names* are also stored in arrays. Depending on architecture, source
-line numbers may also be stored in separate arrays as well.
-
-Finally, the Program contains objects specifying the positions and structures
-of blocks - think for loops, while loops, multi-line ifs, etc. In the case of
-for loops, these objects include the start and end lines (easy jumping) and
-the names/values of their "controlled variables" (i, j, k etc).
-
-All of that said, function/subroutine variable values are likely to be held
-on the stack.
-
-#### Cursor
-
-I need an abstraction to iterate over the lines of a program. In my head,
-you can call `cursor.next()` or `cursor.seek(lineNo)` on the cursor, and then
-do `for (const i = cursor.start; i < cursor.end; i++) { ... }` or similar.
-Note, this abstraction may require some changes to support a proper bytecode
-if ported to a lower level language.
+This document refers to a `Program` in a WIC&I sense, partially because it
+was written when I thought I was going to follow it more closely but also
+because I'm not entirely sure what the actual set of abstractions will look
+like in practice. I intend to use an AST similar to jlox, but with a stack
+like in clox.
 
 ### Scanning and Parsing
 
@@ -367,23 +314,30 @@ program. A lot can be checked ahead of time - you can even allocate space for
 variables ahead of time! But a lot of things will need to be checked or
 "filled in" after editing is done but before actually running the `Program`.
 
-This component will basically do a linear scan across the resulting `Program`
-and:
+In other words, this component is a second pass in a two-stage compiler, which
+has the context of the entire program.
+
+In v1, I'm going to be executing the AST directly. That means doing a linear
+scan on the AST and filling in fields which are set to `null` on translation.
+Broad strokes:
 
 1. Ensure variables are defined before they're used
 2. Ensure for loops, if statements, and so on, are properly nested/closed
 3. Resolve addresses for GOTOs and the like - things that would be `null` in
    the IR while editing
 
+#### Compiler
+
+In a v2, I would like to replace the pre-run module with a compiler that
+generates bytecode. It will do many of the same things as the pre-run module,
+but will generate bytecode instead of tagging nullable fields in the AST.
+
+
 ### Runtime
 
 The runtime maps loosely to `vm.c` in the C lox implementation from CI. It owns
-the program counter (instruction pointer) (a `Cursor`) and, most likely, the
-call stack and symbol stack as well.
-
-The call stack will likely contain `Cursors`. Note that, when reporting
-errors, I can reference line numbers from this stack and look up the
-originating code through the `Editor`.
+the program counter, the call stack, the symbol stack, and everything else
+needed to actually run compiled bytecode.
 
 ### Command Module
 
@@ -446,6 +400,11 @@ Interrupts will be interesting, especially in an async context. The primary
 use cases for interrupts so far are keyboard interrupts and/or breaking to
 debugger, but basically any event will involve an interrupt of some kind.
 
+### Garbage Collection
+
+In theory, I won't need garbage collection because TypeScript already does
+it. But if I end up needing it, I can implement mark and sweep like CI does.
+
 ### Testing
 
 #### Source Language
@@ -492,9 +451,10 @@ and offers to buy them a beer if they report it (and meet me in person).
 
 #### Performance Tests
 
-PJ suggests writing these sooner rather than later. He says to compare your
-performance to similar languages - for me, that probably means `bash` and
-other shells.
+Both WIC&I and CI stress the importance of performance tests. 
+PJ says to compare your performance to similar languages - for me, that
+probably means `bash` and other shells. Bob says to compare performance before
+and after a code change, to see if your optimizations are actually helping.
 
 ### Debugging
 
@@ -526,6 +486,14 @@ tough to show traces until after execution is complete.
 A really cool stretch goal would be to implement flame graphs. But for my own
 sanity, starting simple will still be useful.
 
+#### Disassembler Output
+
+Somewhat analogous to clox's debug output, and/or printing the raw javascript
+`Program` object. Stuff like this is useful for the compiler developer.
+
+This can be optionally disabled in "release" versions and/or with a variable,
+but it's not harmful to expose this as a "secret" command either.
+
 #### Help
 
 PJ actually says good errors are better than interactive help. That said, I
@@ -551,11 +519,15 @@ like Python does by default.
 
 ## Next Steps
 
-I finished WIC&I. Now I need to finish Crafting Interpreters.
+I've finished both WIC&I and Crafting Interpreters, and I have a pretty good
+idea of the overall strategy I want to take.
 
-Then, I just need to implement the base language. This will require some
-strategy. CI can inform this to an extent. WIC&I suggests this ordering, in
-the name of maximum testability early on:
+Generally speaking, I want to implement a tree walk interpreter in TypeScript,
+get the behavior and testing down, and then increase levels of sophistication
+towards a bytecode VM. I also believe I want to start with a stack as in clox,
+even though I'm working with an AST.
+
+WIC&I suggests this overall order for implementing things to start:
 
 - Get the Host module so it can do basic IO - prompting and output
 - Get error reporting infrastructure in place, so I can immediately report
@@ -575,15 +547,15 @@ in-program test harness and start using *that*.
 
 ## The Future
 
-once I actually have the bedrock of a working BASIC, there are three general
+Once I actually have the bedrock of a working BASIC, there are three general
 directions to go in.
 
-first, I'll want to get the base language completed and tested, and have a good
+First, I'll want to get the base language completed and tested, and have a good
 idea of how it's the same or different from other classic BASICs, like
 MSX BASIC or C64 BASIC. this may involve porting old BASIC games to s7bas, such
 as "acey ducey".
 
-second, the *actual* goal for this project isn't just to write a BASIC, it's
+Second, the *actual* goal for this project isn't just to write a BASIC, it's
 to make a BASIC which can replace bash:
 
 - shell pt 1: the basics

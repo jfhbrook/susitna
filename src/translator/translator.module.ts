@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { HostModule } from '../host/host.module';
 import { EditorModule } from '../editor/editor.module';
 import { CommandModule } from '../command/command.module';
 
@@ -22,7 +21,11 @@ import { Translator } from './translator.service';
 // - dropping to debugging mode on a CTRL-D during runtime
 
 @Module({
-  imports: [HostModule, EditorModule, CommandModule],
+  imports: [
+    // HostModule,
+    EditorModule,
+    CommandModule,
+  ],
   providers: [Translator],
   exports: [Translator],
 })

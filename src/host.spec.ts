@@ -12,8 +12,6 @@ const topic = discuss(
     await host.init({});
 
     return host;
-    // oh my God, am I going to have to finally publish to npm??
-    // fucking LMAO
   },
   async (host) => {
     await host.close();

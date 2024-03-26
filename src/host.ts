@@ -216,7 +216,7 @@ export class ConsoleHost implements Host {
   }
 
   input(question: string): Promise<string> {
-    return this.readline.question(question);
+    return this.readline.question(`${question} > `);
   }
 
   prompt(prompt: string): Promise<string> {

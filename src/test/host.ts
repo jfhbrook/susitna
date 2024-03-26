@@ -4,23 +4,44 @@ import { Transform, Writable } from 'stream';
 import { ConsoleHost } from '../host';
 
 /**
+ * Generate the ANSI escape code for moving the cursor to a particular column.
+ * Needed to test the output of the readline interface.
+ *
+ * @param column The column to move the cursor to.
+ */
+export function moveCursorTo(column: number): string {
+  return `\u001b[${column}G`;
+}
+
+/**
+ * The ANSI escape code for erasing until the end of the screen.
+ * Needed to test the output of the readline interface.
+ */
+export const ERASE_TO_END = `\u001b[0J`;
+
+/**
  * An input stream for testing.
  */
 class InputStream extends Transform {
-  input: Array<string>;
+  input: string;
+
+  constructor() {
+    super();
+    this.input = '';
+  }
 
   _transform(chunk: any, _encoding: any, callback: any) {
     if (chunk instanceof Buffer) {
-      this.input.push(chunk.toString());
+      this.input += chunk.toString();
     } else {
-      this.input.push(chunk);
+      this.input += chunk;
     }
     this.push(chunk);
     callback();
   }
 
   reset() {
-    this.input = [];
+    this.input = '';
   }
 }
 
@@ -28,24 +49,24 @@ class InputStream extends Transform {
  * An output stream for testing.
  */
 class OutputStream extends Writable {
-  output: Array<string>;
+  output: string;
 
   constructor() {
     super();
-    this.output = [];
+    this.output = '';
   }
 
   _write(chunk: any, _encoding: string, callback: any) {
     if (chunk instanceof Buffer) {
-      this.output.push(chunk.toString());
+      this.output += chunk.toString();
     } else {
-      this.output.push(chunk);
+      this.output += chunk;
     }
     callback();
   }
 
   reset() {
-    this.output = [];
+    this.output = '';
   }
 }
 
@@ -53,6 +74,10 @@ class OutputStream extends Writable {
  * A subclass of ConsoleHost with test streams.
  */
 export class TestConsoleHost extends ConsoleHost {
+  inputStream: InputStream;
+  outputStream: OutputStream;
+  errorStream: OutputStream;
+
   constructor() {
     super();
     this.inputStream = new InputStream();

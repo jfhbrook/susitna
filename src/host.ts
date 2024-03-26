@@ -233,19 +233,19 @@ export class ConsoleHost implements Host {
 
   writeDebug(value: Value): void {
     if (this.level <= Level.Debug) {
-      this.errorStream.write(`Debug: ${value}\n`);
+      this.errorStream.write(`DEBUG: ${value}\n`);
     }
   }
 
   writeInfo(value: Value): void {
     if (this.level <= Level.Info) {
-      this.errorStream.write(`Info: ${value}\n`);
+      this.errorStream.write(`INFO: ${value}\n`);
     }
   }
 
   writeWarn(value: Value): void {
     if (this.level <= Level.Warn) {
-      this.errorStream.write(`Warn: ${value}\n`);
+      this.errorStream.write(`WARN: ${value}\n`);
     }
   }
 
@@ -257,14 +257,19 @@ export class ConsoleHost implements Host {
     switch (channel) {
       case 1:
         this.writeOut(value);
+        break;
       case 2:
         this.writeError(value);
+        break;
       case 3:
         this.writeWarn(value);
+        break;
       case 4:
         this.writeInfo(value);
+        break;
       case 5:
         this.writeDebug(value);
+        break;
       default:
         // TODO: Custom channels + file descriptors
         // TODO: IOError for unknown channel

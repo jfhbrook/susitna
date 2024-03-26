@@ -2,6 +2,7 @@ import t from 'tap';
 import { Test } from 'tap';
 
 import {
+  ExitCode,
   BaseException,
   Exception,
   AssertionError,
@@ -10,6 +11,7 @@ import {
   BaseWarning,
   Warning,
   DeprecationWarning,
+  ErrorCode,
   OsError,
   FileError,
   SyntaxError,
@@ -73,31 +75,160 @@ t.test('For simple warnings', async (t: Test) => {
   }
 });
 
-// Create OsErrors with an error code and assert their exit codes:
-// - EACCES
-// - EADDRINUSE
-// - ECONNREFUSED
-// - ECONNRESET
-// - EEXIST
-// - EISDIR
-// - EMFILE
-// - ENOENT
-// - ENOTDIR
-// - ENOTEMPTY
-// - ENOTFOUND
-// - EPERM
-// - EPIPE
-// - ETIMEDOUT
-//
-// Create an OSError with an overridden exit code
-//
-// Construct a FileError directly
-// Create a FileError from a naive error
-// Create a FileError from a read error
-// Create a FileError from a write error
-//
-// Construct a ParseError
-// Construct a ParseWarning
-//
-// Construct a FlagrantError
-// Construct a UsageError
+const DEFAULT_EXIT_CODES: Array<[ErrorCode | string, ExitCode]> = [
+  ['EACCES', ExitCode.OsError],
+  ['EADDRINUSE', ExitCode.Protocol],
+  ['ECONNREFUSED', ExitCode.Unavailable],
+  ['ECONNRESET', ExitCode.Unavailable],
+  ['EEXIST', ExitCode.CantCreate],
+  ['EISDIR', ExitCode.IoError],
+  ['EMFILE', ExitCode.OsError],
+  ['ENOENT', ExitCode.NoInput],
+  ['ENOTDIR', ExitCode.NoInput],
+  ['ENOTEMPTY', ExitCode.OsError],
+  ['ENOTFOUND', ExitCode.NoHost],
+  ['EPERM', ExitCode.NoPermission],
+  ['EPIPE', ExitCode.OsError],
+  ['ETIMEDOUT', ExitCode.Unavailable],
+  ['EMYSTERY', ExitCode.OsError],
+];
+
+const EXIT_CODES: Array<ExitCode> = DEFAULT_EXIT_CODES.map(([_, code]) => code);
+
+function testDefaultExitCode(t: Test, code: string, exitCode: number): void {
+  t.test(`it has a default exit code ${exitCode}`, async (t: Test) => {
+    const exc = new OsError('Some OS error', code, null, null);
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some OS error');
+    t.equal(exc.exitCode, exitCode);
+  });
+}
+
+function testOverriddenExitCode(t: Test, code: string, exitCode: number): void {
+  t.test(`it has an overridden exit code ${exitCode}`, async (t: Test) => {
+    const exc = new OsError('Some OS error', code, exitCode, null);
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some OS error');
+    t.equal(exc.exitCode, exitCode);
+  });
+}
+
+t.test('OsError', async (t: Test) => {
+  for (let [code, defaultExitCode] of DEFAULT_EXIT_CODES) {
+    t.test(`with error code ${code}`, async (t: Test) => {
+      t.test('when the exit code is overridden', async (t: Test) => {
+        for (let overriddenExitCode of EXIT_CODES) {
+          testOverriddenExitCode(t, code, overriddenExitCode);
+        }
+      });
+
+      t.test('when the exit code is set to null', async (t: Test) => {
+        testDefaultExitCode(t, code, defaultExitCode);
+      });
+    });
+  }
+});
+
+function fileErrorTest(
+  t: Test,
+  method: 'fromError' | 'fromReadError' | 'fromWriteError',
+  exitCode: ExitCode,
+): void {
+  t.test('without a custom message', async (t: Test) => {
+    const exc = FileError[method](
+      null,
+      {
+        message: 'Some file error',
+        code: ErrorCode.Access,
+        path: '/path/to/file',
+      } as any,
+      null,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some file error');
+    t.equal(exc.code, ErrorCode.Access);
+    t.equal(exc.exitCode, exitCode);
+    t.same(exc.paths, ['/path/to/file']);
+    t.equal(exc.traceback, null);
+  });
+
+  t.test('with a custom message', async (t: Test) => {
+    const exc = FileError[method](
+      'Some custom file error',
+      {
+        message: 'Some file error',
+        code: ErrorCode.Access,
+        path: '/path/to/file',
+      } as any,
+      null,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some custom file error');
+    t.equal(exc.code, ErrorCode.Access);
+    t.equal(exc.exitCode, exitCode);
+    t.same(exc.paths, ['/path/to/file']);
+    t.equal(exc.traceback, null);
+  });
+
+  t.test('with a non-access error code', async (t: Test) => {
+    const exc = FileError[method](
+      null,
+      {
+        message: 'Some file error',
+        code: ErrorCode.IsDirectory,
+        path: '/path/to/file',
+      } as any,
+      null,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some file error');
+    t.equal(exc.code, ErrorCode.IsDirectory);
+    t.equal(exc.exitCode, ExitCode.IoError);
+    t.same(exc.paths, ['/path/to/file']);
+    t.equal(exc.traceback, null);
+  });
+}
+
+t.test('FileError', async (t: Test) => {
+  t.test('when constructed directly', async (t: Test) => {
+    const exc = new FileError(
+      'Some file error',
+      ErrorCode.Access,
+      null,
+      ['/path/to/file'],
+      null,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, 'Some file error');
+    t.equal(exc.code, ErrorCode.Access);
+    t.equal(exc.exitCode, ExitCode.OsError);
+    t.same(exc.paths, ['/path/to/file']);
+    t.equal(exc.traceback, null);
+  });
+
+  t.test('when created from a naive error', async (t: Test) => {
+    fileErrorTest(t, 'fromError', ExitCode.OsError);
+  });
+
+  t.test('when created from a read error', async (t: Test) => {
+    fileErrorTest(t, 'fromReadError', ExitCode.NoInput);
+  });
+
+  t.test('when created from a write error', async (t: Test) => {
+    fileErrorTest(t, 'fromWriteError', ExitCode.CantCreate);
+  });
+});
+
+t.skip('ParseError', async (t: Test) => {});
+
+t.skip('ParseWarning', async (t: Test) => {});
+
+t.skip('FlagrantError', async (t: Test) => {});
+
+t.skip('UsageError', async (t: Test) => {});

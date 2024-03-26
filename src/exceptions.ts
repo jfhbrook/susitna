@@ -131,7 +131,7 @@ export class BaseException {
    */
   constructor(
     public readonly message: Value,
-    public readonly traceback: Traceback,
+    public readonly traceback: Traceback | null,
   ) {
     // TODO: Exceptions in Python store all args the constructor is called
     // with, not just a message.
@@ -236,7 +236,7 @@ export class OsError extends Exception implements ExitCodeException {
     public readonly message: Value,
     public readonly code: ErrorCode | string,
     exitCode: ExitCode | null,
-    public readonly traceback: Traceback,
+    public readonly traceback: Traceback | null,
   ) {
     super(message, traceback);
 
@@ -248,6 +248,7 @@ export class OsError extends Exception implements ExitCodeException {
         // for read operations and ExitCode.CantCreate for write operations.
         case ErrorCode.Access:
           this.exitCode = ExitCode.OsError;
+          break;
         case ErrorCode.AddressInUse:
           // There are arguments for this being Unavailable, OsError or
           // Software.
@@ -262,6 +263,7 @@ export class OsError extends Exception implements ExitCodeException {
           break;
         case ErrorCode.IsDirectory:
           this.exitCode = ExitCode.IoError;
+          break;
         case ErrorCode.MaxFileDescriptors:
           this.exitCode = ExitCode.OsError;
           break;
@@ -282,6 +284,7 @@ export class OsError extends Exception implements ExitCodeException {
           // NOTE: Assuming this will not be seen for user filesystem
           // permissions.
           this.exitCode = ExitCode.NoPermission;
+          break;
         case ErrorCode.BrokenPipe:
           this.exitCode = ExitCode.OsError;
           break;
@@ -289,6 +292,7 @@ export class OsError extends Exception implements ExitCodeException {
           // NOTE: Unavailable is appropriate for network timeouts. For other
           // kinds of timeout, there may be better exit codes.
           this.exitCode = ExitCode.Unavailable;
+          break;
         default:
           this.exitCode = ExitCode.OsError;
       }
@@ -319,7 +323,7 @@ export class FileError extends OsError {
     public code: ErrorCode | string,
     exitCode: ExitCode | null,
     public paths: FileErrorPaths,
-    public traceback: Traceback,
+    public traceback: Traceback | null,
   ) {
     super(message, code, exitCode, traceback);
   }
@@ -335,7 +339,7 @@ export class FileError extends OsError {
   static fromError(
     message: Value | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     return new FileError(
       message || err.message,
@@ -357,7 +361,7 @@ export class FileError extends OsError {
   static fromReadError(
     message: Value | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     const code = err.code;
     let exitCode: ExitCode | null = null;
@@ -386,7 +390,7 @@ export class FileError extends OsError {
   static fromWriteError(
     message: Value | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     const code = err.code;
     let exitCode: ExitCode | null = null;
@@ -459,7 +463,7 @@ export class SyntaxError extends Exception implements SyntaxLocation {
     public lineNo: number,
     public offset: number,
     public source: string,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     super(message, traceback);
   }
@@ -477,7 +481,7 @@ export class ParseError extends Exception {
   constructor(
     message: Value,
     public errors: Array<SyntaxError | SyntaxWarning>,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     super(message, traceback);
   }
@@ -503,7 +507,7 @@ export class SyntaxWarning extends Warning implements SyntaxLocation {
     public source: string,
     public endLineNo: number | null,
     public endOffset: number | null,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     super(message, traceback);
   }
@@ -522,7 +526,7 @@ export class ParseWarning extends Exception {
   constructor(
     message: Value,
     public warnings: Array<SyntaxWarning>,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     super(message, traceback);
   }
@@ -551,7 +555,7 @@ export class FlagrantError extends FatalException {
   constructor(
     message: Value,
     public error: any,
-    traceback: Traceback,
+    traceback: Traceback | null,
   ) {
     super(message, traceback);
   }

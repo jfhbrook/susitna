@@ -18,6 +18,7 @@ import {
   ParseError,
   SyntaxWarning,
   ParseWarning,
+  FatalException,
   FlagrantError,
   UsageError,
 } from './exceptions';
@@ -28,6 +29,7 @@ const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   AssertionError,
   RuntimeError,
   NotImplementedError,
+  FatalException
 ];
 
 const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [
@@ -74,6 +76,7 @@ t.test('For simple warnings', async (t: Test) => {
     simpleTest(t, ctor);
   }
 });
+
 
 const DEFAULT_EXIT_CODES: Array<[ErrorCode | string, ExitCode]> = [
   ['EACCES', ExitCode.OsError],

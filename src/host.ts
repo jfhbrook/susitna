@@ -19,7 +19,7 @@ interface ReadLineOptions {}
 
 interface LoggingOptions {
   /**
-   * An optional logging level. Defaults to Warn.
+   * An optional logging level. Defaults to Info.
    */
   level?: Level;
 }
@@ -149,9 +149,9 @@ export interface Host {
  * A host for a standard terminal console.
  */
 export class ConsoleHost implements Host {
-  private readonly inputStream: Readable;
-  private readonly outputStream: Writable;
-  private readonly errorStream: Writable;
+  inputStream: Readable;
+  outputStream: Writable;
+  errorStream: Writable;
   private _readline: readline.Interface | null;
   level: Level;
 
@@ -159,7 +159,7 @@ export class ConsoleHost implements Host {
     this.inputStream = stdin;
     this.outputStream = stdout;
     this.errorStream = stderr;
-    this.level = Level.Warn;
+    this.level = Level.Info;
     this._readline = null;
   }
 
@@ -233,24 +233,24 @@ export class ConsoleHost implements Host {
 
   writeDebug(value: Value): void {
     if (this.level <= Level.Debug) {
-      this.errorStream.write(`Debug: ${value}`);
+      this.errorStream.write(`Debug: ${value}\n`);
     }
   }
 
   writeInfo(value: Value): void {
     if (this.level <= Level.Info) {
-      this.errorStream.write(`Info: ${value}`);
+      this.errorStream.write(`Info: ${value}\n`);
     }
   }
 
   writeWarn(value: Value): void {
     if (this.level <= Level.Warn) {
-      this.errorStream.write(`Warn: ${value}`);
+      this.errorStream.write(`Warn: ${value}\n`);
     }
   }
 
   writeException(exc: BaseException): void {
-    this.errorStream.write(exc);
+    this.errorStream.write(`${exc}\n`);
   }
 
   writeChannel(channel: number, value: Value): void {

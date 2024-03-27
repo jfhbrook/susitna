@@ -1,8 +1,10 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { ExitCode } from './sysexits';
+import { ErrorCode } from './errno';
+
 import {
-  ExitCode,
   BaseException,
   Exception,
   AssertionError,
@@ -11,7 +13,6 @@ import {
   BaseWarning,
   Warning,
   DeprecationWarning,
-  ErrorCode,
   OsError,
   FileError,
   SyntaxError,
@@ -29,7 +30,7 @@ const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   AssertionError,
   RuntimeError,
   NotImplementedError,
-  FatalException
+  FatalException,
 ];
 
 const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [
@@ -76,7 +77,6 @@ t.test('For simple warnings', async (t: Test) => {
     simpleTest(t, ctor);
   }
 });
-
 
 const DEFAULT_EXIT_CODES: Array<[ErrorCode | string, ExitCode]> = [
   ['EACCES', ExitCode.OsError],

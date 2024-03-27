@@ -17,5 +17,8 @@ export async function bootstrap() {
 }
 
 if (require.main === module) {
-  main();
+  main({
+    argv: process.argv.slice(2),
+    env: process.env,
+  });
 }

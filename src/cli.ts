@@ -12,17 +12,14 @@ export interface Cli {
 
 export function cli(cli: Cli): () => Promise<void> {
   return async function main(): Promise<void> {
-    // Create a default, uninitialized Host, so that we can log errors before
-    // configuration is complete.
     const host: Host = new ConsoleHost();
 
     try {
       const config = Config.load(cli.argv, cli.env);
-      await host.init({
-        level: config.logLevel,
-      });
+      host.setLevel(config.logLevel);
+      // NOTE: It is up to the main function to initialize and close the
+      // host.
       await cli.main(config, host);
-      await host.close();
     } catch (err) {
       // CLI usage faults are appropriate to log onto the console.
       if (err instanceof UsageFault) {

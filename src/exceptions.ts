@@ -1,25 +1,13 @@
-import { Traceback } from './traceback';
-import { ExitCode } from './sysexits';
+import { Traceable, Traceback } from './traceback';
+import { ExitCode, ExitCoded } from './sysexits';
 import { ErrorCode } from './errno';
 
 type Value = any;
 
 /**
- * An interface implemented by exceptions which have an exit code corresponding
- * to sysexits.h.
- */
-export interface ExitCodeException {
-  /**
-   * A system exit code, as per sysexits.h. If this exception causes the
-   * interpreter to exit, this will be the process exit code.
-   */
-  exitCode: ExitCode;
-}
-
-/**
  * The base class for all Exceptions, including fatal exceptions.
  */
-export class BaseException {
+export class BaseException implements Traceable {
   /**
    * @param message The message for the exception.
    * @param traceback The traceback for the exception.
@@ -88,7 +76,7 @@ export class DeprecationWarning extends Warning {}
 /**
  * An operating system level error.
  */
-export class OsError extends Exception implements ExitCodeException {
+export class OsError extends Exception implements ExitCoded {
   public readonly exitCode: ExitCode;
 
   /**
@@ -396,40 +384,4 @@ export class ParseWarning extends Exception {
   ) {
     super(message, traceback);
   }
-}
-
-//
-// Fatal errors.
-//
-
-/**
- * A fatal exception. These exceptions may not be caught and always crash the
- * interpreter.
- */
-export class FatalException extends BaseException {}
-
-/**
- * An error for any JavaScript error which can't be reified into an
- * Exception. All flagrant errors are indicative of interpreter bugs.
- */
-export class FlagrantError extends FatalException {
-  /**
-   * @param message The message for the exception.
-   * @param error The underlying JavaScript error.
-   * @param traceback The traceback for the exception.
-   */
-  constructor(
-    message: Value,
-    public error: any,
-    traceback: Traceback | null,
-  ) {
-    super(message, traceback);
-  }
-}
-
-/**
- * An error raised when the command was called with invalid arguments.
- */
-export class UsageError extends FatalException implements ExitCodeException {
-  public exitCode = ExitCode.Usage;
 }

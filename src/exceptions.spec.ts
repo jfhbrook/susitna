@@ -19,9 +19,6 @@ import {
   ParseError,
   SyntaxWarning,
   ParseWarning,
-  FatalException,
-  FlagrantError,
-  UsageError,
 } from './exceptions';
 
 const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
@@ -30,7 +27,6 @@ const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   AssertionError,
   RuntimeError,
   NotImplementedError,
-  FatalException,
 ];
 
 const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [
@@ -231,7 +227,3 @@ t.test('FileError', async (t: Test) => {
 t.skip('ParseError', async (t: Test) => {});
 
 t.skip('ParseWarning', async (t: Test) => {});
-
-t.skip('FlagrantError', async (t: Test) => {});
-
-t.skip('UsageError', async (t: Test) => {});

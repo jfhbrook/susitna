@@ -104,3 +104,15 @@ export enum ExitCode {
    */
   Config = 78,
 }
+
+/**
+ * Objects implementing this interface have an exit code corresponding to
+ * sysexits.h.
+ */
+export interface ExitCoded {
+  /**
+   * A system exit code, as per sysexits.h. If this exception causes the
+   * interpreter to exit, this will be the process exit code.
+   */
+  exitCode: ExitCode;
+}

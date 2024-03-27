@@ -10,6 +10,13 @@ export interface Traceback {
 }
 
 /**
+ * Objects implementing this interface have a traceback.
+ */
+export interface Traceable {
+  traceback: Traceback | null;
+}
+
+/**
  * A stack frame, as seen in tracebacks.
  * See: https://docs.python.org/3.11/reference/datamodel.html#frame-objects
  */

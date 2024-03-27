@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 
+import { main } from './index';
 import { Logger } from './logger';
 import { AppModule } from './app.module';
 import { Translator } from './translator/translator.service';
@@ -16,5 +17,5 @@ export async function bootstrap() {
 }
 
 if (require.main === module) {
-  bootstrap();
+  main();
 }

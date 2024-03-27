@@ -22,7 +22,7 @@ export const ERASE_TO_END = `\u001b[0J`;
 /**
  * An input stream for testing.
  */
-class InputStream extends Transform {
+class MockInputStream extends Transform {
   input: string;
 
   constructor() {
@@ -48,7 +48,7 @@ class InputStream extends Transform {
 /**
  * An output stream for testing.
  */
-class OutputStream extends Writable {
+class MockOutputStream extends Writable {
   output: string;
 
   constructor() {
@@ -73,15 +73,15 @@ class OutputStream extends Writable {
 /**
  * A subclass of ConsoleHost with test streams.
  */
-export class TestConsoleHost extends ConsoleHost {
-  inputStream: InputStream;
-  outputStream: OutputStream;
-  errorStream: OutputStream;
+export class MockConsoleHost extends ConsoleHost {
+  inputStream: MockInputStream;
+  outputStream: MockOutputStream;
+  errorStream: MockOutputStream;
 
   constructor() {
     super();
-    this.inputStream = new InputStream();
-    this.outputStream = new OutputStream();
-    this.errorStream = new OutputStream();
+    this.inputStream = new MockInputStream();
+    this.outputStream = new MockOutputStream();
+    this.errorStream = new MockOutputStream();
   }
 }

@@ -57,4 +57,8 @@ export class NotImplementedFault extends RuntimeFault {}
  */
 export class UsageFault extends Fault implements ExitCoded {
   public exitCode = ExitCode.Usage;
+
+  constructor(message: string) {
+    super(message, null);
+  }
 }

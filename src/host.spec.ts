@@ -3,11 +3,11 @@ import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
 import { Level } from './host';
-import { ERASE_TO_END, moveCursorTo, TestConsoleHost } from './test/host';
+import { ERASE_TO_END, moveCursorTo, MockConsoleHost } from './test/host';
 
 const topic = discuss(
   async () => {
-    const host = new TestConsoleHost();
+    const host = new MockConsoleHost();
 
     await host.init({});
 

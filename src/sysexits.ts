@@ -8,6 +8,11 @@
  */
 export enum ExitCode {
   /**
+   * The command completed successfully.
+   */
+  Success = 0,
+
+  /**
    * The command was used incorrectly, e.g., with the wrong number of
    * arguments, a bad flag, a bad syntax in a parameter, or whatever.
    */

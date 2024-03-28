@@ -1,6 +1,6 @@
 import { errorType } from './errors';
+import { ExitCode, ExitCoded } from './exit';
 import { Traceable, Traceback } from './traceback';
-import { ExitCode, ExitCoded } from './sysexits';
 
 type Value = any;
 

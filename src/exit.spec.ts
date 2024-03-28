@@ -1,8 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Exit } from './exit';
-import { ExitCode } from './sysexits';
+import { Exit, ExitCode } from './exit';
 
 t.test('Exit', async (t: Test) => {
   t.test('when there is a message', async (t: Test) => {

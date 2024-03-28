@@ -3,11 +3,10 @@ import { Test } from 'tap';
 
 import { Argv, cli, Env, Run } from './cli';
 import { errorType } from './errors';
-import { Exit } from './exit';
+import { Exit, ExitCode } from './exit';
 import { RuntimeFault } from './faults';
 import { Host, Level, LoggingOptions } from './host';
 import { MockConsoleHost } from './test/host';
-import { ExitCode } from './sysexits';
 
 interface TestConfig extends LoggingOptions {
   level: Level;

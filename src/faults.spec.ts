@@ -3,7 +3,7 @@ import { AssertionError } from 'assert';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { ExitCode } from './sysexits';
+import { ExitCode } from './exit';
 
 import {
   BaseFault,

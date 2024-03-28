@@ -1,6 +1,6 @@
-import { Traceable, Traceback } from './traceback';
-import { ExitCode, ExitCoded } from './sysexits';
+import { ExitCode, ExitCoded } from './exit';
 import { ErrorCode } from './errno';
+import { Traceable, Traceback } from './traceback';
 
 type Value = any;
 

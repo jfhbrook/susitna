@@ -74,9 +74,9 @@ class MockOutputStream extends Writable {
  * A subclass of ConsoleHost with test streams.
  */
 export class MockConsoleHost extends ConsoleHost {
-  inputStream: MockInputStream;
-  outputStream: MockOutputStream;
-  errorStream: MockOutputStream;
+  declare inputStream: MockInputStream;
+  declare outputStream: MockOutputStream;
+  declare errorStream: MockOutputStream;
 
   constructor() {
     super();

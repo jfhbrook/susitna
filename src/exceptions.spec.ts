@@ -224,6 +224,73 @@ t.test('FileError', async (t: Test) => {
   });
 });
 
-t.skip('ParseError', async (t: Test) => {});
+t.test('ParseError', async (t: Test) => {
+  t.test('it can construct a ParseError', async (t: Test) => {
+    const file = './script.bas';
+    const message = `Error parsing file: ${file}`;
+    const traceback = {
+      next: null,
+      frame: {
+        previous: null,
+      },
+      lineNo: 100,
+    };
+    const line = '100 print someFn(ident';
 
-t.skip('ParseWarning', async (t: Test) => {});
+    const exc = new ParseError(
+      message,
+      [
+        new SyntaxError('expected )', file, 100, 22, line, null),
+        new SyntaxError('identifier has no sigil', file, 100, 17, line, null),
+      ],
+      traceback,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, message);
+    t.equal(exc.exitCode, ExitCode.Software);
+    t.equal(exc.traceback, traceback);
+    t.equal(exc.errors.length, 2);
+
+    t.equal(exc.errors[0].message, 'expected )');
+    t.same(exc.errors[0].filename, file);
+    t.equal(exc.errors[0].lineNo, 100);
+    t.same(exc.errors[0].offset, 22);
+
+    t.equal(exc.errors[1].message, 'identifier has no sigil');
+    t.same(exc.errors[1].filename, file);
+    t.equal(exc.errors[1].lineNo, 100);
+    t.same(exc.errors[1].offset, 17);
+  });
+});
+
+t.skip('ParseWarning', async (t: Test) => {
+  t.test('it can construct a ParseWarning', async (t: Test) => {
+    const file = './script.bas';
+    const message = `Warning parsing file: ${file}`;
+    const traceback = {
+      next: null,
+      frame: {
+        previous: null,
+      },
+      lineNo: 100,
+    };
+    const line = '100 print someFn(ident)';
+
+    const exc = new ParseWarning(
+      message,
+      [new SyntaxWarning('identifier has no sigil', file, 100, 17, line, null)],
+      traceback,
+    );
+
+    t.ok(exc);
+    t.equal(exc.message, message);
+    t.equal(exc.traceback, traceback);
+    t.equal(exc.warnings.length, 1);
+
+    t.equal(exc.warnings[0].message, 'identifier has no sigil');
+    t.same(exc.warnings[0].filename, file);
+    t.equal(exc.warnings[0].lineNo, 100);
+    t.same(exc.warnings[0].offset, 17);
+  });
+});

@@ -326,7 +326,9 @@ export class SyntaxError extends Exception implements SyntaxLocation {
 /**
  * A parse error. May contain one or more syntax errors or warnings.
  */
-export class ParseError extends Exception {
+export class ParseError extends Exception implements ExitCoded {
+  public exitCode = ExitCode.Software;
+
   /**
    * @param message The message for the exception.
    * @param errors A collection of syntax errors and warnings.
@@ -359,8 +361,6 @@ export class SyntaxWarning extends Warning implements SyntaxLocation {
     public lineNo: number,
     public offset: number,
     public source: string,
-    public endLineNo: number | null,
-    public endOffset: number | null,
     traceback: Traceback | null,
   ) {
     super(message, traceback);

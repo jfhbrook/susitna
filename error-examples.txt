@@ -1,3 +1,5 @@
+# syntax errors
+
 >>> fn lol():
   File "<stdin>", line 1
     fn lol():
@@ -28,3 +30,15 @@ SyntaxError: invalid syntax
   if (result == INTERPRET_RUNTIME_ERROR)
       ^
 3 errors generated.
+
+# runtime errors
+
+>>> 1 / "pony"
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for /: 'int' and 'str'
+
+# warnings
+
+/Users/josh/Software/jfhbrook/matanuska/test.py:3: DeprecationWarning: derprecated
+  warnings.warn('derprecated', DeprecationWarning)

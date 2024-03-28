@@ -17,11 +17,20 @@ export interface Traceable {
 }
 
 /**
+ * A code object, as seen in tracebacks.
+ *
+ * See: https://docs.python.org/fr/3.11/reference/datamodel.html#code-objects
+ */
+export interface Code {
+  filename: string;
+}
+
+/**
  * A stack frame, as seen in tracebacks.
+ *
  * See: https://docs.python.org/3.11/reference/datamodel.html#frame-objects
  */
 export interface Frame {
   previous: Frame | null;
-  // See: https://docs.python.org/3.11/reference/datamodel.html#code-objects
-  // code: Code;
+  code: Code;
 }

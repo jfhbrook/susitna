@@ -21,6 +21,19 @@ import {
   ParseWarning,
 } from './exceptions';
 
+const FILENAME = './script.bas';
+
+const TRACEBACK = {
+  next: null,
+  frame: {
+    previous: null,
+    code: {
+      filename: FILENAME,
+    },
+  },
+  lineNo: 100,
+};
+
 const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   BaseException,
   Exception,
@@ -37,27 +50,21 @@ const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [
 
 function simpleTest(t: Test, ctor: typeof BaseException): void {
   t.test(`Can construct a ${ctor.name} with a traceback`, async (t: Test) => {
-    const traceback = {
-      next: null,
-      frame: { previous: null },
-      lineNo: 100,
-    };
-    const exc = new ctor('Some exception', traceback);
+    const exc = new ctor('Some exception', TRACEBACK);
 
     t.ok(exc);
     t.equal(exc.message, 'Some exception');
-    t.same(exc.traceback, traceback);
+    t.same(exc.traceback, TRACEBACK);
   });
 
   t.test(
     `Can construct a ${ctor.name} without a traceback`,
     async (t: Test) => {
-      const traceback = null;
-      const exc = new ctor('Some exception', traceback);
+      const exc = new ctor('Some exception', null);
 
       t.ok(exc);
       t.equal(exc.message, 'Some exception');
-      t.same(exc.traceback, traceback);
+      t.same(exc.traceback, null);
     },
   );
 }
@@ -230,8 +237,8 @@ t.test('ParseError', async (t: Test) => {
     const line = '100 print someFn(ident';
 
     const exc = new ParseError([
-      new SyntaxError('expected )', file, 100, 22, line),
-      new SyntaxError('identifier has no sigil', file, 100, 17, line),
+      new SyntaxError('expected )', FILENAME, 100, 22, line),
+      new SyntaxError('identifier has no sigil', FILENAME, 100, 17, line),
     ]);
 
     t.ok(exc);
@@ -241,12 +248,12 @@ t.test('ParseError', async (t: Test) => {
     t.equal(exc.errors.length, 2);
 
     t.equal(exc.errors[0].message, 'expected )');
-    t.same(exc.errors[0].filename, file);
+    t.same(exc.errors[0].filename, FILENAME);
     t.equal(exc.errors[0].lineNo, 100);
     t.same(exc.errors[0].offset, 22);
 
     t.equal(exc.errors[1].message, 'identifier has no sigil');
-    t.same(exc.errors[1].filename, file);
+    t.same(exc.errors[1].filename, FILENAME);
     t.equal(exc.errors[1].lineNo, 100);
     t.same(exc.errors[1].offset, 17);
   });
@@ -254,11 +261,10 @@ t.test('ParseError', async (t: Test) => {
 
 t.test('ParseWarning', async (t: Test) => {
   t.test('it can construct a ParseWarning', async (t: Test) => {
-    const file = './script.bas';
     const line = '100 print someFn(ident)';
 
     const exc = new ParseWarning([
-      new SyntaxWarning('identifier has no sigil', file, 100, 17, line),
+      new SyntaxWarning('identifier has no sigil', FILENAME, 100, 17, line),
     ]);
 
     t.ok(exc);
@@ -267,7 +273,7 @@ t.test('ParseWarning', async (t: Test) => {
     t.equal(exc.warnings.length, 1);
 
     t.equal(exc.warnings[0].message, 'identifier has no sigil');
-    t.same(exc.warnings[0].filename, file);
+    t.same(exc.warnings[0].filename, FILENAME);
     t.equal(exc.warnings[0].lineNo, 100);
     t.same(exc.warnings[0].offset, 17);
   });

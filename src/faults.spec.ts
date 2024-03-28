@@ -13,22 +13,30 @@ import {
   UsageFault,
 } from './faults';
 
+const FILENAME = './script.bas';
+
+const TRACEBACK = {
+  next: null,
+  frame: {
+    previous: null,
+    code: {
+      filename: FILENAME,
+    },
+  },
+  lineNo: 100,
+};
+
 const SIMPLE_FAULTS: Array<typeof BaseFault> = [BaseFault, Fault];
 
 function simpleTest(t: Test, ctor: typeof BaseFault): void {
   t.test(`Can construct a ${ctor.name} with a traceback`, async (t: Test) => {
-    const traceback = {
-      next: null,
-      frame: { previous: null },
-      lineNo: 100,
-    };
-    const fault = new ctor('Some fault', traceback);
+    const fault = new ctor('Some fault', TRACEBACK);
 
     t.ok(fault);
     t.equal(fault.message, 'Some fault');
     t.type(fault, Error);
     t.type(fault, ctor);
-    t.same(fault.traceback, traceback);
+    t.same(fault.traceback, TRACEBACK);
   });
 
   t.test(
@@ -66,12 +74,7 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
   });
 
   t.test(`Can construct a ${ctor.name} with a traceback`, async (t: Test) => {
-    const traceback = {
-      next: null,
-      frame: { previous: null },
-      lineNo: 100,
-    };
-    const fault = new ctor('Some runtime fault', underlying, traceback);
+    const fault = new ctor('Some runtime fault', underlying, TRACEBACK);
 
     t.ok(fault);
     t.equal(fault.message, 'Some runtime fault');
@@ -79,14 +82,13 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
     t.type(fault, ctor);
     t.equal(fault.error, underlying);
     t.equal(fault.exitCode, ExitCode.Software);
-    t.same(fault.traceback, traceback);
+    t.same(fault.traceback, TRACEBACK);
   });
 
   t.test(
     `Can construct a ${ctor.name} without a traceback`,
     async (t: Test) => {
-      const traceback = null;
-      const fault = new ctor('Some runtime fault', underlying, traceback);
+      const fault = new ctor('Some runtime fault', underlying, null);
 
       t.ok(fault);
       t.equal(fault.message, 'Some runtime fault');
@@ -94,7 +96,7 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
       t.type(fault, ctor);
       t.equal(fault.error, underlying);
       t.equal(fault.exitCode, ExitCode.Software);
-      t.same(fault.traceback, traceback);
+      t.same(fault.traceback, null);
     },
   );
 }

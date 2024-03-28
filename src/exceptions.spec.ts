@@ -2,7 +2,7 @@ import t from 'tap';
 import { Test } from 'tap';
 
 import { ExitCode } from './exit';
-import { ErrorCode } from './errno';
+import { ErrorCode } from './errors';
 
 import {
   BaseException,

@@ -1,5 +1,5 @@
 import { ExitCode, ExitCoded } from './exit';
-import { ErrorCode } from './errno';
+import { ErrorCode } from './errors';
 import { Traceable, Traceback } from './traceback';
 
 type Value = any;

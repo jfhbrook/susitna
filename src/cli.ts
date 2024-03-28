@@ -14,6 +14,11 @@ export type Argv = typeof process.argv;
 export type Env = typeof process.env;
 
 /**
+ * Exit the command.
+ */
+export type ExitFn = typeof process.exit;
+
+/**
  * Options for running a CLI.
  */
 export interface CliOptions {
@@ -25,7 +30,7 @@ export interface CliOptions {
   /**
    * A command to exit the host. Defaults to process.exit.
    */
-  exit?: typeof process.exit;
+  exit?: ExitFn;
 
   /**
    * Command line arguments.
@@ -51,7 +56,7 @@ export interface Cli<C extends LoggingOptions> {
    * @param env Command line environment.
    * @returns A config.
    */
-  parseArgs(argv: typeof process.argv, env: typeof process.env): C;
+  parseArgs(argv: Argv, env: Env): C;
 
   /**
    * Run the CLI command.
@@ -85,7 +90,7 @@ export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
     env,
   }: CliOptions): Promise<void> {
     const host: Host = overriddenHost || new ConsoleHost();
-    const exit: typeof process.exit = overriddenExit || process.exit;
+    const exit: ExitFn = overriddenExit || process.exit;
 
     try {
       const config = cli.parseArgs(argv, env);

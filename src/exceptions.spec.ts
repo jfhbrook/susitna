@@ -227,29 +227,17 @@ t.test('FileError', async (t: Test) => {
 t.test('ParseError', async (t: Test) => {
   t.test('it can construct a ParseError', async (t: Test) => {
     const file = './script.bas';
-    const message = `Error parsing file: ${file}`;
-    const traceback = {
-      next: null,
-      frame: {
-        previous: null,
-      },
-      lineNo: 100,
-    };
     const line = '100 print someFn(ident';
 
-    const exc = new ParseError(
-      message,
-      [
-        new SyntaxError('expected )', file, 100, 22, line, null),
-        new SyntaxError('identifier has no sigil', file, 100, 17, line, null),
-      ],
-      traceback,
-    );
+    const exc = new ParseError([
+      new SyntaxError('expected )', file, 100, 22, line),
+      new SyntaxError('identifier has no sigil', file, 100, 17, line),
+    ]);
 
     t.ok(exc);
-    t.equal(exc.message, message);
+    t.equal(exc.message, '');
     t.equal(exc.exitCode, ExitCode.Software);
-    t.equal(exc.traceback, traceback);
+    t.equal(exc.traceback, null);
     t.equal(exc.errors.length, 2);
 
     t.equal(exc.errors[0].message, 'expected )');
@@ -264,28 +252,18 @@ t.test('ParseError', async (t: Test) => {
   });
 });
 
-t.skip('ParseWarning', async (t: Test) => {
+t.test('ParseWarning', async (t: Test) => {
   t.test('it can construct a ParseWarning', async (t: Test) => {
     const file = './script.bas';
-    const message = `Warning parsing file: ${file}`;
-    const traceback = {
-      next: null,
-      frame: {
-        previous: null,
-      },
-      lineNo: 100,
-    };
     const line = '100 print someFn(ident)';
 
-    const exc = new ParseWarning(
-      message,
-      [new SyntaxWarning('identifier has no sigil', file, 100, 17, line, null)],
-      traceback,
-    );
+    const exc = new ParseWarning([
+      new SyntaxWarning('identifier has no sigil', file, 100, 17, line),
+    ]);
 
     t.ok(exc);
-    t.equal(exc.message, message);
-    t.equal(exc.traceback, traceback);
+    t.equal(exc.message, '');
+    t.equal(exc.traceback, null);
     t.equal(exc.warnings.length, 1);
 
     t.equal(exc.warnings[0].message, 'identifier has no sigil');

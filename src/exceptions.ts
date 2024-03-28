@@ -266,11 +266,31 @@ export class FileError extends OsError {
 //
 // Syntax and parse errors and warnings.
 //
+// TODO: JavaScript and Python stop after a single error. However, Matanuska
+// will attempt to complete the parse and flag multiple errors, more like C.
+// This leads to some questions in their interfaces:
+//
+// 1. Individual syntax errors and warnings inherit from BaseException and
+//    BaseWarning respectively. However, they don't have tracebacks - rather,
+//    they have source locations. This suggests, along with the fact that they
+//    are never thrown, that it may be inappropriate for them to be
+//    Traceable - or even be called errors/warnings. Note that
+//    the reporting in Python for source locations is very similar to
+//    tracebacks, just without the word "Traceback".
+// 2. ParseErrors and ParseWarnings also do not take tracebacks. This is
+//    because parsing happens before runtime execution can occur. It may,
+//    however, make sense to revisit this assumption.
+// 2. ParseErrors and ParseWarnings have blank messages. This is acceptable
+//    because the reporting will be based on the syntax errors/warnings, not
+//    the top-level parse error. Should these classes have a message
+//    getter that calls a formatter? Should they have a sensible default
+//    message? This is an open question.
+//
 
 /**
  * The location referenced by a syntax error or warning.
  */
-export interface SyntaxLocation {
+export interface SourceLocation {
   /**
    * The filename for the source code. This may be <interactive> for
    * interactive code, or <untitled> if the edited code has not been saved.
@@ -300,9 +320,10 @@ export interface SyntaxLocation {
 
 /**
  * An individual syntax error. Typically there will be multiple syntax errors
- * or warnings encapsulated in a ParseError.
+ * or warnings encapsulated in a ParseError. They are not intended to be
+ * thrown.
  */
-export class SyntaxError extends Exception implements SyntaxLocation {
+export class SyntaxError extends BaseException implements SourceLocation {
   /**
    * @param message The message for the exception.
    * @param filename The filename for the source code.
@@ -317,9 +338,8 @@ export class SyntaxError extends Exception implements SyntaxLocation {
     public lineNo: number,
     public offset: number,
     public source: string,
-    traceback: Traceback | null,
   ) {
-    super(message, traceback);
+    super(message, null);
   }
 }
 
@@ -334,19 +354,15 @@ export class ParseError extends Exception implements ExitCoded {
    * @param errors A collection of syntax errors and warnings.
    * @param traceback The traceback for the exception.
    */
-  constructor(
-    message: Value,
-    public errors: Array<SyntaxError | SyntaxWarning>,
-    traceback: Traceback | null,
-  ) {
-    super(message, traceback);
+  constructor(public errors: Array<SyntaxError | SyntaxWarning>) {
+    super('', null);
   }
 }
 
 /**
  * A syntax warning. These warnings are non-fatal, but are likely undesirable.
  */
-export class SyntaxWarning extends Warning implements SyntaxLocation {
+export class SyntaxWarning extends BaseWarning implements SourceLocation {
   /**
    * @param message The message for the exception.
    * @param filename The filename for the source code.
@@ -361,9 +377,8 @@ export class SyntaxWarning extends Warning implements SyntaxLocation {
     public lineNo: number,
     public offset: number,
     public source: string,
-    traceback: Traceback | null,
   ) {
-    super(message, traceback);
+    super(message, null);
   }
 }
 
@@ -377,11 +392,7 @@ export class ParseWarning extends Exception {
    * @param warnings A collection of syntax warnings.
    * @param traceback The traceback for the exception.
    */
-  constructor(
-    message: Value,
-    public warnings: Array<SyntaxWarning>,
-    traceback: Traceback | null,
-  ) {
-    super(message, traceback);
+  constructor(public warnings: Array<SyntaxWarning>) {
+    super('', null);
   }
 }

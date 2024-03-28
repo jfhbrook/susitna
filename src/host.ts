@@ -15,9 +15,9 @@ export enum Level {
   Error = 3,
 }
 
-interface ReadLineOptions {}
+export interface ReadLineOptions {}
 
-interface LoggingOptions {
+export interface LoggingOptions {
   /**
    * An optional logging level. Defaults to Info.
    */

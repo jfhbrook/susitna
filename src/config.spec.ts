@@ -155,14 +155,14 @@ t.test('level', async (t: Test) => {
     t.test('and there is no environment variable', async (t: Test) => {
       t.test('the level is set to info', async (t: Test) => {
         const config = Config.load([], {});
-        t.equal(config.logLevel, Level.Info);
+        t.equal(config.level, Level.Info);
       });
     });
 
     t.test('but there is a valid environment variable', async (t: Test) => {
       t.test('the level is set to that level', async (t: Test) => {
         const config = Config.load([], { MATBAS_LOG_LEVEL: 'debug' });
-        t.equal(config.logLevel, Level.Debug);
+        t.equal(config.level, Level.Debug);
       });
     });
 
@@ -183,7 +183,7 @@ t.test('level', async (t: Test) => {
   t.test('when a valid level is passed', async (t: Test) => {
     t.test('the level is set to that level', async (t: Test) => {
       const config = Config.load(['--log-level', 'debug'], {});
-      t.equal(config.logLevel, Level.Debug);
+      t.equal(config.level, Level.Debug);
     });
   });
 

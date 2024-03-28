@@ -1,18 +1,24 @@
 import { Config } from './config';
 import { Exit } from './exit';
 import { UsageFault } from './faults';
-import { ConsoleHost, Host } from './host';
+import { ConsoleHost, Host, LoggingOptions } from './host';
+
+export type Argv = typeof process.argv;
+export type Env = typeof process.env;
 
 export interface CliOptions {
   host?: Host;
-  argv: typeof process.argv;
-  env: typeof process.env;
+  argv: Argv;
+  env: Env;
 }
 
-export type Cli = (config: Config, host: Host) => Promise<void>;
+export interface Cli<C extends LoggingOptions> {
+  parseArgs(argv: typeof process.argv, env: typeof process.env): C;
+  run(config: C, host: Host): Promise<void>;
+}
 export type Main = (options: CliOptions) => Promise<void>;
 
-export function cli(cli: Cli): Main {
+export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
   return async function main({
     host: defaultHost,
     argv,
@@ -21,11 +27,11 @@ export function cli(cli: Cli): Main {
     const host: Host = defaultHost || new ConsoleHost();
 
     try {
-      const config = Config.load(argv, env);
-      host.setLevel(config.logLevel);
+      const config = cli.parseArgs(argv, env);
+      host.setLevel(config.level);
       // NOTE: It is up to the main function to initialize and close the
       // host.
-      await cli(config, host);
+      await cli.run(config, host);
     } catch (err) {
       // CLI usage faults are appropriate to log onto the console.
       if (err instanceof UsageFault) {

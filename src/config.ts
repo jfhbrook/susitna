@@ -67,7 +67,7 @@ export class Config {
     public readonly command: string | null,
     eval_: string | null,
     public readonly script: string | null,
-    public readonly logLevel: Level,
+    public readonly level: Level,
     public readonly argv: string[],
     public readonly env: typeof process.env,
   ) {
@@ -144,7 +144,7 @@ export class Config {
         command: this.command,
         eval: this.eval,
         script: this.script,
-        logLevel: this.logLevel,
+        logLevel: this.level,
         argv: this.argv,
       },
       null,

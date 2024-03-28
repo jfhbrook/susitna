@@ -360,7 +360,10 @@ export class ParseError extends Exception implements ExitCoded {
 }
 
 /**
- * A syntax warning. These warnings are non-fatal, but are likely undesirable.
+ * A syntax warning. These warnings don't cause an unsuccessful parse, but are
+ * likely undesirable. Typically there will be multiple syntax warnings
+ * encapsulated in a ParseWarning. They are not intended to be logged
+ * directly.
  */
 export class SyntaxWarning extends BaseWarning implements SourceLocation {
   /**

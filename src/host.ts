@@ -1,6 +1,7 @@
 import { stdin, stdout, stderr } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
+import { format } from 'util';
 
 type Value = any;
 type BaseException = any;
@@ -250,7 +251,7 @@ export class ConsoleHost implements Host {
   }
 
   writeException(exc: BaseException): void {
-    this.errorStream.write(`${exc}\n`);
+    this.errorStream.write(`${format(exc)}\n`);
   }
 
   writeChannel(channel: number, value: Value): void {

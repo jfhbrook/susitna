@@ -23,6 +23,11 @@ export interface CliOptions {
   host?: Host;
 
   /**
+   * A command to exit the host. Defaults to process.exit.
+   */
+  exit?: typeof process.exit;
+
+  /**
    * Command line arguments.
    */
   argv: Argv;
@@ -32,6 +37,8 @@ export interface CliOptions {
    */
   env: Env;
 }
+
+export type Run<C> = (config: C, host: Host) => Promise<void>;
 
 /**
  * A CLI command.
@@ -53,7 +60,7 @@ export interface Cli<C extends LoggingOptions> {
    * @param host A Host.
    * @returns A promise that resolves on completion.
    */
-  run(config: C, host: Host): Promise<void>;
+  run: Run<C>;
 }
 
 /**
@@ -72,11 +79,13 @@ export type Main = (options: CliOptions) => Promise<void>;
  */
 export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
   return async function main({
-    host: defaultHost,
+    host: overriddenHost,
+    exit: overriddenExit,
     argv,
     env,
   }: CliOptions): Promise<void> {
-    const host: Host = defaultHost || new ConsoleHost();
+    const host: Host = overriddenHost || new ConsoleHost();
+    const exit: typeof process.exit = overriddenExit || process.exit;
 
     try {
       const config = cli.parseArgs(argv, env);
@@ -88,24 +97,28 @@ export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
       // CLI usage faults are appropriate to log onto the console.
       if (err instanceof UsageFault) {
         console.log(err.message);
-        process.exit(err.exitCode);
+        exit(err.exitCode);
       }
 
       // Handle successful exits.
       if (err instanceof Exit) {
-        if (err.message) {
+        if (err.message.length) {
           host.writeInfo(err.message);
         }
-        process.exit(err.exitCode);
+        exit(err.exitCode);
       }
 
       if (typeof err.exitCode === 'number') {
-        host.writeError(err);
-        process.exit(err.exitCode);
+        host.writeException(err);
+        exit(err.exitCode);
       }
 
       // TODO: Handle other Faults and Errors
       throw err;
     }
+
+    // For consistency, explicitly exit instead of allowing Node to run the
+    // command to completion.
+    exit(0);
   };
 }

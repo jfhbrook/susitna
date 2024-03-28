@@ -27,6 +27,7 @@ function simpleTest(t: Test, ctor: typeof BaseFault): void {
     t.ok(fault);
     t.equal(fault.message, 'Some fault');
     t.type(fault, Error);
+    t.type(fault, ctor);
     t.same(fault.traceback, traceback);
   });
 
@@ -39,6 +40,7 @@ function simpleTest(t: Test, ctor: typeof BaseFault): void {
       t.ok(fault);
       t.equal(fault.message, 'Some fault');
       t.type(fault, Error);
+      t.type(fault, ctor);
       t.same(fault.traceback, traceback);
     },
   );
@@ -74,6 +76,7 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
     t.ok(fault);
     t.equal(fault.message, 'Some runtime fault');
     t.type(fault, Error);
+    t.type(fault, ctor);
     t.equal(fault.error, underlying);
     t.equal(fault.exitCode, ExitCode.Software);
     t.same(fault.traceback, traceback);
@@ -88,6 +91,7 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
       t.ok(fault);
       t.equal(fault.message, 'Some runtime fault');
       t.type(fault, Error);
+      t.type(fault, ctor);
       t.equal(fault.error, underlying);
       t.equal(fault.exitCode, ExitCode.Software);
       t.same(fault.traceback, traceback);
@@ -101,4 +105,13 @@ t.test('For runtime faults', async (t: Test) => {
   }
 });
 
-t.skip('UsageFault', async (t: Test) => {});
+t.test('For UsageFault', async (t: Test) => {
+  t.test(`Can construct a UsageFault`, async (t: Test) => {
+    const fault = new UsageFault('Usage: lol');
+
+    t.ok(fault);
+    t.equal(fault.message, 'Usage: lol');
+    t.type(fault, UsageFault);
+    t.same(fault.traceback, null);
+  });
+});

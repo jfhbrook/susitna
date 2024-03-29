@@ -1,12 +1,20 @@
+import { Formattable, Formatter } from './format';
+
 /**
  * A traceback, as seen in errors.
  *
  * See: https://docs.python.org/fr/3.11/reference/datamodel.html#traceback-objects
  */
-export interface Traceback {
-  next: Traceback | null;
-  frame: Frame;
-  lineNo: number;
+export class Traceback implements Formattable {
+  constructor(
+    public readonly next: Traceback | null,
+    public frame: Frame,
+    public lineNo: number,
+  ) {}
+
+  format(formatter: Formatter): string {
+    return formatter.formatTraceback(this);
+  }
 }
 
 /**
@@ -21,8 +29,12 @@ export interface Traceable {
  *
  * See: https://docs.python.org/fr/3.11/reference/datamodel.html#code-objects
  */
-export interface Code {
-  filename: string;
+export class Code implements Formattable {
+  constructor(public readonly filename: string) {}
+
+  format(formatter: Formatter): string {
+    return formatter.formatCode(this);
+  }
 }
 
 /**
@@ -30,7 +42,13 @@ export interface Code {
  *
  * See: https://docs.python.org/3.11/reference/datamodel.html#frame-objects
  */
-export interface Frame {
-  previous: Frame | null;
-  code: Code;
+export class Frame implements Formattable {
+  constructor(
+    public readonly previous: Frame | null,
+    public code: Code,
+  ) {}
+
+  format(formatter: Formatter): string {
+    return formatter.formatFrame(this);
+  }
 }

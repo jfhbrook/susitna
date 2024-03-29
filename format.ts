@@ -11,6 +11,7 @@ import {
 } from './exceptions';
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
+import { Traceback, Frame, Code } from './traceback';
 
 export interface Formattable {
   format(formatter: Formatter): string;
@@ -38,6 +39,10 @@ export abstract class Formatter {
   abstract formatString(value: string): string;
   abstract formatNumber(value: number): string;
   abstract formatBoolean(value: boolean): string;
+
+  abstract formatTraceback(traceback: Traceback | null): string;
+  abstract formatFrame(frame: Frame): string;
+  abstract formatCode(code: Code): string;
 
   abstract formatBaseException(exc: BaseException): string;
   abstract formatBaseWarning(warn: BaseWarning): string;
@@ -67,6 +72,18 @@ export class DefaultFormatter extends Formatter {
 
   formatBoolean(bool: boolean): string {
     return String(bool);
+  }
+
+  formatTraceback(traceback: Traceback | null): string {
+    return String(traceback);
+  }
+
+  formatFrame(frame: Frame): string {
+    return String(frame);
+  }
+
+  formatCode(code: Code): string {
+    return String(code);
   }
 
   formatBaseException(exc: BaseException): string {

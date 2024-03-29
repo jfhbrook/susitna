@@ -12,19 +12,7 @@ import {
   NotImplementedFault,
   UsageFault,
 } from '../faults';
-
-const FILENAME = './script.bas';
-
-const TRACEBACK = {
-  next: null,
-  frame: {
-    previous: null,
-    code: {
-      filename: FILENAME,
-    },
-  },
-  lineNo: 100,
-};
+import { TRACEBACK } from './helpers/traceback';
 
 const SIMPLE_FAULTS: Array<typeof BaseFault> = [BaseFault, Fault];
 

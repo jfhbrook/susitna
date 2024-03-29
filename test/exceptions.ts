@@ -20,19 +20,7 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from '../exceptions';
-
-const FILENAME = './script.bas';
-
-const TRACEBACK = {
-  next: null,
-  frame: {
-    previous: null,
-    code: {
-      filename: FILENAME,
-    },
-  },
-  lineNo: 100,
-};
+import { FILENAME, TRACEBACK } from './helpers/traceback';
 
 const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   BaseException,

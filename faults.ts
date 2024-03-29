@@ -63,7 +63,12 @@ export class RuntimeFault extends Fault implements ExitCoded {
  * A fault raised when functionality is not implemented. Extends RuntimeFault.
  */
 @errorType('NotImplementedFault')
-export class NotImplementedFault extends RuntimeFault {}
+export class NotImplementedFault extends RuntimeFault {
+  constructor(message: FormatValue, traceback: Traceback | null) {
+    super(message, new Error(), traceback);
+    this.error = this;
+  }
+}
 
 /**
  * A fault raised when the command was called with invalid arguments.

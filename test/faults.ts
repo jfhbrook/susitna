@@ -48,10 +48,7 @@ t.test('For simple faults', async (t: Test) => {
   }
 });
 
-const RUNTIME_FAULTS: Array<typeof RuntimeFault> = [
-  RuntimeFault,
-  NotImplementedFault,
-];
+const RUNTIME_FAULTS: Array<typeof RuntimeFault> = [RuntimeFault];
 
 function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
   const underlying = new AssertionError({
@@ -93,6 +90,38 @@ t.test('For runtime faults', async (t: Test) => {
   for (let ctor of RUNTIME_FAULTS) {
     runtimeTest(t, ctor);
   }
+});
+
+t.test('For NotImplementedFault', async (t: Test) => {
+  t.test(
+    `Can construct a NotImplementedFault with a traceback`,
+    async (t: Test) => {
+      const fault = new NotImplementedFault('Not implemented', TRACEBACK);
+
+      t.ok(fault);
+      t.equal(fault.message, 'Not implemented');
+      t.type(fault, Error);
+      t.type(fault, NotImplementedFault);
+      t.equal(fault.error, fault);
+      t.equal(fault.exitCode, ExitCode.Software);
+      t.same(fault.traceback, TRACEBACK);
+    },
+  );
+
+  t.test(
+    `Can construct a NotImplementedFault without a traceback`,
+    async (t: Test) => {
+      const fault = new NotImplementedFault('Some runtime fault', null);
+
+      t.ok(fault);
+      t.equal(fault.message, 'Some runtime fault');
+      t.type(fault, Error);
+      t.type(fault, NotImplementedFault);
+      t.equal(fault.error, fault);
+      t.equal(fault.exitCode, ExitCode.Software);
+      t.same(fault.traceback, null);
+    },
+  );
 });
 
 t.test('For UsageFault', async (t: Test) => {

@@ -79,6 +79,10 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(formatter.format(new BaseWarning('message', TRACEBACK)));
     });
 
+    t.test('it formats a BaseWarning without a traceback', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new BaseWarning('message', null)));
+    });
+
     t.test('it formats an AssertionError', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(new AssertionError('message', TRACEBACK)),

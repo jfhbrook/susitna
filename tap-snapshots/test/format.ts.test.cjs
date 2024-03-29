@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:174:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:178:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -30,6 +30,10 @@ BaseFault: message
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarning > must match snapshot 1`] = `
 /home/josh/script.bas:100: BaseWarning: message
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarning without a traceback > must match snapshot 1`] = `
+<unknown>:<?>: BaseWarning: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a boolean > must match snapshot 1`] = `
@@ -91,7 +95,7 @@ owe you a beer, coffee or beverage of your choice. 🍻
 
 --- Internal Stack Trace ---
 RuntimeFault: Some runtime fault
-    at Test.<anonymous> ({CWD}/test/format.ts:187:11)
+    at Test.<anonymous> ({CWD}/test/format.ts:191:11)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)

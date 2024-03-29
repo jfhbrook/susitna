@@ -26,17 +26,18 @@ npm test
 
 This is roughly my fourth attempt. Here are some notes on prior attempts:
 
-- joshiverse/s7bas - a YOLO attempt at writing a basic from scratch, based
+- s7bas - a YOLO attempt at writing a basic from scratch, based
   largely on the MSX Technical Handbook. I learned at TON but ultimately
   realized I needed to step back and figure out how you would actually
   architect a modern BASIC interpreter.
-- joshiverse/yabasic-rs - an attempt to port yabasic to rust. everything
-  worthwhile from there has been moved to this repo.
-- ./rs - wherein I successfully ported most of the scanner from yabasic,
-  changed focus to doing Crafting Interpreters, sketched out a few patterns,
-  then realized I should be prototyping in typescript
+- 2 attempts to port yabasic to rust. I successfully ported most of the scanner
+  from yabasic, changed focus to doing Crafting Interpreters, sketched out a
+  few patterns, then realized I should be prototyping in typescript
 - this project, which has a basic scanner and some architectural structure,
   written in typescript
+
+The few rust snippets I want to port over to typescript can be found in the
+[./rs](./rs) directory - namely, parsing for strings and numbers.
 
 ## Resources
 

@@ -42,3 +42,14 @@ TypeError: unsupported operand type(s) for /: 'int' and 'str'
 
 /Users/josh/Software/jfhbrook/matanuska/test.py:3: DeprecationWarning: derprecated
   warnings.warn('derprecated', DeprecationWarning)
+
+# throwing non-errors
+
+❯ node            
+Welcome to Node.js v21.6.1.
+Type ".help" for more information.
+> throw "baby";
+Uncaught 'baby'
+> throw new Error('baby');
+Uncaught Error: baby
+>

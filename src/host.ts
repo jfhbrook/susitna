@@ -3,8 +3,8 @@ import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
 import { format } from 'util';
 
-type Value = any;
-type BaseException = any;
+import { BaseException } from './exceptions';
+import { PrettyFormatter, FormatValue } from './format';
 
 /**
  * A logging level.
@@ -86,14 +86,14 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeOut(value: Value): void;
+  writeOut(value: FormatValue): void;
 
   /**
    * Write a value to the error channel.
    *
    * @param value The value to write.
    */
-  writeError(value: Value): void;
+  writeError(value: FormatValue): void;
 
   /**
    * Write a value to the debug channel. If the log level is not inclusive of
@@ -101,7 +101,7 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeDebug(value: Value): void;
+  writeDebug(value: FormatValue): void;
 
   /**
    * Write a value to the info channel. If the log level is not inclusive of
@@ -109,7 +109,7 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeInfo(value: Value): void;
+  writeInfo(value: FormatValue): void;
 
   /**
    * Write a value to the warn channel. If the log level is not inclusive of
@@ -117,14 +117,14 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeWarn(value: Value): void;
+  writeWarn(value: FormatValue): void;
 
   /**
    * Write an Exception to the error channel.
    *
    * @param exception The exception to write.
    */
-  writeException(exc: BaseException): void;
+  writeException(value: FormatValue): void;
 
   /**
    * Write a value to a numbered channel. The standard channels are:
@@ -143,13 +143,14 @@ export interface Host {
    * @param channel The channel to write to.
    * @param value The value to write.
    */
-  writeChannel(channel: number, value: Value): void;
+  writeChannel(channel: number, value: FormatValue): void;
 }
 
 /**
  * A host for a standard terminal console.
  */
 export class ConsoleHost implements Host {
+  private formatter = new PrettyFormatter();
   inputStream: Readable;
   outputStream: Writable;
   errorStream: Writable;
@@ -224,37 +225,46 @@ export class ConsoleHost implements Host {
     return this.readline.question(prompt);
   }
 
-  writeOut(value: Value): void {
+  writeOut(value: FormatValue): void {
     this.outputStream.write(value);
   }
 
-  writeError(value: Value): void {
-    this.errorStream.write(value);
+  writeError(value: FormatValue): void {
+    this.errorStream.write(this.formatter.format(value));
   }
 
-  writeDebug(value: Value): void {
+  writeDebug(value: FormatValue): void {
     if (this.level <= Level.Debug) {
-      this.errorStream.write(`DEBUG: ${value}\n`);
+      this.errorStream.write(`DEBUG: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeInfo(value: Value): void {
+  writeInfo(value: FormatValue): void {
     if (this.level <= Level.Info) {
-      this.errorStream.write(`INFO: ${value}\n`);
+      this.errorStream.write(`INFO: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeWarn(value: Value): void {
+  writeWarn(value: FormatValue): void {
     if (this.level <= Level.Warn) {
-      this.errorStream.write(`WARN: ${value}\n`);
+      this.errorStream.write(`WARN: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeException(exc: BaseException): void {
-    this.errorStream.write(`${format(exc)}\n`);
+  writeException(value: FormatValue): void {
+    let exc = value;
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      exc = new BaseException(String(value), null);
+    }
+
+    this.errorStream.write(`${this.formatter.format(exc)}\n`);
   }
 
-  writeChannel(channel: number, value: Value): void {
+  writeChannel(channel: number, value: FormatValue): void {
     switch (channel) {
       case 1:
         this.writeOut(value);

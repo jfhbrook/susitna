@@ -1,5 +1,6 @@
 import { ExitCode, ExitCoded } from './exit';
 import { ErrorCode } from './errors';
+import { Formattable, Formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 
 type Value = any;
@@ -7,7 +8,7 @@ type Value = any;
 /**
  * The base class for all Exceptions, including fatal exceptions.
  */
-export class BaseException implements Traceable {
+export class BaseException implements Traceable, Formattable {
   /**
    * @param message The message for the exception.
    * @param traceback The traceback for the exception.
@@ -20,6 +21,10 @@ export class BaseException implements Traceable {
     // with, not just a message.
     // TODO: Implement notes a la Python?
     // See: https://docs.python.org/3/tutorial/errors.html#enriching-exceptions-with-notes
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatBaseException(this);
   }
 }
 
@@ -36,7 +41,11 @@ export class Exception extends BaseException {}
 /**
  * An exception raised by an assertion.
  */
-export class AssertionError extends Exception {}
+export class AssertionError extends Exception {
+  format(formatter: Formatter): string {
+    return formatter.formatAssertionError(this);
+  }
+}
 
 /**
  * An exception raised on errors in the runtime.
@@ -57,7 +66,11 @@ export class NotImplementedError extends RuntimeError {}
  * The base class for all warnings. Warnings are non-fatal and can not be
  * caught.
  */
-export class BaseWarning extends BaseException {}
+export class BaseWarning extends BaseException {
+  format(formatter: Formatter): string {
+    return formatter.formatBaseWarning(this);
+  }
+}
 
 /**
  * The base class for all user warnings.
@@ -151,6 +164,10 @@ export class OsError extends Exception implements ExitCoded {
           this.exitCode = ExitCode.OsError;
       }
     }
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatOsError(this);
   }
 }
 
@@ -261,6 +278,10 @@ export class FileError extends OsError {
       traceback,
     );
   }
+
+  format(formatter: Formatter): string {
+    return formatter.formatFileError(this);
+  }
 }
 
 //
@@ -341,6 +362,10 @@ export class SyntaxError extends BaseException implements SourceLocation {
   ) {
     super(message, null);
   }
+
+  format(formatter: Formatter): string {
+    return formatter.formatSyntaxError(this);
+  }
 }
 
 /**
@@ -356,6 +381,10 @@ export class ParseError extends Exception implements ExitCoded {
    */
   constructor(public errors: Array<SyntaxError | SyntaxWarning>) {
     super('', null);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatParseError(this);
   }
 }
 
@@ -383,6 +412,10 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
   ) {
     super(message, null);
   }
+
+  format(formatter: Formatter): string {
+    return formatter.formatSyntaxWarning(this);
+  }
 }
 
 /**
@@ -397,5 +430,9 @@ export class ParseWarning extends Exception {
    */
   constructor(public warnings: Array<SyntaxWarning>) {
     super('', null);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatParseWarning(this);
   }
 }

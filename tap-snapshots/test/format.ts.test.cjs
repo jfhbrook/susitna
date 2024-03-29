@@ -40,7 +40,8 @@ Code('/home/josh/script.bas')
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a FileError > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
-FileError: message
+FileError EACCES: message
+  Input File: /home/josh/script.bas
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Frame > must match snapshot 1`] = `
@@ -52,11 +53,18 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number >
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseError > must match snapshot 1`] = `
-ParseError: 
+/home/josh/script.bas:100:22: error: expected )
+  100 print someFn(ident
+                       ^
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  100 print someFn(ident
+                  ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseWarning > must match snapshot 1`] = `
-<unknown>:<?>: ParseWarning: 
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  100 print someFn(ident
+                  ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
@@ -78,11 +86,15 @@ hello
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxError > must match snapshot 1`] = `
-SyntaxError: expected )
+/home/josh/script.bas:100:22: error: expected )
+  100 print someFn(ident
+                       ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxWarning > must match snapshot 1`] = `
-<unknown>:<?>: SyntaxWarning: expected )
+/home/josh/script.bas:100:22: warning: expected )
+  100 print someFn(ident
+                       ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `

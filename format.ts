@@ -4,6 +4,7 @@ import {
   BaseWarning,
   OsError,
   FileError,
+  SourceLocation,
   SyntaxError,
   ParseError,
   SyntaxWarning,
@@ -171,20 +172,38 @@ export class DefaultFormatter extends Formatter {
     return report;
   }
 
+  private formatSyntaxIssue(
+    level: string,
+    message: string,
+    loc: SourceLocation,
+  ): string {
+    let report = `${loc.filename}:${loc.lineNo}:${loc.offset}: ${level}: ${message}\n`;
+    report += `  ${loc.source}\n`;
+    for (let i = 0; i <= loc.offset; i++) {
+      report += ' ';
+    }
+    report += '^';
+    return report;
+  }
+
   formatSyntaxError(exc: SyntaxError): string {
-    return this.formatBaseException(exc);
+    return this.formatSyntaxIssue('error', exc.message, exc);
   }
 
   formatParseError(exc: ParseError): string {
-    return this.formatBaseException(exc);
+    return exc.errors
+      .map((err: SyntaxError | SyntaxWarning) => this.format(err))
+      .join('\n');
   }
 
   formatSyntaxWarning(warn: SyntaxWarning): string {
-    return this.formatBaseWarning(warn);
+    return this.formatSyntaxIssue('warning', warn.message, warn);
   }
 
   formatParseWarning(warn: ParseWarning): string {
-    return this.formatBaseWarning(warn);
+    return warn.warnings
+      .map((w: SyntaxWarning) => this.format(w))
+      .join('\n');
   }
 
   formatBaseFault(fault: BaseFault): string {

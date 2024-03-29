@@ -85,14 +85,6 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseWar
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
 === RUNTIME FAULT ===
 
-This is a bug in Matanuska BASIC. If you copy this entire message and post it
-to the issues tracker:
-
-    https://github.com/jfhbrook/matanuska/issues
-
-the developers will do their best to fix it - and more importantly, they will
-owe you a beer, coffee or beverage of your choice. 🍻
-
 --- Internal Stack Trace ---
 RuntimeFault: Some runtime fault
     at Test.<anonymous> ({CWD}/test/format.ts:191:11)
@@ -109,6 +101,21 @@ RuntimeFault: Some runtime fault
 --- Traceback ---
 Traceback:
   File '/home/josh/script.bas', line 100
+
+--- Versions ---
+Matanuska BASIC: 0.0.1
+TypeScript: 5.3.3
+Node.js: v21.6.1
+
+This is a bug in Matanuska BASIC. If you copy this entire message and post it
+to the issues tracker:
+
+    https://github.com/jfhbrook/matanuska/issues
+
+the developers will do their best to fix it - and more importantly, they will
+owe you a beer, coffee or beverage of your choice. 🍻
+
+
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a string > must match snapshot 1`] = `

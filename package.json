@@ -7,14 +7,14 @@
     "matbas": "dist/main.js"
   },
   "scripts": {
-    "build": "npm run build:version && npm run build:typescript",
-    "build:version": "node -pe '`export const VERSION = \"${require(\"./package.json\").version}\";`' > version.ts",
+    "build": "npm run build:versions && npm run build:typescript",
+    "build:versions": "bash ./scripts/versions.sh",
     "build:typescript": "tsc",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && node dist/main.js",
     "lint": "eslint \"**.ts\" --fix",
-    "test": "npm run build:version && tap ./test/*.ts",
-    "snap": "npm run build:version && tap ./test/*.ts --snapshot",
+    "test": "npm run build:versions && tap ./test/*.ts",
+    "snap": "npm run build:versions && tap ./test/*.ts --snapshot",
     "console": "npm run build && cd dist && ts-node"
   },
   "keywords": [
@@ -36,6 +36,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "exercise-bike": "^2.0.1",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "tap": "^18.6.1",

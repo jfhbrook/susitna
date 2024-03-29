@@ -19,10 +19,10 @@ function help(): Exit {
   return new Exit(USAGE);
 }
 
-const VERSION = require('./version').VERSION;
+import { MATBAS_VERSION } from './versions';
 
 function version(): Exit {
-  return new Exit(`v${VERSION}`);
+  return new Exit(`v${MATBAS_VERSION}`);
 }
 
 function usage(message: string): UsageFault {

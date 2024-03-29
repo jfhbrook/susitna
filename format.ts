@@ -13,6 +13,7 @@ import {
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { Traceback, Frame, Code } from './traceback';
+import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
 export interface Formattable {
   format(formatter: Formatter): string;
@@ -187,7 +188,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatSyntaxError(exc: SyntaxError): string {
-    return this.formatSyntaxIssue('error', exc.message, exc);
+    return this.formatSyntaxIssue('error', this.format(exc.message), exc);
   }
 
   formatParseError(exc: ParseError): string {
@@ -197,7 +198,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatSyntaxWarning(warn: SyntaxWarning): string {
-    return this.formatSyntaxIssue('warning', warn.message, warn);
+    return this.formatSyntaxIssue('warning', this.format(warn.message), warn);
   }
 
   formatParseWarning(warn: ParseWarning): string {
@@ -213,13 +214,6 @@ export class DefaultFormatter extends Formatter {
 
   formatRuntimeFault(fault: RuntimeFault): string {
     let report = '=== RUNTIME FAULT ===\n\n';
-    report +=
-      'This is a bug in Matanuska BASIC. If you copy this entire message and post it\n';
-    report += 'to the issues tracker:\n\n';
-    report += '    https://github.com/jfhbrook/matanuska/issues\n\n';
-    report +=
-      'the developers will do their best to fix it - and more importantly, they will\n';
-    report += 'owe you a beer, coffee or beverage of your choice. 🍻\n\n';
     report += '--- Internal Stack Trace ---\n';
     report += fault.stack;
 
@@ -227,6 +221,17 @@ export class DefaultFormatter extends Formatter {
       report += '\n\n--- Traceback ---\n';
       report += this.format(fault.traceback);
     }
+    report += '\n\n--- Versions ---\n';
+    report += `Matanuska BASIC: ${MATBAS_VERSION}\n`;
+    report += `TypeScript: ${TYPESCRIPT_VERSION}\n`;
+    report += `Node.js: ${NODE_VERSION}\n\n`;
+    report +=
+      'This is a bug in Matanuska BASIC. If you copy this entire message and post it\n';
+    report += 'to the issues tracker:\n\n';
+    report += '    https://github.com/jfhbrook/matanuska/issues\n\n';
+    report +=
+      'the developers will do their best to fix it - and more importantly, they will\n';
+    report += 'owe you a beer, coffee or beverage of your choice. 🍻\n\n';
 
     return report;
   }

@@ -25,6 +25,7 @@ export enum ErrorCode {
   NotPermitted = 'EPERM',
   BrokenPipe = 'EPIPE',
   TimedOut = 'ETIMEDOUT',
+  Assertion = 'ERR_ASSERTION',
 }
 
 /**

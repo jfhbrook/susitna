@@ -86,8 +86,9 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeF
 === RUNTIME FAULT ===
 
 --- Internal Stack Trace ---
-RuntimeFault: Some runtime fault
-    at Test.<anonymous> ({CWD}/test/format.ts:191:11)
+AssertionError [ERR_ASSERTION]: underlying assertion
+    at new AssertionError (node:internal/assert/assertion_error:451:5)
+    at Test.<anonymous> ({CWD}/test/format.ts:182:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -96,7 +97,6 @@ RuntimeFault: Some runtime fault
     at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:591:15)
     at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
     at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1228:9)
-    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:879:29)
 
 --- Traceback ---
 Traceback:

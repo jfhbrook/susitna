@@ -215,7 +215,7 @@ export class DefaultFormatter extends Formatter {
   formatRuntimeFault(fault: RuntimeFault): string {
     let report = '=== RUNTIME FAULT ===\n\n';
     report += '--- Internal Stack Trace ---\n';
-    report += fault.stack;
+    report += fault.error.stack;
 
     if (fault.traceback) {
       report += '\n\n--- Traceback ---\n';

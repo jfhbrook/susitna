@@ -222,9 +222,9 @@ export class DefaultFormatter extends Formatter {
       report += this.format(fault.traceback);
     }
     report += '\n\n--- Versions ---\n';
-    report += `Matanuska BASIC: ${MATBAS_VERSION}\n`;
-    report += `TypeScript: ${TYPESCRIPT_VERSION}\n`;
-    report += `Node.js: ${NODE_VERSION}\n\n`;
+    report += `Matanuska BASIC: v${MATBAS_VERSION}\n`;
+    report += `TypeScript: v${TYPESCRIPT_VERSION}\n`;
+    report += `Node.js: v${NODE_VERSION}\n\n`;
     report +=
       'This is a bug in Matanuska BASIC. If you copy this entire message and post it\n';
     report += 'to the issues tracker:\n\n';

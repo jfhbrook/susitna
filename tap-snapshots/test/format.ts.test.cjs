@@ -103,8 +103,8 @@ Traceback:
   File '/home/josh/script.bas', line 100
 
 --- Versions ---
-Matanuska BASIC: 0.0.1
-TypeScript: 5.3.3
+Matanuska BASIC: v0.0.1
+TypeScript: v5.3.3
 Node.js: v21.6.1
 
 This is a bug in Matanuska BASIC. If you copy this entire message and post it

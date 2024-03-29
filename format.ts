@@ -201,17 +201,34 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatParseWarning(warn: ParseWarning): string {
-    return warn.warnings
-      .map((w: SyntaxWarning) => this.format(w))
-      .join('\n');
+    return warn.warnings.map((w: SyntaxWarning) => this.format(w)).join('\n');
   }
 
   formatBaseFault(fault: BaseFault): string {
-    return fault.stack;
+    let report = '=== INTERNAL FAULT ===\n\n';
+    report += '--- Internal Stack Trace ---\n';
+    report += fault.stack;
+    return report;
   }
 
   formatRuntimeFault(fault: RuntimeFault): string {
-    return this.formatBaseFault(fault);
+    let report = '=== RUNTIME FAULT ===\n\n';
+    report +=
+      'This is a bug in Matanuska BASIC. If you copy this entire message and post it\n';
+    report += 'to the issues tracker:\n\n';
+    report += '    https://github.com/jfhbrook/matanuska/issues\n\n';
+    report +=
+      'the developers will do their best to fix it - and more importantly, they will\n';
+    report += 'owe you a beer, coffee or beverage of your choice. 🍻\n\n';
+    report += '--- Internal Stack Trace ---\n';
+    report += fault.stack;
+
+    if (fault.traceback) {
+      report += '\n\n--- Traceback ---\n';
+      report += this.format(fault.traceback);
+    }
+
+    return report;
   }
 
   formatUsageFault(fault: UsageFault): string {

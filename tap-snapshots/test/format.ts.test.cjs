@@ -12,6 +12,9 @@ BaseException: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFault > must match snapshot 1`] = `
+=== INTERNAL FAULT ===
+
+--- Internal Stack Trace ---
 BaseFault: message
     at Test.<anonymous> ({CWD}/test/format.ts:141:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
@@ -68,6 +71,17 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseWar
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
+=== RUNTIME FAULT ===
+
+This is a bug in Matanuska BASIC. If you copy this entire message and post it
+to the issues tracker:
+
+    https://github.com/jfhbrook/matanuska/issues
+
+the developers will do their best to fix it - and more importantly, they will
+owe you a beer, coffee or beverage of your choice. 🍻
+
+--- Internal Stack Trace ---
 RuntimeFault: Some runtime fault
     at Test.<anonymous> ({CWD}/test/format.ts:154:11)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
@@ -79,6 +93,10 @@ RuntimeFault: Some runtime fault
     at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
     at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1228:9)
     at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:879:29)
+
+--- Traceback ---
+Traceback:
+  File '/home/josh/script.bas', line 100
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a string > must match snapshot 1`] = `
@@ -103,17 +121,7 @@ Traceback:
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a UsageFault > must match snapshot 1`] = `
-UsageFault: Usage: lol
-    at Test.<anonymous> ({CWD}/test/format.ts:160:40)
-    at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1159:7)
-    at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:591:15)
-    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1228:9)
-    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:879:29)
+Usage: lol
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an AssertionError > must match snapshot 1`] = `

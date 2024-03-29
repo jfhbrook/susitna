@@ -55,6 +55,10 @@ export class RuntimeFault extends Fault implements ExitCoded {
   ) {
     super(message, traceback);
   }
+
+  format(formatter: Formatter): string {
+    return formatter.formatRuntimeFault(this);
+  }
 }
 
 /**
@@ -72,5 +76,9 @@ export class UsageFault extends Fault implements ExitCoded {
 
   constructor(message: string) {
     super(message, null);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatUsageFault(this);
   }
 }

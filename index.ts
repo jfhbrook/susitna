@@ -2,21 +2,27 @@ import { Argv, cli, Env } from './cli';
 import { Config } from './config';
 import { Host } from './host';
 
-import { Exception } from './exceptions';
+import * as assert from 'assert';
+import { RuntimeFault } from './faults';
+import { TRACEBACK } from './test/helpers/traceback';
 
 function parseArgs(argv: Argv, env: Env): Config {
   return Config.load(argv, env);
 }
 
 async function run(config: Config, host: Host): Promise<void> {
-  const exc = new Exception('test exception', null);
-  host.writeException(exc);
+  const underlying = new assert.AssertionError({
+    message: 'underlying assertion',
+    actual: false,
+    expected: true,
+    operator: '===',
+  });
 
-  /*
-  const translator = app.get(Translator);
-
-  await translator.run();
-  */
+  throw new RuntimeFault(
+    'Something went terribly wrong...',
+    underlying,
+    TRACEBACK,
+  );
 }
 
 export const main = cli({ parseArgs, run });

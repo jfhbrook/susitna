@@ -1,16 +1,53 @@
-import { Argv, cli, Env } from './cli';
-import { Config } from './config';
-import { Host } from './host';
+import { spawnSync } from 'child_process';
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
+import minimist from 'minimist';
+import { globSync } from 'glob';
 
-import { Exception } from './exceptions';
+export function main() {
+  const argv = minimist(process.argv.slice(2));
 
-function parseArgs(argv: Argv, env: Env): Config {
-  return Config.load(argv, env);
+  const configPath: string = argv.p || './laudanum.json';
+
+  const config = require(resolve(configPath));
+
+  let files = argv._;
+
+  if (!argv._.length) {
+    files = config.include.reduce((files, pattern) => {
+      if (!pattern.endsWith('.l')) {
+        pattern = [`${pattern}.js.l`, `${pattern}.ts.l`];
+      }
+      return files.concat(
+        globSync(pattern, config.exclude ? { ignore: config.exclude } : {}),
+      );
+    }, []);
+  }
+
+  let definitions = config.definitions || {};
+
+  if (argv.D) {
+    for (let def of typeof argv.D === 'string' ? [argv.D] : argv.D) {
+      const [key, value] = def.split('=');
+      definitions[key] = value || true;
+    }
+  }
+
+  let cppArgv = config.preprocessorArguments || [];
+
+  for (let [key, value] of Object.entries(definitions)) {
+    cppArgv.push(`-D${key}${value === true ? '' : `=${value}`}`);
+  }
+
+  for (let input of files) {
+    const output = input.replace(/\.l$/, '');
+    let { stdout: script } = spawnSync('cpp', cppArgv.concat(input), {
+      encoding: 'utf8',
+    });
+    script = script
+      .split('\n')
+      .filter((line) => !line.startsWith('#'))
+      .join('\n');
+    writeFileSync(output, script);
+  }
 }
-
-async function run(config: Config, host: Host): Promise<void> {
-  const exc = new Exception('test exception', null);
-  host.writeException(exc);
-}
-
-export const main = cli({ parseArgs, run });

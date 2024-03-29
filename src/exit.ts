@@ -1,4 +1,5 @@
 import { errorType } from './errors';
+import { Formatter, Formattable } from './format';
 
 /**
  * A system exit code, as in sysexits.h.
@@ -129,11 +130,15 @@ export interface ExitCoded {
  * message.
  */
 @errorType('Exit')
-export class Exit extends Error implements ExitCoded {
+export class Exit extends Error implements ExitCoded, Formattable {
   public readonly exitCode = ExitCode.Success;
 
   constructor(message?: string) {
     super(message || '');
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatExit(this);
   }
 }

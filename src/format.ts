@@ -9,6 +9,8 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from './exceptions';
+import { Exit } from './exit';
+import { BaseFault, RuntimeFault, UsageFault } from './faults';
 
 export interface Formattable {
   format(formatter: Formatter): string;
@@ -46,6 +48,12 @@ export abstract class Formatter {
   abstract formatParseError(exc: ParseError): string;
   abstract formatSyntaxWarning(warn: SyntaxWarning): string;
   abstract formatParseWarning(warn: ParseWarning): string;
+
+  abstract formatBaseFault(fault: BaseFault): string;
+  abstract formatRuntimeFault(fault: RuntimeFault): string;
+  abstract formatUsageFault(fault: UsageFault): string;
+
+  abstract formatExit(exit: Exit): string;
 }
 
 export class PrettyFormatter extends Formatter {
@@ -107,5 +115,21 @@ export class PrettyFormatter extends Formatter {
 
   formatParseWarning(warn: ParseWarning): string {
     return this.formatBaseWarning(warn);
+  }
+
+  formatBaseFault(fault: BaseFault): string {
+    return fault.stack;
+  }
+
+  formatRuntimeFault(fault: RuntimeFault): string {
+    return this.formatBaseFault(fault);
+  }
+
+  formatUsageFault(fault: UsageFault): string {
+    return fault.message;
+  }
+
+  formatExit(exit: Exit): string {
+    return exit.message;
   }
 }

@@ -1,6 +1,5 @@
-import { Config } from './config';
-import { Exit } from './exit';
-import { UsageFault } from './faults';
+import { Exit, ExitCode } from './exit';
+import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { ConsoleHost, Host, LoggingOptions } from './host';
 
 /**
@@ -99,31 +98,43 @@ export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
       // host.
       await cli.run(config, host);
     } catch (err) {
-      // CLI usage faults are appropriate to log onto the console.
-      if (err instanceof UsageFault) {
-        console.log(err.message);
-        exit(err.exitCode);
-      }
-
-      // Handle successful exits.
-      if (err instanceof Exit) {
-        if (err.message.length) {
-          host.writeInfo(err.message);
-        }
-        exit(err.exitCode);
-      }
-
-      if (typeof err.exitCode === 'number') {
-        host.writeException(err);
-        exit(err.exitCode);
-      }
-
-      // TODO: Handle other Faults and Errors
-      throw err;
+      reportError(err, host);
+      exit(typeof err.exitCode === 'number' ? err.exitCode : ExitCode.Software);
     }
 
     // For consistency, explicitly exit instead of allowing Node to run the
     // command to completion.
     exit(0);
   };
+}
+
+/**
+ * Report an error thrown by the CLI command.
+ *
+ * @param err The object thrown by the CLI command.
+ * @param host A Host instance.
+ */
+export function reportError(err: any, host: Host): void {
+  if (err instanceof UsageFault) {
+    host.writeOut(err);
+    host.writeOut('\n');
+  }
+
+  // Handle successful exits.
+  if (err instanceof Exit) {
+    host.writeInfo(err.message);
+  }
+
+  // TODO: What if someone erroneously throws an Exception? Right now we just
+  // write it as an exception.
+  if (err.format) {
+    host.writeException(err);
+  } else {
+    const fault = new RuntimeFault(
+      err.message ? err.message : String(err),
+      err instanceof Error ? err : new Error(String(err)),
+      null,
+    );
+    host.writeException(fault);
+  }
 }

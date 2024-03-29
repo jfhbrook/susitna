@@ -1,5 +1,6 @@
 import { errorType } from './errors';
 import { ExitCode, ExitCoded } from './exit';
+import { Formattable, Formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 
 type Value = any;
@@ -8,7 +9,7 @@ type Value = any;
  * A base class for all faults.
  */
 @errorType('BaseFault')
-export class BaseFault extends Error implements Traceable {
+export class BaseFault extends Error implements Traceable, Formattable {
   /**
    * @param message The message for the fault.
    * @param traceback The traceback for the fault, if applicable.
@@ -19,6 +20,10 @@ export class BaseFault extends Error implements Traceable {
   ) {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatBaseFault(this);
   }
 }
 

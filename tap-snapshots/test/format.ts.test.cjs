@@ -86,6 +86,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxWa
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
+Traceback:
   File '/home/josh/script.bas', line 100
 `
 
@@ -116,5 +117,5 @@ message
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
-OsError: message
+OsError EADDRINUSE: message
 `

@@ -87,11 +87,11 @@ export class DefaultFormatter extends Formatter {
   formatTraceback(traceback: Traceback | null): string {
     let report = '';
     let tb = traceback;
+    if (tb) {
+      report += 'Traceback:\n';
+    }
     // TODO: Python also prints the module name
     while (tb) {
-      if (report.length) {
-        report += '\n';
-      }
       // TODO: inspect string, quotes etc
       report += `  File ${inspectString(tb.frame.code.filename)}, line ${tb.lineNo}`;
       tb = tb.next;
@@ -111,7 +111,6 @@ export class DefaultFormatter extends Formatter {
     let report = '';
 
     if (exc.traceback) {
-      report += 'Traceback:\n';
       report += this.format(exc.traceback);
       report += '\n';
     }
@@ -141,11 +140,35 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatOsError(exc: OsError): string {
-    return this.formatBaseException(exc);
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report += `${exc.constructor.name} ${exc.code}: ${exc.message}`;
+    return report;
   }
 
   formatFileError(exc: FileError): string {
-    return this.formatBaseException(exc);
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report += `${exc.constructor.name} ${exc.code}: ${exc.message}\n`;
+
+    if (exc.paths.length == 2) {
+      report += `  Source File: ${exc.paths[0]}`;
+      report += `  Destination File: ${exc.paths[1]}`;
+    } else {
+      report += `  Input File: ${exc.paths[0]}`;
+    }
+
+    return report;
   }
 
   formatSyntaxError(exc: SyntaxError): string {

@@ -1,9 +1,7 @@
 import { errorType } from './errors';
 import { ExitCode, ExitCoded } from './exit';
-import { Formattable, Formatter } from './format';
+import { Formattable, Formatter, FormatValue, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
-
-type Value = any;
 
 /**
  * A base class for all faults.
@@ -15,10 +13,10 @@ export class BaseFault extends Error implements Traceable, Formattable {
    * @param traceback The traceback for the fault, if applicable.
    */
   constructor(
-    message: Value,
+    message: FormatValue,
     public readonly traceback: Traceback | null,
   ) {
-    super(message);
+    super(formatter.format(message));
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
@@ -49,7 +47,7 @@ export class RuntimeFault extends Fault implements ExitCoded {
    * @param traceback The traceback for the fault.
    */
   constructor(
-    message: Value,
+    message: FormatValue,
     public error: Error,
     traceback: Traceback | null,
   ) {

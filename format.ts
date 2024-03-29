@@ -56,7 +56,7 @@ export abstract class Formatter {
   abstract formatExit(exit: Exit): string;
 }
 
-export class PrettyFormatter extends Formatter {
+export class DefaultFormatter extends Formatter {
   formatString(str: string): string {
     return str;
   }
@@ -133,3 +133,5 @@ export class PrettyFormatter extends Formatter {
     return exit.message;
   }
 }
+
+export const formatter = new DefaultFormatter();

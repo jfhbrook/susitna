@@ -37,7 +37,7 @@ const LEVELS = {
 };
 
 function parseLevel(arg: string): Level {
-  let level: Level | undefined = LEVELS[arg];
+  const level: Level | undefined = LEVELS[arg];
 
   if (typeof level === 'undefined') {
     throw usage(
@@ -86,7 +86,7 @@ export class Config {
     let eval_ = null;
     let script = null;
     let level = Level.Info;
-    let scriptArgv: string[] = ['matbas'];
+    const scriptArgv: string[] = ['matbas'];
 
     if (env.MATBAS_LOG_LEVEL) {
       level = parseLevel(env.MATBAS_LOG_LEVEL);

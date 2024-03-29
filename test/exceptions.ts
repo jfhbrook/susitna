@@ -238,7 +238,7 @@ t.test('ParseError', async (t: Test) => {
 
     const exc = new ParseError([
       new SyntaxError('expected )', FILENAME, 100, 22, line),
-      new SyntaxError('identifier has no sigil', FILENAME, 100, 17, line),
+      new SyntaxWarning('identifier has no sigil', FILENAME, 100, 17, line),
     ]);
 
     t.ok(exc);

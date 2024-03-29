@@ -4,7 +4,7 @@ import { Readable, Writable } from 'stream';
 import { format } from 'util';
 
 import { BaseException } from './exceptions';
-import { PrettyFormatter, FormatValue } from './format';
+import { DefaultFormatter, FormatValue } from './format';
 
 /**
  * A logging level.
@@ -150,7 +150,7 @@ export interface Host {
  * A host for a standard terminal console.
  */
 export class ConsoleHost implements Host {
-  private formatter = new PrettyFormatter();
+  private formatter = new DefaultFormatter();
   inputStream: Readable;
   outputStream: Writable;
   errorStream: Writable;

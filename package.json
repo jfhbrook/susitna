@@ -7,14 +7,14 @@
     "matbas": "dist/main.js"
   },
   "scripts": {
-    "build": "npm run build:version && concurrently 'npm run build:typescript' 'npm run build:assets'",
+    "build": "npm run build:version && npm run build:typescript",
     "build:version": "node -pe '`export const VERSION = \"${require(\"./package.json\").version}\";`' > version.ts",
     "build:typescript": "tsc",
-    "build:assets": "cp -r test/vcr dist/test/vcr",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && node dist/main.js",
     "lint": "eslint \"**.ts\" --fix",
-    "test": "npm run build && tap ./dist/test/*.js",
+    "test": "npm run build:version && tap ./test/*.ts",
+    "snap": "npm run build:version && tap ./test/*.ts --snapshot",
     "console": "npm run build && cd dist && ts-node"
   },
   "keywords": [

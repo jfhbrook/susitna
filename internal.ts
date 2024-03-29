@@ -42,7 +42,7 @@ export type Pointer<T> = T | null;
 // similar, just less frugal.
 
 export interface Value {
-  value: Int | Real | String | Pointer<any>;
+  value: Int | Real | string | Pointer<any>;
 }
 
 export enum Op {

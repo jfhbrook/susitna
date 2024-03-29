@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:175:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:174:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -51,7 +51,8 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a FileErro
 Traceback:
   File '/home/josh/script.bas', line 100
 FileError EACCES: message
-  Source File: /home/josh/script.bas  Destination File: another.bas
+  Source File: /home/josh/script.bas
+  Destination File: another.bas
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Frame > must match snapshot 1`] = `
@@ -90,7 +91,7 @@ owe you a beer, coffee or beverage of your choice. 🍻
 
 --- Internal Stack Trace ---
 RuntimeFault: Some runtime fault
-    at Test.<anonymous> ({CWD}/test/format.ts:188:11)
+    at Test.<anonymous> ({CWD}/test/format.ts:187:11)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)

@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { Transform, Writable } from 'stream';
 
-import { ConsoleHost } from '../host';
+import { ConsoleHost } from '../../host';
 
 /**
  * Generate the ANSI escape code for moving the cursor to a particular column.

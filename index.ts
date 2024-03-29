@@ -11,6 +11,12 @@ function parseArgs(argv: Argv, env: Env): Config {
 async function run(config: Config, host: Host): Promise<void> {
   const exc = new Exception('test exception', null);
   host.writeException(exc);
+
+  /*
+  const translator = app.get(Translator);
+
+  await translator.run();
+  */
 }
 
 export const main = cli({ parseArgs, run });

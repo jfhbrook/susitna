@@ -1,8 +1,8 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { ExitCode } from './exit';
-import { ErrorCode } from './errors';
+import { ExitCode } from '../exit';
+import { ErrorCode } from '../errors';
 
 import {
   BaseException,
@@ -19,7 +19,7 @@ import {
   ParseError,
   SyntaxWarning,
   ParseWarning,
-} from './exceptions';
+} from '../exceptions';
 
 const FILENAME = './script.bas';
 

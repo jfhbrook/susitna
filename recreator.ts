@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Line, Program } from './internal';
 
-import { Line, Program } from '../internal';
-
-@Injectable()
+// Converts ASTs back into source code. Effectively a code formatter.
 export class Recreator {
   line(line: Line): string {
     return 'some line';

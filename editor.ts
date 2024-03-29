@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Line, LineNo, Program } from '../internal';
+import { Line, LineNo, Program } from './internal';
 
-@Injectable()
 export class Editor {
   public program: Program;
 

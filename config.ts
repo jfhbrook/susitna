@@ -19,7 +19,7 @@ function help(): Exit {
   return new Exit(USAGE);
 }
 
-const VERSION = require('../package.json').version;
+const VERSION = require('./version').VERSION;
 
 function version(): Exit {
   return new Exit(`v${VERSION}`);

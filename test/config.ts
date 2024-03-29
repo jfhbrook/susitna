@@ -1,10 +1,10 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Exit } from './exit';
-import { Config } from './config';
-import { UsageFault } from './faults';
-import { Level } from './host';
+import { Exit } from '../exit';
+import { Config } from '../config';
+import { UsageFault } from '../faults';
+import { Level } from '../host';
 
 t.test('help', async (t: Test) => {
   t.test('when the -h flag is passed', async (t: Test) => {

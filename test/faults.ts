@@ -3,7 +3,7 @@ import { AssertionError } from 'assert';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { ExitCode } from './exit';
+import { ExitCode } from '../exit';
 
 import {
   BaseFault,
@@ -11,7 +11,7 @@ import {
   RuntimeFault,
   NotImplementedFault,
   UsageFault,
-} from './faults';
+} from '../faults';
 
 const FILENAME = './script.bas';
 

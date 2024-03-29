@@ -2,8 +2,8 @@ import t from 'tap';
 import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
-import { Level } from './host';
-import { ERASE_TO_END, moveCursorTo, MockConsoleHost } from './test/host';
+import { Level } from '../host';
+import { ERASE_TO_END, moveCursorTo, MockConsoleHost } from './helpers/host';
 
 const topic = discuss(
   async () => {

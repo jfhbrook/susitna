@@ -61,6 +61,16 @@ export abstract class Formatter {
   abstract formatExit(exit: Exit): string;
 }
 
+function inspectString(str: string): string {
+  if (str.includes("'")) {
+    if (str.includes('"')) {
+      return `'${str.replace(/'/g, "\\'")}'`;
+    }
+    return `"${str}"`;
+  }
+  return `'${str}'`;
+}
+
 export class DefaultFormatter extends Formatter {
   formatString(str: string): string {
     return str;
@@ -75,15 +85,26 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatTraceback(traceback: Traceback | null): string {
-    return String(traceback);
+    let report = '';
+    let tb = traceback;
+    // TODO: Python also prints the module name
+    while (tb) {
+      if (report.length) {
+        report += '\n';
+      }
+      // TODO: inspect string, quotes etc
+      report += `  File ${inspectString(tb.frame.code.filename)}, line ${tb.lineNo}`;
+      tb = tb.next;
+    }
+    return report;
   }
 
   formatFrame(frame: Frame): string {
-    return String(frame);
+    return `Frame(${this.format(frame.code)})`;
   }
 
   formatCode(code: Code): string {
-    return String(code);
+    return `Code(${inspectString(code.filename)})`;
   }
 
   formatBaseException(exc: BaseException): string {
@@ -91,11 +112,8 @@ export class DefaultFormatter extends Formatter {
 
     if (exc.traceback) {
       report += 'Traceback:\n';
-      let tb = exc.traceback;
-      while (tb) {
-        report += `  File "${tb.frame.code.filename}", line ${tb.lineNo}\n`;
-        tb = tb.next;
-      }
+      report += this.format(exc.traceback);
+      report += '\n';
     }
 
     report += `${exc.constructor.name}: ${exc.message}`;
@@ -103,7 +121,19 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatBaseWarning(warn: BaseWarning): string {
-    return this.formatBaseException(warn);
+    let report = '';
+    if (warn.traceback) {
+      report += `${warn.traceback.frame.code.filename}:${warn.traceback.lineNo}`;
+    } else {
+      report += '<unknown>:<?>';
+    }
+
+    report += `: ${warn.constructor.name}: ${warn.message}`;
+    // TODO: Python also prints the line like so:
+    //
+    //  100 print someFn(ident);
+
+    return report;
   }
 
   formatAssertionError(exc: AssertionError): string {

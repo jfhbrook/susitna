@@ -7,13 +7,13 @@
 'use strict'
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseException > must match snapshot 1`] = `
 Traceback:
-  File "./script.bas", line 100
+  File '/home/josh/script.bas', line 100
 BaseException: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFault > must match snapshot 1`] = `
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:139:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:141:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -26,19 +26,25 @@ BaseFault: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarning > must match snapshot 1`] = `
-Traceback:
-  File "./script.bas", line 100
-BaseWarning: message
+/home/josh/script.bas:100: BaseWarning: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a boolean > must match snapshot 1`] = `
 true
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Code > must match snapshot 1`] = `
+Code('/home/josh/script.bas')
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a FileError > must match snapshot 1`] = `
 Traceback:
-  File "./script.bas", line 100
+  File '/home/josh/script.bas', line 100
 FileError: message
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Frame > must match snapshot 1`] = `
+Frame(Code('/home/josh/script.bas'))
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number > must match snapshot 1`] = `
@@ -50,12 +56,12 @@ ParseError:
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseWarning > must match snapshot 1`] = `
-ParseWarning: 
+<unknown>:<?>: ParseWarning: 
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
 RuntimeFault: Some runtime fault
-    at Test.<anonymous> ({CWD}/test/format.ts:152:11)
+    at Test.<anonymous> ({CWD}/test/format.ts:154:11)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -76,12 +82,16 @@ SyntaxError: expected )
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxWarning > must match snapshot 1`] = `
-SyntaxWarning: expected )
+<unknown>:<?>: SyntaxWarning: expected )
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
+  File '/home/josh/script.bas', line 100
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a UsageFault > must match snapshot 1`] = `
 UsageFault: Usage: lol
-    at Test.<anonymous> ({CWD}/test/format.ts:158:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:160:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -95,7 +105,7 @@ UsageFault: Usage: lol
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an AssertionError > must match snapshot 1`] = `
 Traceback:
-  File "./script.bas", line 100
+  File '/home/josh/script.bas', line 100
 AssertionError: message
 `
 
@@ -105,6 +115,6 @@ message
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError > must match snapshot 1`] = `
 Traceback:
-  File "./script.bas", line 100
+  File '/home/josh/script.bas', line 100
 OsError: message
 `

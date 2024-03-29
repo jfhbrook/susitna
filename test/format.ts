@@ -19,20 +19,10 @@ import {
 } from '../exceptions';
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
+import { Traceback, Frame, Code } from '../traceback';
+import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
 
-const FILENAME = './script.bas';
 const LINE = '100 print someFn(ident';
-
-const TRACEBACK = {
-  next: null,
-  frame: {
-    previous: null,
-    code: {
-      filename: FILENAME,
-    },
-  },
-  lineNo: 100,
-};
 
 function formatTestSuite<F extends Formatter>(formatter: F): void {
   t.test(`given a ${formatter.constructor.name}`, async (t: Test) => {
@@ -46,6 +36,18 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
 
     t.test('it formats a boolean', async (t: Test) => {
       t.matchSnapshot(formatter.format(true));
+    });
+
+    t.test('it formats a Code', async (t: Test) => {
+      t.matchSnapshot(formatter.format(CODE));
+    });
+
+    t.test('it formats a Frame', async (t: Test) => {
+      t.matchSnapshot(formatter.format(FRAME));
+    });
+
+    t.test('it formats a Traceback', async (t: Test) => {
+      t.matchSnapshot(formatter.format(TRACEBACK));
     });
 
     t.test('it formats a BaseException', async (t: Test) => {

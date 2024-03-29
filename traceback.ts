@@ -25,19 +25,6 @@ export interface Traceable {
 }
 
 /**
- * A code object, as seen in tracebacks.
- *
- * See: https://docs.python.org/fr/3.11/reference/datamodel.html#code-objects
- */
-export class Code implements Formattable {
-  constructor(public readonly filename: string) {}
-
-  format(formatter: Formatter): string {
-    return formatter.formatCode(this);
-  }
-}
-
-/**
  * A stack frame, as seen in tracebacks.
  *
  * See: https://docs.python.org/3.11/reference/datamodel.html#frame-objects
@@ -50,5 +37,18 @@ export class Frame implements Formattable {
 
   format(formatter: Formatter): string {
     return formatter.formatFrame(this);
+  }
+}
+
+/**
+ * A code object, as seen in tracebacks.
+ *
+ * See: https://docs.python.org/fr/3.11/reference/datamodel.html#code-objects
+ */
+export class Code implements Formattable {
+  constructor(public readonly filename: string) {}
+
+  format(formatter: Formatter): string {
+    return formatter.formatCode(this);
   }
 }

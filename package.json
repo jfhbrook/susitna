@@ -11,7 +11,7 @@
     "build:versions": "bash ./scripts/versions.sh",
     "build:typescript": "tsc",
     "format": "prettier --write \"**/*.ts\"",
-    "start": "npm run build && node dist/main.js",
+    "start": "npm run build && node --enable-source-maps dist/main.js",
     "lint": "eslint \"**.ts\" --fix",
     "test": "npm run build:versions && tap ./test/*.ts",
     "snap": "npm run build:versions && tap ./test/*.ts --snapshot",

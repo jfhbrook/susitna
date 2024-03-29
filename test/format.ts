@@ -93,7 +93,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a FileError', async (t: Test) => {
+    t.test('it formats a FileError with one file', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
           new FileError(
@@ -101,6 +101,20 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
             ErrorCode.Access,
             ExitCode.NoInput,
             [FILENAME],
+            TRACEBACK,
+          ),
+        ),
+      );
+    });
+
+    t.test('it formats a FileError with two files', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new FileError(
+            'message',
+            ErrorCode.Access,
+            ExitCode.NoInput,
+            [FILENAME, 'another.bas'],
             TRACEBACK,
           ),
         ),

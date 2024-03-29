@@ -163,7 +163,7 @@ export class DefaultFormatter extends Formatter {
     report += `${exc.constructor.name} ${exc.code}: ${exc.message}\n`;
 
     if (exc.paths.length == 2) {
-      report += `  Source File: ${exc.paths[0]}`;
+      report += `  Source File: ${exc.paths[0]}\n`;
       report += `  Destination File: ${exc.paths[1]}`;
     } else {
       report += `  Input File: ${exc.paths[0]}`;

@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Formatter, DefaultFormatter } from '../format';
+import { Formatter, DefaultFormatter, inspectString } from '../format';
 
 import { ErrorCode } from '../errors';
 import {
@@ -19,10 +19,29 @@ import {
 } from '../exceptions';
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
-import { Traceback, Frame, Code } from '../traceback';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
+
+t.test('inspectString', async (t: Test) => {
+  t.test('it inspects strings without quotes', async (t: Test) => {
+    t.equal(inspectString('hello'), "'hello'");
+  });
+  t.test('it inspects strings with single quotes', async (t: Test) => {
+    t.equal(inspectString("don't"), '"don\'t"');
+  });
+
+  t.test('it inspects strings with double quotes', async (t: Test) => {
+    t.equal(inspectString('"time machine"'), '\'"time machine"\'');
+  });
+
+  t.test('it inspects strings with both kinds of quotes', async (t: Test) => {
+    t.equal(
+      inspectString('don\'t mess with my "time machine"'),
+      "'don\\'t mess with my \"time machine\"'",
+    );
+  });
+});
 
 function formatTestSuite<F extends Formatter>(formatter: F): void {
   t.test(`given a ${formatter.constructor.name}`, async (t: Test) => {

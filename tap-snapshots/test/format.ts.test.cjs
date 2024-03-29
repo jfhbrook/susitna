@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:141:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:160:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -83,7 +83,7 @@ owe you a beer, coffee or beverage of your choice. 🍻
 
 --- Internal Stack Trace ---
 RuntimeFault: Some runtime fault
-    at Test.<anonymous> ({CWD}/test/format.ts:154:11)
+    at Test.<anonymous> ({CWD}/test/format.ts:173:11)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)

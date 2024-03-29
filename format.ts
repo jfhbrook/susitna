@@ -62,7 +62,7 @@ export abstract class Formatter {
   abstract formatExit(exit: Exit): string;
 }
 
-function inspectString(str: string): string {
+export function inspectString(str: string): string {
   if (str.includes("'")) {
     if (str.includes('"')) {
       return `'${str.replace(/'/g, "\\'")}'`;

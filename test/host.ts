@@ -21,7 +21,7 @@ const topic = discuss(
 t.test('when prompted for a command', async (t) => {
   t.test('it gets a command', async (t) => {
     await topic.swear(async (host) => {
-      const prompt = host.prompt('> ');
+      const prompt = host.prompt('>');
       host.inputStream.write('print "hello world"\n');
 
       const command = await prompt;

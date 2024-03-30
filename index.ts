@@ -1,6 +1,7 @@
 import { Argv, cli, Env } from './cli';
 import { Config } from './config';
 import { Host } from './host';
+import { Commander } from './commander';
 import { Translator } from './translator';
 
 function parseArgs(argv: Argv, env: Env): Config {
@@ -8,7 +9,8 @@ function parseArgs(argv: Argv, env: Env): Config {
 }
 
 async function run(config: Config, host: Host): Promise<void> {
-  const translator = new Translator(config, host);
+  const commander = new Commander(config, host);
+  const translator = new Translator(config, commander, host);
 
   if (config.script) {
     await translator.script(config.script);

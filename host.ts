@@ -1,9 +1,9 @@
 import { stdin, stdout, stderr } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
-import { format } from 'util';
 
 import { BaseException } from './exceptions';
+import { Exit } from './exit';
 import { DefaultFormatter, FormatValue } from './format';
 
 /**
@@ -197,6 +197,34 @@ export class ConsoleHost implements Host {
     // - Tab complete will only apply for source input.
     // - History will be different between user and source input.
     this.readline = this.createInterface(options);
+
+    // TODO: Node's behavior on first press is to print:
+    //
+    //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
+    //
+    // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
+    // and otherwise ignores.
+    //
+    // Neither behavior is simple. Node's behavior requires tracking state
+    // in the Translator - count sigints, reset to zero on any new input.
+    // You'd have to expose this event to the Translator. Python's behavior
+    // seems simpler - throw an Error - but any error thrown here is thrown
+    // asynchronously and the context is lost. Again, you would need to emit
+    // an event on the Host and handle it in the Translator.
+    //
+    // If there's no handler at *all*, the default behavior is ostensibly to
+    // call readline.pause() - here, we're calling this.close() which also
+    // calls readline.close(). The latter ostensibly causes readline.question
+    // to throw an error. *Practically speaking* this causes the process to
+    // quietly exit - I believe it *is* throwing an error, but that Node is
+    // checking the type and deciding not to log it. That said, who knows.
+    //
+    // Either way, I should dig into this more.
+    this.readline.on('SIGINT', () => {
+      this.writeError('\n');
+      this.writeDebug('Received SIGINT (ctrl-c)');
+      this.close();
+    });
   }
 
   async close(): Promise<void> {
@@ -222,7 +250,7 @@ export class ConsoleHost implements Host {
   }
 
   prompt(prompt: string): Promise<string> {
-    return this.readline.question(prompt);
+    return this.readline.question(`${prompt} `);
   }
 
   writeOut(value: FormatValue): void {

@@ -26,10 +26,12 @@
   "author": "Josh Holbrook",
   "license": "MIT",
   "dependencies": {
+    "strftime": "^0.10.2",
     "typescript-parsec": "^0.3.4"
   },
   "devDependencies": {
     "@jfhbrook/swears": "^1.0.2",
+    "@types/strftime": "^0.9.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.42.0",

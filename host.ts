@@ -1,3 +1,6 @@
+import { basename } from 'path';
+import * as os from 'os';
+import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
@@ -143,6 +146,57 @@ export interface Host {
    * @param value The value to write.
    */
   writeChannel(channel: number, value: FormatValue): void;
+
+  //
+  // A buuuuuuunch of OS things.
+  // TODO: Should these be in another interface or class?
+  //
+
+  /**
+   * The OS's hostname.
+   */
+  hostname(): string;
+
+  /**
+   * The OS's tty (if available).
+   */
+  tty(): string | null;
+
+  /**
+   * The basename of Matanuska BASIC's entry point script. This is a decent
+   * approximation for the shell command as invoked.
+   */
+  shell(): string;
+
+  /**
+   * The current date and time.
+   */
+  now(): Date;
+
+  /**
+   * The current user's uid.
+   */
+  uid(): number;
+
+  /**
+   * The current user's gid.
+   */
+  gid(): number;
+
+  /**
+   * The current user's username.
+   */
+  username(): string;
+
+  /**
+   * The current user's home directory.
+   */
+  homedir(): string;
+
+  /**
+   * The current working directory.
+   */
+  cwd(): string;
 }
 
 /**
@@ -155,6 +209,8 @@ export class ConsoleHost implements Host {
   errorStream: Writable;
   private _readline: readline.Interface | null;
   level: Level;
+
+  private _tty: string | null | undefined = undefined;
 
   constructor() {
     this.inputStream = stdin;
@@ -313,5 +369,61 @@ export class ConsoleHost implements Host {
         // TODO: IOError for unknown channel
         this.writeException(`Unknown channel: ${channel}`);
     }
+  }
+
+  hostname(): string {
+    return os.hostname();
+  }
+
+  tty(): string | null {
+    if (typeof this._tty === 'undefined') {
+      try {
+        // I'm running this synronously because I assume it will be a quick
+        // process and that it will only need to run once (since a process's
+        // TTY never changes).
+        const { stdout } = spawnSync('tty');
+        this._tty = stdout.toString().trim();
+      } catch (err) {
+        // I'm assuming that if this fails, it's because it ultimately doesn't
+        // make sense to ascribe a TTY to the process. But it would be nice
+        // to have tracing for this, in some capacity.
+        this._tty = null;
+      }
+    }
+
+    return this._tty;
+  }
+
+  // In bash this is from the raw arguments before shebangs. Node doesn't quite
+  // give us that, BUT pulling the basename of the second argument is probably
+  // good enough for government work.
+  shell(): string {
+    return basename(process.argv[1]);
+  }
+
+  // TODO: JavaScript Dates aren't very good. Is there a sensible replacement?
+  // TODO: Can we control locale-awareness better?
+  now(): Date {
+    return new Date();
+  }
+
+  uid(): number {
+    return os.userInfo().uid;
+  }
+
+  gid(): number {
+    return os.userInfo().gid;
+  }
+
+  username(): string {
+    return os.userInfo().username;
+  }
+
+  homedir(): string {
+    return os.homedir();
+  }
+
+  cwd(): string {
+    return process.cwd();
   }
 }

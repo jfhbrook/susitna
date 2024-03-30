@@ -84,4 +84,42 @@ export class MockConsoleHost extends ConsoleHost {
     this.outputStream = new MockOutputStream();
     this.errorStream = new MockOutputStream();
   }
+
+  hostname(): string {
+    return 'gibson.local';
+  }
+
+  tty(): string | null {
+    return 'tty0';
+  }
+
+  shell(): string {
+    return 'matbas';
+  }
+
+  now(): Date {
+    // TODO: Because I'm not handling time zones at all, tests using this
+    // only past in Alaska in the summer.
+    return new Date('23 Jun 2024 13:00:00 PST');
+  }
+
+  uid(): number {
+    return 1000;
+  }
+
+  gid(): number {
+    return 50;
+  }
+
+  username(): string {
+    return 'josh';
+  }
+
+  homedir(): string {
+    return '/Users/josh';
+  }
+
+  cwd(): string {
+    return '/Users/josh/Software/jfhbrook/matanuska';
+  }
 }

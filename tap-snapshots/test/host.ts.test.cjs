@@ -16,10 +16,8 @@ Buffer <
 
 exports[`test/host.ts > TAP > when prompted for a command > it gets a command > must match snapshot 1`] = `
 Buffer <
-  0000: 1b5b 3147 1b5b 304a 6a6f 7368 4067 6962  .[1G.[0Jjosh@gib
-  0010: 736f 6e3a 7e2f 536f 6674 7761 7265 2f6a  son:~/Software/j
-  0020: 6668 6272 6f6f 6b2f 6d61 7461 6e75 736b  fhbrook/matanusk
-  0030: 6124 201b 5b34 3447 7072 696e 7420 2268  a$..[44Gprint."h
-  0040: 656c 6c6f 2077 6f72 6c64 220d 0a         ello.world"..
+  0000: 1b5b 3147 1b5b 304a 3e20 1b5b 3347 7072  .[1G.[0J>..[3Gpr
+  0010: 696e 7420 2268 656c 6c6f 2077 6f72 6c64  int."hello.world
+  0020: 220d 0a                                  "..
 >
 `

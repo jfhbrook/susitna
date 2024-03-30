@@ -114,7 +114,7 @@ export function abbreviateHome(path: string, host: Host): string {
  */
 export function renderPrompt(promptString: string, host: Host): string {
   let ps: string = '';
-  let tmp: string[] = promptString.split('');
+  let curr: number = 0;
 
   let _now: Date | null = null;
   function now(): Date {
@@ -124,10 +124,19 @@ export function renderPrompt(promptString: string, host: Host): string {
     return _now;
   }
 
-  while (tmp.length) {
-    const c = tmp.shift();
+  function shift(): string {
+    curr++;
+    return promptString[curr - 1];
+  }
+
+  function done(): boolean {
+    return curr >= promptString.length;
+  }
+
+  while (!done()) {
+    const c = shift();
     if (c === '\\') {
-      const esc = tmp.shift();
+      const esc = shift();
       switch (esc) {
         case 'a':
           ps += '\u0007';
@@ -136,17 +145,17 @@ export function renderPrompt(promptString: string, host: Host): string {
           ps += strftime('%a %b %d', now());
           break;
         case 'D':
-          const lbrace = tmp.shift();
-          if (lbrace !== '{') {
-            ps += `\\D${lbrace}`;
+          if (promptString[curr] !== '{') {
+            ps += `\\D${shift()}`;
             break;
           }
+          shift();
           let fmt: string = '';
-          while (tmp.length && tmp[0] !== '}') {
-            fmt += tmp.shift();
+          while (!done() && promptString[curr] !== '}') {
+            fmt += shift();
           }
-          if (tmp.length) {
-            tmp.shift();
+          if (!done()) {
+            shift();
           }
           if (!fmt.length) {
             fmt = '%H:%M:%S';
@@ -227,8 +236,8 @@ export function renderPrompt(promptString: string, host: Host): string {
           if (OCTAL_DIGITS.has(esc)) {
             let digits = esc;
             let i = 1;
-            while (OCTAL_DIGITS.has(tmp[0]) && i < LONGEST_OCTAL) {
-              digits += tmp.shift();
+            while (OCTAL_DIGITS.has(promptString[curr]) && i < LONGEST_OCTAL) {
+              digits += shift();
               i++;
             }
             if (digits.length < 3) {

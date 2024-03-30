@@ -6,11 +6,9 @@ import { abbreviateHome, renderPrompt } from '../shell';
 
 import { MockConsoleHost } from './helpers/host';
 
-const topic = discuss(
-  async () => {
-    return new MockConsoleHost();
-  }
-);
+const topic = discuss(async () => {
+  return new MockConsoleHost();
+});
 
 t.test('abbreviateHome', async (t: Test) => {
   await topic.swear(async (host) => {

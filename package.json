@@ -9,7 +9,8 @@
   "scripts": {
     "build": "npm run build:versions && npm run build:typescript",
     "build:versions": "bash ./scripts/versions.sh",
-    "build:typescript": "tsc",
+    "build:typescript": "tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && node --enable-source-maps dist/main.js",
     "lint": "eslint \"**.ts\" --fix",

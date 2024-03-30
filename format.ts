@@ -15,13 +15,27 @@ import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { Traceback, Frame, Code } from './traceback';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
+/**
+ * Objects implementing this interface can be formatted.
+ */
 export interface Formattable {
   format(formatter: Formatter): string;
 }
 
+/**
+ * Values of this type can be formatted.
+ */
 export type FormatValue = string | number | boolean | Formattable;
 
+/**
+ * A formatter. This is an abstract class and should not be used directly.
+ */
 export abstract class Formatter {
+  /**
+   * Format a value.
+   *
+   * @param value A formattable value.
+   */
   format(value: FormatValue): string {
     if (typeof value === 'string') {
       return this.formatString(value);
@@ -37,6 +51,11 @@ export abstract class Formatter {
 
     return value.format(this);
   }
+
+  //
+  // This class implements a visitor pattern - all of these methods are
+  // visitor methods for particular value types.
+  //
 
   abstract formatString(value: string): string;
   abstract formatNumber(value: number): string;
@@ -63,6 +82,9 @@ export abstract class Formatter {
   abstract formatExit(exit: Exit): string;
 }
 
+/**
+ * Inspect a string. Includes the quotes and does escaping appropriately.
+ */
 export function inspectString(str: string): string {
   if (str.includes("'")) {
     if (str.includes('"')) {
@@ -73,6 +95,9 @@ export function inspectString(str: string): string {
   return `'${str}'`;
 }
 
+/**
+ * A default, standard formatter.
+ */
 export class DefaultFormatter extends Formatter {
   formatString(str: string): string {
     return str;
@@ -245,4 +270,7 @@ export class DefaultFormatter extends Formatter {
   }
 }
 
+/**
+ * The default formatter, initialized for your convenience.
+ */
 export const formatter = new DefaultFormatter();

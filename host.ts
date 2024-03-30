@@ -119,7 +119,8 @@ export interface Host {
    * 4 - Info
    * 5 - Debug
    *
-   * Channels 1 and 2 correspond to stdout and stderr, respectively. Channels 3-5 are treated as logging methods.
+   * Channels 1 and 2 correspond to stdout and stderr, respectively.
+   * Channels 3-5 are treated as logging methods.
    *
    * In the future, custom channels may be supported as an abstraction over
    * file descriptors.

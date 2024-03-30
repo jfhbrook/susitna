@@ -2,12 +2,10 @@ import { basename } from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
-import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
 
 import { BaseException } from './exceptions';
 import { DefaultFormatter, FormatValue } from './format';
-import { renderPrompt } from './shell';
 
 /**
  * A logging level.
@@ -18,20 +16,6 @@ export enum Level {
   Warn = 2,
   Error = 3,
 }
-
-export interface ReadLineOptions {}
-
-export interface LoggingOptions {
-  /**
-   * An optional logging level. Defaults to Info.
-   */
-  level?: Level;
-}
-
-/**
- * Initialization options for the host.
- */
-export type InitOptions = ReadLineOptions & LoggingOptions;
 
 /**
  * An interface that encapsulates platform specific behavior. This includes:
@@ -44,16 +28,30 @@ export type InitOptions = ReadLineOptions & LoggingOptions;
  * - Networking
  */
 export interface Host {
-  /**
-   * Initialize the host. Called by the command module.
-   */
-  init(options: InitOptions): Promise<void>;
+  //
+  // Ground floor I/O. IO is exposed as stdio streams so that lower level
+  // components (like readline) can use them directly.
+  //
 
   /**
-   * Close the host, cleaning up any open resources. Called by the command
-   * module.
+   * The standard input stream.
    */
-  close(): Promise<void>;
+  inputStream: Readable;
+
+  /**
+   * The standard output stream.
+   */
+  outputStream: Writable;
+
+  /**
+   * The standard error stream.
+   */
+  errorStream: Writable;
+
+  //
+  // Logging concerns. It's arguable these shouldn't be the Host's problem,
+  // but it needs to work at the ground floor, so we do it here.
+  //
 
   /**
    * The current logging level. Used to suppress debug, info and warning
@@ -67,22 +65,6 @@ export interface Host {
    * @param level The new logging level.
    */
   setLevel(level: Level): void;
-
-  /**
-   * Request input from the user.
-   *
-   * @param question A question to ask the user.
-   * @returns A promise that resolves to the user input.
-   */
-  input(question: string): Promise<string>;
-
-  /**
-   * Prompt for a line of source.
-   *
-   * @param prompt The prompt to display.
-   * @returns A promise that resolves to the source line.
-   */
-  prompt(prompt: string): Promise<string>;
 
   /**
    * Write a value to the output channel.
@@ -148,11 +130,6 @@ export interface Host {
    */
   writeChannel(channel: number, value: FormatValue): void;
 
-  //
-  // A buuuuuuunch of OS things.
-  // TODO: Should these be in another interface or class?
-  //
-
   /**
    * The OS's hostname.
    */
@@ -195,7 +172,8 @@ export interface Host {
   homedir(): string;
 
   /**
-   * The current working directory.
+   * The process's current working directory. This is not the same as the
+   * shell's current working directory.
    */
   cwd(): string;
 }
@@ -208,9 +186,7 @@ export class ConsoleHost implements Host {
   inputStream: Readable;
   outputStream: Writable;
   errorStream: Writable;
-  private _readline: readline.Interface | null;
   level: Level;
-  // TODO: Should I expose this? Or should it be write-only?
 
   private _tty: string | null | undefined = undefined;
 
@@ -218,96 +194,10 @@ export class ConsoleHost implements Host {
     this.inputStream = stdin;
     this.outputStream = stdout;
     this.errorStream = stderr;
-    this.level = Level.Info;
-    this._readline = null;
-  }
-
-  private get readline(): readline.Interface {
-    if (this._readline === null) {
-      // If readline hasn't been initialized, create a default one.
-      this._readline = this.createInterface({});
-    }
-
-    return this._readline;
-  }
-
-  private set readline(rl: readline.Interface) {
-    this._readline = rl;
-  }
-
-  private createInterface(options: ReadLineOptions): readline.Interface {
-    return readline.createInterface({
-      input: this.inputStream,
-      output: this.outputStream,
-      terminal: true,
-    });
-  }
-
-  async init(options: InitOptions): Promise<void> {
-    await this.close();
-
-    if (options.level) {
-      this.setLevel(options.level);
-    }
-
-    // TODO: Support for tab-completion and history. Note:
-    // - Tab complete will only apply for source input.
-    // - History will be different between user and source input.
-    this.readline = this.createInterface(options);
-
-    // TODO: Node's behavior on first press is to print:
-    //
-    //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
-    //
-    // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
-    // and otherwise ignores.
-    //
-    // Neither behavior is simple. Node's behavior requires tracking state
-    // in the Translator - count sigints, reset to zero on any new input.
-    // You'd have to expose this event to the Translator. Python's behavior
-    // seems simpler - throw an Error - but any error thrown here is thrown
-    // asynchronously and the context is lost. Again, you would need to emit
-    // an event on the Host and handle it in the Translator.
-    //
-    // If there's no handler at *all*, the default behavior is ostensibly to
-    // call readline.pause() - here, we're calling this.close() which also
-    // calls readline.close(). The latter ostensibly causes readline.question
-    // to throw an error. *Practically speaking* this causes the process to
-    // quietly exit - I believe it *is* throwing an error, but that Node is
-    // checking the type and deciding not to log it. That said, who knows.
-    //
-    // Either way, I should dig into this more.
-    this.readline.on('SIGINT', () => {
-      this.writeError('\n');
-      this.writeDebug('Received SIGINT (ctrl-c)');
-      this.close();
-    });
-  }
-
-  async close(): Promise<void> {
-    let p: Promise<void> = Promise.resolve();
-
-    if (this._readline) {
-      p = new Promise((resolve, reject) => {
-        this._readline.once('close', () => resolve());
-      });
-
-      this._readline.close();
-    }
-
-    return p;
   }
 
   setLevel(level: Level): void {
     this.level = level;
-  }
-
-  input(question: string): Promise<string> {
-    return this.readline.question(`${question} > `);
-  }
-
-  prompt(ps1: string): Promise<string> {
-    return this.readline.question(`${renderPrompt(ps1, this)} `);
   }
 
   writeOut(value: FormatValue): void {
@@ -372,6 +262,10 @@ export class ConsoleHost implements Host {
         this.writeException(`Unknown channel: ${channel}`);
     }
   }
+
+  //
+  // OS and environment concerns.
+  //
 
   hostname(): string {
     return os.hostname();

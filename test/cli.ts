@@ -1,14 +1,14 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Argv, cli, Env, Run } from '../cli';
+import { Argv, cli, Env, Run, ConfigOptions } from '../cli';
 import { errorType } from '../errors';
 import { Exit, ExitCode } from '../exit';
 import { RuntimeFault } from '../faults';
-import { Host, Level, LoggingOptions } from '../host';
+import { Host, Level } from '../host';
 import { MockConsoleHost } from './helpers/host';
 
-interface TestConfig extends LoggingOptions {
+interface TestConfig extends ConfigOptions {
   level: Level;
 }
 

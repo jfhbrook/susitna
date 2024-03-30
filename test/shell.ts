@@ -8,15 +8,8 @@ import { MockConsoleHost } from './helpers/host';
 
 const topic = discuss(
   async () => {
-    const host = new MockConsoleHost();
-
-    await host.init({});
-
-    return host;
-  },
-  async (host) => {
-    await host.close();
-  },
+    return new MockConsoleHost();
+  }
 );
 
 t.test('abbreviateHome', async (t: Test) => {

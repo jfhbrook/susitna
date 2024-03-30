@@ -3,12 +3,15 @@ import { Commander } from './commander';
 import { Host } from './host';
 import { BaseException } from './exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
+import { scanner } from './scanner';
 
-export class Translator<H extends Host> {
+import { scanAllTokens } from './test/helpers/scanner';
+
+export class Translator {
   constructor(
     private config: Config,
-    private commander: Commander<H>,
-    private host: H,
+    private commander: Commander,
+    private host: Host,
   ) {}
 
   async script(filename: string) {
@@ -43,7 +46,15 @@ export class Translator<H extends Host> {
   }
 
   async translate(input: string): Promise<void> {
-    this.host.writeOut(input + '\n');
+    let token: any = null;
+    try {
+      token = scanner.parse(input);
+    } catch (err) {
+      console.error(err);
+    }
+    if (token) {
+      console.log(scanAllTokens(token));
+    }
     // TODO: Scan the line into tokens
     // TODO: Parse the tokens into a Line | Command
     // TODO: If it's a Line, pass it to the Editor

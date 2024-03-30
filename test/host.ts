@@ -5,43 +5,8 @@ import { discuss } from '@jfhbrook/swears';
 import { Level } from '../host';
 import { MockConsoleHost } from './helpers/host';
 
-const topic = discuss(
-  async () => {
-    const host = new MockConsoleHost();
-
-    await host.init({});
-
-    return host;
-  },
-  async (host) => {
-    await host.close();
-  },
-);
-
-t.test('when prompted for a command', async (t) => {
-  t.test('it gets a command', async (t) => {
-    await topic.swear(async (host) => {
-      const prompt = host.prompt('>');
-      host.inputStream.write('print "hello world"\n');
-
-      const command = await prompt;
-      t.matchSnapshot(host.outputStream.output);
-      t.equal(command, 'print "hello world"');
-    });
-  });
-});
-
-t.test('when input is requested', async (t) => {
-  t.test('input is received?', async (t) => {
-    await topic.swear(async (host) => {
-      const question = host.input('what is your favorite color?');
-      host.inputStream.write('blue\n');
-
-      const input = await question;
-      t.matchSnapshot(host.outputStream.output);
-      t.equal(input, 'blue');
-    });
-  });
+const topic = discuss(async () => {
+  return new MockConsoleHost();
 });
 
 const STREAM = {

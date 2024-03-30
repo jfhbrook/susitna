@@ -1,6 +1,6 @@
 import { Exit, ExitCode } from './exit';
-import { BaseFault, RuntimeFault, UsageFault } from './faults';
-import { ConsoleHost, Host, LoggingOptions } from './host';
+import { RuntimeFault, UsageFault } from './faults';
+import { ConsoleHost, Host, Level } from './host';
 
 /**
  * Command line arguments.
@@ -18,9 +18,19 @@ export type Env = typeof process.env;
 export type ExitFn = typeof process.exit;
 
 /**
+ * Options for configuring the CLI.
+ */
+export interface ConfigOptions {
+  /**
+   * An optional logging level. Defaults to Info.
+   */
+  level?: Level;
+}
+
+/**
  * Options for running a CLI.
  */
-export interface CliOptions {
+export interface RuntimeOptions {
   /**
    * A Host instance. Defaults to ConsoleHost.
    */
@@ -47,7 +57,7 @@ export type Run<C> = (config: C, host: Host) => Promise<void>;
 /**
  * A CLI command.
  */
-export interface Cli<C extends LoggingOptions> {
+export interface Cli<C extends ConfigOptions> {
   /**
    * Parse command line arguments and environment into a config.
    *
@@ -73,7 +83,7 @@ export interface Cli<C extends LoggingOptions> {
  * @param options CLI options.
  * @returns A promise that resolves on completion.
  */
-export type Main = (options: CliOptions) => Promise<void>;
+export type Main = (options: RuntimeOptions) => Promise<void>;
 
 /**
  * Create a main function from a CLI command.
@@ -81,21 +91,19 @@ export type Main = (options: CliOptions) => Promise<void>;
  * @param cli A CLI command.
  * @returns A main function.
  */
-export function cli<C extends LoggingOptions>(cli: Cli<C>): Main {
+export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
   return async function main({
     host: overriddenHost,
     exit: overriddenExit,
     argv,
     env,
-  }: CliOptions): Promise<void> {
+  }: RuntimeOptions): Promise<void> {
     const host: Host = overriddenHost || new ConsoleHost();
     const exit: ExitFn = overriddenExit || process.exit;
 
     try {
       const config = cli.parseArgs(argv, env);
       host.setLevel(config.level);
-      // NOTE: It is up to the main function to initialize and close the
-      // host.
       await cli.run(config, host);
     } catch (err) {
       reportError(err, host);

@@ -30,11 +30,7 @@ export class Translator<H extends Host> {
             this.host.writeException(err);
           }
 
-          throw new RuntimeFault(
-            err.message || String(err),
-            err instanceof Error ? err : new Error(String(err)),
-            null,
-          );
+          throw RuntimeFault.fromError(err, null);
         }
       }
     });

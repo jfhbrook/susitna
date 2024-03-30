@@ -125,16 +125,15 @@ export function reportError(err: any, host: Host): void {
     host.writeInfo(err.message);
   }
 
-  // TODO: What if someone erroneously throws an Exception? Right now we just
-  // write it as an exception.
   if (err.format) {
-    host.writeException(err);
+    try {
+      host.writeException(err);
+    } catch (_) {
+      const fault = RuntimeFault.fromError(err, null);
+      host.writeException(fault);
+    }
   } else {
-    const fault = new RuntimeFault(
-      err.message ? err.message : String(err),
-      err instanceof Error ? err : new Error(String(err)),
-      null,
-    );
+    const fault = RuntimeFault.fromError(err, null);
     host.writeException(fault);
   }
 }

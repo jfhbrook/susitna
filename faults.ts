@@ -54,6 +54,37 @@ export class RuntimeFault extends Fault implements ExitCoded {
     super(message, traceback);
   }
 
+  static fromError(err: any, traceback: Traceback | null): RuntimeFault {
+    let message = 'Unspecified error';
+    if (typeof err.message === 'undefined') {
+      if (err.format) {
+        try {
+          message = formatter.format(err);
+        } catch (err) {
+          message = String(err);
+        }
+      } else {
+        message = String(err);
+      }
+    } else if (typeof err.message === 'string') {
+      message = err.message;
+    } else if (err.format) {
+      try {
+        message = formatter.format(err.message);
+      } catch (err) {
+        message = String(err.message);
+      }
+    } else {
+      message = String(err.message);
+    }
+
+    if (!(err instanceof Error)) {
+      err = new Error(message);
+    }
+
+    return new RuntimeFault(message, err, traceback);
+  }
+
   format(formatter: Formatter): string {
     return formatter.formatRuntimeFault(this);
   }

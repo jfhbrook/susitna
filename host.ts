@@ -20,12 +20,11 @@ export enum Level {
 /**
  * An interface that encapsulates platform specific behavior. This includes:
  *
- * - Writing to output, error and logging channels
- * - Reading user input
- * - Reading source lines and interactive commands
- * - I/O for files and custom channels
+ * - Standard IO streams
+ * - "Ground floor" logging
+ * - IO for files and custom channels
  * - Process management
- * - Networking
+ * - Networking and other ports
  */
 export interface Host {
   //

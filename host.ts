@@ -3,7 +3,6 @@ import * as readline from 'node:readline/promises';
 import { Readable, Writable } from 'stream';
 
 import { BaseException } from './exceptions';
-import { Exit } from './exit';
 import { DefaultFormatter, FormatValue } from './format';
 
 /**

@@ -290,10 +290,35 @@ export class ConsoleHost implements Host {
     return this._tty;
   }
 
-  // In bash this is from the raw arguments before shebangs. Node doesn't quite
-  // give us that, BUT pulling the basename of the second argument is probably
-  // good enough for government work.
+  // A best attempt at the raw arguments to the command (ie. $0 in Bash). In
+  // Bash (or a C program), you would have this behavior:
+  //
+  // - `bash` -> $0 is `bash`
+  // - `$(which bash)` -> $0 is `/usr/bin/bash`
+  //
+  // Node.js does a bunch of processing to process.argv, such that the first
+  // two arguments are *always* `node` and the path to the script,
+  // respectively.
+  //
+  // There isn't a good portable way to get at the "original" argv from
+  // Node.js. There are a few approaches:
+  //
+  // 1. Write a wrapper script in Bash that reads $0 directly, puts it in an
+  //    environment variable, and then execs node.
+  // 2. Write a wrapper in C++ (or Rust) that does something similar, but
+  //    embeds Node.
+  //
+  // This works, for now, by doing the former. See ./bin/matbas for details.
+  // But the latter could be compelling later, especially if I decide to
+  // use rollup to build a bundle - if I embed the source build and Node
+  // itself, then I'll have a static binary with no assets.
+  //
+  // As a fallback, just grab the basename of process.argv[1]. In most cases
+  // it will be incorrect, but it's better than nothing.
   shell(): string {
+    if (process.env.__MATBAS_DOLLAR_ZERO) {
+      return process.env.__MATBAS_DOLLAR_ZERO;
+    }
     return basename(process.argv[1]);
   }
 

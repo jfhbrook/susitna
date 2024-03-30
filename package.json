@@ -4,7 +4,7 @@
   "description": "a shell-friendly dialect of BASIC",
   "main": "index.js",
   "bin": {
-    "matbas": "dist/main.js"
+    "matbas": "bin/matbas"
   },
   "scripts": {
     "build": "npm run build:versions && npm run build:typescript",
@@ -12,11 +12,11 @@
     "build:typescript": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
-    "start": "npm run build && node --enable-source-maps dist/main.js",
+    "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "eslint \"**.ts\" --fix",
     "test": "npm run build:versions && tap ./test/*.ts",
     "snap": "npm run build:versions && tap ./test/*.ts --snapshot",
-    "console": "npm run build && cd dist && ts-node"
+    "console": "npm run build && ts-node"
   },
   "keywords": [
     "basic",

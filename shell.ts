@@ -38,7 +38,7 @@ export function abbreviateHome(path: string, host: Host): string {
  * Render a prompt string's special characters. This is an implementation,
  * more or less, of how Bash renders $PS1 (and $PS2, $PS3 and $PS4).
  *
- * Like in bash, special characters are preceded with a backslash. Most of
+ * Like in Bash, special characters are preceded with a backslash. Most of
  * Bash's special characters are supported, with some caveats:
  *
  *     \a: A bell character.
@@ -69,7 +69,7 @@ export function abbreviateHome(path: string, host: Host): string {
  *       those digits to represent a unicode character by code. In Bash, this is
  *       necessarily 3 digits long and is an ASCII lookup. However, JavaScript
  *       uses UTF-16 and so can handle pretty big numbers. This implementation
- *       is arbitrarily limited to 8.
+ *       is limited to 6, which is how many characters 65535 is in octal.
  *     \\: Just a cheeky little backslash.
  *     \[: Blank, for compatibility with Bash. See the note on non-printing
  *       characters.

@@ -138,14 +138,16 @@ export function renderPrompt(promptString: string, host: Host): string {
         case 'D':
           const lbrace = tmp.shift();
           if (lbrace !== '{') {
-            ps += `${esc}${lbrace}`;
+            ps += `\\D${lbrace}`;
             break;
           }
           let fmt: string = '';
           while (tmp.length && tmp[0] !== '}') {
             fmt += tmp.shift();
           }
-          tmp.shift();
+          if (tmp.length) {
+            tmp.shift();
+          }
           if (!fmt.length) {
             fmt = '%H:%M:%S';
           }
@@ -219,23 +221,9 @@ export function renderPrompt(promptString: string, host: Host): string {
           ps += '\\';
           break;
         case '[':
-          break;
         case ']':
-          // NOTE: Bash calculates the apparent length of the prompt when
-          // rendering it. What that means is that it counts every character
-          // BUT the ones in between \[ and \].
-          //
-          // We don't have a use case for tracking that length right now.
-          // Node's readline seems able to handle non-printing characters
-          // without getting confused.
-          //
-          // For compatibility, we can just soak this up, and not count the
-          // apparent length of the prompt and say we did.
           break;
         default:
-          // \nnn in Bash is "the character whose ASCII code is the octal
-          // value nnn." JavaScript can do utf16 without breaking a sweat, so
-          // we just do that.
           if (OCTAL_DIGITS.has(esc)) {
             let digits = esc;
             let i = 1;
@@ -244,7 +232,7 @@ export function renderPrompt(promptString: string, host: Host): string {
               i++;
             }
             if (digits.length < 3) {
-              ps += digits;
+              ps += `\\${digits}`;
               break;
             }
             const code = parseInt(digits, 8);
@@ -252,9 +240,8 @@ export function renderPrompt(promptString: string, host: Host): string {
             break;
           }
 
-          // If the escape code is invalid, soak up the backslash and call it
-          // a day.
-          ps += `${esc}`;
+          // If the escape code is invalid, ignore the escape code.
+          ps += `\\${esc}`;
       }
     } else {
       ps += c;

@@ -3,7 +3,7 @@ import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
 import { Level } from '../host';
-import { ERASE_TO_END, moveCursorTo, MockConsoleHost } from './helpers/host';
+import { MockConsoleHost } from './helpers/host';
 
 const topic = discuss(
   async () => {
@@ -21,14 +21,11 @@ const topic = discuss(
 t.test('when prompted for a command', async (t) => {
   t.test('it gets a command', async (t) => {
     await topic.swear(async (host) => {
-      const prompt = host.prompt('>');
+      const prompt = host.prompt();
       host.inputStream.write('print "hello world"\n');
 
       const command = await prompt;
-      t.same(
-        host.outputStream.output,
-        `${moveCursorTo(1)}${ERASE_TO_END}> ${moveCursorTo(3)}print "hello world"\r\n`,
-      );
+      t.matchSnapshot(host.outputStream.output);
       t.equal(command, 'print "hello world"');
     });
   });
@@ -42,10 +39,7 @@ t.test('when input is requested', async (t) => {
 
       const input = await question;
 
-      t.same(
-        host.outputStream.output,
-        `${moveCursorTo(1)}${ERASE_TO_END}what is your favorite color? > ${moveCursorTo(32)}blue\r\n`,
-      );
+      t.matchSnapshot(host.outputStream.output);
       t.equal(input, 'blue');
     });
   });

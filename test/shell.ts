@@ -52,6 +52,14 @@ t.test('renderPrompt', async (t: Test) => {
       t.equal(renderPrompt('\\D{%o of %B}', host), '23rd of June');
     });
 
+    t.test('non-terminated strftime format', async (t: Test) => {
+      t.equal(renderPrompt('\\D{%o of %B', host), '23rd of June');
+    });
+
+    t.test('non-initialized strftime format', async (t: Test) => {
+      t.equal(renderPrompt('\\D%o of %B', host), '\\D%o of %B');
+    });
+
     t.test('escape character', async (t: Test) => {
       t.equal(renderPrompt('\\e', host), '\u001b');
     });
@@ -159,7 +167,7 @@ t.test('renderPrompt', async (t: Test) => {
     );
 
     t.test('too short octal ascii character', async (t: Test) => {
-      t.equal(renderPrompt('\\14', host), '14');
+      t.equal(renderPrompt('\\14', host), '\\14');
     });
 
     t.test('cheeky little backslash', async (t: Test) => {
@@ -172,6 +180,10 @@ t.test('renderPrompt', async (t: Test) => {
 
     t.test('start counting characters', async (t: Test) => {
       t.equal(renderPrompt('\\]', host), '');
+    });
+
+    t.test('unknown escape code', async (t: Test) => {
+      t.equal(renderPrompt('\\q', host), '\\q');
     });
   });
 });

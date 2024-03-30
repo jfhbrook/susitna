@@ -7,6 +7,7 @@ import { Readable, Writable } from 'stream';
 
 import { BaseException } from './exceptions';
 import { DefaultFormatter, FormatValue } from './format';
+import { renderPrompt } from './shell';
 
 /**
  * A logging level.
@@ -66,6 +67,13 @@ export interface Host {
    * @param level The new logging level.
    */
   setLevel(level: Level): void;
+
+  /**
+   * Set the first prompt string (PS1).
+   *
+   * @param ps1 The new prompt string.
+   */
+  setPs1(ps1: string): void;
 
   /**
    * Request input from the user.
@@ -209,6 +217,8 @@ export class ConsoleHost implements Host {
   errorStream: Writable;
   private _readline: readline.Interface | null;
   level: Level;
+  // TODO: Should I expose this? Or should it be write-only?
+  private ps1: string = '\\u@\\h:\\w\\$';
 
   private _tty: string | null | undefined = undefined;
 
@@ -300,12 +310,16 @@ export class ConsoleHost implements Host {
     this.level = level;
   }
 
+  setPs1(ps1: string): void {
+    this.ps1 = ps1;
+  }
+
   input(question: string): Promise<string> {
     return this.readline.question(`${question} > `);
   }
 
-  prompt(prompt: string): Promise<string> {
-    return this.readline.question(`${prompt} `);
+  prompt(): Promise<string> {
+    return this.readline.question(`${renderPrompt(this.ps1, this)} `);
   }
 
   writeOut(value: FormatValue): void {

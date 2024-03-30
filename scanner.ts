@@ -8,8 +8,6 @@ import {
   unableToConsumeToken,
 } from 'typescript-parsec';
 
-import { ParseError, SyntaxError } from './exceptions';
-
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
   // ref: https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/
@@ -19,7 +17,7 @@ export enum TokenKind {
   Semicolon = ';',
   Colon = ':',
   Equals = '=',
-  FileNo = '#',
+  Hash = '#',
   IntLiteral = '<int>',
   RealLiteral = '<real>',
   StringLiteral = '<string>',
@@ -245,7 +243,7 @@ export const scanner: Lexer<TokenKind> = buildLexer([
   [true, /^;/g, TokenKind.Semicolon],
   [true, /^:/g, TokenKind.Colon],
   [true, /^=/g, TokenKind.Equals],
-  [true, /^#/g, TokenKind.FileNo],
+  [true, /^#/g, TokenKind.Hash],
   // TODO: integer literal
   // TODO: real literal
   // TODO: string literal

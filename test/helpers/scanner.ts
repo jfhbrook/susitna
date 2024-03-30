@@ -1,5 +1,8 @@
-import { Token } from 'typescript-parsec';
-
+import {
+  expectEOF,
+  expectSingleResult,
+} from 'typescript-parsec';
+import { alt, Parser, rep, tok, Token, Lexer } from 'typescript-parsec';
 import { TokenKind } from '../../scanner';
 
 export interface Position {
@@ -16,26 +19,44 @@ export interface TestToken {
   pos: Position;
 }
 
-export function scanAllTokens(token: Token<TokenKind>): TestToken[] {
-  const tokens: TestToken[] = [];
-  while (token) {
-    tokens.push({
-      kind: token.kind,
-      text: token.text,
-      pos: {
-        index: token.pos.index,
-        rowBegin: token.pos.rowBegin,
-        columnBegin: token.pos.columnBegin,
-        rowEnd: token.pos.rowEnd,
-        columnEnd: token.pos.columnEnd,
-      },
-    });
-    try {
-      token = token.next;
-    } catch (err) {
-      console.error(err);
-      break;
-    }
-  }
-  return tokens;
+// Not necessarily exhaustive list of tokens kinds. Add other token types
+// as I write tests.
+const TOKENS = [
+  TokenKind.LParen,
+  TokenKind.RParen,
+  TokenKind.Comma,
+  TokenKind.Semicolon,
+  TokenKind.Colon,
+  TokenKind.Equals,
+  TokenKind.Hash,
+  TokenKind.IntLiteral,
+  TokenKind.RealLiteral,
+  TokenKind.StringLiteral,
+  TokenKind.Ident,
+  TokenKind.PathLiteral,
+  TokenKind.CommandLiteral,
+
+  TokenKind.New,
+  TokenKind.Load,
+  TokenKind.Save,
+  TokenKind.List,
+  TokenKind.Run,
+  TokenKind.End,
+
+  TokenKind.Print,
+
+  TokenKind.LineEnding,
+  TokenKind.Whitespace,
+].map(tok);
+
+// A parser that just grabs all tokens and returns them as a list.
+export const parser: Parser<TokenKind, Token<TokenKind>[]> = rep(
+  alt.apply(null, TOKENS),
+);
+
+export function scanTokens(
+  scanner: Lexer<TokenKind>,
+  source: string,
+): TestToken[] {
+  return expectSingleResult(expectEOF(parser.parse(scanner.parse(source))));
 }

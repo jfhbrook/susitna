@@ -5,7 +5,7 @@ import { BaseException } from './exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
 import { scanner } from './scanner';
 
-import { scanAllTokens } from './test/helpers/scanner';
+import { scanTokens } from './test/helpers/scanner';
 
 export class Translator {
   constructor(
@@ -46,14 +46,14 @@ export class Translator {
   }
 
   async translate(input: string): Promise<void> {
-    let token: any = null;
+    let tokens = [];
     try {
-      token = scanner.parse(input);
+      tokens = scanTokens(scanner, input);
     } catch (err) {
       console.error(err);
     }
-    if (token) {
-      console.log(scanAllTokens(token));
+    if (tokens.length) {
+      console.log(tokens);
     }
     // TODO: Scan the line into tokens
     // TODO: Parse the tokens into a Line | Command

@@ -133,7 +133,7 @@ export function renderPrompt(promptString: string, host: Host): string {
     return curr >= promptString.length;
   }
 
-  while (!done()) {
+  while (curr < promptString.length) {
     const c = shift();
     if (c === '\\') {
       const esc = shift();

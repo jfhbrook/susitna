@@ -25,7 +25,7 @@ export class Translator<H extends Host> {
     await this.commander.using(async () => {
       while (true) {
         try {
-          const input = await this.host.prompt('>');
+          const input = await this.commander.prompt();
           await this.translate(input);
         } catch (err) {
           if (err instanceof BaseFault) {

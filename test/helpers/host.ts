@@ -16,7 +16,7 @@ class MockInputStream extends Transform {
 
   _transform(chunk: any, _encoding: any, callback: any) {
     if (chunk instanceof Buffer) {
-      this.input += chunk.toString();
+      this.input += chunk.toString('utf8');
     } else {
       this.input += chunk;
     }
@@ -42,7 +42,7 @@ class MockOutputStream extends Writable {
 
   _write(chunk: any, _encoding: string, callback: any) {
     if (chunk instanceof Buffer) {
-      this.output += chunk.toString();
+      this.output += chunk.toString('utf8');
     } else {
       this.output += chunk;
     }

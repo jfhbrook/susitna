@@ -69,13 +69,6 @@ export interface Host {
   setLevel(level: Level): void;
 
   /**
-   * Set the first prompt string (PS1).
-   *
-   * @param ps1 The new prompt string.
-   */
-  setPs1(ps1: string): void;
-
-  /**
    * Request input from the user.
    *
    * @param question A question to ask the user.
@@ -218,7 +211,6 @@ export class ConsoleHost implements Host {
   private _readline: readline.Interface | null;
   level: Level;
   // TODO: Should I expose this? Or should it be write-only?
-  private ps1: string = '\\u@\\h:\\w\\$';
 
   private _tty: string | null | undefined = undefined;
 
@@ -310,16 +302,12 @@ export class ConsoleHost implements Host {
     this.level = level;
   }
 
-  setPs1(ps1: string): void {
-    this.ps1 = ps1;
-  }
-
   input(question: string): Promise<string> {
     return this.readline.question(`${question} > `);
   }
 
-  prompt(): Promise<string> {
-    return this.readline.question(`${renderPrompt(this.ps1, this)} `);
+  prompt(ps1: string): Promise<string> {
+    return this.readline.question(`${renderPrompt(ps1, this)} `);
   }
 
   writeOut(value: FormatValue): void {

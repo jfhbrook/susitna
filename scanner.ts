@@ -4,8 +4,11 @@ import {
   Parser,
   ParserOutput,
   Token,
+  TokenError,
   unableToConsumeToken,
 } from 'typescript-parsec';
+
+import { ParseError, SyntaxError } from './exceptions';
 
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
@@ -236,8 +239,8 @@ export function keywords<TK>(
 }
 
 export const scanner: Lexer<TokenKind> = buildLexer([
-  [true, /^(/g, TokenKind.LParen],
-  [true, /^)/g, TokenKind.RParen],
+  [true, /^\(/g, TokenKind.LParen],
+  [true, /^\)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
   [true, /^;/g, TokenKind.Semicolon],
   [true, /^:/g, TokenKind.Colon],

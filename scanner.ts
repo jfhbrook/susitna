@@ -296,6 +296,12 @@ const MATCH_REM: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^rem\W+[^\n]*/g, TokenKind.Rem],
 ];
 
+const PATH_RE = /^.?[//|\\][^`#$&*\(\)|\[\]{}:'"<>\?!]+/g;
+
+const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
+  [true, PATH_RE, TokenKind.PathLiteral],
+];
+
 const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
   // TODO: significant newlines, if any
   [true, /^\n+/g, TokenKind.LineEnding],
@@ -309,5 +315,6 @@ export const scanner: Lexer<TokenKind> = buildLexer(
     .concat(MATCH_BOOL)
     .concat(MATCH_IDENT)
     .concat(MATCH_REM)
+    .concat(MATCH_PATH)
     .concat(MATCH_WHITESPACE),
 );

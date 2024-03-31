@@ -42,6 +42,7 @@ const TOKENS = [
 
   TokenKind.Print,
 
+  TokenKind.Rem,
   TokenKind.LineEnding,
   TokenKind.Whitespace,
 ].map(tok);

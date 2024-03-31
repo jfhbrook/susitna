@@ -5,30 +5,44 @@ import { scanner, TokenKind, KEYWORDS } from '../scanner';
 
 import { scanTokens } from './helpers/scanner';
 
-t.test('hello world', async (t: Test) => {
-  const tokens = scanTokens(scanner, 'print "hello world"');
-  t.equal(tokens.length, 2);
+//
+// Single-token tests. This should at least show that covered tokens can
+// be scanned at all.
+//
 
-  t.has(tokens[0], {
-    kind: TokenKind.Print,
-    text: 'print',
-  });
+const PUNCTUATION = [
+  ['(', TokenKind.LParen],
+  [')', TokenKind.RParen],
+  [',', TokenKind.Comma],
+  [';', TokenKind.Semicolon],
+  [':', TokenKind.Colon],
+  ['=', TokenKind.Equals],
+  ['#', TokenKind.Hash],
+];
 
-  t.has(tokens[1], {
-    kind: TokenKind.StringLiteral,
-    text: '"hello world"',
-  });
-});
-
-t.test('keywords', async (t: Test) => {
-  for (let [keyword, kind] of Object.entries(KEYWORDS)) {
-    t.test(`keyword ${keyword}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, keyword);
+t.test('punctuation', async (t: Test) => {
+  for (let [text, kind] of PUNCTUATION) {
+    t.test(text, async (t: Test) => {
+      const tokens = scanTokens(scanner, text);
       t.equal(tokens.length, 1);
 
       t.has(tokens[0], {
-        kind: kind,
-        text: keyword,
+        kind,
+        text,
+      });
+    });
+  }
+});
+
+t.test('keywords', async (t: Test) => {
+  for (let [text, kind] of Object.entries(KEYWORDS)) {
+    t.test(`keyword ${text}`, async (t: Test) => {
+      const tokens = scanTokens(scanner, text);
+      t.equal(tokens.length, 1);
+
+      t.has(tokens[0], {
+        kind,
+        text,
       });
     });
   }
@@ -103,4 +117,59 @@ t.test('booleans', async (t: Test) => {
       });
     });
   }
+});
+
+//
+// Multi-token tests. These are to show that more interesting scenarios are
+// tokenized *as expected* (the prior tests should show they tokenize at all).
+//
+
+t.test('hello world', async (t: Test) => {
+  const tokens = scanTokens(scanner, 'print "hello world"');
+  t.equal(tokens.length, 2);
+
+  t.has(tokens[0], {
+    kind: TokenKind.Print,
+    text: 'print',
+  });
+
+  t.has(tokens[1], {
+    kind: TokenKind.StringLiteral,
+    text: '"hello world"',
+  });
+});
+
+t.skip('function call', async (t: Test) => {
+  const tokens = scanTokens(scanner, 'pony($u, $v)');
+  t.equal(tokens.length, 6);
+
+  t.has(tokens[0], {
+    kind: TokenKind.Ident,
+    text: 'pony',
+  });
+
+  t.has(tokens[1], {
+    kind: TokenKind.LParen,
+    text: '(',
+  });
+
+  t.has(tokens[2], {
+    kind: TokenKind.Ident,
+    text: '$u',
+  });
+
+  t.has(tokens[3], {
+    kind: TokenKind.Comma,
+    text: ',',
+  });
+
+  t.has(tokens[4], {
+    kind: TokenKind.Ident,
+    text: '$v',
+  });
+
+  t.has(tokens[5], {
+    kind: TokenKind.RParen,
+    text: ')',
+  });
 });

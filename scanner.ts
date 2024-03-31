@@ -18,10 +18,21 @@ export enum TokenKind {
   Colon = ':',
   Equals = '=',
   Hash = '#',
-  IntLiteral = '<int>',
+
+  DecimalLiteral = '<decimal>',
+  HexLiteral = '<hex>',
+  OctalLiteral = '<octal>',
+  BinaryLiteral = '<binary>',
+
   RealLiteral = '<real>',
+
+  True = 'TRUE',
+  False = 'FALSE',
+
   StringLiteral = '<string>',
+
   Ident = '<ident>',
+
   PathLiteral = '<path>',
   CommandLiteral = '<command>',
 
@@ -231,22 +242,33 @@ const MATCH_STRING: Array<[boolean, RegExp, TokenKind]> = [
   [true, SINGLE_QUOTE_RE, TokenKind.StringLiteral],
 ];
 
-// TODO: I have to figure out how my numbers are designed. This includes both
-// floats and a number of integer formats:
 //
-// Yabasic has hex digits, binary digits and decimal digits, with the first
-// two being prefixed by 0x and 0b respectively. I would probably want to
-// support octal with an o prefix as well. That might be enough.
+// Numbers are also scanned as literals, but there are different kinds for
+// each type of number.
 //
-// Note that line numbers must be "simple integers", ie, they CAN'T support
-// anything other than \d+.
+// I haven't fully thought through the design of these yet, and I suspect the
+// regexps could be more strict in their input.
 //
-// Yabasic for reals/floats isn't very sophisticated and just does \d+.\d+. In
-// my rust/nom code, I just used nom's standard float parser.
-//
-// One option is to look to VB for inspiration, since this IS a basic and
-// because that's what I did for strings.
-const MATCH_NUMBER: Array<[boolean, RegExp, TokenKind]> = [];
+
+const DECIMAL_RE = /^[\d_]+/g;
+const HEX_RE = /^0x[\da-fA-F_]+/g;
+const OCTAL_RE = /^0o[0-7_]+/g;
+const BINARY_RE = /^0b[01_]+/g;
+
+const REAL_RE = /^[\d_]+\.[\d_]*(e[\d_]+)?/g;
+
+const MATCH_NUMBER: Array<[boolean, RegExp, TokenKind]> = [
+  [true, DECIMAL_RE, TokenKind.DecimalLiteral],
+  [true, HEX_RE, TokenKind.HexLiteral],
+  [true, OCTAL_RE, TokenKind.OctalLiteral],
+  [true, BINARY_RE, TokenKind.BinaryLiteral],
+  [true, REAL_RE, TokenKind.RealLiteral],
+];
+
+const MATCH_BOOL: Array<[boolean, RegExp, TokenKind]> = [
+  [true, /^true/g, TokenKind.True],
+  [true, /^false/g, TokenKind.False],
+];
 
 // TODO: What are valid identifying characters in VB?
 const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [];
@@ -271,6 +293,7 @@ export const scanner: Lexer<TokenKind> = buildLexer(
   MATCH_PUNCTUATION.concat(MATCH_STRING)
     .concat(MATCH_NUMBER)
     .concat(MATCH_KEYWORD)
+    .concat(MATCH_BOOL)
     .concat(MATCH_IDENT)
     .concat(MATCH_REM)
     .concat(MATCH_WHITESPACE),

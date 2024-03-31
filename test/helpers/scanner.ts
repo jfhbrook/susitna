@@ -26,9 +26,19 @@ const TOKENS = [
   TokenKind.Colon,
   TokenKind.Equals,
   TokenKind.Hash,
-  TokenKind.IntLiteral,
+
+  TokenKind.DecimalLiteral,
+  TokenKind.HexLiteral,
+  TokenKind.OctalLiteral,
+  TokenKind.BinaryLiteral,
+
   TokenKind.RealLiteral,
+
   TokenKind.StringLiteral,
+
+  TokenKind.True,
+  TokenKind.False,
+
   TokenKind.Ident,
   TokenKind.PathLiteral,
   TokenKind.CommandLiteral,

@@ -295,7 +295,7 @@ const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [
 // with a keyword or ident.
 //
 // TODO: Are there some edge cases we can catch and also treat as paths?
-const PATH_RE = /^.?[//|\\][^`#$&*\(\)|\[\]{}:'"<>\?!]+/g;
+const PATH_RE = /^[./\\]+[^`#$&*\(\)|\[\]{}:'"<>\?!]*/g;
 
 const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
   [true, PATH_RE, TokenKind.PathLiteral],

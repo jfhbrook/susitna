@@ -141,6 +141,10 @@ t.test('identifiers', async (t: Test) => {
 });
 
 const PATH = [
+  ['/', TokenKind.PathLiteral],
+  ['./', TokenKind.PathLiteral],
+  ['..', TokenKind.PathLiteral],
+  ['../', TokenKind.PathLiteral],
   ['./pony', TokenKind.PathLiteral],
   ['.\\pony', TokenKind.PathLiteral],
 ];

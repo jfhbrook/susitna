@@ -43,6 +43,8 @@ const TOKENS = [
   TokenKind.StringIdent,
 
   TokenKind.PathLiteral,
+  TokenKind.ShortOpt,
+  TokenKind.LongOpt,
   TokenKind.CommandLiteral,
 
   TokenKind.New,

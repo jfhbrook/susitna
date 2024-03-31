@@ -35,6 +35,9 @@ export enum TokenKind {
   StringIdent = '<string ident>',
 
   PathLiteral = '<path>',
+  ShortOpt = '<-o>',
+  LongOpt = '<--option>',
+
   CommandLiteral = '<command>',
 
   New = 'NEW',
@@ -286,6 +289,20 @@ const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [
   [true, STR_IDENT_RE, TokenKind.StringIdent],
 ];
 
+const PATH_RE = /^.?[//|\\][^`#$&*\(\)|\[\]{}:'"<>\?!]+/g;
+
+const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
+  [true, PATH_RE, TokenKind.PathLiteral],
+];
+
+const SHORTOPT_RE = /^-[^-\W]/g;
+const LONGOPT_RE = /^--([^\W]|-)+/g;
+
+const MATCH_OPT: Array<[boolean, RegExp, TokenKind]> = [
+  [true, SHORTOPT_RE, TokenKind.ShortOpt],
+  [true, LONGOPT_RE, TokenKind.LongOpt],
+];
+
 //
 // Remarks are anything after 'rem' until the end of a line. At parse time,
 // we can just slice off the 'rem'.
@@ -295,13 +312,6 @@ const MATCH_REM: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^rem(?=\n)/g, TokenKind.Rem],
   [true, /^rem\W+[^\n]*/g, TokenKind.Rem],
 ];
-
-const PATH_RE = /^.?[//|\\][^`#$&*\(\)|\[\]{}:'"<>\?!]+/g;
-
-const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
-  [true, PATH_RE, TokenKind.PathLiteral],
-];
-
 const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
   // TODO: significant newlines, if any
   [true, /^\n+/g, TokenKind.LineEnding],
@@ -314,7 +324,8 @@ export const scanner: Lexer<TokenKind> = buildLexer(
     .concat(MATCH_KEYWORD)
     .concat(MATCH_BOOL)
     .concat(MATCH_IDENT)
-    .concat(MATCH_REM)
     .concat(MATCH_PATH)
+    .concat(MATCH_OPT)
+    .concat(MATCH_REM)
     .concat(MATCH_WHITESPACE),
 );

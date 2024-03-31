@@ -159,6 +159,25 @@ t.test('paths', async (t: Test) => {
   }
 });
 
+const OPTS = [
+  ['-o', TokenKind.ShortOpt],
+  ['--long-option', TokenKind.LongOpt],
+];
+
+t.test('options', async (t: Test) => {
+  for (let [text, kind] of OPTS) {
+    t.test(`it tokenizes ${text}`, async (t: Test) => {
+      const tokens = scanTokens(scanner, text);
+      t.equal(tokens.length, 1);
+
+      t.has(tokens[0], {
+        kind,
+        text,
+      });
+    });
+  }
+});
+
 //
 // Multi-token tests. These are to show that more interesting scenarios are
 // tokenized *as expected* (the prior tests should show they tokenize at all).

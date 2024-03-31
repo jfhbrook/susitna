@@ -76,6 +76,7 @@ export enum TokenKind {
   Pwd = 'PWD',
   Export = 'EXPORT',
 
+  Rem = '<rem>',
   LineEnding = '\\n',
   Whitespace = '<whitespace>',
 }
@@ -201,13 +202,26 @@ const MATCH_PUNCTUATION: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^:/g, TokenKind.Colon],
   [true, /^=/g, TokenKind.Equals],
   [true, /^#/g, TokenKind.Hash],
-  // TODO: integer literal
-  // TODO: real literal
-  // TODO: string literal
-  // TODO: command literal
-  // TODO: path literal
-  // TODO: rem
 ];
+
+const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
+  KEYWORDS,
+).map(([kw, kind]): [boolean, RegExp, TokenKind] => {
+  return [true, new RegExp(`^${kw}`, 'g'), kind];
+});
+
+// TODO: command literal - either generate from the PATH or regexp anything
+// that could plausibly be a command
+
+// TODO: -o/--option
+
+// TODO: path literals
+
+//
+// Strings are scanned as literals, quotes and all. They will be parsed
+// later, probably with something hand-rolled. rs/strings.rs includes a
+// list of escape characters used by visual basic.
+//
 
 const DOUBLE_QUOTE_RE = /^"([^"|\\]|\\.)*"/g;
 const SINGLE_QUOTE_RE = /^'([^'|\\]|\\.)*'/g;
@@ -217,22 +231,47 @@ const MATCH_STRING: Array<[boolean, RegExp, TokenKind]> = [
   [true, SINGLE_QUOTE_RE, TokenKind.StringLiteral],
 ];
 
-const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
-  KEYWORDS,
-).map(([kw, kind]): [boolean, RegExp, TokenKind] => {
-  return [true, new RegExp(`^${kw}`, 'g'), kind];
-});
+// TODO: I have to figure out how my numbers are designed. This includes both
+// floats and a number of integer formats:
+//
+// Yabasic has hex digits, binary digits and decimal digits, with the first
+// two being prefixed by 0x and 0b respectively. I would probably want to
+// support octal with an o prefix as well. That might be enough.
+//
+// Note that line numbers must be "simple integers", ie, they CAN'T support
+// anything other than \d+.
+//
+// Yabasic for reals/floats isn't very sophisticated and just does \d+.\d+. In
+// my rust/nom code, I just used nom's standard float parser.
+//
+// One option is to look to VB for inspiration, since this IS a basic and
+// because that's what I did for strings.
+const MATCH_NUMBER: Array<[boolean, RegExp, TokenKind]> = [];
 
+// TODO: What are valid identifying characters in VB?
 const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [];
+
+//
+// Remarks are anything after 'rem' until the end of a line. At parse time,
+// we can just slice off the 'rem'.
+//
+const MATCH_REM: Array<[boolean, RegExp, TokenKind]> = [
+  [true, /^rem$/g, TokenKind.Rem],
+  [true, /^rem(?=\n)/g, TokenKind.Rem],
+  [true, /^rem\W+[^\n]*/g, TokenKind.Rem],
+];
+
 const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
-  // TODO: significant newlines
+  // TODO: significant newlines, if any
   [true, /^\n+/g, TokenKind.LineEnding],
   [false, /^\s+/g, TokenKind.Whitespace],
 ];
 
 export const scanner: Lexer<TokenKind> = buildLexer(
   MATCH_PUNCTUATION.concat(MATCH_STRING)
+    .concat(MATCH_NUMBER)
     .concat(MATCH_KEYWORD)
     .concat(MATCH_IDENT)
+    .concat(MATCH_REM)
     .concat(MATCH_WHITESPACE),
 );

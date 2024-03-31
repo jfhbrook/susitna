@@ -193,50 +193,7 @@ const KEYWORDS: Record<string, TokenKind> = {
   // using: TokenKind.Using,
 };
 
-// The lexer in Crafting Interpreters looks up keywords from a map after
-// parsing them as idents. I decided to try implementing that as a parser
-// combinator. The alternatives were to implement as a map Lexer -> Lexer,
-// or to use lookahead assertions in the regexp for every keyword. The
-// easiest approach was probably the lexer map, but this seems the most
-// idiomatic.
-export function keywords<TK>(
-  ident: TK,
-  kw: Record<string, TK>,
-): Parser<TK, Token<TK>> {
-  return {
-    parse(token: Token<TK> | undefined): ParserOutput<TK, Token<TK>> {
-      if (!token) {
-        return {
-          successful: false,
-          error: unableToConsumeToken(token),
-        };
-      }
-
-      let mapped: Token<TK> = token;
-
-      if (token.kind === ident && kw[token.text]) {
-        mapped = {
-          ...mapped,
-          kind: kw[token.text],
-        };
-      }
-
-      return {
-        candidates: [
-          {
-            firstToken: token,
-            nextToken: token ? token.next : undefined,
-            result: mapped,
-          },
-        ],
-        successful: true,
-        error: undefined,
-      };
-    },
-  };
-}
-
-export const scanner: Lexer<TokenKind> = buildLexer([
+const MATCH_SIMPLE: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^\(/g, TokenKind.LParen],
   [true, /^\)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
@@ -250,8 +207,23 @@ export const scanner: Lexer<TokenKind> = buildLexer([
   // TODO: command literal
   // TODO: path literal
   // TODO: rem
-  // TODO: ident
+];
+
+const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
+  KEYWORDS,
+).map(([kw, kind]): [boolean, RegExp, TokenKind] => {
+  return [true, new RegExp(`^${kw}`, 'g'), kind];
+});
+
+const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [];
+const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
   // TODO: significant newlines
   [true, /^\n+/g, TokenKind.LineEnding],
   [false, /^\s+/g, TokenKind.Whitespace],
-]);
+];
+
+export const scanner: Lexer<TokenKind> = buildLexer(
+  MATCH_SIMPLE.concat(MATCH_KEYWORD)
+    .concat(MATCH_IDENT)
+    .concat(MATCH_WHITESPACE),
+);

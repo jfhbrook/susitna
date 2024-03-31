@@ -1,7 +1,4 @@
-import {
-  expectEOF,
-  expectSingleResult,
-} from 'typescript-parsec';
+import { expectEOF, expectSingleResult } from 'typescript-parsec';
 import { alt, Parser, rep, tok, Token, Lexer } from 'typescript-parsec';
 import { TokenKind } from '../../scanner';
 

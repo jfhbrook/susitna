@@ -31,6 +31,14 @@ t.test('abbreviateHome', async (t: Test) => {
 
 t.test('renderPrompt', async (t: Test) => {
   await topic.swear(async (host) => {
+    t.test('empty prompt', async (t: Test) => {
+      t.equal(renderPrompt('', host), '');
+    });
+
+    t.test('escape with no following', async (t: Test) => {
+      t.equal(renderPrompt('\\', host), '\\');
+    });
+
     t.test('bell character', async (t: Test) => {
       t.equal(renderPrompt('\\a', host), '\u0007');
     });

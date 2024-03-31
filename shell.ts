@@ -136,6 +136,9 @@ export function renderPrompt(promptString: string, host: Host): string {
   while (curr < promptString.length) {
     const c = shift();
     if (c === '\\') {
+      if (done()) {
+        return ps + '\\';
+      }
       const esc = shift();
       switch (esc) {
         case 'a':

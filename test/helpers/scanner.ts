@@ -40,6 +40,8 @@ const TOKENS = [
   TokenKind.False,
 
   TokenKind.Ident,
+  TokenKind.StringIdent,
+
   TokenKind.PathLiteral,
   TokenKind.CommandLiteral,
 

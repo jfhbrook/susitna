@@ -119,6 +119,27 @@ t.test('booleans', async (t: Test) => {
   }
 });
 
+const IDENT = [
+  ['pony', TokenKind.Ident],
+  ['_abc123', TokenKind.Ident],
+  ['$pony', TokenKind.StringIdent],
+  ['$_abc123', TokenKind.StringIdent],
+];
+
+t.test('identifiers', async (t: Test) => {
+  for (let [text, kind] of IDENT) {
+    t.test(`it tokenizes ${text}`, async (t: Test) => {
+      const tokens = scanTokens(scanner, text);
+      t.equal(tokens.length, 1);
+
+      t.has(tokens[0], {
+        kind,
+        text,
+      });
+    });
+  }
+});
+
 //
 // Multi-token tests. These are to show that more interesting scenarios are
 // tokenized *as expected* (the prior tests should show they tokenize at all).

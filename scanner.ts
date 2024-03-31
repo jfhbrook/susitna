@@ -32,6 +32,7 @@ export enum TokenKind {
   StringLiteral = '<string>',
 
   Ident = '<ident>',
+  StringIdent = '<string ident>',
 
   PathLiteral = '<path>',
   CommandLiteral = '<command>',
@@ -270,8 +271,20 @@ const MATCH_BOOL: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^false/g, TokenKind.False],
 ];
 
-// TODO: What are valid identifying characters in VB?
-const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [];
+//
+// Identifiers. Remember, strings are marked with a $ prefix.
+//
+// In the future, I plan for most identifiers to be manifest.
+//
+
+const IDENT_RE_STR = '[a-zA-Z_][a-zA-Z0-9_]*';
+const IDENT_RE = new RegExp(`^${IDENT_RE_STR}`, 'g');
+const STR_IDENT_RE = new RegExp(`^\\$${IDENT_RE_STR}`, 'g');
+
+const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [
+  [true, IDENT_RE, TokenKind.Ident],
+  [true, STR_IDENT_RE, TokenKind.StringIdent],
+];
 
 //
 // Remarks are anything after 'rem' until the end of a line. At parse time,

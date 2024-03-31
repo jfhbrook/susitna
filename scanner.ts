@@ -225,13 +225,6 @@ const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
   return [true, new RegExp(`^${kw}`, 'g'), kind];
 });
 
-// TODO: command literal - either generate from the PATH or regexp anything
-// that could plausibly be a command
-
-// TODO: -o/--option
-
-// TODO: path literals
-
 //
 // Strings are scanned as literals, quotes and all. They will be parsed
 // later, probably with something hand-rolled. rs/strings.rs includes a
@@ -289,6 +282,19 @@ const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [
   [true, STR_IDENT_RE, TokenKind.StringIdent],
 ];
 
+//
+// Shell things - paths, options, commands
+//
+// These are a little difficult, because they can't have false positives for
+// keywords, idents etc. The parser can handle some of those cases - an ident
+// in the right context is an argument, etc. - but "print" needs to scan as
+// a keyword - right?
+//
+
+// NOTE: A ./ or / is required at the beginning, so that it's not confused
+// with a keyword or ident.
+//
+// TODO: Are there some edge cases we can catch and also treat as paths?
 const PATH_RE = /^.?[//|\\][^`#$&*\(\)|\[\]{}:'"<>\?!]+/g;
 
 const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
@@ -302,6 +308,9 @@ const MATCH_OPT: Array<[boolean, RegExp, TokenKind]> = [
   [true, SHORTOPT_RE, TokenKind.ShortOpt],
   [true, LONGOPT_RE, TokenKind.LongOpt],
 ];
+
+// TODO: command literal - either generate from the PATH or regexp anything
+// that could plausibly be a command
 
 //
 // Remarks are anything after 'rem' until the end of a line. At parse time,

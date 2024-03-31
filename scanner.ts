@@ -193,7 +193,7 @@ const KEYWORDS: Record<string, TokenKind> = {
   // using: TokenKind.Using,
 };
 
-const MATCH_SIMPLE: Array<[boolean, RegExp, TokenKind]> = [
+const MATCH_PUNCTUATION: Array<[boolean, RegExp, TokenKind]> = [
   [true, /^\(/g, TokenKind.LParen],
   [true, /^\)/g, TokenKind.RParen],
   [true, /^,/g, TokenKind.Comma],
@@ -207,6 +207,14 @@ const MATCH_SIMPLE: Array<[boolean, RegExp, TokenKind]> = [
   // TODO: command literal
   // TODO: path literal
   // TODO: rem
+];
+
+const DOUBLE_QUOTE_RE = /^"([^"|\\]|\\.)*"/g;
+const SINGLE_QUOTE_RE = /^'([^'|\\]|\\.)*'/g;
+
+const MATCH_STRING: Array<[boolean, RegExp, TokenKind]> = [
+  [true, DOUBLE_QUOTE_RE, TokenKind.StringLiteral],
+  [true, SINGLE_QUOTE_RE, TokenKind.StringLiteral],
 ];
 
 const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
@@ -223,7 +231,8 @@ const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
 ];
 
 export const scanner: Lexer<TokenKind> = buildLexer(
-  MATCH_SIMPLE.concat(MATCH_KEYWORD)
+  MATCH_PUNCTUATION.concat(MATCH_STRING)
+    .concat(MATCH_KEYWORD)
     .concat(MATCH_IDENT)
     .concat(MATCH_WHITESPACE),
 );

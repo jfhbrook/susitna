@@ -40,7 +40,52 @@ const TOKENS = [
   TokenKind.Run,
   TokenKind.End,
 
+  TokenKind.LineEnding,
+  TokenKind.Whitespace,
+
+  TokenKind.Let,
+  TokenKind.Data,
+  TokenKind.Def,
+  TokenKind.Fn,
+  TokenKind.DefInt,
+  TokenKind.DefDbl,
+  TokenKind.DefStr,
+  TokenKind.Dim,
+
+  TokenKind.For,
+  TokenKind.To,
+  TokenKind.Step,
+  TokenKind.GoSub,
+  TokenKind.GoTo,
+  TokenKind.Return,
+  TokenKind.If,
+  TokenKind.Then,
+  TokenKind.Else,
+  TokenKind.Next,
+  TokenKind.While,
+
+  TokenKind.Erl,
+  TokenKind.Err,
+  TokenKind.Error,
+  TokenKind.Resume,
+
+  TokenKind.Date,
+  TokenKind.Time,
+
+  TokenKind.Len,
+
   TokenKind.Print,
+
+  TokenKind.Cls,
+  TokenKind.Cd,
+  TokenKind.Cp,
+  TokenKind.Rm,
+  TokenKind.Touch,
+  TokenKind.Mv,
+  TokenKind.MkDir,
+  TokenKind.RmDir,
+  TokenKind.Pwd,
+  TokenKind.Export,
 
   TokenKind.Rem,
   TokenKind.LineEnding,

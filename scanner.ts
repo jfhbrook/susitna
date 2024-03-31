@@ -84,7 +84,7 @@ export enum TokenKind {
 // Naively using the keyword lookup technique from Crafting Interpreters at
 // the scanner level. It may, however, be more appropriate to implement as
 // a combinator.
-const KEYWORDS: Record<string, TokenKind> = {
+export const KEYWORDS: Record<string, TokenKind> = {
   // loading, saving, running etc
   new: TokenKind.New,
   load: TokenKind.Load,

@@ -2,8 +2,7 @@ import { Token } from 'typescript-parsec'
 import { TokenKind } from './scanner'
 
 type Expr in './expr' {
-  import { Value } from './value'
-
+  LineNo         => value: number
   DecimalLiteral => value: number
   HexLiteral     => value: number
   OctalLiteral   => value: number
@@ -14,7 +13,8 @@ type Expr in './expr' {
 }
 
 type Stmt in './stmt' {
-  import { Expr } from './expr'
+  import * as expr from './expr'
 
+  Line => lineNo: expr.LineNo, command: Expr
   Print => expression: Expr
 }

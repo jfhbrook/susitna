@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { TokenKind, KEYWORDS } from '../scanner';
+import { TokenKind, EOF, KEYWORDS } from '../scanner';
 
 import { scanTokens } from './helpers/scanner';
 
@@ -29,6 +29,13 @@ t.test('punctuation', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+      });
+
+      t.has(tokens[0].pos, {
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: 1,
       });
 
       t.has(tokens[1], {
@@ -77,6 +84,13 @@ t.test('strings', async (t: Test) => {
         value,
       });
 
+      t.has(tokens[0].pos, {
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
+      });
+
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
@@ -85,12 +99,20 @@ t.test('strings', async (t: Test) => {
   }
 
   t.test('unterminated string', async (t: Test) => {
-    const tokens = scanTokens('"hello');
+    const text = '"hello';
+    const tokens = scanTokens(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
       kind: TokenKind.UnterminatedStringLiteral,
-      text: '"hello',
+      text,
+    });
+
+    t.has(tokens[0].pos, {
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: text.length,
     });
 
     t.has(tokens[1], {
@@ -124,6 +146,13 @@ t.test('numbers', async (t: Test) => {
         text,
       });
 
+      t.has(tokens[0].pos, {
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
+      });
+
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
@@ -148,6 +177,13 @@ t.test('identifiers', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+      });
+
+      t.has(tokens[0].pos, {
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
       });
 
       t.has(tokens[1], {
@@ -180,6 +216,13 @@ t.test('shell tokens', async (t: Test) => {
         text,
       });
 
+      t.has(tokens[0].pos, {
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
+      });
+
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
@@ -202,10 +245,24 @@ t.test('hello world', async (t: Test) => {
     text: 'print',
   });
 
+  t.has(tokens[0].pos, {
+    index: 0,
+    row: 1,
+    offsetStart: 0,
+    offsetEnd: 5,
+  });
+
   t.has(tokens[1], {
     kind: TokenKind.StringLiteral,
     text: '"hello world"',
     value: 'hello world',
+  });
+
+  t.has(tokens[1].pos, {
+    index: 6,
+    row: 1,
+    offsetStart: 6,
+    offsetEnd: 19,
   });
 
   t.has(tokens[2], {

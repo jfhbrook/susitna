@@ -1,5 +1,4 @@
-import { Token } from 'typescript-parsec';
-import { TokenKind } from './scanner';
+import { Token, TokenKind } from '../scanner';
 
 export interface ExprVisitor<R> {
   visitLineNoExpr(node: LineNo): R;

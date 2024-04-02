@@ -3,7 +3,6 @@ import { Commander } from './commander';
 import { Host } from './host';
 import { BaseException } from './exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
-import { scanner } from './scanner';
 
 import { scanTokens } from './test/helpers/scanner';
 
@@ -48,7 +47,7 @@ export class Translator {
   async translate(input: string): Promise<void> {
     let tokens = [];
     try {
-      tokens = scanTokens(scanner, input);
+      tokens = scanTokens(input);
     } catch (err) {
       console.error(err);
     }

@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { scanner, TokenKind, KEYWORDS } from '../scanner';
+import { TokenKind, KEYWORDS } from '../scanner';
 
 import { scanTokens } from './helpers/scanner';
 
@@ -23,12 +23,17 @@ const PUNCTUATION = [
 t.test('punctuation', async (t: Test) => {
   for (let [text, kind] of PUNCTUATION) {
     t.test(text, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
         kind,
         text,
+      });
+
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
@@ -37,39 +42,61 @@ t.test('punctuation', async (t: Test) => {
 t.test('keywords', async (t: Test) => {
   for (let [text, kind] of Object.entries(KEYWORDS)) {
     t.test(`keyword ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
         kind,
         text,
+      });
+
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
 });
 
 const STRINGS = [
-  '"hello world"',
-  "'hello world'",
-  '"\\"time machine\\""',
-  "'don\\'t'",
+  ['"hello world"', 'hello world'],
+  ["'hello world'", 'hello world'],
+  ['"\\"time machine\\""', '"time machine"'],
+  ["'don\\'t'", "don't"],
 ];
 
 t.test('strings', async (t: Test) => {
-  for (let str of STRINGS) {
-    t.test(`it tokenizes ${str}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, str);
-      t.equal(tokens.length, 1);
+  for (let [text, value] of STRINGS) {
+    t.test(`it tokenizes ${text}`, async (t: Test) => {
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
         kind: TokenKind.StringLiteral,
-        text: str,
+        text,
+        value,
+      });
+
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
 
   t.test('unterminated string', async (t: Test) => {
-    t.throws(() => scanTokens(scanner, '"hello'));
+    const tokens = scanTokens('"hello');
+    t.equal(tokens.length, 2);
+
+    t.has(tokens[0], {
+      kind: TokenKind.UnterminatedStringLiteral,
+      text: '"hello',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.Eof,
+      text: '',
+    });
   });
 });
 
@@ -89,31 +116,17 @@ const NUMBERS = [
 t.test('numbers', async (t: Test) => {
   for (let [text, kind] of NUMBERS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
         kind,
         text,
       });
-    });
-  }
-});
 
-const BOOL = [
-  ['true', TokenKind.True],
-  ['false', TokenKind.False],
-];
-
-t.test('booleans', async (t: Test) => {
-  for (let [text, kind] of BOOL) {
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
-
-      t.has(tokens[0], {
-        kind,
-        text,
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
@@ -129,54 +142,47 @@ const IDENT = [
 t.test('identifiers', async (t: Test) => {
   for (let [text, kind] of IDENT) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
         kind,
         text,
       });
-    });
-  }
-});
 
-const PATH = [
-  ['/', TokenKind.PathLiteral],
-  ['./', TokenKind.PathLiteral],
-  ['..', TokenKind.PathLiteral],
-  ['../', TokenKind.PathLiteral],
-  ['./pony', TokenKind.PathLiteral],
-  ['.\\pony', TokenKind.PathLiteral],
-];
-
-t.test('paths', async (t: Test) => {
-  for (let [text, kind] of PATH) {
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
-
-      t.has(tokens[0], {
-        kind,
-        text,
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
 });
 
-const OPTS = [
-  ['-o', TokenKind.ShortOpt],
-  ['--long-option', TokenKind.LongOpt],
+const SHELL = [
+  '/',
+  './',
+  '..',
+  '../',
+  './pony',
+  '.\\pony',
+  '-o',
+  '--long-option',
 ];
 
-t.test('options', async (t: Test) => {
-  for (let [text, kind] of OPTS) {
+t.test('shell tokens', async (t: Test) => {
+  for (let text of SHELL) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(scanner, text);
-      t.equal(tokens.length, 1);
+      const tokens = scanTokens(text);
+      t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
-        kind,
+        kind: TokenKind.ShellToken,
         text,
+      });
+
+      t.has(tokens[1], {
+        kind: TokenKind.Eof,
+        text: '',
       });
     });
   }
@@ -188,8 +194,8 @@ t.test('options', async (t: Test) => {
 //
 
 t.test('hello world', async (t: Test) => {
-  const tokens = scanTokens(scanner, 'print "hello world"');
-  t.equal(tokens.length, 2);
+  const tokens = scanTokens('print "hello world"');
+  t.equal(tokens.length, 3);
 
   t.has(tokens[0], {
     kind: TokenKind.Print,
@@ -199,12 +205,18 @@ t.test('hello world', async (t: Test) => {
   t.has(tokens[1], {
     kind: TokenKind.StringLiteral,
     text: '"hello world"',
+    value: 'hello world',
+  });
+
+  t.has(tokens[2], {
+    kind: TokenKind.Eof,
+    text: '',
   });
 });
 
 t.skip('function call', async (t: Test) => {
-  const tokens = scanTokens(scanner, 'pony($u, $v)');
-  t.equal(tokens.length, 6);
+  const tokens = scanTokens('pony($u, $v)');
+  t.equal(tokens.length, 7);
 
   t.has(tokens[0], {
     kind: TokenKind.Ident,
@@ -234,5 +246,10 @@ t.skip('function call', async (t: Test) => {
   t.has(tokens[5], {
     kind: TokenKind.RParen,
     text: ')',
+  });
+
+  t.has(tokens[6], {
+    kind: TokenKind.Eof,
+    text: '',
   });
 });

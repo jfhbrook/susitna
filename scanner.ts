@@ -1,12 +1,4 @@
-import {
-  buildLexer,
-  Lexer,
-  Parser,
-  ParserOutput,
-  Token,
-  TokenError,
-  unableToConsumeToken,
-} from 'typescript-parsec';
+import { Value } from './value';
 
 export enum TokenKind {
   // A subset of the MSX language, plus a few other things.
@@ -26,27 +18,24 @@ export enum TokenKind {
 
   RealLiteral = '<real>',
 
-  True = 'TRUE',
-  False = 'FALSE',
+  TrueLiteral = 'TRUE',
+  FalseLiteral = 'FALSE',
 
   StringLiteral = '<string>',
 
   Ident = '<ident>',
-  StringIdent = '<string ident>',
+  StringIdent = '<string-ident>',
 
-  PathLiteral = '<path>',
-  ShortOpt = '<-o>',
-  LongOpt = '<--option>',
+  ShellToken = '<shell-token>',
 
-  CommandLiteral = '<command>',
+  New = 'new',
+  Load = 'load',
+  Save = 'save',
+  List = 'list',
+  Run = 'run',
+  End = 'end',
 
-  New = 'NEW',
-  Load = 'LOAD',
-  Save = 'SAVE',
-  List = 'LIST',
-  Run = 'RUN',
-  End = 'END',
-
+  /*
   Let = 'LET',
   Data = 'DATA',
   Def = 'DEF',
@@ -77,9 +66,11 @@ export enum TokenKind {
   Time = 'TIME',
 
   Len = 'LEN',
+  */
 
-  Print = 'PRINT',
+  Print = 'print',
 
+  /*
   Cls = 'CLS',
   Cd = 'CD',
   Cp = 'CP',
@@ -90,16 +81,69 @@ export enum TokenKind {
   RmDir = 'RMDIR',
   Pwd = 'PWD',
   Export = 'EXPORT',
+  */
 
   Rem = '<rem>',
   LineEnding = '\\n',
   Whitespace = '<whitespace>',
+
+  Eof = '<EOF>',
+  Illegal = '<illegal>',
+  UnterminatedStringLiteral = '<unterminated-string>',
 }
 
-// Naively using the keyword lookup technique from Crafting Interpreters at
-// the scanner level. It may, however, be more appropriate to implement as
-// a combinator.
+export interface TokenPosition {
+  /**
+   * The index of the token in the source string.
+   */
+  readonly index: number;
+
+  /**
+   * The row on which the token resides. This is not the same as the line
+   * number, which is handled in the parser.
+   */
+  readonly row: number;
+
+  /**
+   * The column offset on which the token starts.
+   */
+  readonly offsetStart: number;
+
+  /**
+   * The column offset on which the token ends.
+   */
+  readonly offsetEnd: number;
+}
+
+/**
+ * A token.
+ */
+export interface Token {
+  /**
+   * The kind of token.
+   */
+  readonly kind: TokenKind;
+
+  /**
+   * The original text making up the token.
+   */
+  readonly text: string;
+
+  /**
+   * If applicable, the literal value corresponding to the token.
+   */
+  readonly value: Value | undefined;
+
+  /**
+   * The position of the token in the source string.
+   */
+  readonly pos: TokenPosition;
+}
+
 export const KEYWORDS: Record<string, TokenKind> = {
+  true: TokenKind.TrueLiteral,
+  false: TokenKind.FalseLiteral,
+
   // loading, saving, running etc
   new: TokenKind.New,
   load: TokenKind.Load,
@@ -116,225 +160,422 @@ export const KEYWORDS: Record<string, TokenKind> = {
   // restore: TokenKind.Restore,
   // renum: TokenKind.Renum,
 
-  // variable definitions
-  let: TokenKind.Let,
-  data: TokenKind.Data,
-  def: TokenKind.Def,
-  fn: TokenKind.Fn,
-  // usr: TokenKind.Usr,
-  defint: TokenKind.DefInt,
-  // defsng: TokenKind.DefSng,
-  defdbl: TokenKind.DefDbl,
-  defstr: TokenKind.DefStr,
-  dim: TokenKind.Dim,
-  // get: TokenKind.Get,
-  // set: TokenKind.Set,
-  // put: TokenKind.Put,
-  // on: TokenKind.On,
-  // off: TokenKind.Off,
-  // stop: TokenKind.Stop,
-
-  // control flow
-  for: TokenKind.For,
-  to: TokenKind.To,
-  step: TokenKind.Step,
-  gosub: TokenKind.GoSub,
-  goto: TokenKind.GoTo,
-  return: TokenKind.Return,
-  if: TokenKind.If,
-  then: TokenKind.Then,
-  else: TokenKind.Else,
-  next: TokenKind.Next,
-  while: TokenKind.While,
-
-  // error handling
-  erl: TokenKind.Erl,
-  err: TokenKind.Err,
-  error: TokenKind.Error,
-  resume: TokenKind.Resume,
-
-  // datetime
-  date: TokenKind.Date,
-  time: TokenKind.Time,
-
-  // array operations
-  len: TokenKind.Len,
-
-  // file operations, i/o
+  // TODO: variable definitions
+  // TODO: control flow
+  // TODO: error handling
+  // TODO: datetime
+  // TODO: array operations
+  // TODO: file operations, i/o
   print: TokenKind.Print,
-  // log: TokenKind.Log,
-  // open: TokenKind.Open,
-  // close: TokenKind.Close,
-  // input: TokenKind.Input,
-  // eof: TokenKind.Eof,
-  // read: TokenKind.Read,
-  // write: TokenKind.Write,
-
-  // internals
-  // peek: TokenKind.Peek,
-  // poke: TokenKind.Poke,
-  // system: TokenKind.System,
-  // process: TokenKind.Process
-
-  // shell operations
-  // clear screen
-  cls: TokenKind.Cls,
-  // as in SET PROMPT
-  // prompt: TokenKind.Prompt,
-  cd: TokenKind.Cd,
-  cp: TokenKind.Cp,
-  rm: TokenKind.Rm,
-  touch: TokenKind.Touch,
-  mv: TokenKind.Mv,
-  mkdir: TokenKind.MkDir,
-  rmdir: TokenKind.RmDir,
-  pwd: TokenKind.Pwd,
-  export: TokenKind.Export,
-  // spawn: TokenKind.Spawn,
-  // kill: TokenKind.Kill,
-  // job: TokenKind.Job,
-
-  // events and lifecycle
-  // interval: TokenKind.Interval,
-  // timeout: TokenKind.Timeout,
-  // start: TokenKind.Start,
-  // key: TokenKind.Key,
-  // wait: TokenKind.Wait,
-
-  // modules
-  // import: TokenKind.Import
-
-  // contexts, etc
-  // with: TokenKind.With,
-  // using: TokenKind.Using,
+  // TODO: internals
+  // TODO: shell operations
+  // TODO: clear screen
+  // cls: TokenKind.Cls,
+  // TODO: prompt, as in SET PROMPT
+  // TODO: shell stuff
+  // TODO:  events and lifecycle
+  // TODO: modules
+  // TODO: contexts (with, using)
 };
 
-const MATCH_PUNCTUATION: Array<[boolean, RegExp, TokenKind]> = [
-  [true, /^\(/g, TokenKind.LParen],
-  [true, /^\)/g, TokenKind.RParen],
-  [true, /^,/g, TokenKind.Comma],
-  [true, /^;/g, TokenKind.Semicolon],
-  [true, /^:/g, TokenKind.Colon],
-  [true, /^=/g, TokenKind.Equals],
-  [true, /^#/g, TokenKind.Hash],
-];
-
-const MATCH_KEYWORD: Array<[boolean, RegExp, TokenKind]> = Object.entries(
-  KEYWORDS,
-).map(([kw, kind]): [boolean, RegExp, TokenKind] => {
-  return [true, new RegExp(`^${kw}`, 'g'), kind];
-});
+export const EOF = '\0';
 
 //
-// Strings are scanned as literals, quotes and all. They will be parsed
-// later, probably with something hand-rolled. rs/strings.rs includes a
-// list of escape characters used by visual basic.
+// TODO: Would regular expressions be faster?
 //
 
-const DOUBLE_QUOTE_RE = /^"([^"|\\]|\\.)*"/g;
-const SINGLE_QUOTE_RE = /^'([^'|\\]|\\.)*'/g;
+const WHITESPACE = new Set('\r\t ');
 
-const MATCH_STRING: Array<[boolean, RegExp, TokenKind]> = [
-  [true, DOUBLE_QUOTE_RE, TokenKind.StringLiteral],
-  [true, SINGLE_QUOTE_RE, TokenKind.StringLiteral],
-];
+function isWhitespace(c: string): boolean {
+  return WHITESPACE.has(c);
+}
 
-//
-// Numbers are also scanned as literals, but there are different kinds for
-// each type of number.
-//
-// I haven't fully thought through the design of these yet, and I suspect the
-// regexps could be more strict in their input.
-//
+const DECIMAL_DIGITS = new Set('0123456789');
 
-const DECIMAL_RE = /^[\d_]+/g;
-const HEX_RE = /^0x[\da-fA-F_]+/g;
-const OCTAL_RE = /^0o[0-7_]+/g;
-const BINARY_RE = /^0b[01_]+/g;
+function isDecimalDigit(c: string): boolean {
+  return DECIMAL_DIGITS.has(c);
+}
 
-const REAL_RE = /^[\d_]+\.[\d_]*(e[\d_]+)?/g;
+const HEX_DIGITS = new Set('0123456789abcdefABCDEF');
 
-const MATCH_NUMBER: Array<[boolean, RegExp, TokenKind]> = [
-  [true, DECIMAL_RE, TokenKind.DecimalLiteral],
-  [true, HEX_RE, TokenKind.HexLiteral],
-  [true, OCTAL_RE, TokenKind.OctalLiteral],
-  [true, BINARY_RE, TokenKind.BinaryLiteral],
-  [true, REAL_RE, TokenKind.RealLiteral],
-];
+function isHexDigit(c: string): boolean {
+  return HEX_DIGITS.has(c);
+}
 
-const MATCH_BOOL: Array<[boolean, RegExp, TokenKind]> = [
-  [true, /^true/g, TokenKind.True],
-  [true, /^false/g, TokenKind.False],
-];
+const OCTAL_DIGITS = new Set('01234567');
 
-//
-// Identifiers. Remember, strings are marked with a $ prefix.
-//
-// In the future, I plan for most identifiers to be manifest.
-//
+function isOctalDigit(c: string): boolean {
+  return OCTAL_DIGITS.has(c);
+}
 
-const IDENT_RE_STR = '[a-zA-Z_][a-zA-Z0-9_]*';
-const IDENT_RE = new RegExp(`^${IDENT_RE_STR}`, 'g');
-const STR_IDENT_RE = new RegExp(`^\\$${IDENT_RE_STR}`, 'g');
+const BINARY_DIGITS = new Set('01');
 
-const MATCH_IDENT: Array<[boolean, RegExp, TokenKind]> = [
-  [true, IDENT_RE, TokenKind.Ident],
-  [true, STR_IDENT_RE, TokenKind.StringIdent],
-];
+function isBinaryDigit(c: string): boolean {
+  return BINARY_DIGITS.has(c);
+}
 
-//
-// Shell things - paths, options, commands
-//
-// These are a little difficult, because they can't have false positives for
-// keywords, idents etc. The parser can handle some of those cases - an ident
-// in the right context is an argument, etc. - but "print" needs to scan as
-// a keyword - right?
-//
+const ALPHA = new Set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
-// NOTE: A ./ or / is required at the beginning, so that it's not confused
-// with a keyword or ident.
-//
-// TODO: Are there some edge cases we can catch and also treat as paths?
-const PATH_RE = /^[./\\]+[^`#$&*\(\)|\[\]{}:'"<>\?!]*/g;
+function isAlpha(c: string): boolean {
+  return ALPHA.has(c);
+}
 
-const MATCH_PATH: Array<[boolean, RegExp, TokenKind]> = [
-  [true, PATH_RE, TokenKind.PathLiteral],
-];
+function isAlphaNumeric(c: string): boolean {
+  return isAlpha(c) || isDecimalDigit(c);
+}
 
-const SHORTOPT_RE = /^-[^-\W]/g;
-const LONGOPT_RE = /^--([^\W]|-)+/g;
+const ILLEGAL_SHELL_CHARS = new Set('`#$&*()|[]{}:\'"<>?!');
 
-const MATCH_OPT: Array<[boolean, RegExp, TokenKind]> = [
-  [true, SHORTOPT_RE, TokenKind.ShortOpt],
-  [true, LONGOPT_RE, TokenKind.LongOpt],
-];
+function isIllegalShellChar(c: string): boolean {
+  return ILLEGAL_SHELL_CHARS.has(c);
+}
 
-// TODO: command literal - either generate from the PATH or regexp anything
-// that could plausibly be a command
+const ILLEGAL_TOKEN_BOUNDARY = new Set('\r\t\n ');
 
-//
-// Remarks are anything after 'rem' until the end of a line. At parse time,
-// we can just slice off the 'rem'.
-//
-const MATCH_REM: Array<[boolean, RegExp, TokenKind]> = [
-  [true, /^rem$/g, TokenKind.Rem],
-  [true, /^rem(?=\n)/g, TokenKind.Rem],
-  [true, /^rem\W+[^\n]*/g, TokenKind.Rem],
-];
-const MATCH_WHITESPACE: Array<[boolean, RegExp, TokenKind]> = [
-  // TODO: significant newlines, if any
-  [true, /^\n+/g, TokenKind.LineEnding],
-  [false, /^\s+/g, TokenKind.Whitespace],
-];
+function isIllegalTokenBoundary(c: string): boolean {
+  return ILLEGAL_TOKEN_BOUNDARY.has(c);
+}
 
-export const scanner: Lexer<TokenKind> = buildLexer(
-  MATCH_PUNCTUATION.concat(MATCH_STRING)
-    .concat(MATCH_NUMBER)
-    .concat(MATCH_KEYWORD)
-    .concat(MATCH_BOOL)
-    .concat(MATCH_IDENT)
-    .concat(MATCH_PATH)
-    .concat(MATCH_OPT)
-    .concat(MATCH_REM)
-    .concat(MATCH_WHITESPACE),
-);
+/**
+ * A scanner. Takes a source string and incrementally provides tokens until
+ * the source is exhausted.
+ */
+export class Scanner {
+  private start: number;
+  private current: number;
+  private row: number;
+  private offset: number;
+
+  /**
+   * @param source The source string.
+   */
+  constructor(private source: string) {
+    this.start = 0;
+    this.current = 0;
+    this.row = 1;
+    this.offset = 0;
+  }
+
+  private get done(): boolean {
+    return this.current >= this.source.length;
+  }
+
+  private match(expected: string): boolean {
+    if (this.done) return false;
+    if (this.source[this.current] != expected) return false;
+    this.current++;
+    return true;
+  }
+
+  private peek(): string {
+    if (this.done) return EOF;
+    return this.source[this.current];
+  }
+
+  private peekNext(): string {
+    if (this.current + 1 >= this.source.length) return EOF;
+    return this.source[this.current + 1];
+  }
+
+  private advance(): string {
+    return this.source[this.current++];
+  }
+
+  private emitToken(kind: TokenKind, value: Value = null): Token {
+    const text = this.source.slice(this.start, this.current);
+    return {
+      kind,
+      text,
+      value,
+      pos: {
+        index: this.start,
+        row: this.row,
+        offsetStart: this.offset,
+        offsetEnd: this.offset + (this.current - this.start),
+      },
+    };
+  }
+
+  nextToken(): Token {
+    this.skipWhitespace();
+
+    this.offset += this.current - this.start;
+    this.start = this.current;
+
+    if (this.done) {
+      return this.emitToken(TokenKind.Eof);
+    }
+
+    const c: string = this.advance();
+    switch (c) {
+      case '(':
+        return this.emitToken(TokenKind.LParen);
+      case ')':
+        return this.emitToken(TokenKind.RParen);
+      case ',':
+        return this.emitToken(TokenKind.Comma);
+      case ';':
+        return this.emitToken(TokenKind.Semicolon);
+      case ':':
+        return this.emitToken(TokenKind.Colon);
+      case '#':
+        return this.emitToken(TokenKind.Hash);
+      case '=':
+        // TODO: How does equality work?
+        return this.emitToken(TokenKind.Equals);
+      case '"':
+        return this.string('"');
+      case "'":
+        return this.string("'");
+      case '\n':
+        this.row++;
+        this.offset = 0;
+        return this.emitToken(TokenKind.LineEnding);
+      case '0':
+        if (this.match('x')) {
+          return this.hex();
+        } else if (this.match('o')) {
+          return this.octal();
+        } else if (this.match('b')) {
+          return this.binary();
+        }
+        return this.decimal();
+      case '$':
+        if (isAlpha(this.peek()) || this.peek() === '_') {
+          return this.identifier();
+        } else {
+          return this.illegal();
+        }
+      case 'r':
+        // Remarks
+        if (this.peek() === 'e' && this.peekNext() === 'm') {
+          this.advance();
+          this.advance();
+          if (this.match(' ') || this.match('\t')) {
+            while (this.peek() !== '\n' && !this.done) {
+              this.advance();
+            }
+
+            // The contents of the remark
+            const value = this.source
+              .slice(this.start + 3, this.current)
+              .trim();
+
+            return this.emitToken(TokenKind.Rem, value);
+          }
+        }
+      // Fall through to default handling
+      default:
+        if (isDecimalDigit(c)) {
+          return this.decimal();
+        } else if (isAlpha(c) || c === '_') {
+          return this.identifier();
+        } else if (isIllegalShellChar(c)) {
+          return this.illegal();
+        } else {
+          return this.shell();
+        }
+    }
+  }
+
+  private skipWhitespace(): void {
+    while (isWhitespace(this.peek())) {
+      this.advance();
+    }
+  }
+
+  //
+  // Various value scanners.
+  //
+
+  private string(quoteChar: '"' | "'"): Token {
+    let value: string = '';
+    while (![quoteChar, '\n', '\r'].includes(this.peek()) && !this.done) {
+      const c: string = this.advance();
+
+      if (c === '\\') {
+        switch (this.advance()) {
+          case 'a':
+            value += '\u{07}';
+            break;
+          case 'b':
+            value += '\u{08}';
+            break;
+          case 't':
+            value += '\t';
+            break;
+          case 'r':
+            value += '\r';
+            break;
+          case 'v':
+            value += '\u{0b}';
+            break;
+          case 'f':
+            value += '\u{0c}';
+            break;
+          case 'n':
+            value += '\n';
+            break;
+          case '\\':
+            value += '\\';
+            break;
+          case quoteChar:
+            value += quoteChar;
+            break;
+          case EOF:
+            value += '\\';
+            break;
+          default:
+            // TODO: This should emit a warning.
+            value += '\\';
+            value += c;
+        }
+      } else {
+        value += c;
+      }
+    }
+
+    if (this.peek() !== quoteChar) {
+      return this.emitToken(TokenKind.UnterminatedStringLiteral, value);
+    }
+
+    this.advance();
+
+    return this.emitToken(TokenKind.StringLiteral, value);
+  }
+
+  private hex(): Token {
+    while ((this.peek() === '_' || isHexDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+    let value: number;
+    try {
+      value = parseInt(this.source.slice(this.start + 2, this.current), 16);
+    } catch (err) {
+      // TODO: This should be a RuntimeFault
+      throw err;
+    }
+    return this.emitToken(TokenKind.HexLiteral, value);
+  }
+
+  private octal(): Token {
+    while ((this.peek() === '_' || isOctalDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+    let value: number;
+    try {
+      value = parseInt(this.source.slice(this.start + 2, this.current), 8);
+    } catch (err) {
+      // TODO: This should be a RuntimeFault
+      throw err;
+    }
+    return this.emitToken(TokenKind.OctalLiteral, value);
+  }
+
+  private binary(): Token {
+    while ((this.peek() === '_' || isBinaryDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+    let value: number;
+    try {
+      value = parseInt(this.source.slice(this.start + 2, this.current), 16);
+    } catch (err) {
+      // TODO: This should be a RuntimeFault
+      throw err;
+    }
+    return this.emitToken(TokenKind.BinaryLiteral, value);
+  }
+
+  private decimal(): Token {
+    let isReal = false;
+    while ((this.peek() === '_' || isDecimalDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+
+    if (
+      this.peek() === '.' &&
+      (this.peekNext() === '_' || isDecimalDigit(this.peekNext()))
+    ) {
+      isReal = true;
+      this.advance();
+    }
+
+    while ((this.peek() === '_' || isDecimalDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+
+    if (
+      this.peek() === 'e' &&
+      (this.peek() === '_' || isDecimalDigit(this.peekNext()))
+    ) {
+      isReal = true;
+      this.advance();
+    }
+
+    while ((this.peek() === '_' || isDecimalDigit(this.peek())) && !this.done) {
+      this.advance();
+    }
+
+    let value: number;
+    try {
+      if (isReal) {
+        value = parseFloat(this.source.slice(this.start, this.current));
+        return this.emitToken(TokenKind.RealLiteral, value);
+      }
+      value = parseInt(this.source.slice(this.start, this.current), 10);
+      return this.emitToken(TokenKind.DecimalLiteral, value);
+    } catch (err) {
+      // TODO: This should be a RuntimeFault
+      throw err;
+    }
+  }
+
+  // If a token is a valid identifier, we parse it as such. However, if it
+  // isn't a valid identifier but doesn't contain illegal characters, we
+  // scan it as a shell token.
+  //
+
+  private identifier(): Token {
+    while (true) {
+      const c = this.peek();
+      if (isAlphaNumeric(c) || c === '_') {
+        this.advance();
+      } else {
+        break;
+      }
+    }
+
+    const value = this.source.slice(this.start, this.current);
+    let kind: TokenKind;
+    if (KEYWORDS[value]) {
+      kind = KEYWORDS[value];
+    } else if (value.startsWith('$')) {
+      kind = TokenKind.StringIdent;
+    } else {
+      kind = TokenKind.Ident;
+    }
+
+    return this.emitToken(kind, value);
+  }
+
+  private shell(): Token {
+    while (!this.done) {
+      const c = this.peek();
+      if (isIllegalShellChar(c) || isWhitespace(c)) {
+        break;
+      }
+      this.advance();
+    }
+
+    const value = this.source.slice(this.start, this.current);
+    return this.emitToken(TokenKind.ShellToken, value);
+  }
+
+  private illegal(): Token {
+    while (!isIllegalTokenBoundary(this.peek()) && !this.done) {
+      this.advance();
+    }
+    const value = this.source.slice(this.start, this.current);
+    return this.emitToken(TokenKind.Illegal, value);
+  }
+}

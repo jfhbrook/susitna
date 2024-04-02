@@ -1,5 +1,4 @@
-import { Token } from 'typescript-parsec';
-import { TokenKind } from './scanner';
+import { Token, TokenKind } from '../scanner';
 import { Expr, LineNo } from './expr';
 
 export interface CmdVisitor<R> {

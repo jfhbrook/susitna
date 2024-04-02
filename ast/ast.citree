@@ -1,5 +1,4 @@
-import { Token } from 'typescript-parsec'
-import { TokenKind } from './scanner'
+import { Token, TokenKind } from '../scanner'
 
 type Expr in './expr' {
   LineNo         => value: number

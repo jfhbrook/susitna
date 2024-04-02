@@ -9,7 +9,7 @@ export abstract class {{type.name}} {
   abstract accept<R>(visitor: {{type.name}}Visitor<R>): R;
 }
 {% for node in type.nodes %}
-class {{node.name}} extends {{type.name}} {
+export class {{node.name}} extends {{type.name}} {
   constructor({{node.fields}}) {
     super();
   }

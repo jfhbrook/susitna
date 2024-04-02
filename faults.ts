@@ -1,4 +1,5 @@
 import { errorType } from './errors';
+import { BaseException } from './exceptions';
 import { ExitCode, ExitCoded } from './exit';
 import { Formattable, Formatter, FormatValue, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
@@ -83,6 +84,14 @@ export class RuntimeFault extends Fault implements ExitCoded {
     }
 
     return new RuntimeFault(message, err, traceback);
+  }
+
+  static fromException(exc: BaseException): RuntimeFault {
+    return new RuntimeFault(
+      exc.message,
+      new Error(`Uncaught ${exc.constructor.name}: ${exc.message}`),
+      exc.traceback,
+    );
   }
 
   format(formatter: Formatter): string {

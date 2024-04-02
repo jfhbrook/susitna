@@ -16,7 +16,7 @@
     "lint": "eslint \"**.ts\" --fix",
     "check": "tsc --noEmit",
     "console": "npm run build && ts-node",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "ast",

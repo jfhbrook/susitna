@@ -25,6 +25,7 @@ class DecimalLiteral extends Expr {
     return visitor.visitDecimalLiteralExpr(this);
   }
 }
+
 class HexLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
@@ -34,6 +35,7 @@ class HexLiteral extends Expr {
     return visitor.visitHexLiteralExpr(this);
   }
 }
+
 class OctalLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
@@ -43,6 +45,7 @@ class OctalLiteral extends Expr {
     return visitor.visitOctalLiteralExpr(this);
   }
 }
+
 class BinaryLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
@@ -52,6 +55,7 @@ class BinaryLiteral extends Expr {
     return visitor.visitBinaryLiteralExpr(this);
   }
 }
+
 class RealLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
@@ -61,6 +65,7 @@ class RealLiteral extends Expr {
     return visitor.visitRealLiteralExpr(this);
   }
 }
+
 class BooleanLiteral extends Expr {
   constructor(public readonly value: boolean) {
     super();
@@ -70,6 +75,7 @@ class BooleanLiteral extends Expr {
     return visitor.visitBooleanLiteralExpr(this);
   }
 }
+
 class StringLiteral extends Expr {
   constructor(public readonly value: string) {
     super();

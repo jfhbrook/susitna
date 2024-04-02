@@ -7,9 +7,11 @@
     "matbas": "bin/matbas"
   },
   "scripts": {
-    "build": "npm run build:versions && npm run build:typescript",
+    "build": "concurrently 'npm run build:versions' 'npm run build:ast' && npm run build:typescript",
     "build:versions": "bash ./scripts/versions.sh",
     "build:typescript": "tsc -p tsconfig.build.json",
+    "build:citree": "cd tools/citree && npm run build",
+    "build:ast": "citree ast.citree",
     "check": "tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
@@ -27,6 +29,7 @@
   "author": "Josh Holbrook",
   "license": "MIT",
   "dependencies": {
+    "@jfhbrook/citree": "file:tools/citree",
     "strftime": "^0.10.2",
     "typescript-parsec": "^0.3.4"
   },
@@ -35,6 +38,7 @@
     "@types/strftime": "^0.9.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

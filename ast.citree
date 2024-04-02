@@ -13,8 +13,8 @@ type Expr in './expr' {
 }
 
 type Stmt in './stmt' {
-  import * as expr from './expr'
+  import { Expr, LineNo } from './expr'
 
-  Line => lineNo: expr.LineNo, command: Expr
+  Line => lineNo: LineNo, command: Expr
   Print => expression: Expr
 }

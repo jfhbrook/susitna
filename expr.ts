@@ -1,8 +1,8 @@
 import { Token } from 'typescript-parsec';
 import { TokenKind } from './scanner';
-import { Value } from './value';
 
 export interface ExprVisitor<R> {
+  visitLineNoExpr(node: LineNo): R;
   visitDecimalLiteralExpr(node: DecimalLiteral): R;
   visitHexLiteralExpr(node: HexLiteral): R;
   visitOctalLiteralExpr(node: OctalLiteral): R;
@@ -16,7 +16,17 @@ export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
-class DecimalLiteral extends Expr {
+export class LineNo extends Expr {
+  constructor(public readonly value: number) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitLineNoExpr(this);
+  }
+}
+
+export class DecimalLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
@@ -26,7 +36,7 @@ class DecimalLiteral extends Expr {
   }
 }
 
-class HexLiteral extends Expr {
+export class HexLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
@@ -36,7 +46,7 @@ class HexLiteral extends Expr {
   }
 }
 
-class OctalLiteral extends Expr {
+export class OctalLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
@@ -46,7 +56,7 @@ class OctalLiteral extends Expr {
   }
 }
 
-class BinaryLiteral extends Expr {
+export class BinaryLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
@@ -56,7 +66,7 @@ class BinaryLiteral extends Expr {
   }
 }
 
-class RealLiteral extends Expr {
+export class RealLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
@@ -66,7 +76,7 @@ class RealLiteral extends Expr {
   }
 }
 
-class BooleanLiteral extends Expr {
+export class BooleanLiteral extends Expr {
   constructor(public readonly value: boolean) {
     super();
   }
@@ -76,7 +86,7 @@ class BooleanLiteral extends Expr {
   }
 }
 
-class StringLiteral extends Expr {
+export class StringLiteral extends Expr {
   constructor(public readonly value: string) {
     super();
   }

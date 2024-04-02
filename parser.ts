@@ -1,6 +1,16 @@
-import { Token, TokenError } from 'typescript-parsec';
-
 import {
+  apply,
+  tok,
+  Parser,
+  Token,
+  TokenPosition,
+  TokenError,
+  TokenRangeError,
+} from 'typescript-parsec';
+
+import { Result, Ok, Exc } from './result';
+import {
+  BaseException,
   SyntaxError,
   ParseError,
   SyntaxWarning,
@@ -11,13 +21,12 @@ import { scanner, TokenKind } from './scanner';
 import * as expr from './expr';
 import * as stmt from './stmt';
 
-export function isTokenError(err: any): err is TokenError {
-  if (typeof err.pos === 'undefined') {
-    return false;
-  }
+//
+// typescript-parsec doesn't properly subclass token errors, so we do a bunch
+// of down and dirty duck typing
+//
 
-  const pos: any = err.pos;
-
+export function isTokenPosition(pos: any): pos is TokenPosition {
   return (
     typeof pos.index === 'number' &&
     typeof pos.rowBegin === 'number' &&
@@ -25,6 +34,44 @@ export function isTokenError(err: any): err is TokenError {
     typeof pos.rowEnd === 'number' &&
     typeof pos.columnEnd === 'number'
   );
+}
+
+export function isTokenError(err: any): err is TokenError {
+  if (typeof err.pos === 'undefined') {
+    return false;
+  }
+
+  return isTokenPosition(err.pos);
+}
+
+export function isTokenRangeError(err: any): err is TokenRangeError {
+  if (typeof err.first !== 'undefined') {
+    if (!isTokenPosition(err.first)) {
+      return false;
+    }
+    if (err.last) {
+      return isTokenPosition(err.last);
+    } else {
+      return true;
+    }
+  }
+
+  return !!err.message.match(/^<END-OF-FILE> - /);
+}
+
+function applyDecimalLiteral(literal: Token<TokenKind>): expr.DecimalLiteral {
+  let int: number;
+  try {
+    int = parseInt(literal.text, 10);
+  } catch (err) {
+    // TODO: Wrap in an Exception
+    throw err;
+  }
+  return new expr.DecimalLiteral(int);
+}
+
+function parseDecimalLiteral(): Parser<TokenKind, expr.DecimalLiteral> {
+  return apply(tok(TokenKind.DecimalLiteral), applyDecimalLiteral);
 }
 
 // TODO: Parse DecimalLiteral
@@ -39,6 +86,7 @@ export function isTokenError(err: any): err is TokenError {
 // TODO: Parse Command
 // TODO: Parse Line
 // TODO: Parse Program
+// TODO: Sprinkle in Results everywhere
 
 /*
  * Parse a non-numbered command.
@@ -50,15 +98,19 @@ export function parseCommand(source: string): null {
   const errors: number = 0;
   const errorsOrWarnings = [];
 
-  let tokens: Token<TokenKind> | null = null;
-
-  while (source) {
-    try {
-      const tokens = scanner.parse(source);
-    } catch (err) {
-      if (isTokenError(err)) {
-      }
+  try {
+    // TODO: Is there a reasonable way to synchronize after finding an
+    // illegal token? Perhaps synchronize to the next chunk of whitespace
+    // and parse again?
+    const tokens: Token<TokenKind> = scanner.parse(source);
+  } catch (err) {
+    // TODO: Create a SyntaxError on TokenErrors and TokenRangeErrors
+    if (isTokenError(err)) {
+      throw err;
+    } else if (isTokenRangeError(err)) {
+      throw err;
     }
+    throw err;
   }
 
   return null;

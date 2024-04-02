@@ -214,7 +214,7 @@ t.test('hello world', async (t: Test) => {
   });
 });
 
-t.skip('function call', async (t: Test) => {
+t.test('function call', async (t: Test) => {
   const tokens = scanTokens('pony($u, $v)');
   t.equal(tokens.length, 7);
 
@@ -229,7 +229,7 @@ t.skip('function call', async (t: Test) => {
   });
 
   t.has(tokens[2], {
-    kind: TokenKind.Ident,
+    kind: TokenKind.StringIdent,
     text: '$u',
   });
 
@@ -239,7 +239,7 @@ t.skip('function call', async (t: Test) => {
   });
 
   t.has(tokens[4], {
-    kind: TokenKind.Ident,
+    kind: TokenKind.StringIdent,
     text: '$v',
   });
 

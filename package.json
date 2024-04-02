@@ -12,7 +12,7 @@
     "build:typescript": "tsc -p tsconfig.build.json",
     "build:citree": "cd tools/citree && npm run build",
     "build:ast": "citree ast.citree",
-    "check": "tsc --noEmit",
+    "check": "concurrently 'npm run build:versions' 'npm run build:ast' && tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "eslint \"**.ts\" --fix",

@@ -12,9 +12,9 @@ type Expr in './expr' {
   StringLiteral  => value: string
 }
 
-type Stmt in './stmt' {
+type Cmd in './cmd' {
   import { Expr, LineNo } from './expr'
 
-  Line => lineNo: LineNo, command: Expr
+  Line => lineNo: LineNo, command: Cmd
   Print => expression: Expr
 }

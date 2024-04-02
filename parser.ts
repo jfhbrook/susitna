@@ -18,8 +18,8 @@ import {
 } from './exceptions';
 import { scanner, TokenKind } from './scanner';
 
-import * as expr from './expr';
-import * as stmt from './stmt';
+import * as expr from './ast/expr';
+import * as cmd from './ast/cmd';
 
 //
 // typescript-parsec doesn't properly subclass token errors, so we do a bunch

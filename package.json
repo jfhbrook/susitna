@@ -11,7 +11,7 @@
     "build:versions": "bash ./scripts/versions.sh",
     "build:typescript": "tsc -p tsconfig.build.json",
     "build:citree": "cd tools/citree && npm run build",
-    "build:ast": "citree ast.citree",
+    "build:ast": "citree ast/ast.citree",
     "check": "concurrently 'npm run build:versions' 'npm run build:ast' && tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",

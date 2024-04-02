@@ -1,5 +1,5 @@
 {
-  "exclude": ["node_modules", "bin", "dist", "tools"],
+  "exclude": ["node_modules", "examples", "dist"],
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,

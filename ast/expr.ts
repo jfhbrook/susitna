@@ -2,10 +2,7 @@ import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitLineNoExpr(node: LineNo): R;
-  visitDecimalLiteralExpr(node: DecimalLiteral): R;
-  visitHexLiteralExpr(node: HexLiteral): R;
-  visitOctalLiteralExpr(node: OctalLiteral): R;
-  visitBinaryLiteralExpr(node: BinaryLiteral): R;
+  visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBooleanLiteralExpr(node: BooleanLiteral): R;
   visitStringLiteralExpr(node: StringLiteral): R;
@@ -25,43 +22,13 @@ export class LineNo extends Expr {
   }
 }
 
-export class DecimalLiteral extends Expr {
+export class IntLiteral extends Expr {
   constructor(public readonly value: number) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitDecimalLiteralExpr(this);
-  }
-}
-
-export class HexLiteral extends Expr {
-  constructor(public readonly value: number) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitHexLiteralExpr(this);
-  }
-}
-
-export class OctalLiteral extends Expr {
-  constructor(public readonly value: number) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitOctalLiteralExpr(this);
-  }
-}
-
-export class BinaryLiteral extends Expr {
-  constructor(public readonly value: number) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitBinaryLiteralExpr(this);
+    return visitor.visitIntLiteralExpr(this);
   }
 }
 

@@ -10,7 +10,13 @@ import { Scanner } from './scanner';
 import { Result, Ok, Err, Warn } from './result';
 import { Token, TokenKind } from './tokens';
 
-import * as expr from './ast/expr';
+import {
+  Expr,
+  IntLiteral,
+  RealLiteral,
+  BooleanLiteral,
+  StringLiteral,
+} from './ast/expr';
 import { Cmd } from './ast/cmd';
 import { Line } from './ast/line';
 import { Program } from './ast/program';
@@ -186,36 +192,27 @@ class Parser {
   private print(): void {}
 
   private expr(): void {
-    if (this.match(TokenKind.DecimalLiteral)) {
-      this.decimal();
-    } else if (this.match(TokenKind.HexLiteral)) {
-      this.hex();
-    } else if (this.match(TokenKind.OctalLiteral)) {
-      this.octal();
-    } else if (this.match(TokenKind.BinaryLiteral)) {
-      this.binary();
-    } else if (this.match(TokenKind.RealLiteral)) {
-      this.real();
-    } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
-      this.boolean();
-    } else if (this.match(TokenKind.StringLiteral)) {
-      this.string();
-    }
+    this.primary();
   }
 
-  private decimal(): void {}
-
-  private hex(): void {}
-
-  private octal(): void {}
-
-  private binary(): void {}
-
-  private real(): void {}
-
-  private boolean(): void {}
-
-  private string(): void {}
+  private primary(): Expr {
+    if (
+      this.match(
+        TokenKind.DecimalLiteral,
+        TokenKind.HexLiteral,
+        TokenKind.OctalLiteral,
+        TokenKind.BinaryLiteral,
+      )
+    ) {
+      return new IntLiteral(this.previous.value as number);
+    } else if (this.match(TokenKind.RealLiteral)) {
+      return new RealLiteral(this.previous.value as number);
+    } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
+      return new BooleanLiteral(this.previous.value as boolean);
+    } else if (this.match(TokenKind.StringLiteral)) {
+      return new StringLiteral(this.previous.value as string);
+    }
+  }
 }
 
 /*

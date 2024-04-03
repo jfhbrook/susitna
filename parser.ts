@@ -13,34 +13,6 @@ import { Cmd } from './ast/cmd';
 import { Line } from './ast/line';
 import { Program } from './ast/program';
 
-/**
- * Checks if a row ends in an EOF.
- *
- * @param row A row of tokens.
- */
-export function isEnd(row: Token[]): boolean {
-  const kind = row[row.length - 1].kind;
-  return kind === TokenKind.Eof;
-}
-
-/**
- * Checks if a row ends in a line ending.
- *
- * @param row A row of tokens.
- */
-export function hasNextRow(row: Token[]): boolean {
-  return row[0].kind === TokenKind.LineEnding;
-}
-
-/**
- * Checks if a row ends in either a line ending or an EOF.
- *
- * @param row A row of tokens.
- */
-export function isTerminated(row: Token[]): boolean {
-  return isEnd(row) || hasNextRow(row);
-}
-
 export class Result<T> {
   constructor(public result: T) {}
 }

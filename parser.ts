@@ -1,5 +1,6 @@
 import {
   BaseException,
+  BaseWarning,
   SyntaxError,
   ParseError,
   SyntaxWarning,
@@ -13,29 +14,29 @@ import { Cmd } from './ast/cmd';
 import { Line } from './ast/line';
 import { Program } from './ast/program';
 
-export class Result<T> {
+export abstract class Result<T, E, W = unknown> {
   constructor(public result: T) {}
 }
 
-export class Ok<T> extends Result<T> {
+export class Ok<T, E, W = unknown> extends Result<T, E, W> {
   constructor(result: T) {
     super(result);
   }
 }
 
-export class Err<T> extends Result<T> {
+export class Err<T, E, W = unknown> extends Result<T, E, W> {
   constructor(
     result: T,
-    public error: ParseError,
+    public error: E,
   ) {
     super(result);
   }
 }
 
-export class Warn<T> extends Result<T> {
+export class Warn<T, E, W = unknown> extends Result<T, E, W> {
   constructor(
     result: T,
-    public warning: ParseWarning,
+    public warning: W,
   ) {
     super(result);
   }
@@ -45,12 +46,18 @@ export type Output = Array<Line | Cmd[]>;
 
 class Parser {
   private scanner: Scanner;
+
+  private previous: Token | null = null;
+  private current: Token | null = null;
+  private next: Token | null = null;
+
   private result: Output = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
   private isProgram: boolean = false;
-  private lineNo: number = 0;
+  private isLine: boolean = false;
+  private lineNo: number | null = null;
 
   constructor(
     private source: string,
@@ -64,7 +71,7 @@ class Parser {
    *
    * @returns A list of lines and commands.
    */
-  public parseInput(): Result<Output> {
+  public parseInput(): Result<Output, ParseError, ParseWarning> {
     this.rows();
 
     if (this.isError) {
@@ -82,7 +89,7 @@ class Parser {
    *
    * @returns A Program.
    */
-  public parseProgram(): Result<Program> {
+  public parseProgram(): Result<Program, ParseError, ParseWarning> {
     this.isProgram = true;
     this.rows();
 
@@ -98,6 +105,66 @@ class Parser {
     return new Ok(program);
   }
 
+  private match(...kinds: TokenKind[]): boolean {
+    for (let kind of kinds) {
+      if (this.check(kind)) {
+        this.advance();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private check(kind: TokenKind): boolean {
+    if (this.done) return false;
+    return this.peek().kind === kind;
+  }
+
+  private advance(): Token | null {
+    this.previous = this.current;
+    if (this.next) {
+      this.current = this.next;
+      this.next = null;
+    } else {
+      this.current = this.scanner.nextToken();
+    }
+    return this.previous;
+  }
+
+  private get done(): boolean {
+    return this.peek().kind == TokenKind.Eof;
+  }
+
+  private peek(): Token {
+    if (!this.next) {
+      this.next = this.scanner.nextToken();
+    }
+    return this.next;
+  }
+
+  private consume(
+    kind: TokenKind,
+    message: string,
+  ): Result<Token, SyntaxError, SyntaxWarning> {
+    if (this.check(kind)) return new Ok(this.advance());
+    const token: Token = this.peek();
+    return new Err(token, this.syntaxError(token, message));
+  }
+
+  private syntaxError(token: Token, message: string): SyntaxError {
+    return new SyntaxError(
+      message,
+      this.filename,
+      // TODO: pass isLine to SyntaxError - lineNo would be the previous
+      // line if not
+      this.lineNo,
+      token.offsetStart,
+      // TODO: The source of the line
+      '',
+    );
+  }
+
   private rows(): void {
     while (!this.scanner.done) {
       this.row();
@@ -105,48 +172,37 @@ class Parser {
   }
 
   private row(): void {
-    /*
-    const tokens: Token[] = [];
-    let token = this.nextToken();
-    let line = '';
-    while (
-      token.kind !== TokenKind.LineEnding &&
-      token.kind !== TokenKind.Eof
-    ) {
-      line += token.text;
-      if (token.kind !== TokenKind.Whitespace) {
-        tokens.push(token);
-      }
-      token = this.nextToken();
-    }
-    line += token.text;
-    tokens.push(token);
-
-    for (let token of tokens) {
-      token.line = line;
-    }
-    return tokens;
-    */
-    // Is the first token a positive DecimalLiteral?
-    // If so, parse row.slice(1)
-    // If not, create a syntax error
-    // Either way, parse the row for syntax errors
-    // If not a program, pop off the commands
-    // Collect/attach raw line
-    /*
-        this.isError = true;
+    if (this.match(TokenKind.DecimalLiteral)) {
+      const lineNo = parseInt(this.previous!.text, 10);
+      if (lineNo < 1) {
         this.errors.push(
-          new SyntaxError(
-            'Source lines must be numbered',
-            this.filename,
-            lineNo + 1,
-            0,
-            // TODO: This is busted
-            this.row,
-          ),
+          this.syntaxError(this.previous, 'Line numbers must be positive'),
         );
-    */
+      } else {
+        this.lineNo = lineNo;
+        this.isLine = true;
+      }
+    }
+
+    this.commands();
+
+    this.isLine = false;
   }
+
+  private commands(): void {
+    this.command();
+
+    while (this.match(TokenKind.Colon)) {
+      this.command();
+    }
+    if (this.peek().kind === TokenKind.LineEnding) {
+      this.advance();
+    } else {
+      this.consume(TokenKind.Eof, 'Expected end of line');
+    }
+  }
+
+  private command(): void {}
 }
 
 // TODO: Parse DecimalLiteral
@@ -169,7 +225,9 @@ class Parser {
  * @param source The source code.
  * @param filename The source filename.
  */
-export function parseInput(source: string): Result<Output> {
+export function parseInput(
+  source: string,
+): Result<Output, ParseError, ParseWarning> {
   const parser = new Parser(source, '<input>');
   return parser.parseInput();
 }
@@ -183,7 +241,7 @@ export function parseInput(source: string): Result<Output> {
 export function parseProgram(
   source: string,
   filename: string,
-): Result<Program> {
+): Result<Program, ParseError, ParseWarning> {
   const parser = new Parser(source, filename);
   return parser.parseProgram();
 }

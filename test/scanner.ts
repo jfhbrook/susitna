@@ -1,10 +1,12 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { SyntaxWarning } from '../exceptions';
 import { KEYWORDS } from '../scanner';
 import { TokenKind } from '../tokens';
 
 import { scanLine, scanTokens } from './helpers/scanner';
+import { FILENAME } from './helpers/traceback';
 
 //
 // Single-token tests. This should at least show that covered tokens can
@@ -129,6 +131,45 @@ t.test('strings', async (t: Test) => {
       text,
       line: text,
     });
+
+    t.has(tokens[1], {
+      kind: TokenKind.Eof,
+      index: text.length,
+      row: 1,
+      offsetStart: text.length,
+      offsetEnd: text.length,
+      text: '',
+      line: text,
+    });
+  });
+
+  t.test('invalid escape sequence', async (t: Test) => {
+    const text = '"\\q"';
+    const tokens = scanLine(text);
+    t.equal(tokens.length, 2);
+
+    t.has(tokens[0], {
+      kind: TokenKind.StringLiteral,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: text.length,
+      text,
+      line: text,
+    });
+
+    t.ok(tokens[0].warnings);
+    t.equal((tokens[0].warnings || []).length, 1);
+    t.same(
+      (tokens[0].warnings || [])[0],
+      new SyntaxWarning(
+        `Invalid escape sequence \`\\q\` in string "\\q"`,
+        FILENAME,
+        1,
+        1,
+        '"\\q"',
+      ),
+    );
 
     t.has(tokens[1], {
       kind: TokenKind.Eof,

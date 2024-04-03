@@ -12,8 +12,8 @@ export class BaseException implements Traceable, Formattable {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    public readonly message: FormatValue,
-    public readonly traceback: Traceback | null,
+    public message: FormatValue,
+    public traceback: Traceback | null,
   ) {
     // TODO: Exceptions in Python store all args the constructor is called
     // with, not just a message.

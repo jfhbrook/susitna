@@ -1,3 +1,4 @@
+import { SyntaxWarning } from './exceptions';
 import { Value } from './value';
 
 export enum TokenKind {
@@ -131,6 +132,11 @@ export interface Token {
    * The line from which the token was scanned.
    */
   line?: string;
+
+  /**
+   * Any warnings emitted for the token.
+   */
+  warnings: SyntaxWarning[];
 
   /**
    * If applicable, the literal value corresponding to the token.

@@ -310,3 +310,37 @@ t.test('function call', async (t: Test) => {
     text: '',
   });
 });
+
+t.skip('line endings', async (t: Test) => {
+  const tokens = scanTokens('\n\n');
+  t.equal(tokens.length, 3);
+
+  t.has(tokens[0], {
+    kind: TokenKind.LineEnding,
+    text: '\n',
+  });
+
+  t.has(tokens[0].pos, {
+    index: 0,
+    row: 1,
+    offsetStart: 0,
+    offsetEnd: 1,
+  });
+
+  t.has(tokens[1], {
+    kind: TokenKind.LineEnding,
+    text: '\n',
+  });
+
+  t.has(tokens[1].pos, {
+    index: 1,
+    row: 2,
+    offsetStart: 0,
+    offsetEnd: 0,
+  });
+
+  t.has(tokens[2], {
+    kind: TokenKind.Eof,
+    text: '',
+  });
+});

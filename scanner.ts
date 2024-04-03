@@ -330,9 +330,10 @@ export class Scanner {
       case "'":
         return this.string("'");
       case '\n':
+        const token = this.emitToken(TokenKind.LineEnding);
         this.row++;
         this.offset = 0;
-        return this.emitToken(TokenKind.LineEnding);
+        return token;
       case '0':
         if (this.match('x')) {
           return this.hex();

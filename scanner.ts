@@ -358,8 +358,8 @@ export class Scanner {
       case "'":
         return this.string("'");
       case '\n':
-        this.offset = 0;
         const token = this.emitToken(TokenKind.LineEnding);
+        this.offset = -1;
         this.row++;
         return token;
       case '0':

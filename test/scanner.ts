@@ -370,3 +370,37 @@ t.test('line endings', async (t: Test) => {
     text: '',
   });
 });
+
+t.test('line endings with whitespace', async (t: Test) => {
+  const tokens = scanTokens('    \n\n    ');
+  t.equal(tokens.length, 3);
+
+  t.has(tokens[0], {
+    kind: TokenKind.LineEnding,
+    text: '\n',
+  });
+
+  t.has(tokens[0].pos, {
+    index: 4,
+    row: 1,
+    offsetStart: 4,
+    offsetEnd: 4,
+  });
+
+  t.has(tokens[1], {
+    kind: TokenKind.LineEnding,
+    text: '\n',
+  });
+
+  t.has(tokens[1].pos, {
+    index: 5,
+    row: 2,
+    offsetStart: 0,
+    offsetEnd: 0,
+  });
+
+  t.has(tokens[2], {
+    kind: TokenKind.Eof,
+    text: '',
+  });
+});

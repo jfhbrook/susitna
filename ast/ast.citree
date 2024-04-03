@@ -14,6 +14,5 @@ type Expr in './expr' {
 type Cmd in './cmd' {
   import { Expr } from './expr'
 
-  Line => lineNo: number, commands: Cmd[]
   Print => expression: Expr
 }

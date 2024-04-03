@@ -41,23 +41,48 @@ export function isTerminated(row: Token[]): boolean {
   return isEnd(row) || hasNextLine(row);
 }
 
-export interface ParseResult<T> {
-  result: T;
-  error: ParseError | ParseWarning | null;
+export class Result<T> {
+  constructor(public result: T) {}
+}
+
+export class Ok<T> extends Result<T> {
+  constructor(result: T) {
+    super(result);
+  }
+}
+
+export class Err<T> extends Result<T> {
+  constructor(
+    result: T,
+    public error: ParseError,
+  ) {
+    super(result);
+  }
+}
+
+export class Warn<T> extends Result<T> {
+  constructor(
+    result: T,
+    public warning: ParseWarning,
+  ) {
+    super(result);
+  }
 }
 
 export type Output = Array<Line | Cmd[]>;
 
-interface RowResult {
-  result: Line | Cmd[];
-  errors: Array<SyntaxError | SyntaxWarning>;
-}
-
 export class Parser {
   private scanner: Scanner;
+  private errors: Array<SyntaxError | SyntaxWarning> = [];
+  private isError: boolean = false;
+  private isWarning: boolean = false;
+  private row: string = '';
 
-  constructor(source: string) {
-    this.scanner = new Scanner(source);
+  constructor(
+    private source: string,
+    private filename: string = '<unknown>',
+  ) {
+    this.scanner = new Scanner(source, filename);
   }
 
   /**
@@ -65,39 +90,23 @@ export class Parser {
    *
    * @returns A list of lines and commands.
    */
-  public parseInput(): ParseResult<Output> {
+  public parseInput(): Result<Output> {
     let result: Output = [];
-
-    let raiseWarning = false;
-    let raiseError = false;
-    const errors: Array<SyntaxError | SyntaxWarning> = [];
 
     let row: Token[] = this.scanner.scanLine();
 
     while (!isEnd(row)) {
-      const { result: res, errors: errs } = this.parseRow(row);
-      for (let err of errs) {
-        raiseWarning = true;
-        if (err instanceof SyntaxError) {
-          raiseError = true;
-        }
-        errors.push(err);
-      }
-      result.push(res);
+      result.push(this.parseRow(row));
     }
 
-    let rv: ParseResult<Output> = {
-      result,
-      error: null,
-    };
-
-    if (raiseError) {
-      rv.error = new ParseError(errors);
-    } else if (raiseWarning) {
-      rv.error = new ParseWarning(errors);
+    if (this.isError) {
+      return new Err(result, new ParseError(this.errors));
+    } else if (this.isWarning) {
+      const warnings = this.errors as unknown as SyntaxWarning[];
+      return new Warn(result, new ParseWarning(warnings));
     }
 
-    return rv;
+    return new Ok(result);
   }
 
   /**
@@ -105,27 +114,41 @@ export class Parser {
    *
    * @returns A Program.
    */
-  public parseProgram(): ParseResult<Program> {
-    let { result, error }: ParseResult<Output> = this.parseInput();
+  public parseProgram(): Result<Program> {
+    let result: Result<Output> = this.parseInput();
 
-    // TODO: Collect syntax errors.
-    for (let res of result) {
-      if (!(res instanceof Line)) {
-        throw new Error('Expected Line, got Cmd[]');
+    let lineNo = 0;
+    for (let res of result.result) {
+      if (res instanceof Line) {
+        lineNo = res.lineNo;
+      } else {
+        this.isError = true;
+        this.errors.push(
+          new SyntaxError(
+            'Source lines must be numbered',
+            this.filename,
+            lineNo + 1,
+            0,
+            this.row,
+          ),
+        );
       }
     }
 
-    return {
-      result: new Program(result as Line[]),
-      error,
-    };
+    const program = new Program(result.result as Line[]);
+
+    if (this.isError) {
+      return new Err(program, new ParseError(this.errors));
+    } else if (this.isWarning) {
+      const warnings = this.errors as unknown as SyntaxWarning[];
+      return new Warn(program, new ParseWarning(warnings));
+    }
+
+    return new Ok(program);
   }
 
-  private parseRow(row: Token[]): RowResult {
-    return {
-      result: [],
-      errors: [],
-    };
+  private parseRow(row: Token[]): Line | Cmd[] {
+    return [];
   }
 }
 

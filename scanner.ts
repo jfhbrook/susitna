@@ -296,6 +296,22 @@ export class Scanner {
     };
   }
 
+  scanLine(): Token[] {
+    const tokens: Token[] = [];
+    let token = this.nextToken();
+    while (
+      token.kind !== TokenKind.LineEnding &&
+      token.kind !== TokenKind.Eof
+    ) {
+      if (token.kind !== TokenKind.Whitespace) {
+        tokens.push(token);
+      }
+      token = this.nextToken();
+    }
+    tokens.push(token);
+    return tokens;
+  }
+
   nextToken(): Token {
     this.offset += this.current - this.start;
     this.start = this.current;

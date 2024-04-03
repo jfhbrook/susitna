@@ -1,9 +1,9 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { TokenKind, EOF, KEYWORDS } from '../scanner';
+import { TokenKind, KEYWORDS } from '../scanner';
 
-import { scanTokens } from './helpers/scanner';
+import { scanLine, scanTokens } from './helpers/scanner';
 
 //
 // Single-token tests. This should at least show that covered tokens can
@@ -23,7 +23,7 @@ const PUNCTUATION = [
 t.test('punctuation', async (t: Test) => {
   for (let [text, kind] of PUNCTUATION) {
     t.test(text, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -49,7 +49,7 @@ t.test('punctuation', async (t: Test) => {
 t.test('keywords', async (t: Test) => {
   for (let [text, kind] of Object.entries(KEYWORDS)) {
     t.test(`keyword ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -75,7 +75,7 @@ const STRINGS = [
 t.test('strings', async (t: Test) => {
   for (let [text, value] of STRINGS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -100,7 +100,7 @@ t.test('strings', async (t: Test) => {
 
   t.test('unterminated string', async (t: Test) => {
     const text = '"hello';
-    const tokens = scanTokens(text);
+    const tokens = scanLine(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
@@ -138,7 +138,7 @@ const NUMBERS = [
 t.test('numbers', async (t: Test) => {
   for (let [text, kind] of NUMBERS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -171,7 +171,7 @@ const IDENT = [
 t.test('identifiers', async (t: Test) => {
   for (let [text, kind] of IDENT) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -208,7 +208,7 @@ const SHELL = [
 t.test('shell tokens', async (t: Test) => {
   for (let text of SHELL) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+      const tokens = scanLine(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -237,7 +237,7 @@ t.test('shell tokens', async (t: Test) => {
 //
 
 t.test('hello world', async (t: Test) => {
-  const tokens = scanTokens('print "hello world"');
+  const tokens = scanLine('print "hello world"');
   t.equal(tokens.length, 3);
 
   t.has(tokens[0], {
@@ -272,7 +272,7 @@ t.test('hello world', async (t: Test) => {
 });
 
 t.test('function call', async (t: Test) => {
-  const tokens = scanTokens('pony($u, $v)');
+  const tokens = scanLine('pony($u, $v)');
   t.equal(tokens.length, 7);
 
   t.has(tokens[0], {

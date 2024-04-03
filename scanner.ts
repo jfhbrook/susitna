@@ -130,6 +130,11 @@ export interface Token {
   readonly text: string;
 
   /**
+   * The line from which the token was scanned.
+   */
+  line?: string;
+
+  /**
    * If applicable, the literal value corresponding to the token.
    */
   readonly value: Value | undefined;
@@ -299,16 +304,23 @@ export class Scanner {
   scanLine(): Token[] {
     const tokens: Token[] = [];
     let token = this.nextToken();
+    let line = '';
     while (
       token.kind !== TokenKind.LineEnding &&
       token.kind !== TokenKind.Eof
     ) {
+      line += token.text;
       if (token.kind !== TokenKind.Whitespace) {
         tokens.push(token);
       }
       token = this.nextToken();
     }
+    line += token.text;
     tokens.push(token);
+
+    for (let token of tokens) {
+      token.line = line;
+    }
     return tokens;
   }
 

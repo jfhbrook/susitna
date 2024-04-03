@@ -29,6 +29,7 @@ t.test('punctuation', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+        line: text,
       });
 
       t.has(tokens[0].pos, {
@@ -41,6 +42,7 @@ t.test('punctuation', async (t: Test) => {
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -55,11 +57,13 @@ t.test('keywords', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+        line: text,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -82,6 +86,7 @@ t.test('strings', async (t: Test) => {
         kind: TokenKind.StringLiteral,
         text,
         value,
+        line: text,
       });
 
       t.has(tokens[0].pos, {
@@ -94,6 +99,7 @@ t.test('strings', async (t: Test) => {
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -106,6 +112,7 @@ t.test('strings', async (t: Test) => {
     t.has(tokens[0], {
       kind: TokenKind.UnterminatedStringLiteral,
       text,
+      line: text,
     });
 
     t.has(tokens[0].pos, {
@@ -118,6 +125,7 @@ t.test('strings', async (t: Test) => {
     t.has(tokens[1], {
       kind: TokenKind.Eof,
       text: '',
+      line: text,
     });
   });
 });
@@ -144,6 +152,7 @@ t.test('numbers', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+        line: text,
       });
 
       t.has(tokens[0].pos, {
@@ -156,6 +165,7 @@ t.test('numbers', async (t: Test) => {
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -177,6 +187,7 @@ t.test('identifiers', async (t: Test) => {
       t.has(tokens[0], {
         kind,
         text,
+        line: text,
       });
 
       t.has(tokens[0].pos, {
@@ -189,6 +200,7 @@ t.test('identifiers', async (t: Test) => {
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -214,6 +226,7 @@ t.test('shell tokens', async (t: Test) => {
       t.has(tokens[0], {
         kind: TokenKind.ShellToken,
         text,
+        line: text,
       });
 
       t.has(tokens[0].pos, {
@@ -226,6 +239,7 @@ t.test('shell tokens', async (t: Test) => {
       t.has(tokens[1], {
         kind: TokenKind.Eof,
         text: '',
+        line: text,
       });
     });
   }
@@ -237,12 +251,14 @@ t.test('shell tokens', async (t: Test) => {
 //
 
 t.test('hello world', async (t: Test) => {
-  const tokens = scanLine('print "hello world"');
+  const text = 'print "hello world"';
+  const tokens = scanLine(text);
   t.equal(tokens.length, 3);
 
   t.has(tokens[0], {
     kind: TokenKind.Print,
     text: 'print',
+    line: text,
   });
 
   t.has(tokens[0].pos, {
@@ -256,6 +272,7 @@ t.test('hello world', async (t: Test) => {
     kind: TokenKind.StringLiteral,
     text: '"hello world"',
     value: 'hello world',
+    line: text,
   });
 
   t.has(tokens[1].pos, {
@@ -268,46 +285,55 @@ t.test('hello world', async (t: Test) => {
   t.has(tokens[2], {
     kind: TokenKind.Eof,
     text: '',
+    line: text,
   });
 });
 
 t.test('function call', async (t: Test) => {
-  const tokens = scanLine('pony($u, $v)');
+  const text = 'pony($u, $v)';
+  const tokens = scanLine(text);
   t.equal(tokens.length, 7);
 
   t.has(tokens[0], {
     kind: TokenKind.Ident,
     text: 'pony',
+    line: text,
   });
 
   t.has(tokens[1], {
     kind: TokenKind.LParen,
     text: '(',
+    line: text,
   });
 
   t.has(tokens[2], {
     kind: TokenKind.StringIdent,
     text: '$u',
+    line: text,
   });
 
   t.has(tokens[3], {
     kind: TokenKind.Comma,
     text: ',',
+    line: text,
   });
 
   t.has(tokens[4], {
     kind: TokenKind.StringIdent,
     text: '$v',
+    line: text,
   });
 
   t.has(tokens[5], {
     kind: TokenKind.RParen,
     text: ')',
+    line: text,
   });
 
   t.has(tokens[6], {
     kind: TokenKind.Eof,
     text: '',
+    line: text,
   });
 });
 
@@ -318,6 +344,7 @@ t.skip('line endings', async (t: Test) => {
   t.has(tokens[0], {
     kind: TokenKind.LineEnding,
     text: '\n',
+    line: '\n',
   });
 
   t.has(tokens[0].pos, {
@@ -330,6 +357,7 @@ t.skip('line endings', async (t: Test) => {
   t.has(tokens[1], {
     kind: TokenKind.LineEnding,
     text: '\n',
+    line: '\n',
   });
 
   t.has(tokens[1].pos, {
@@ -342,5 +370,6 @@ t.skip('line endings', async (t: Test) => {
   t.has(tokens[2], {
     kind: TokenKind.Eof,
     text: '',
+    line: '',
   });
 });

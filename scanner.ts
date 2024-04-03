@@ -297,8 +297,6 @@ export class Scanner {
   }
 
   nextToken(): Token {
-    this.skipWhitespace();
-
     this.offset += this.current - this.start;
     this.start = this.current;
 
@@ -308,6 +306,10 @@ export class Scanner {
 
     const c: string = this.advance();
     switch (c) {
+      case '\r':
+      case '\t':
+      case ' ':
+        return this.whitespace();
       case '(':
         return this.emitToken(TokenKind.LParen);
       case ')':
@@ -378,10 +380,12 @@ export class Scanner {
     }
   }
 
-  private skipWhitespace(): void {
+  private whitespace(): Token {
     while (isWhitespace(this.peek())) {
       this.advance();
     }
+    const value = this.source.slice(this.start, this.current);
+    return this.emitToken(TokenKind.Whitespace, value);
   }
 
   //

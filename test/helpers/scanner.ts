@@ -6,7 +6,9 @@ export function scanTokens(source: string): Token[] {
   let token = scanner.nextToken();
 
   while (token.kind !== TokenKind.Eof) {
-    tokens.push(token);
+    if (token.kind !== TokenKind.Whitespace) {
+      tokens.push(token);
+    }
     token = scanner.nextToken();
   }
 

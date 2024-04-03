@@ -1,5 +1,5 @@
-import { Token, TokenKind } from '../scanner';
-import { Expr, LineNo } from './expr';
+import { Token, TokenKind } from '../tokens';
+import { Expr } from './expr';
 
 export interface CmdVisitor<R> {
   visitLineCmd(node: Line): R;
@@ -12,8 +12,8 @@ export abstract class Cmd {
 
 export class Line extends Cmd {
   constructor(
-    public readonly lineNo: LineNo,
-    public readonly command: Cmd,
+    public readonly lineNo: number,
+    public readonly commands: Cmd[],
   ) {
     super();
   }

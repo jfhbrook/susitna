@@ -1,4 +1,4 @@
-import { Token, TokenKind } from '../scanner'
+import { Token, TokenKind } from '../tokens'
 
 type Expr in './expr' {
   LineNo         => value: number
@@ -12,8 +12,8 @@ type Expr in './expr' {
 }
 
 type Cmd in './cmd' {
-  import { Expr, LineNo } from './expr'
+  import { Expr } from './expr'
 
-  Line => lineNo: LineNo, command: Cmd
+  Line => lineNo: number, commands: Cmd[]
   Print => expression: Expr
 }

@@ -5,7 +5,8 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from './exceptions';
-import { Scanner, TokenKind } from './scanner';
+import { Scanner } from './scanner';
+import { TokenKind } from './tokens';
 
 import * as expr from './ast/expr';
 import * as cmd from './ast/cmd';

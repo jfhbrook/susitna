@@ -1,4 +1,4 @@
-import { Token, TokenKind } from '../scanner';
+import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitLineNoExpr(node: LineNo): R;

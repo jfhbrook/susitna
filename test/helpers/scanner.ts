@@ -1,4 +1,5 @@
-import { Token, TokenKind, Scanner } from '../../scanner';
+import { Scanner } from '../../scanner';
+import { Token, TokenKind } from '../../tokens';
 
 export function scanLine(source: string): Token[] {
   const scanner = new Scanner(source);

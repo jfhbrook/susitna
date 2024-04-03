@@ -1,7 +1,8 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { TokenKind, KEYWORDS } from '../scanner';
+import { KEYWORDS } from '../scanner';
+import { TokenKind } from '../tokens';
 
 import { scanLine, scanTokens } from './helpers/scanner';
 
@@ -28,19 +29,20 @@ t.test('punctuation', async (t: Test) => {
 
       t.has(tokens[0], {
         kind,
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
         text,
         line: text,
       });
 
-      t.has(tokens[0].pos, {
-        index: 0,
-        row: 1,
-        offsetStart: 0,
-        offsetEnd: 1,
-      });
-
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -56,12 +58,20 @@ t.test('keywords', async (t: Test) => {
 
       t.has(tokens[0], {
         kind,
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
         text,
         line: text,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -84,20 +94,21 @@ t.test('strings', async (t: Test) => {
 
       t.has(tokens[0], {
         kind: TokenKind.StringLiteral,
+        index: 0,
+        row: 1,
+        offsetStart: 0,
+        offsetEnd: text.length,
         text,
         value,
         line: text,
       });
 
-      t.has(tokens[0].pos, {
-        index: 0,
-        row: 1,
-        offsetStart: 0,
-        offsetEnd: text.length,
-      });
-
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -111,19 +122,20 @@ t.test('strings', async (t: Test) => {
 
     t.has(tokens[0], {
       kind: TokenKind.UnterminatedStringLiteral,
-      text,
-      line: text,
-    });
-
-    t.has(tokens[0].pos, {
       index: 0,
       row: 1,
       offsetStart: 0,
       offsetEnd: text.length,
+      text,
+      line: text,
     });
 
     t.has(tokens[1], {
       kind: TokenKind.Eof,
+      index: text.length,
+      row: 1,
+      offsetStart: text.length,
+      offsetEnd: text.length,
       text: '',
       line: text,
     });
@@ -151,19 +163,20 @@ t.test('numbers', async (t: Test) => {
 
       t.has(tokens[0], {
         kind,
-        text,
-        line: text,
-      });
-
-      t.has(tokens[0].pos, {
         index: 0,
         row: 1,
         offsetStart: 0,
         offsetEnd: text.length,
+        text,
+        line: text,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -186,19 +199,20 @@ t.test('identifiers', async (t: Test) => {
 
       t.has(tokens[0], {
         kind,
-        text,
-        line: text,
-      });
-
-      t.has(tokens[0].pos, {
         index: 0,
         row: 1,
         offsetStart: 0,
         offsetEnd: text.length,
+        text,
+        line: text,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -225,19 +239,20 @@ t.test('shell tokens', async (t: Test) => {
 
       t.has(tokens[0], {
         kind: TokenKind.ShellToken,
-        text,
-        line: text,
-      });
-
-      t.has(tokens[0].pos, {
         index: 0,
         row: 1,
         offsetStart: 0,
         offsetEnd: text.length,
+        text,
+        line: text,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
+        index: text.length,
+        row: 1,
+        offsetStart: text.length,
+        offsetEnd: text.length,
         text: '',
         line: text,
       });
@@ -257,33 +272,31 @@ t.test('hello world', async (t: Test) => {
 
   t.has(tokens[0], {
     kind: TokenKind.Print,
-    text: 'print',
-    line: text,
-  });
-
-  t.has(tokens[0].pos, {
     index: 0,
     row: 1,
     offsetStart: 0,
     offsetEnd: 5,
+    text: 'print',
+    line: text,
   });
 
   t.has(tokens[1], {
     kind: TokenKind.StringLiteral,
+    index: 6,
+    row: 1,
+    offsetStart: 6,
+    offsetEnd: 19,
     text: '"hello world"',
     value: 'hello world',
     line: text,
   });
 
-  t.has(tokens[1].pos, {
-    index: 6,
-    row: 1,
-    offsetStart: 6,
-    offsetEnd: 19,
-  });
-
   t.has(tokens[2], {
     kind: TokenKind.Eof,
+    index: 19,
+    row: 1,
+    offsetStart: 19,
+    offsetEnd: 19,
     text: '',
     line: text,
   });
@@ -343,30 +356,28 @@ t.test('line endings', async (t: Test) => {
 
   t.has(tokens[0], {
     kind: TokenKind.LineEnding,
-    text: '\n',
-  });
-
-  t.has(tokens[0].pos, {
     index: 0,
     row: 1,
     offsetStart: 0,
     offsetEnd: 1,
+    text: '\n',
   });
 
   t.has(tokens[1], {
     kind: TokenKind.LineEnding,
-    text: '\n',
-  });
-
-  t.has(tokens[1].pos, {
     index: 1,
     row: 2,
     offsetStart: 0,
     offsetEnd: 1,
+    text: '\n',
   });
 
   t.has(tokens[2], {
     kind: TokenKind.Eof,
+    index: 2,
+    row: 3,
+    offsetStart: 0,
+    offsetEnd: 0,
     text: '',
   });
 });
@@ -377,37 +388,28 @@ t.test('line endings with whitespace', async (t: Test) => {
 
   t.has(tokens[0], {
     kind: TokenKind.LineEnding,
-    text: '\n',
-  });
-
-  t.has(tokens[0].pos, {
     index: 4,
     row: 1,
     offsetStart: 4,
     offsetEnd: 5,
+    text: '\n',
   });
 
   t.has(tokens[1], {
     kind: TokenKind.LineEnding,
-    text: '\n',
-  });
-
-  t.has(tokens[1].pos, {
     index: 5,
     row: 2,
     offsetStart: 0,
     offsetEnd: 1,
+    text: '\n',
   });
 
   t.has(tokens[2], {
     kind: TokenKind.Eof,
-    text: '',
-  });
-
-  t.has(tokens[2].pos, {
     index: 10,
     row: 3,
     offsetStart: 4,
     offsetEnd: 4,
+    text: '',
   });
 });

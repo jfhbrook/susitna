@@ -296,7 +296,7 @@ export class Scanner {
         index: this.start,
         row: this.row,
         offsetStart: this.offset,
-        offsetEnd: this.offset + (this.current - this.start),
+        offsetEnd: this.offset + (this.current - this.start) - 1,
       },
     };
   }

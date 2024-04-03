@@ -36,7 +36,7 @@ t.test('punctuation', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: 1,
+        offsetEnd: 0,
       });
 
       t.has(tokens[1], {
@@ -93,7 +93,7 @@ t.test('strings', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length,
+        offsetEnd: text.length - 1,
       });
 
       t.has(tokens[1], {
@@ -119,7 +119,7 @@ t.test('strings', async (t: Test) => {
       index: 0,
       row: 1,
       offsetStart: 0,
-      offsetEnd: text.length,
+      offsetEnd: text.length - 1,
     });
 
     t.has(tokens[1], {
@@ -159,7 +159,7 @@ t.test('numbers', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length,
+        offsetEnd: text.length - 1,
       });
 
       t.has(tokens[1], {
@@ -194,7 +194,7 @@ t.test('identifiers', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length,
+        offsetEnd: text.length - 1,
       });
 
       t.has(tokens[1], {
@@ -233,7 +233,7 @@ t.test('shell tokens', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length,
+        offsetEnd: text.length - 1,
       });
 
       t.has(tokens[1], {
@@ -265,7 +265,7 @@ t.test('hello world', async (t: Test) => {
     index: 0,
     row: 1,
     offsetStart: 0,
-    offsetEnd: 5,
+    offsetEnd: 4,
   });
 
   t.has(tokens[1], {
@@ -279,7 +279,7 @@ t.test('hello world', async (t: Test) => {
     index: 6,
     row: 1,
     offsetStart: 6,
-    offsetEnd: 19,
+    offsetEnd: 18,
   });
 
   t.has(tokens[2], {

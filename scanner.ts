@@ -311,13 +311,15 @@ export class Scanner {
             value += '\\';
             break;
           default:
+            // We advanced twice, for the \\ and the character respectively
+            const offset = this.offset + this.current - this.start - 2;
             warnings.push(
               new SyntaxWarning(
                 `Invalid escape sequence \`\\${e}\``,
                 this.filename,
                 this.row,
-                // We advanced twice, for the \\ and the character respectively
-                this.offset + this.current - this.start - 2,
+                offset,
+                offset + 2,
                 this.source,
               ),
             );

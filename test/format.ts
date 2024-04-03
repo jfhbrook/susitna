@@ -128,7 +128,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a SyntaxError', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
-          new SyntaxError('expected )', FILENAME, 100, 22, LINE),
+          new SyntaxError('expected )', FILENAME, 100, 22, 23, LINE),
         ),
       );
     });
@@ -137,12 +137,13 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(
         formatter.format(
           new ParseError([
-            new SyntaxError('expected )', FILENAME, 100, 22, LINE),
+            new SyntaxError('expected )', FILENAME, 100, 22, 23, LINE),
             new SyntaxWarning(
               'identifier has no sigil',
               FILENAME,
               100,
               17,
+              18,
               LINE,
             ),
           ]),
@@ -153,7 +154,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a SyntaxWarning', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
-          new SyntaxWarning('expected )', FILENAME, 100, 22, LINE),
+          new SyntaxWarning('expected )', FILENAME, 100, 22, 23, LINE),
         ),
       );
     });
@@ -167,6 +168,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
               FILENAME,
               100,
               17,
+              18,
               LINE,
             ),
           ]),

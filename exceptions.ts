@@ -317,15 +317,27 @@ export interface SourceLocation {
   filename: string;
 
   /**
-   * The line number in the source code. For interactive code, this will be
-   * based on how many interactive commands have been entered.
+   * Whether or not the source location is in a line.
+   */
+  isLine: boolean;
+
+  /**
+   * The line number in the source code. When not in a line, this is the
+   * previous line number.
    */
   lineNo: number;
 
   /**
-   * The column offset in the source code.
+   * The column offset at which the location starts.
    */
-  offset: number;
+  readonly offsetStart: number;
+
+  /**
+   * The column offset at which the location ends.
+   */
+  readonly offsetEnd: number;
+
+
 
   /**
    * The referenced source code. Will typically be a line or interactive
@@ -355,7 +367,8 @@ export class SyntaxError extends BaseException implements SourceLocation {
     message: FormatValue,
     public filename: string,
     public lineNo: number,
-    public offset: number,
+    public offsetStart: number,
+    public offsetEnd: number,
     public source: string,
   ) {
     super(message, null);
@@ -405,7 +418,8 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
     message: FormatValue,
     public filename: string,
     public lineNo: number,
-    public offset: number,
+    public offsetStart: number,
+    public offsetEnd: number,
     public source: string,
   ) {
     super(message, null);

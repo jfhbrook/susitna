@@ -203,9 +203,9 @@ export class DefaultFormatter extends Formatter {
     message: string,
     loc: SourceLocation,
   ): string {
-    let report = `${loc.filename}:${loc.lineNo}:${loc.offset}: ${level}: ${message}\n`;
+    let report = `${loc.filename}:${loc.lineNo}:${loc.offsetStart}: ${level}: ${message}\n`;
     report += `  ${loc.source}\n`;
-    for (let i = 0; i <= loc.offset; i++) {
+    for (let i = 0; i <= loc.offsetStart; i++) {
       report += ' ';
     }
     report += '^';

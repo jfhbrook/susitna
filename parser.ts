@@ -160,6 +160,7 @@ class Parser {
       // line if not
       this.lineNo,
       token.offsetStart,
+      token.offsetEnd,
       // TODO: The source of the line
       '',
     );

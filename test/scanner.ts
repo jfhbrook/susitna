@@ -158,6 +158,7 @@ t.test('strings', async (t: Test) => {
         FILENAME,
         1,
         1,
+        3,
         '"\\q"',
       ),
     );

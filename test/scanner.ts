@@ -5,7 +5,7 @@ import { SyntaxWarning } from '../exceptions';
 import { KEYWORDS } from '../scanner';
 import { TokenKind } from '../tokens';
 
-import { scanLine, scanTokens } from './helpers/scanner';
+import { scanRow, scanTokens } from './helpers/scanner';
 import { FILENAME } from './helpers/traceback';
 
 //
@@ -26,7 +26,7 @@ const PUNCTUATION = [
 t.test('punctuation', async (t: Test) => {
   for (let [text, kind] of PUNCTUATION) {
     t.test(text, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -55,7 +55,7 @@ t.test('punctuation', async (t: Test) => {
 t.test('keywords', async (t: Test) => {
   for (let [text, kind] of Object.entries(KEYWORDS)) {
     t.test(`keyword ${text}`, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -91,7 +91,7 @@ const STRINGS = [
 t.test('strings', async (t: Test) => {
   for (let [text, value] of STRINGS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -119,7 +119,7 @@ t.test('strings', async (t: Test) => {
 
   t.test('unterminated string', async (t: Test) => {
     const text = '"hello';
-    const tokens = scanLine(text);
+    const tokens = scanRow(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
@@ -145,7 +145,7 @@ t.test('strings', async (t: Test) => {
 
   t.test('invalid escape sequence', async (t: Test) => {
     const text = '"\\q"';
-    const tokens = scanLine(text);
+    const tokens = scanRow(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
@@ -199,7 +199,7 @@ const NUMBERS = [
 t.test('numbers', async (t: Test) => {
   for (let [text, kind] of NUMBERS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -235,7 +235,7 @@ const IDENT = [
 t.test('identifiers', async (t: Test) => {
   for (let [text, kind] of IDENT) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -275,7 +275,7 @@ const SHELL = [
 t.test('shell tokens', async (t: Test) => {
   for (let text of SHELL) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanLine(text);
+      const tokens = scanRow(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -308,7 +308,7 @@ t.test('shell tokens', async (t: Test) => {
 
 t.test('hello world', async (t: Test) => {
   const text = 'print "hello world"';
-  const tokens = scanLine(text);
+  const tokens = scanRow(text);
   t.equal(tokens.length, 3);
 
   t.has(tokens[0], {
@@ -345,7 +345,7 @@ t.test('hello world', async (t: Test) => {
 
 t.test('function call', async (t: Test) => {
   const text = 'pony($u, $v)';
-  const tokens = scanLine(text);
+  const tokens = scanRow(text);
   t.equal(tokens.length, 7);
 
   t.has(tokens[0], {

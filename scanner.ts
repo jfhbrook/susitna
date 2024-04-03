@@ -178,7 +178,7 @@ export class Scanner {
     };
   }
 
-  scanLine(): Token[] {
+  scanRow(): Token[] {
     const tokens: Token[] = [];
     let token = this.nextToken();
     let line = '';

@@ -41,11 +41,16 @@ export function isTerminated(row: Token[]): boolean {
   return isEnd(row) || hasNextLine(row);
 }
 
-export class ParseResult {
-  constructor(
-    public result: Array<Line | Cmd>,
-    public error: ParseError | ParseWarning | null = null,
-  ) {}
+export interface ParseResult<T> {
+  result: T;
+  error: ParseError | ParseWarning | null;
+}
+
+export type Output = Array<Line | Cmd[]>;
+
+interface RowResult {
+  result: Line | Cmd[];
+  errors: Array<SyntaxError | SyntaxWarning>;
 }
 
 export class Parser {
@@ -60,8 +65,8 @@ export class Parser {
    *
    * @returns A list of lines and commands.
    */
-  public parseInput(): Array<Line | Cmd> {
-    let output: Array<Line | Cmd> = [];
+  public parseInput(): ParseResult<Output> {
+    let result: Output = [];
 
     let raiseWarning = false;
     let raiseError = false;
@@ -70,14 +75,29 @@ export class Parser {
     let row: Token[] = this.scanner.scanLine();
 
     while (!isEnd(row)) {
-      const out = this.parseRow(row);
-      if (out instanceof Line) {
-        output.push(out);
-      } else {
-        output = output.concat(out);
+      const { result: res, errors: errs } = this.parseRow(row);
+      for (let err of errs) {
+        raiseWarning = true;
+        if (err instanceof SyntaxError) {
+          raiseError = true;
+        }
+        errors.push(err);
       }
+      result.push(res);
     }
-    return output;
+
+    let rv: ParseResult<Output> = {
+      result,
+      error: null,
+    };
+
+    if (raiseError) {
+      rv.error = new ParseError(errors);
+    } else if (raiseWarning) {
+      rv.error = new ParseWarning(errors);
+    }
+
+    return rv;
   }
 
   /**
@@ -85,20 +105,27 @@ export class Parser {
    *
    * @returns A Program.
    */
-  public parseProgram(): Program {
-    let output: Array<Line | Cmd> = this.parseInput();
+  public parseProgram(): ParseResult<Program> {
+    let { result, error }: ParseResult<Output> = this.parseInput();
 
-    for (let out of output) {
-      if (!(out instanceof Line)) {
-        throw new Error('lol');
+    // TODO: Collect syntax errors.
+    for (let res of result) {
+      if (!(res instanceof Line)) {
+        throw new Error('Expected Line, got Cmd[]');
       }
     }
 
-    return new Program(output as Line[]);
+    return {
+      result: new Program(result as Line[]),
+      error,
+    };
   }
 
-  private parseRow(row: Token[]): Line | Cmd[] {
-    return [];
+  private parseRow(row: Token[]): RowResult {
+    return {
+      result: [],
+      errors: [],
+    };
   }
 }
 

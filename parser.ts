@@ -28,7 +28,7 @@ export function isEnd(row: Token[]): boolean {
  *
  * @param row A row of tokens.
  */
-export function hasNextLine(row: Token[]): boolean {
+export function hasNextRow(row: Token[]): boolean {
   return row[0].kind === TokenKind.LineEnding;
 }
 
@@ -38,7 +38,7 @@ export function hasNextLine(row: Token[]): boolean {
  * @param row A row of tokens.
  */
 export function isTerminated(row: Token[]): boolean {
-  return isEnd(row) || hasNextLine(row);
+  return isEnd(row) || hasNextRow(row);
 }
 
 export class Result<T> {
@@ -71,8 +71,9 @@ export class Warn<T> extends Result<T> {
 
 export type Output = Array<Line | Cmd[]>;
 
-export class Parser {
+class Parser {
   private scanner: Scanner;
+  private result: Output = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
@@ -92,22 +93,16 @@ export class Parser {
    * @returns A list of lines and commands.
    */
   public parseInput(): Result<Output> {
-    let result: Output = [];
-
-    let row: Token[] = this.scanner.scanRow();
-
-    while (!isEnd(row)) {
-      result.push(this.parseRow(row));
-    }
+    this.parseAllRows();
 
     if (this.isError) {
-      return new Err(result, new ParseError(this.errors));
+      return new Err(this.result, new ParseError(this.errors));
     } else if (this.isWarning) {
       const warnings = this.errors as unknown as SyntaxWarning[];
-      return new Warn(result, new ParseWarning(warnings));
+      return new Warn(this.result, new ParseWarning(warnings));
     }
 
-    return new Ok(result);
+    return new Ok(this.result);
   }
 
   /**
@@ -117,9 +112,9 @@ export class Parser {
    */
   public parseProgram(): Result<Program> {
     this.isProgram = true;
-    let result: Result<Output> = this.parseInput();
+    this.parseAllRows();
 
-    const program = new Program(result.result as Line[]);
+    const program = new Program(this.result as Line[]);
 
     if (this.isError) {
       return new Err(program, new ParseError(this.errors));
@@ -129,6 +124,16 @@ export class Parser {
     }
 
     return new Ok(program);
+  }
+
+  private parseAllRows(): void {
+    let row: Token[] = this.scanner.scanRow();
+
+    // TODO: Assert row is terminated
+
+    while (hasNextRow(row)) {
+      this.parseRow(row);
+    }
   }
 
   private parseRow(row: Token[]): Line | Cmd[] {
@@ -169,28 +174,26 @@ export class Parser {
 // TODO: Sprinkle in Results everywhere
 
 /*
- * Parse a non-numbered command.
+ * Parse input, return a list of lines and commands.
  *
  * @param source The source code.
+ * @param filename The source filename.
  */
-export function parseCommand(source: string): null {
-  return null;
-}
-
-/*
- * Parse a numbered line.
- *
- * @param source The source code.
- */
-export function parseLine(source: string): null {
-  return null;
+export function parseInput(source: string): Result<Output> {
+  const parser = new Parser(source, '<input>');
+  return parser.parseInput();
 }
 
 /*
  * Parse a program, made up of multipled numbered lines.
  *
  * @param source The source code.
+ * @param filename The source filename.
  */
-export function parseProgram(source: string): null {
-  return null;
+export function parseProgram(
+  source: string,
+  filename: string,
+): Result<Program> {
+  const parser = new Parser(source, filename);
+  return parser.parseProgram();
 }

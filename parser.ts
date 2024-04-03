@@ -175,22 +175,48 @@ class Parser {
     }
   }
 
-  private command(): void {}
-}
+  private command(): void {
+    if (this.match(TokenKind.Print)) {
+      this.print();
+    } else {
+      this.expr();
+    }
+  }
 
-// TODO: Parse DecimalLiteral
-// TODO: Parse LineNo
-// TODO: Parse HexLiteral
-// TODO: Parse OctalLiteral
-// TODO: Parse BinaryLiteral
-// TODO: Parse RealLiteral
-// TODO: Parse BooleanLiteral
-// TODO: Parse StringLiteral
-// TODO: Parse Print
-// TODO: Parse Command
-// TODO: Parse Line
-// TODO: Parse Program
-// TODO: Sprinkle in Results everywhere
+  private print(): void {}
+
+  private expr(): void {
+    if (this.match(TokenKind.DecimalLiteral)) {
+      this.decimal();
+    } else if (this.match(TokenKind.HexLiteral)) {
+      this.hex();
+    } else if (this.match(TokenKind.OctalLiteral)) {
+      this.octal();
+    } else if (this.match(TokenKind.BinaryLiteral)) {
+      this.binary();
+    } else if (this.match(TokenKind.RealLiteral)) {
+      this.real();
+    } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
+      this.boolean();
+    } else if (this.match(TokenKind.StringLiteral)) {
+      this.string();
+    }
+  }
+
+  private decimal(): void {}
+
+  private hex(): void {}
+
+  private octal(): void {}
+
+  private binary(): void {}
+
+  private real(): void {}
+
+  private boolean(): void {}
+
+  private string(): void {}
+}
 
 /*
  * Parse input, return a list of lines and commands.

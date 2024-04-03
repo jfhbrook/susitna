@@ -358,9 +358,9 @@ export class Scanner {
       case "'":
         return this.string("'");
       case '\n':
+        this.offset = 0;
         const token = this.emitToken(TokenKind.LineEnding);
         this.row++;
-        this.offset = 0;
         return token;
       case '0':
         if (this.match('x')) {

@@ -17,11 +17,11 @@ import {
   BooleanLiteral,
   StringLiteral,
 } from './ast/expr';
-import { Cmd } from './ast/cmd';
+import { Cmd, Print, Expression } from './ast/cmd';
 import { Line } from './ast/line';
 import { Program } from './ast/program';
 
-export type Output = Array<Line | Cmd[]>;
+export type Row = Line | Cmd[];
 
 class Parser {
   private scanner: Scanner;
@@ -30,13 +30,13 @@ class Parser {
   private current: Token | null = null;
   private next: Token | null = null;
 
-  private result: Output = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
   private isProgram: boolean = false;
   private isLine: boolean = false;
   private lineNo: number | null = null;
+  // private line: string = '';
 
   constructor(
     private source: string,
@@ -50,17 +50,17 @@ class Parser {
    *
    * @returns A list of lines and commands.
    */
-  public parseInput(): Result<Output, ParseError, ParseWarning> {
-    this.rows();
+  public parseInput(): Result<Row[], ParseError, ParseWarning> {
+    const result = this.rows();
 
     if (this.isError) {
-      return new Err(this.result, new ParseError(this.errors));
+      return new Err(result, new ParseError(this.errors));
     } else if (this.isWarning) {
       const warnings = this.errors as unknown as SyntaxWarning[];
-      return new Warn(this.result, new ParseWarning(warnings));
+      return new Warn(result, new ParseWarning(warnings));
     }
 
-    return new Ok(this.result);
+    return new Ok(result);
   }
 
   /**
@@ -70,9 +70,9 @@ class Parser {
    */
   public parseProgram(): Result<Program, ParseError, ParseWarning> {
     this.isProgram = true;
-    this.rows();
 
-    const program = new Program(this.result as Line[]);
+    const result = this.rows();
+    const program = new Program(result as Line[]);
 
     if (this.isError) {
       return new Err(program, new ParseError(this.errors));
@@ -102,12 +102,22 @@ class Parser {
 
   private advance(): Token | null {
     this.previous = this.current;
+
     if (this.next) {
       this.current = this.next;
       this.next = null;
     } else {
       this.current = this.scanner.nextToken();
     }
+
+    /*
+    if (this.previous.kind === TokenKind.LineEnding) {
+      this.line = '';
+    } else {
+      this.line = this.previous!.value as string;
+    }
+    */
+
     return this.previous;
   }
 
@@ -139,20 +149,21 @@ class Parser {
       this.lineNo,
       token.offsetStart,
       token.offsetEnd,
-      // TODO: The source of the line
       '',
     );
   }
 
-  private rows(): void {
+  private rows(): Array<Line | Cmd[]> {
+    const rows: Array<Line | Cmd[]> = [];
     while (!this.scanner.done) {
-      this.row();
+      rows.push(this.row());
     }
+    return rows;
   }
 
-  private row(): void {
+  private row(): Line | Cmd[] {
     if (this.match(TokenKind.DecimalLiteral)) {
-      const lineNo = parseInt(this.previous!.text, 10);
+      const lineNo = this.previous!.value as number;
       if (lineNo < 1) {
         this.errors.push(
           this.syntaxError(this.previous, 'Line numbers must be positive'),
@@ -163,36 +174,46 @@ class Parser {
       }
     }
 
-    this.commands();
+    let cmds = this.commands();
 
-    this.isLine = false;
-  }
-
-  private commands(): void {
-    this.command();
-
-    while (this.match(TokenKind.Colon)) {
-      this.command();
-    }
     if (this.peek().kind === TokenKind.LineEnding) {
       this.advance();
     } else {
       this.consume(TokenKind.Eof, 'Expected end of line');
     }
+
+    this.isLine = false;
+
+    if (this.isLine) {
+      return new Line(this.lineNo, cmds);
+    }
+    return cmds;
   }
 
-  private command(): void {
+  private commands(): Cmd[] {
+    const cmds: Cmd[] = [this.command()];
+
+    while (this.match(TokenKind.Colon)) {
+      cmds.push(this.command());
+    }
+
+    return cmds;
+  }
+
+  private command(): Cmd {
     if (this.match(TokenKind.Print)) {
-      this.print();
+      return this.print();
     } else {
-      this.expr();
+      return new Expression(this.expr());
     }
   }
 
-  private print(): void {}
+  private print(): Cmd {
+    return new Print(this.expr());
+  }
 
-  private expr(): void {
-    this.primary();
+  private expr(): Expr {
+    return this.primary();
   }
 
   private primary(): Expr {
@@ -223,7 +244,7 @@ class Parser {
  */
 export function parseInput(
   source: string,
-): Result<Output, ParseError, ParseWarning> {
+): Result<Row[], ParseError, ParseWarning> {
   const parser = new Parser(source, '<input>');
   return parser.parseInput();
 }

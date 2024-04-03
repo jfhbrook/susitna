@@ -317,6 +317,7 @@ export class Scanner {
               new SyntaxWarning(
                 `Invalid escape sequence \`\\${e}\``,
                 this.filename,
+                false,
                 this.row,
                 offset,
                 offset + 2,

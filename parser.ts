@@ -129,8 +129,7 @@ class Parser {
     return new SyntaxError(
       message,
       this.filename,
-      // TODO: pass isLine to SyntaxError - lineNo would be the previous
-      // line if not
+      this.isLine,
       this.lineNo,
       token.offsetStart,
       token.offsetEnd,

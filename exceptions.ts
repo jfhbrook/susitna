@@ -337,8 +337,6 @@ export interface SourceLocation {
    */
   readonly offsetEnd: number;
 
-
-
   /**
    * The referenced source code. Will typically be a line or interactive
    * command.
@@ -366,6 +364,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
   constructor(
     message: FormatValue,
     public filename: string,
+    public isLine: boolean,
     public lineNo: number,
     public offsetStart: number,
     public offsetEnd: number,
@@ -417,6 +416,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
   constructor(
     message: FormatValue,
     public filename: string,
+    public isLine: boolean,
     public lineNo: number,
     public offsetStart: number,
     public offsetEnd: number,

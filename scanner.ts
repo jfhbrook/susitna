@@ -110,7 +110,7 @@ export interface TokenPosition {
   readonly offsetStart: number;
 
   /**
-   * The column offset on which the token ends.
+   * The column offset at which the token ends.
    */
   readonly offsetEnd: number;
 }
@@ -288,15 +288,26 @@ export class Scanner {
 
   private emitToken(kind: TokenKind, value: Value = null): Token {
     const text = this.source.slice(this.start, this.current);
+    const row = this.row;
+    const offsetStart = this.offset;
+    const offsetEnd = this.offset + (this.current - this.start);
+
+    if (kind === TokenKind.LineEnding) {
+      this.offset = 0;
+      this.row++;
+    } else {
+      this.offset += this.current - this.start;
+    }
+
     return {
       kind,
       text,
       value,
       pos: {
         index: this.start,
-        row: this.row,
-        offsetStart: this.offset,
-        offsetEnd: this.offset + (this.current - this.start) - 1,
+        row,
+        offsetStart,
+        offsetEnd,
       },
     };
   }
@@ -325,7 +336,6 @@ export class Scanner {
   }
 
   nextToken(): Token {
-    this.offset += this.current - this.start;
     this.start = this.current;
 
     if (this.done) {
@@ -358,10 +368,7 @@ export class Scanner {
       case "'":
         return this.string("'");
       case '\n':
-        const token = this.emitToken(TokenKind.LineEnding);
-        this.offset = -1;
-        this.row++;
-        return token;
+        return this.emitToken(TokenKind.LineEnding);
       case '0':
         if (this.match('x')) {
           return this.hex();

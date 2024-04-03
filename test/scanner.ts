@@ -36,7 +36,7 @@ t.test('punctuation', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: 0,
+        offsetEnd: 1,
       });
 
       t.has(tokens[1], {
@@ -93,7 +93,7 @@ t.test('strings', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length - 1,
+        offsetEnd: text.length,
       });
 
       t.has(tokens[1], {
@@ -119,7 +119,7 @@ t.test('strings', async (t: Test) => {
       index: 0,
       row: 1,
       offsetStart: 0,
-      offsetEnd: text.length - 1,
+      offsetEnd: text.length,
     });
 
     t.has(tokens[1], {
@@ -159,7 +159,7 @@ t.test('numbers', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length - 1,
+        offsetEnd: text.length,
       });
 
       t.has(tokens[1], {
@@ -194,7 +194,7 @@ t.test('identifiers', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length - 1,
+        offsetEnd: text.length,
       });
 
       t.has(tokens[1], {
@@ -233,7 +233,7 @@ t.test('shell tokens', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length - 1,
+        offsetEnd: text.length,
       });
 
       t.has(tokens[1], {
@@ -265,7 +265,7 @@ t.test('hello world', async (t: Test) => {
     index: 0,
     row: 1,
     offsetStart: 0,
-    offsetEnd: 4,
+    offsetEnd: 5,
   });
 
   t.has(tokens[1], {
@@ -279,7 +279,7 @@ t.test('hello world', async (t: Test) => {
     index: 6,
     row: 1,
     offsetStart: 6,
-    offsetEnd: 18,
+    offsetEnd: 19,
   });
 
   t.has(tokens[2], {
@@ -350,7 +350,7 @@ t.test('line endings', async (t: Test) => {
     index: 0,
     row: 1,
     offsetStart: 0,
-    offsetEnd: 0,
+    offsetEnd: 1,
   });
 
   t.has(tokens[1], {
@@ -362,7 +362,7 @@ t.test('line endings', async (t: Test) => {
     index: 1,
     row: 2,
     offsetStart: 0,
-    offsetEnd: 0,
+    offsetEnd: 1,
   });
 
   t.has(tokens[2], {
@@ -384,7 +384,7 @@ t.test('line endings with whitespace', async (t: Test) => {
     index: 4,
     row: 1,
     offsetStart: 4,
-    offsetEnd: 4,
+    offsetEnd: 5,
   });
 
   t.has(tokens[1], {
@@ -396,11 +396,18 @@ t.test('line endings with whitespace', async (t: Test) => {
     index: 5,
     row: 2,
     offsetStart: 0,
-    offsetEnd: 0,
+    offsetEnd: 1,
   });
 
   t.has(tokens[2], {
     kind: TokenKind.Eof,
     text: '',
+  });
+
+  t.has(tokens[2].pos, {
+    index: 10,
+    row: 3,
+    offsetStart: 4,
+    offsetEnd: 4,
   });
 });

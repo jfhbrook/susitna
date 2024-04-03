@@ -76,7 +76,8 @@ export class Parser {
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
-  private row: string = '';
+  private isProgram: boolean = false;
+  private lineNo: number = 0;
 
   constructor(
     private source: string,
@@ -93,7 +94,7 @@ export class Parser {
   public parseInput(): Result<Output> {
     let result: Output = [];
 
-    let row: Token[] = this.scanner.scanLine();
+    let row: Token[] = this.scanner.scanRow();
 
     while (!isEnd(row)) {
       result.push(this.parseRow(row));
@@ -115,25 +116,8 @@ export class Parser {
    * @returns A Program.
    */
   public parseProgram(): Result<Program> {
+    this.isProgram = true;
     let result: Result<Output> = this.parseInput();
-
-    let lineNo = 0;
-    for (let res of result.result) {
-      if (res instanceof Line) {
-        lineNo = res.lineNo;
-      } else {
-        this.isError = true;
-        this.errors.push(
-          new SyntaxError(
-            'Source lines must be numbered',
-            this.filename,
-            lineNo + 1,
-            0,
-            this.row,
-          ),
-        );
-      }
-    }
 
     const program = new Program(result.result as Line[]);
 
@@ -148,6 +132,24 @@ export class Parser {
   }
 
   private parseRow(row: Token[]): Line | Cmd[] {
+    // Is the first token a positive DecimalLiteral?
+    // If so, parse row.slice(1)
+    // If not, is this a program?
+
+    /*
+        this.isError = true;
+        this.errors.push(
+          new SyntaxError(
+            'Source lines must be numbered',
+            this.filename,
+            lineNo + 1,
+            0,
+            // TODO: This is busted
+            this.row,
+          ),
+        );
+    */
+
     return [];
   }
 }

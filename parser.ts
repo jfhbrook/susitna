@@ -93,7 +93,7 @@ class Parser {
    * @returns A list of lines and commands.
    */
   public parseInput(): Result<Output> {
-    this.parseAllRows();
+    this.rows();
 
     if (this.isError) {
       return new Err(this.result, new ParseError(this.errors));
@@ -112,7 +112,7 @@ class Parser {
    */
   public parseProgram(): Result<Program> {
     this.isProgram = true;
-    this.parseAllRows();
+    this.rows();
 
     const program = new Program(this.result as Line[]);
 
@@ -126,21 +126,41 @@ class Parser {
     return new Ok(program);
   }
 
-  private parseAllRows(): void {
-    let row: Token[] = this.scanner.scanRow();
-
-    // TODO: Assert row is terminated
-
-    while (hasNextRow(row)) {
-      this.parseRow(row);
+  private rows(): void {
+    while (!this.scanner.done) {
+      this.row();
     }
   }
 
-  private parseRow(row: Token[]): Line | Cmd[] {
+  private row(): void {
+    /*
+    const tokens: Token[] = [];
+    let token = this.nextToken();
+    let line = '';
+    while (
+      token.kind !== TokenKind.LineEnding &&
+      token.kind !== TokenKind.Eof
+    ) {
+      line += token.text;
+      if (token.kind !== TokenKind.Whitespace) {
+        tokens.push(token);
+      }
+      token = this.nextToken();
+    }
+    line += token.text;
+    tokens.push(token);
+
+    for (let token of tokens) {
+      token.line = line;
+    }
+    return tokens;
+    */
     // Is the first token a positive DecimalLiteral?
     // If so, parse row.slice(1)
-    // If not, is this a program?
-
+    // If not, create a syntax error
+    // Either way, parse the row for syntax errors
+    // If not a program, pop off the commands
+    // Collect/attach raw line
     /*
         this.isError = true;
         this.errors.push(
@@ -154,8 +174,6 @@ class Parser {
           ),
         );
     */
-
-    return [];
   }
 }
 

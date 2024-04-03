@@ -124,7 +124,7 @@ export class Scanner {
     this.offset = 0;
   }
 
-  private get done(): boolean {
+  get done(): boolean {
     return this.current >= this.source.length;
   }
 
@@ -176,29 +176,6 @@ export class Scanner {
       value,
       warnings,
     };
-  }
-
-  scanRow(): Token[] {
-    const tokens: Token[] = [];
-    let token = this.nextToken();
-    let line = '';
-    while (
-      token.kind !== TokenKind.LineEnding &&
-      token.kind !== TokenKind.Eof
-    ) {
-      line += token.text;
-      if (token.kind !== TokenKind.Whitespace) {
-        tokens.push(token);
-      }
-      token = this.nextToken();
-    }
-    line += token.text;
-    tokens.push(token);
-
-    for (let token of tokens) {
-      token.line = line;
-    }
-    return tokens;
   }
 
   nextToken(): Token {

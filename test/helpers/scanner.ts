@@ -3,11 +3,6 @@ import { Token, TokenKind } from '../../tokens';
 
 import { FILENAME } from './traceback';
 
-export function scanRow(source: string): Token[] {
-  const scanner = new Scanner(source, FILENAME);
-  return scanner.scanRow();
-}
-
 export function scanTokens(source: string): Token[] {
   const scanner = new Scanner(source, FILENAME);
   const tokens: Token[] = [];

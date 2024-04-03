@@ -5,7 +5,7 @@ import { SyntaxWarning } from '../exceptions';
 import { KEYWORDS } from '../scanner';
 import { TokenKind } from '../tokens';
 
-import { scanRow, scanTokens } from './helpers/scanner';
+import { scanTokens } from './helpers/scanner';
 import { FILENAME } from './helpers/traceback';
 
 //
@@ -26,7 +26,7 @@ const PUNCTUATION = [
 t.test('punctuation', async (t: Test) => {
   for (let [text, kind] of PUNCTUATION) {
     t.test(text, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -36,7 +36,6 @@ t.test('punctuation', async (t: Test) => {
         offsetStart: 0,
         offsetEnd: text.length,
         text,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -46,7 +45,6 @@ t.test('punctuation', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
@@ -55,7 +53,7 @@ t.test('punctuation', async (t: Test) => {
 t.test('keywords', async (t: Test) => {
   for (let [text, kind] of Object.entries(KEYWORDS)) {
     t.test(`keyword ${text}`, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -65,7 +63,6 @@ t.test('keywords', async (t: Test) => {
         offsetStart: 0,
         offsetEnd: text.length,
         text,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -75,7 +72,6 @@ t.test('keywords', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
@@ -91,7 +87,7 @@ const STRINGS = [
 t.test('strings', async (t: Test) => {
   for (let [text, value] of STRINGS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -102,7 +98,6 @@ t.test('strings', async (t: Test) => {
         offsetEnd: text.length,
         text,
         value,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -112,14 +107,13 @@ t.test('strings', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
 
   t.test('unterminated string', async (t: Test) => {
     const text = '"hello';
-    const tokens = scanRow(text);
+    const tokens = scanTokens(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
@@ -129,7 +123,6 @@ t.test('strings', async (t: Test) => {
       offsetStart: 0,
       offsetEnd: text.length,
       text,
-      line: text,
     });
 
     t.has(tokens[1], {
@@ -139,13 +132,12 @@ t.test('strings', async (t: Test) => {
       offsetStart: text.length,
       offsetEnd: text.length,
       text: '',
-      line: text,
     });
   });
 
   t.test('invalid escape sequence', async (t: Test) => {
     const text = '"\\q"';
-    const tokens = scanRow(text);
+    const tokens = scanTokens(text);
     t.equal(tokens.length, 2);
 
     t.has(tokens[0], {
@@ -155,7 +147,6 @@ t.test('strings', async (t: Test) => {
       offsetStart: 0,
       offsetEnd: text.length,
       text,
-      line: text,
     });
 
     t.ok(tokens[0].warnings);
@@ -178,7 +169,6 @@ t.test('strings', async (t: Test) => {
       offsetStart: text.length,
       offsetEnd: text.length,
       text: '',
-      line: text,
     });
   });
 });
@@ -199,7 +189,7 @@ const NUMBERS = [
 t.test('numbers', async (t: Test) => {
   for (let [text, kind] of NUMBERS) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -209,7 +199,6 @@ t.test('numbers', async (t: Test) => {
         offsetStart: 0,
         offsetEnd: text.length,
         text,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -219,7 +208,6 @@ t.test('numbers', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
@@ -235,7 +223,7 @@ const IDENT = [
 t.test('identifiers', async (t: Test) => {
   for (let [text, kind] of IDENT) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -245,7 +233,6 @@ t.test('identifiers', async (t: Test) => {
         offsetStart: 0,
         offsetEnd: text.length,
         text,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -255,7 +242,6 @@ t.test('identifiers', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
@@ -275,7 +261,7 @@ const SHELL = [
 t.test('shell tokens', async (t: Test) => {
   for (let text of SHELL) {
     t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanRow(text);
+      const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -285,7 +271,6 @@ t.test('shell tokens', async (t: Test) => {
         offsetStart: 0,
         offsetEnd: text.length,
         text,
-        line: text,
       });
 
       t.has(tokens[1], {
@@ -295,7 +280,6 @@ t.test('shell tokens', async (t: Test) => {
         offsetStart: text.length,
         offsetEnd: text.length,
         text: '',
-        line: text,
       });
     });
   }
@@ -308,7 +292,7 @@ t.test('shell tokens', async (t: Test) => {
 
 t.test('hello world', async (t: Test) => {
   const text = 'print "hello world"';
-  const tokens = scanRow(text);
+  const tokens = scanTokens(text);
   t.equal(tokens.length, 3);
 
   t.has(tokens[0], {
@@ -318,7 +302,6 @@ t.test('hello world', async (t: Test) => {
     offsetStart: 0,
     offsetEnd: 5,
     text: 'print',
-    line: text,
   });
 
   t.has(tokens[1], {
@@ -329,7 +312,6 @@ t.test('hello world', async (t: Test) => {
     offsetEnd: 19,
     text: '"hello world"',
     value: 'hello world',
-    line: text,
   });
 
   t.has(tokens[2], {
@@ -339,55 +321,47 @@ t.test('hello world', async (t: Test) => {
     offsetStart: 19,
     offsetEnd: 19,
     text: '',
-    line: text,
   });
 });
 
 t.test('function call', async (t: Test) => {
   const text = 'pony($u, $v)';
-  const tokens = scanRow(text);
+  const tokens = scanTokens(text);
   t.equal(tokens.length, 7);
 
   t.has(tokens[0], {
     kind: TokenKind.Ident,
     text: 'pony',
-    line: text,
   });
 
   t.has(tokens[1], {
     kind: TokenKind.LParen,
     text: '(',
-    line: text,
   });
 
   t.has(tokens[2], {
     kind: TokenKind.StringIdent,
     text: '$u',
-    line: text,
   });
 
   t.has(tokens[3], {
     kind: TokenKind.Comma,
     text: ',',
-    line: text,
   });
 
   t.has(tokens[4], {
     kind: TokenKind.StringIdent,
     text: '$v',
-    line: text,
   });
 
   t.has(tokens[5], {
     kind: TokenKind.RParen,
     text: ')',
-    line: text,
   });
 
   t.has(tokens[6], {
     kind: TokenKind.Eof,
     text: '',
-    line: text,
   });
 });
 

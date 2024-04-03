@@ -129,11 +129,6 @@ export interface Token {
   readonly text: string;
 
   /**
-   * The line from which the token was scanned.
-   */
-  line?: string;
-
-  /**
    * Any warnings emitted for the token.
    */
   warnings: SyntaxWarning[];

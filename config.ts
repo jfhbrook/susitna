@@ -1,6 +1,26 @@
+import * as dotenv from 'dotenv';
+
+import { MATBAS_BUILD } from './constants';
+import { parseBoolEnv } from './env';
+import { tracer } from './trace';
 import { UsageFault } from './faults';
 import { Level } from './host';
 import { Exit } from './exit';
+
+let TRACE_USAGE = '';
+
+if (MATBAS_BUILD === 'debug') {
+  // Only load dotenv for debug builds.
+  dotenv.config();
+
+  // Document the TRACE environment variable in usage.
+  TRACE_USAGE = '\nTRACE             enable debug tracing';
+
+  // Enable the tracer if the TRACE environment variable is set.
+  if (parseBoolEnv(process.env.TRACE)) {
+    tracer.enable();
+  }
+}
 
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]
 
@@ -12,7 +32,7 @@ Options:
   --log-level <level>      set log level (debug, info, warn, error)
   
 Environment variables:
-MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)
+MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)${TRACE_USAGE}
 `;
 
 function help(): Exit {

@@ -1,3 +1,6 @@
+# dotenv
+.env
+
 # compiled output
 versions.ts
 /dist

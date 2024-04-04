@@ -125,3 +125,23 @@ export class UsageFault extends Fault implements ExitCoded {
     return formatter.formatUsageFault(this);
   }
 }
+
+export function runtimeMethod<F extends Function>(
+  _target: any,
+  _propertyKey: string,
+  descriptor: PropertyDescriptor,
+) {
+  const fn: F = descriptor.value;
+  const wrapped: F = function captured(...args: any[]): any {
+    try {
+      return fn(...args);
+    } catch (err) {
+      if (!(err instanceof BaseFault)) {
+        throw RuntimeFault.fromError(err, null);
+      }
+      throw err;
+    }
+  } as unknown as F;
+
+  descriptor.value = wrapped;
+}

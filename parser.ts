@@ -5,7 +5,7 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from './exceptions';
-import { RuntimeFault } from './faults';
+import { runtimeMethod, RuntimeFault } from './faults';
 import { Scanner } from './scanner';
 import { Result, Ok, Err, Warn } from './result';
 import { Token, TokenKind } from './tokens';
@@ -62,6 +62,7 @@ class Parser {
    *
    * @returns A list of lines and commands.
    */
+  @runtimeMethod
   public parseInput(): Result<Row[], ParseError, ParseWarning> {
     const result = this.rows();
 
@@ -80,6 +81,7 @@ class Parser {
    *
    * @returns A Program.
    */
+  @runtimeMethod
   public parseProgram(): Result<Program, ParseError, ParseWarning> {
     this.isProgram = true;
 

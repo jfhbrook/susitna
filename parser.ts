@@ -14,7 +14,7 @@ import {
   Expr,
   IntLiteral,
   RealLiteral,
-  BooleanLiteral,
+  BoolLiteral,
   StringLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
@@ -124,7 +124,7 @@ class Parser {
       this.current = this.scanner.nextToken();
     }
 
-    this.line = this.previous!.value as string;
+    this.line += this.current!.value as string;
 
     if (this.current.kind === TokenKind.Whitespace) {
       return this.advance();
@@ -173,8 +173,8 @@ class Parser {
     throw new Synchronize();
   }
 
-  private rows(): Array<Line | Cmd[]> {
-    const rows: Array<Line | Cmd[]> = [];
+  private rows(): Row[] {
+    const rows: Row[] = [];
     while (!this.scanner.done) {
       const parsed = this.row();
       if (parsed) {
@@ -184,7 +184,7 @@ class Parser {
     return rows;
   }
 
-  private row(): Line | Cmd[] | null {
+  private row(): Row | null {
     let lineNo: number | null;
     let cmds: Cmd[];
     try {
@@ -200,6 +200,7 @@ class Parser {
       }
       throw err;
     }
+
     if (lineNo !== null) {
       return new Line(this.lineNo, cmds);
     }
@@ -260,9 +261,14 @@ class Parser {
       // TODO: Illegal, UnterminatedString
       this.advance();
     }
+    this.rowEnding();
   }
 
   private commands(): Cmd[] {
+    if (this.done || this.peek().kind === TokenKind.LineEnding) {
+      return [];
+    }
+
     let cmd: Cmd | null = this.command();
     const cmds: Cmd[] = cmd ? [cmd] : [];
 
@@ -284,7 +290,6 @@ class Parser {
   }
 
   private command(): Cmd | null {
-    // TODO: TokenKind.Illegal, TokenKind.UnterminatedString
     if (this.match(TokenKind.Print)) {
       return this.print();
       // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
@@ -328,7 +333,7 @@ class Parser {
     } else if (this.match(TokenKind.RealLiteral)) {
       return new RealLiteral(this.previous.value as number);
     } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
-      return new BooleanLiteral(this.previous.value as boolean);
+      return new BoolLiteral(this.previous.value as boolean);
     } else if (this.match(TokenKind.StringLiteral)) {
       for (let warn of this.previous.warnings) {
         warn.isLine = this.isLine;

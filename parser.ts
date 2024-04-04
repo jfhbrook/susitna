@@ -1,3 +1,4 @@
+import { spanSync, trace } from './trace';
 import { errorType } from './errors';
 import {
   SyntaxError,

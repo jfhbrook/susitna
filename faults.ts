@@ -134,7 +134,7 @@ export function runtimeMethod<F extends Function>(
   const fn: F = descriptor.value;
   const wrapped: F = function captured(...args: any[]): any {
     try {
-      return fn(...args);
+      return fn.apply(this, args);
     } catch (err) {
       if (!(err instanceof BaseFault)) {
         throw RuntimeFault.fromError(err, null);

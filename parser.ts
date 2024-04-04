@@ -161,7 +161,10 @@ class Parser {
   private rows(): Array<Line | Cmd[]> {
     const rows: Array<Line | Cmd[]> = [];
     while (!this.scanner.done) {
-      rows.push(this.row());
+      const parsed = this.row();
+      if (parsed) {
+        rows.push(parsed);
+      }
     }
     return rows;
   }
@@ -177,6 +180,10 @@ class Parser {
         this.lineNo = lineNo;
         this.isLine = true;
       }
+    } else if (this.isProgram) {
+      this.syntaxError(this.peek(), 'Expected line number');
+      this.syncNextLine();
+      return null;
     }
 
     let cmds = this.commands();

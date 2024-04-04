@@ -126,6 +126,14 @@ class Parser {
 
     this.line = this.previous!.value as string;
 
+    if (this.current.kind === TokenKind.Whitespace) {
+      return this.advance();
+    }
+
+    if (this.current.kind === TokenKind.Illegal) {
+      this.syntaxError(this.current, `Illegal token ${this.current.text}`);
+    }
+
     return this.previous;
   }
 
@@ -178,8 +186,13 @@ class Parser {
 
   private row(): Line | Cmd[] | null {
     let lineNo: number | null;
+    let cmds: Cmd[];
     try {
       lineNo = this.lineNumber();
+
+      cmds = this.commands();
+
+      this.rowEnding();
     } catch (err) {
       if (err instanceof Synchronize) {
         this.syncNextRow();
@@ -187,11 +200,6 @@ class Parser {
       }
       throw err;
     }
-
-    let cmds = this.commands();
-
-    this.rowEnding();
-
     if (lineNo !== null) {
       return new Line(this.lineNo, cmds);
     }

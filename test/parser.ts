@@ -14,3 +14,4 @@ import { Test } from 'tap';
 // TODO: multi-line numbered inputs with parseProgram
 // TODO: multi-line mixed inputs with parseProgram
 // TODO: multi-line input with a negative valued line
+// TODO: illegal tokens scattered in random places in various statements

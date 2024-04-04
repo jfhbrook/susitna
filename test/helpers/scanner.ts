@@ -1,3 +1,5 @@
+import * as assert from 'assert';
+
 import { Scanner } from '../../scanner';
 import { Token, TokenKind } from '../../tokens';
 
@@ -18,4 +20,27 @@ export function scanTokens(source: string): Token[] {
   tokens.push(token);
 
   return tokens;
+}
+
+export class MockScanner extends Scanner {
+  constructor(private tokens: Token[]) {
+    super('', FILENAME);
+
+    assert.equal(
+      tokens[tokens.length - 1].kind,
+      TokenKind.Eof,
+      'Last token must be EOF',
+    );
+  }
+
+  get done(): boolean {
+    return this.tokens.length === 1;
+  }
+
+  nextToken(): Token {
+    if (this.done) {
+      return this.tokens[0];
+    }
+    return this.tokens.shift()!;
+  }
 }

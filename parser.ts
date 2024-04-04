@@ -6,6 +6,7 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from './exceptions';
+import { RuntimeFault } from './faults';
 import { Scanner } from './scanner';
 import { Result, Ok, Err, Warn } from './result';
 import { Token, TokenKind } from './tokens';
@@ -96,7 +97,9 @@ class Parser {
   }
 
   private check(kind: TokenKind): boolean {
-    if (this.done) return false;
+    if (this.done) {
+      return kind === TokenKind.Eof;
+    }
     return this.peek().kind === kind;
   }
 
@@ -141,8 +144,8 @@ class Parser {
     return new Err(token, this.syntaxError(token, message));
   }
 
-  private syntaxError(token: Token, message: string): SyntaxError {
-    return new SyntaxError(
+  private syntaxError(token: Token, message: string): void {
+    const exc = new SyntaxError(
       message,
       this.filename,
       this.isLine,
@@ -151,6 +154,8 @@ class Parser {
       token.offsetEnd,
       '',
     );
+    this.isError = true;
+    this.errors.push(exc);
   }
 
   private rows(): Array<Line | Cmd[]> {
@@ -161,13 +166,13 @@ class Parser {
     return rows;
   }
 
-  private row(): Line | Cmd[] {
+  private row(): Line | Cmd[] | null {
     if (this.match(TokenKind.DecimalLiteral)) {
       const lineNo = this.previous!.value as number;
       if (lineNo < 1) {
-        this.errors.push(
-          this.syntaxError(this.previous, 'Line numbers must be positive'),
-        );
+        this.syntaxError(this.previous, 'Line numbers must be positive');
+        this.syncNextLine();
+        return null;
       } else {
         this.lineNo = lineNo;
         this.isLine = true;
@@ -179,7 +184,10 @@ class Parser {
     if (this.peek().kind === TokenKind.LineEnding) {
       this.advance();
     } else {
-      this.consume(TokenKind.Eof, 'Expected end of line');
+      const res = this.consume(TokenKind.Eof, 'Expected end of line');
+      if (res instanceof Err) {
+        throw RuntimeFault.fromException(res.error);
+      }
     }
 
     this.isLine = false;
@@ -188,6 +196,24 @@ class Parser {
       return new Line(this.lineNo, cmds);
     }
     return cmds;
+  }
+
+  private syncNextCommand() {
+    while (
+      ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
+        this.peek().kind,
+      )
+    ) {
+      this.advance();
+    }
+    this.advance();
+  }
+
+  private syncNextLine() {
+    while (![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)) {
+      this.advance();
+    }
+    this.advance();
   }
 
   private commands(): Cmd[] {
@@ -208,6 +234,7 @@ class Parser {
     }
   }
 
+  // TODO: What's the syntax of print? lol
   private print(): Cmd {
     return new Print(this.expr());
   }

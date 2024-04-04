@@ -1,10 +1,9 @@
 import { Token, TokenKind } from '../tokens'
 
 type Expr in './expr' {
-  LineNo         => value: number
   IntLiteral     => value: number
   RealLiteral    => value: number
-  BooleanLiteral => value: boolean
+  BoolLiteral => value: boolean
   StringLiteral  => value: string
 }
 

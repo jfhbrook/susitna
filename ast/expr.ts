@@ -1,25 +1,14 @@
 import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
-  visitLineNoExpr(node: LineNo): R;
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
-  visitBooleanLiteralExpr(node: BooleanLiteral): R;
+  visitBoolLiteralExpr(node: BoolLiteral): R;
   visitStringLiteralExpr(node: StringLiteral): R;
 }
 
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
-}
-
-export class LineNo extends Expr {
-  constructor(public readonly value: number) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitLineNoExpr(this);
-  }
 }
 
 export class IntLiteral extends Expr {
@@ -42,13 +31,13 @@ export class RealLiteral extends Expr {
   }
 }
 
-export class BooleanLiteral extends Expr {
+export class BoolLiteral extends Expr {
   constructor(public readonly value: boolean) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitBooleanLiteralExpr(this);
+    return visitor.visitBoolLiteralExpr(this);
   }
 }
 

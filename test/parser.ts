@@ -2,8 +2,10 @@ import t from 'tap';
 import { Test } from 'tap';
 
 // TODO: bare literal expressions
+// TODO: bare string with invalid escape sequences
 // TODO: bare print statement
 // TODO: numbered literal expressions
+// TODO: numbered string with invalid escape sequences
 // TODO: numbered print statement
 // TODO: bare malformed print statement
 // TODO: numbered malformed print statement

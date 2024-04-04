@@ -1,7 +1,5 @@
 import { errorType } from './errors';
 import {
-  BaseException,
-  BaseWarning,
   SyntaxError,
   ParseError,
   SyntaxWarning,
@@ -179,7 +177,16 @@ class Parser {
   }
 
   private row(): Line | Cmd[] | null {
-    let lineNo = this.lineNumber();
+    let lineNo: number | null;
+    try {
+      lineNo = this.lineNumber();
+    } catch (err) {
+      if (err instanceof Synchronize) {
+        this.syncNextRow();
+        return null;
+      }
+      throw err;
+    }
 
     let cmds = this.commands();
 
@@ -192,27 +199,19 @@ class Parser {
   }
 
   private lineNumber(): number | null {
-    try {
-      if (this.match(TokenKind.DecimalLiteral)) {
-        const lineNo = this.previous!.value as number;
-        if (lineNo < 1) {
-          this.syntaxError(this.previous, 'Line numbers must be positive');
-        } else {
-          this.lineNo = lineNo;
-          this.isLine = true;
-        }
-      } else if (this.isProgram) {
-        this.syntaxError(this.peek(), 'Expected line number');
+    if (this.match(TokenKind.DecimalLiteral)) {
+      const lineNo = this.previous!.value as number;
+      if (lineNo < 1) {
+        this.syntaxError(this.previous, 'Line numbers must be positive');
       } else {
-        this.lineNo = null;
-        this.isLine = false;
+        this.lineNo = lineNo;
+        this.isLine = true;
       }
-    } catch (err) {
-      if (err instanceof Synchronize) {
-        this.syncNextLine();
-        return null;
-      }
-      throw err;
+    } else if (this.isProgram) {
+      this.syntaxError(this.peek(), 'Expected line number');
+    } else {
+      this.lineNo = null;
+      this.isLine = false;
     }
 
     return this.lineNo;
@@ -227,7 +226,7 @@ class Parser {
     this.unfinishedErrors = [];
 
     if (!this.match(TokenKind.LineEnding)) {
-      const res = this.consume(TokenKind.Eof, 'Expected end of line');
+      const res = this.consume(TokenKind.Eof, 'Expected end of file');
       if (res instanceof Err) {
         throw RuntimeFault.fromException(res.error);
       }
@@ -248,7 +247,7 @@ class Parser {
     }
   }
 
-  private syncNextLine() {
+  private syncNextRow() {
     while (![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)) {
       // TODO: Illegal, UnterminatedString
       this.advance();

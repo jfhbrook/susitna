@@ -1,3 +1,4 @@
+import { errorType } from './errors';
 import {
   BaseException,
   BaseWarning,
@@ -23,6 +24,17 @@ import { Line } from './ast/line';
 import { Program } from './ast/program';
 
 export type Row = Line | Cmd[];
+
+// The alternative to using exceptions is to set a panicMode flag to ignore
+// emitted errors until we can synchronize. This might be worth trying out
+// later.
+@errorType('Synchronize')
+class Synchronize extends Error {
+  constructor() {
+    super('Synchronize');
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
 
 class Parser {
   private scanner: Scanner;
@@ -152,6 +164,7 @@ class Parser {
     );
     this.isError = true;
     this.unfinishedErrors.push(exc);
+    throw new Synchronize();
   }
 
   private rows(): Array<Line | Cmd[]> {
@@ -179,20 +192,27 @@ class Parser {
   }
 
   private lineNumber(): number | null {
-    if (this.match(TokenKind.DecimalLiteral)) {
-      const lineNo = this.previous!.value as number;
-      if (lineNo < 1) {
-        this.syntaxError(this.previous, 'Line numbers must be positive');
+    try {
+      if (this.match(TokenKind.DecimalLiteral)) {
+        const lineNo = this.previous!.value as number;
+        if (lineNo < 1) {
+          this.syntaxError(this.previous, 'Line numbers must be positive');
+        } else {
+          this.lineNo = lineNo;
+          this.isLine = true;
+        }
+      } else if (this.isProgram) {
+        this.syntaxError(this.peek(), 'Expected line number');
+      } else {
+        this.lineNo = null;
+        this.isLine = false;
+      }
+    } catch (err) {
+      if (err instanceof Synchronize) {
         this.syncNextLine();
         return null;
-      } else {
-        this.lineNo = lineNo;
-        this.isLine = true;
       }
-    } else if (this.isProgram) {
-      this.syntaxError(this.peek(), 'Expected line number');
-      this.syncNextLine();
-      return null;
+      throw err;
     }
 
     return this.lineNo;
@@ -223,16 +243,16 @@ class Parser {
         this.peek().kind,
       )
     ) {
+      // TODO: Illegal, UnterminatedString
       this.advance();
     }
-    this.advance();
   }
 
   private syncNextLine() {
     while (![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)) {
+      // TODO: Illegal, UnterminatedString
       this.advance();
     }
-    this.advance();
   }
 
   private commands(): Cmd[] {
@@ -240,9 +260,16 @@ class Parser {
     const cmds: Cmd[] = cmd ? [cmd] : [];
 
     while (this.match(TokenKind.Colon)) {
-      cmd = this.command();
-      if (cmd) {
-        cmds.push(cmd);
+      try {
+        cmd = this.command();
+        if (cmd) {
+          cmds.push(cmd);
+        }
+      } catch (err) {
+        if (err instanceof Synchronize) {
+          this.syncNextCommand();
+        }
+        throw err;
       }
     }
 
@@ -250,8 +277,10 @@ class Parser {
   }
 
   private command(): Cmd | null {
+    // TODO: TokenKind.Illegal, TokenKind.UnterminatedString
     if (this.match(TokenKind.Print)) {
       return this.print();
+      // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
     } else {
       return this.expression();
     }
@@ -279,6 +308,7 @@ class Parser {
   }
 
   private primary(): Expr | null {
+    // TODO: Illegal, UnterminatedString
     if (
       this.match(
         TokenKind.DecimalLiteral,

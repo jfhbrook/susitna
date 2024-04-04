@@ -135,6 +135,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
               new SyntaxError(
                 'expected )',
                 FILENAME,
+                0,
                 isLine,
                 100,
                 22,
@@ -152,6 +153,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
                 new SyntaxError(
                   'expected )',
                   FILENAME,
+                  0,
                   isLine,
                   100,
                   22,
@@ -161,6 +163,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
                 new SyntaxWarning(
                   'identifier has no sigil',
                   FILENAME,
+                  0,
                   isLine,
                   100,
                   17,
@@ -178,6 +181,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
               new SyntaxWarning(
                 'expected )',
                 FILENAME,
+                0,
                 isLine,
                 100,
                 22,
@@ -195,6 +199,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
                 new SyntaxWarning(
                   'identifier has no sigil',
                   FILENAME,
+                  0,
                   isLine,
                   100,
                   17,

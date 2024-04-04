@@ -148,6 +148,7 @@ class Parser {
     const exc = new SyntaxError(
       message,
       this.filename,
+      token.row,
       this.isLine,
       this.lineNo,
       token.offsetStart,
@@ -281,6 +282,13 @@ class Parser {
     } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
       return new BooleanLiteral(this.previous.value as boolean);
     } else if (this.match(TokenKind.StringLiteral)) {
+      for (let warn of this.previous.warnings) {
+        warn.isLine = this.isLine;
+        warn.lineNo = this.lineNo;
+        // warn.source = this.line;
+        this.errors.push(warn);
+        this.isWarning = true;
+      }
       return new StringLiteral(this.previous.value as string);
     } else {
       const token = this.peek();

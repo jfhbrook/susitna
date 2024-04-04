@@ -225,10 +225,11 @@ t.test('ParseError', async (t: Test) => {
     const line = '100 print someFn(ident';
 
     const exc = new ParseError([
-      new SyntaxError('expected )', FILENAME, false, 100, 22, 23, line),
+      new SyntaxError('expected )', FILENAME, 0, false, 100, 22, 23, line),
       new SyntaxWarning(
         'identifier has no sigil',
         FILENAME,
+        0,
         false,
         100,
         17,
@@ -265,6 +266,7 @@ t.test('ParseWarning', async (t: Test) => {
       new SyntaxWarning(
         'identifier has no sigil',
         FILENAME,
+        0,
         false,
         100,
         17,

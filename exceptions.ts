@@ -317,6 +317,12 @@ export interface SourceLocation {
   filename: string;
 
   /**
+   * The row number in the source code. This is well defined even if the
+   * input isn't a line.
+   */
+  row: number;
+
+  /**
    * Whether or not the source location is in a line.
    */
   isLine: boolean;
@@ -364,6 +370,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
   constructor(
     message: FormatValue,
     public filename: string,
+    public row: number,
     public isLine: boolean,
     public lineNo: number,
     public offsetStart: number,
@@ -416,6 +423,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
   constructor(
     message: FormatValue,
     public filename: string,
+    public row: number,
     public isLine: boolean,
     public lineNo: number,
     public offsetStart: number,

@@ -203,7 +203,18 @@ export class DefaultFormatter extends Formatter {
     message: string,
     loc: SourceLocation,
   ): string {
-    let report = `${loc.filename}:${loc.lineNo}:${loc.offsetStart}: ${level}: ${message}\n`;
+    let lineNo: string;
+    let lineNote: string = '';
+    if (loc.isLine) {
+      lineNo = String(loc.lineNo);
+    } else if (loc.lineNo > 0) {
+      lineNo = `<R${loc.row}>`;
+      lineNote = ` (after line ${loc.lineNo})`;
+    } else {
+      lineNo = `<R${loc.row}>`;
+      lineNote = ` (at the beginning)`;
+    }
+    let report = `${loc.filename}:${lineNo}:${loc.offsetStart}${lineNote}: ${level}: ${message}\n`;
     report += `  ${loc.source}\n`;
     for (let i = 0; i <= loc.offsetStart; i++) {
       report += ' ';

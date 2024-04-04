@@ -156,11 +156,12 @@ t.test('strings', async (t: Test) => {
       new SyntaxWarning(
         `Invalid escape sequence \`\\q\` in string "\\q"`,
         FILENAME,
-        false,
         1,
+        false,
+        0,
         1,
         3,
-        '"\\q"',
+        '',
       ),
     );
 

@@ -317,11 +317,12 @@ export class Scanner {
               new SyntaxWarning(
                 `Invalid escape sequence \`\\${e}\``,
                 this.filename,
-                false,
                 this.row,
+                false,
+                0,
                 offset,
                 offset + 2,
-                this.source,
+                '',
               ),
             );
             value += '\\';

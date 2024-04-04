@@ -17,7 +17,7 @@
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "eslint \"**.ts\" --fix",
     "test": "npm run build:versions && tap ./test/*.ts",
-    "snap": "npm run build:versions && tap ./test/*.ts --snapshot",
+    "snap": "npm run build:versions && npm run format && tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node"
   },
   "keywords": [

@@ -22,6 +22,7 @@ import { BaseFault, RuntimeFault, UsageFault } from '../faults';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
+const IS_LINE = [true, false];
 
 t.test('inspectString', async (t: Test) => {
   t.test('it inspects strings without quotes', async (t: Test) => {
@@ -125,58 +126,87 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a SyntaxError', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(
-          new SyntaxError('expected )', FILENAME, false, 100, 22, 23, LINE),
-        ),
-      );
-    });
-
-    t.test('it formats a ParseError', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(
-          new ParseError([
-            new SyntaxError('expected )', FILENAME, false, 100, 22, 23, LINE),
-            new SyntaxWarning(
-              'identifier has no sigil',
-              FILENAME,
-              false,
-              100,
-              17,
-              18,
-              LINE,
+    for (let isLine of IS_LINE) {
+      t.test(`when it ${isLine ? 'is' : 'is not'} a line`, async (t: Test) => {
+        const line = isLine ? LINE : LINE.replace(/^\d+ /, '');
+        t.test('it formats a SyntaxError', async (t: Test) => {
+          t.matchSnapshot(
+            formatter.format(
+              new SyntaxError(
+                'expected )',
+                FILENAME,
+                isLine,
+                100,
+                22,
+                23,
+                line,
+              ),
             ),
-          ]),
-        ),
-      );
-    });
+          );
+        });
 
-    t.test('it formats a SyntaxWarning', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(
-          new SyntaxWarning('expected )', FILENAME, false, 100, 22, 23, LINE),
-        ),
-      );
-    });
-
-    t.test('it formats a ParseWarning', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(
-          new ParseWarning([
-            new SyntaxWarning(
-              'identifier has no sigil',
-              FILENAME,
-              false,
-              100,
-              17,
-              18,
-              LINE,
+        t.test('it formats a ParseError', async (t: Test) => {
+          t.matchSnapshot(
+            formatter.format(
+              new ParseError([
+                new SyntaxError(
+                  'expected )',
+                  FILENAME,
+                  isLine,
+                  100,
+                  22,
+                  23,
+                  line,
+                ),
+                new SyntaxWarning(
+                  'identifier has no sigil',
+                  FILENAME,
+                  isLine,
+                  100,
+                  17,
+                  18,
+                  line,
+                ),
+              ]),
             ),
-          ]),
-        ),
-      );
-    });
+          );
+        });
+
+        t.test('it formats a SyntaxWarning', async (t: Test) => {
+          t.matchSnapshot(
+            formatter.format(
+              new SyntaxWarning(
+                'expected )',
+                FILENAME,
+                isLine,
+                100,
+                22,
+                23,
+                line,
+              ),
+            ),
+          );
+        });
+
+        t.test('it formats a ParseWarning', async (t: Test) => {
+          t.matchSnapshot(
+            formatter.format(
+              new ParseWarning([
+                new SyntaxWarning(
+                  'identifier has no sigil',
+                  FILENAME,
+                  isLine,
+                  100,
+                  17,
+                  18,
+                  line,
+                ),
+              ]),
+            ),
+          );
+        });
+      });
+    }
 
     t.test('it formats a BaseFault', async (t: Test) => {
       t.matchSnapshot(formatter.format(new BaseFault('message', TRACEBACK)));

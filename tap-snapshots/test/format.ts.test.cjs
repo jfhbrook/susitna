@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:182:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:212:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -67,28 +67,13 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number >
 12345
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseError > must match snapshot 1`] = `
-/home/josh/script.bas:100:22: error: expected )
-  100 print someFn(ident
-                       ^
-/home/josh/script.bas:100:17: warning: identifier has no sigil
-  100 print someFn(ident
-                  ^
-`
-
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ParseWarning > must match snapshot 1`] = `
-/home/josh/script.bas:100:17: warning: identifier has no sigil
-  100 print someFn(ident
-                  ^
-`
-
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
 === RUNTIME FAULT ===
 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:186:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:216:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
@@ -122,18 +107,6 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a string >
 hello
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxError > must match snapshot 1`] = `
-/home/josh/script.bas:100:22: error: expected )
-  100 print someFn(ident
-                       ^
-`
-
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a SyntaxWarning > must match snapshot 1`] = `
-/home/josh/script.bas:100:22: warning: expected )
-  100 print someFn(ident
-                       ^
-`
-
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
@@ -157,4 +130,58 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError
 Traceback:
   File '/home/josh/script.bas', line 100
 OsError EADDRINUSE: message
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a ParseError > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: error: expected )
+  100 print someFn(ident
+                       ^
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  100 print someFn(ident
+                  ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a ParseWarning > must match snapshot 1`] = `
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  100 print someFn(ident
+                  ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a SyntaxError > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: error: expected )
+  100 print someFn(ident
+                       ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a SyntaxWarning > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: warning: expected )
+  100 print someFn(ident
+                       ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a ParseError > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: error: expected )
+  print someFn(ident
+                       ^
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  print someFn(ident
+                  ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a ParseWarning > must match snapshot 1`] = `
+/home/josh/script.bas:100:17: warning: identifier has no sigil
+  print someFn(ident
+                  ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a SyntaxError > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: error: expected )
+  print someFn(ident
+                       ^
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a SyntaxWarning > must match snapshot 1`] = `
+/home/josh/script.bas:100:22: warning: expected )
+  print someFn(ident
+                       ^
 `

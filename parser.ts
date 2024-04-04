@@ -31,13 +31,14 @@ class Parser {
   private current: Token | null = null;
   private next: Token | null = null;
 
+  private unfinishedErrors: Array<SyntaxError | SyntaxWarning> = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
   private isProgram: boolean = false;
   private isLine: boolean = false;
   private lineNo: number | null = null;
-  // private line: string = '';
+  private line: string = '';
 
   constructor(
     source: string,
@@ -113,13 +114,7 @@ class Parser {
       this.current = this.scanner.nextToken();
     }
 
-    /*
-    if (this.previous.kind === TokenKind.LineEnding) {
-      this.line = '';
-    } else {
-      this.line = this.previous!.value as string;
-    }
-    */
+    this.line = this.previous!.value as string;
 
     return this.previous;
   }
@@ -156,7 +151,7 @@ class Parser {
       '',
     );
     this.isError = true;
-    this.errors.push(exc);
+    this.unfinishedErrors.push(exc);
   }
 
   private rows(): Array<Line | Cmd[]> {
@@ -171,6 +166,19 @@ class Parser {
   }
 
   private row(): Line | Cmd[] | null {
+    let lineNo = this.lineNumber();
+
+    let cmds = this.commands();
+
+    this.rowEnding();
+
+    if (lineNo !== null) {
+      return new Line(this.lineNo, cmds);
+    }
+    return cmds;
+  }
+
+  private lineNumber(): number | null {
     if (this.match(TokenKind.DecimalLiteral)) {
       const lineNo = this.previous!.value as number;
       if (lineNo < 1) {
@@ -187,23 +195,26 @@ class Parser {
       return null;
     }
 
-    let cmds = this.commands();
+    return this.lineNo;
+  }
 
-    if (this.peek().kind === TokenKind.LineEnding) {
-      this.advance();
-    } else {
+  private rowEnding(): void {
+    for (let error of this.unfinishedErrors) {
+      error.source = this.line;
+      this.errors.push(error);
+    }
+
+    this.unfinishedErrors = [];
+
+    if (!this.match(TokenKind.LineEnding)) {
       const res = this.consume(TokenKind.Eof, 'Expected end of line');
       if (res instanceof Err) {
         throw RuntimeFault.fromException(res.error);
       }
     }
 
+    this.line = '';
     this.isLine = false;
-
-    if (this.isLine) {
-      return new Line(this.lineNo, cmds);
-    }
-    return cmds;
   }
 
   private syncNextCommand() {
@@ -285,7 +296,6 @@ class Parser {
       for (let warn of this.previous.warnings) {
         warn.isLine = this.isLine;
         warn.lineNo = this.lineNo;
-        // warn.source = this.line;
         this.errors.push(warn);
         this.isWarning = true;
       }

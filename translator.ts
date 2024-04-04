@@ -3,8 +3,8 @@ import { Commander } from './commander';
 import { Host } from './host';
 import { BaseException } from './exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
-
-import { scanTokens } from './test/helpers/scanner';
+import { parseInput } from './parser';
+import { Result, Ok, Err, Warn } from './result';
 
 export class Translator {
   constructor(
@@ -45,17 +45,31 @@ export class Translator {
   }
 
   async translate(input: string): Promise<void> {
-    let tokens = [];
     try {
-      tokens = scanTokens(input);
+      const result = parseInput(input);
+
+      if (result instanceof Err) {
+        this.host.writeException(result.error);
+      } else if (result instanceof Warn) {
+        this.host.writeWarn(result.warning);
+      } else if (result instanceof Ok) {
+        this.host.writeInfo(result.result);
+      }
     } catch (err) {
-      console.error(err);
+      // TODO: Temporary for debugging
+      if (err instanceof RuntimeFault) {
+        this.host.writeException(err);
+        return;
+      }
+
+      if (err instanceof BaseFault) {
+        this.host.writeException(err);
+        return;
+      }
+
+      throw err;
     }
-    if (tokens.length) {
-      console.log(tokens);
-    }
-    // TODO: Scan the line into tokens
-    // TODO: Parse the tokens into a Line | Command
+
     // TODO: If it's a Line, pass it to the Editor
     // TODO: If it's a Command, pass it to the Commander
   }

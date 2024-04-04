@@ -11,3 +11,4 @@ import { Test } from 'tap';
 // TODO: multi-line mixed inputs
 // TODO: multi-line numbered inputs with parseProgram
 // TODO: multi-line mixed inputs with parseProgram
+// TODO: multi-line input with a negative valued line

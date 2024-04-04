@@ -40,7 +40,7 @@ class Parser {
   // private line: string = '';
 
   constructor(
-    private source: string,
+    source: string,
     private filename: string = '<unknown>',
   ) {
     this.scanner = new Scanner(source, filename);
@@ -224,33 +224,49 @@ class Parser {
   }
 
   private commands(): Cmd[] {
-    const cmds: Cmd[] = [this.command()];
+    let cmd: Cmd | null = this.command();
+    const cmds: Cmd[] = cmd ? [cmd] : [];
 
     while (this.match(TokenKind.Colon)) {
-      cmds.push(this.command());
+      cmd = this.command();
+      if (cmd) {
+        cmds.push(cmd);
+      }
     }
 
     return cmds;
   }
 
-  private command(): Cmd {
+  private command(): Cmd | null {
     if (this.match(TokenKind.Print)) {
       return this.print();
     } else {
-      return new Expression(this.expr());
+      return this.expression();
     }
   }
 
   // TODO: What's the syntax of print? lol
-  private print(): Cmd {
-    return new Print(this.expr());
+  private print(): Cmd | null {
+    const expr = this.expr();
+    if (expr) {
+      return new Print(this.expr());
+    }
+    return null;
   }
 
-  private expr(): Expr {
+  private expression(): Cmd | null {
+    const expr = this.expr();
+    if (expr) {
+      return new Expression(this.expr());
+    }
+    return null;
+  }
+
+  private expr(): Expr | null {
     return this.primary();
   }
 
-  private primary(): Expr {
+  private primary(): Expr | null {
     if (
       this.match(
         TokenKind.DecimalLiteral,
@@ -266,6 +282,11 @@ class Parser {
       return new BooleanLiteral(this.previous.value as boolean);
     } else if (this.match(TokenKind.StringLiteral)) {
       return new StringLiteral(this.previous.value as string);
+    } else {
+      const token = this.peek();
+      this.syntaxError(token, 'Unexpected token');
+      this.syncNextCommand();
+      return null;
     }
   }
 }

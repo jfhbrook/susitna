@@ -1,4 +1,4 @@
-import { Program } from './internal';
+import { Program } from './ast';
 
 // For now, roughly corresponds to PJ Brown's pre-run module. In the future,
 // will compile to bytecode.

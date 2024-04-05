@@ -353,11 +353,11 @@ export class DefaultFormatter extends Formatter {
 
   visitLineTree(line: Line): string {
     let formatted = `Line(${line.lineNo}) [\n`;
-    let cmds: string[] = [];
-    for (let cmd of line.commands) {
+    const cmds: string[] = [];
+    for (const cmd of line.commands) {
       cmds.push(this.format(cmd));
     }
-    for (let cmd of cmds) {
+    for (const cmd of cmds) {
       formatted += indent(1, `${cmd},\n`);
     }
     formatted += ']';
@@ -374,11 +374,11 @@ export class DefaultFormatter extends Formatter {
 
   visitProgramTree(program: Program): string {
     let formatted = 'Program(\n';
-    let lines: string[] = [];
-    for (let line of program.lines) {
+    const lines: string[] = [];
+    for (const line of program.lines) {
       lines.push(indent(1, this.format(line)));
     }
-    for (let line of lines) {
+    for (const line of lines) {
       formatted += `${line},\n`;
     }
     formatted += ')';
@@ -406,7 +406,7 @@ export class DefaultFormatter extends Formatter {
     formatted += `  text: ${inspectString(token.text)},\n`;
     if (token.warnings.length) {
       formatted += '  warnings:\n';
-      for (let warning of token.warnings) {
+      for (const warning of token.warnings) {
         formatted += indent(2, `${this.format(warning)}\n`);
       }
     }
@@ -437,7 +437,7 @@ export class DefaultFormatter extends Formatter {
     return inspectString(node.value);
   }
 
-  visitNilLiteralExpr(node: NilLiteral): string {
+  visitNilLiteralExpr(_node: NilLiteral): string {
     return 'nil';
   }
 

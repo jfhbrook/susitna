@@ -5,7 +5,7 @@ import { formatter } from './format';
 //
 // Active tracers.
 //
-let TRACERS: Record<string, Tracer> = {};
+const TRACERS: Record<string, Tracer> = {};
 
 /**
  * A debug tracer. Used for internal development.
@@ -50,7 +50,7 @@ export class Tracer {
       msg = formatter.format(message).split('\n');
     }
 
-    for (let arg of args) {
+    for (const arg of args) {
       const formatted = formatter.format(arg);
       const sp = formatted.split('\n');
       if (sp.length) {
@@ -58,7 +58,7 @@ export class Tracer {
         msg = msg.concat(sp);
       }
     }
-    for (let row of msg) {
+    for (const row of msg) {
       console.log(prefix + row);
     }
   }
@@ -78,11 +78,11 @@ export class Tracer {
  * A no-op tracer. Returned by getTracer calls in release builds.
  */
 export class NoopTracer extends Tracer {
-  open(name: string): void {}
+  open(_name: string): void {}
 
   close(): void {}
 
-  trace(message: any, ...args: any[]): void {}
+  trace(_message: any, ..._args: any[]): void {}
 
   destroy(): void {}
 }
@@ -93,7 +93,7 @@ export class NoopTracer extends Tracer {
  * @param message The message to log.
  * @param ...args Additional arguments passed to `console.log`.
  */
-let trace = function trace(message: any, ...args: any[]): void {};
+let trace = function trace(_message: any, ..._args: any[]): void {};
 
 /**
  * Run an async function inside a new span.
@@ -103,7 +103,7 @@ let trace = function trace(message: any, ...args: any[]): void {};
  * @returns The return value of the async function.
  */
 let span = async function span<T>(
-  name: string,
+  _name: string,
   fn: () => Promise<T>,
 ): Promise<T> {
   return fn();
@@ -116,7 +116,7 @@ let span = async function span<T>(
  * @param fn A function to run inside the span.
  * @returns The return value of the function.
  */
-let spanSync = function spanSync<T>(name: string, fn: () => T): T {
+let spanSync = function spanSync<T>(_name: string, fn: () => T): T {
   return fn();
 };
 
@@ -128,7 +128,7 @@ let NOOP_TRACER = null;
  *
  * @paran name The name of the child tracer.
  */
-let getTracer = function getTracer(name: string): Tracer {
+let getTracer = function getTracer(_name: string): Tracer {
   if (!NOOP_TRACER) {
     NOOP_TRACER = new NoopTracer();
   }

@@ -36,7 +36,7 @@ export class Runtime
   visitCommandGroupTree(group: CommandGroup): RuntimeResult {
     return spanSync('execute command group', () => {
       let rv: RuntimeResult = new Ok(null);
-      for (let cmd of group.commands) {
+      for (const cmd of group.commands) {
         trace('command', cmd);
         rv = cmd.accept(this);
         if (rv instanceof Err) {
@@ -52,7 +52,7 @@ export class Runtime
       this.lineNo = line.lineNo;
       this.isLine = true;
       let rv: RuntimeResult = new Ok(null);
-      for (let cmd of line.commands) {
+      for (const cmd of line.commands) {
         rv = cmd.accept(this);
         if (rv instanceof Err) {
           return rv;
@@ -66,7 +66,7 @@ export class Runtime
   visitInputTree(input: Input): RuntimeResult {
     return spanSync('execute input', () => {
       let rv: RuntimeResult = new Ok(null);
-      for (let row of input.input) {
+      for (const row of input.input) {
         trace('row', row);
         rv = row.accept(this);
         if (rv instanceof Err) {
@@ -77,7 +77,7 @@ export class Runtime
     });
   }
 
-  visitProgramTree(program: Program): RuntimeResult {
+  visitProgramTree(_program: Program): RuntimeResult {
     return spanSync('execute program', () => {
       return new Err(
         null,
@@ -97,7 +97,7 @@ export class Runtime
 
   visitPrintCmd(print: Print): RuntimeResult {
     const expr = print.expression;
-    let value = expr.accept(this);
+    const value = expr.accept(this);
 
     if (value instanceof Err) {
       return value;

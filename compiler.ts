@@ -1,5 +1,5 @@
 import { Exception } from './exceptions';
-import { Result, Ok, Err } from './result';
+import { Result, Ok } from './result';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Cmd, CmdVisitor, Expression, Print } from './ast/cmd';
 import {

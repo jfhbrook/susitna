@@ -43,7 +43,7 @@ export enum ErrorCode {
  * @param name The name of the error.
  * @returns a decorator of Error classes.
  */
-export function errorType<E extends any>(name: string) {
+export function errorType<E>(name: string) {
   return function (cls: E): E {
     (cls as any).prototype.name = name;
     return cls;

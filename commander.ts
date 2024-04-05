@@ -1,20 +1,15 @@
-import { AssertionError } from 'assert';
 import * as readline from 'node:readline/promises';
 
-import { trace, span } from './trace';
+import { span } from './trace';
 import { Compiler } from './compiler';
 import { Config } from './config';
-import { RuntimeFault, NotImplementedFault } from './faults';
 import { formatter } from './format';
 import { Host } from './host';
 import { Runtime, RuntimeResult } from './runtime';
-import { Result, Ok, Err, Warn } from './result';
+import { Ok, Err, Warn } from './result';
 import { renderPrompt } from './shell';
-import { Value, nil } from './value';
 
-import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
-import { Cmd, Print, Expression } from './ast/cmd';
-import { NilLiteral } from './ast/expr';
+import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 
 export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   private compiler: Compiler;
@@ -24,7 +19,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   private ps1: string = '\\u@\\h:\\w\\$';
 
   constructor(
-    private config: Config,
+    private _config: Config,
     private host: Host,
   ) {
     this.compiler = new Compiler();
@@ -82,7 +77,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
-        p = new Promise((resolve, reject) => {
+        p = new Promise((resolve, _reject) => {
           this._readline.once('close', () => resolve());
         });
 
@@ -196,7 +191,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   }
 
   // Add the line to the editor.
-  async visitLineTree(line: Line): Promise<RuntimeResult> {
+  async visitLineTree(_line: Line): Promise<RuntimeResult> {
     return span('eval line', async () => {
       console.log('TODO: Add line to editor');
       return new Ok(null);
@@ -207,7 +202,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   async visitInputTree(input: Input): Promise<RuntimeResult> {
     return span('eval input', async () => {
       let result: RuntimeResult;
-      for (let row of input.input) {
+      for (const row of input.input) {
         result = await row.accept(this);
       }
       return result;

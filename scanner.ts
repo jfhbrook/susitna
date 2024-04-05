@@ -334,7 +334,7 @@ export class Scanner {
       }
     }
 
-    for (let warn of warnings) {
+    for (const warn of warnings) {
       warn.message += ` in string ${quoteChar}${value}${quoteChar}`;
     }
 

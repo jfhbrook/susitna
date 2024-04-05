@@ -4,13 +4,11 @@ import { readFile } from 'fs/promises';
 import { trace, span } from './trace';
 import { Config } from './config';
 import { Commander } from './commander';
-import { formatter } from './format';
 import { Host } from './host';
 import { BaseException } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
 import { parseInput, parseProgram } from './parser';
 import { Ok, Err, Warn } from './result';
-import { Line } from './ast';
 
 export class Translator {
   constructor(
@@ -22,7 +20,7 @@ export class Translator {
   async script(filename: string) {
     const source: string = await readFile(filename, 'utf8');
     const result = parseProgram(source, filename);
-    for (let line of result.result.lines) {
+    for (const line of result.result.lines) {
       console.log(line);
     }
   }

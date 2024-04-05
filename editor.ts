@@ -13,14 +13,12 @@ export class Editor {
     return new Line(lineNo, []);
   }
 
-  setLine(line: Line): void {
-    const lineNo = line[0] as number;
-  }
+  setLine(_line: Line): void {}
 
-  deleteLine(lineNo: number): void {}
+  deleteLine(_lineNo: number): void {}
 
   // a program may be loaded entirely from scratch. this would involve
   // completely replacing lines within the program, as well as re-initializing
   // the environment and other lookups.
-  load(lines: Line[]): void {}
+  load(_program: Program): void {}
 }

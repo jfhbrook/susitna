@@ -16,47 +16,47 @@ export class Recreator
     return tree.accept(this);
   }
 
-  visitCommandGroupTree(group: CommandGroup): string {
+  visitCommandGroupTree(_group: CommandGroup): string {
     return '';
   }
 
-  visitLineTree(line: Line): string {
+  visitLineTree(_line: Line): string {
     return '';
   }
 
-  visitInputTree(input: Input): string {
+  visitInputTree(_input: Input): string {
     return '';
   }
 
-  visitProgramTree(program: Program): string {
+  visitProgramTree(_program: Program): string {
     return '';
   }
 
-  visitExpressionCmd(expression: Expression): string {
+  visitExpressionCmd(_expression: Expression): string {
     return '';
   }
 
-  visitPrintCmd(print: Print): string {
+  visitPrintCmd(_print: Print): string {
     return '';
   }
 
-  visitIntLiteralExpr(int: IntLiteral): string {
+  visitIntLiteralExpr(_int: IntLiteral): string {
     return '';
   }
 
-  visitRealLiteralExpr(real: RealLiteral): string {
+  visitRealLiteralExpr(_real: RealLiteral): string {
     return '';
   }
 
-  visitBoolLiteralExpr(bool: BoolLiteral): string {
+  visitBoolLiteralExpr(_bool: BoolLiteral): string {
     return '';
   }
 
-  visitStringLiteralExpr(string: StringLiteral): string {
+  visitStringLiteralExpr(_string: StringLiteral): string {
     return '';
   }
 
-  visitNilLiteralExpr(nil: NilLiteral): string {
+  visitNilLiteralExpr(_nil: NilLiteral): string {
     return '';
   }
 }

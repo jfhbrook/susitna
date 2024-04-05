@@ -107,7 +107,7 @@ class Parser {
 
   private match(...kinds: TokenKind[]): boolean {
     trace(`match ${kinds.join(' ')}`);
-    for (let kind of kinds) {
+    for (const kind of kinds) {
       if (this.check(kind)) {
         this.advance();
         return true;
@@ -265,7 +265,7 @@ class Parser {
       if (line.endsWith('\n')) {
         line = line.slice(0, -1);
       }
-      for (let error of this.lineErrors) {
+      for (const error of this.lineErrors) {
         trace('set source to line', line);
         error.source = line;
         this.errors.push(error);
@@ -399,7 +399,7 @@ class Parser {
       } else if (this.match(TokenKind.FalseLiteral)) {
         return new BoolLiteral(false);
       } else if (this.match(TokenKind.StringLiteral)) {
-        for (let warn of this.previous.warnings) {
+        for (const warn of this.previous.warnings) {
           warn.isLine = this.isLine;
           warn.lineNo = this.lineNo;
           this.lineErrors.push(warn);

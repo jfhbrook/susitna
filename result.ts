@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export abstract class Result<T, E, W = unknown> {
   constructor(public result: T) {}
 }

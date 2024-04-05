@@ -2,7 +2,7 @@ import { BaseException } from './exceptions';
 import { Formattable, Formatter } from './format';
 
 export class Nil implements Formattable {
-  format(formatter: Formatter): string {
+  format(_formatter: Formatter): string {
     return 'nil';
   }
 }

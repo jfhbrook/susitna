@@ -18,7 +18,8 @@
     "lint": "eslint \"**.ts\" --fix",
     "test": "npm run build:versions && NO_TRACE=1 tap ./test/*.ts",
     "snap": "npm run build:versions && npm run format && NO_TRACE=1 tap ./test/*.ts --snapshot",
-    "console": "npm run build && ts-node"
+    "console": "npm run build && ts-node",
+    "prepare": "husky"
   },
   "keywords": [
     "basic",
@@ -44,6 +45,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "exercise-bike": "^2.0.1",
+    "husky": "^9.0.11",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "tap": "^18.6.1",

@@ -52,22 +52,22 @@ export class Translator {
 
   async translate(input: string): Promise<void> {
     await span('translate', async () => {
-      const result = parseInput(input);
+      const parseResult = parseInput(input);
 
-      if (result instanceof Err) {
-        this.host.writeException(result.error);
+      if (parseResult instanceof Err) {
+        this.host.writeException(parseResult.error);
         return;
       }
 
-      if (result instanceof Warn) {
-        this.host.writeWarn(result.warning);
+      if (parseResult instanceof Warn) {
+        this.host.writeWarn(parseResult.warning);
       }
 
-      if (!(result instanceof Ok)) {
+      if (!(parseResult instanceof Ok)) {
         throw RuntimeFault.fromError(
           new AssertionError({
             message: 'Result is not Ok',
-            actual: typeof result,
+            actual: typeof parseResult,
             expected: 'Ok',
             operator: 'instanceof',
           }),
@@ -75,13 +75,9 @@ export class Translator {
         );
       }
 
-      trace('parse result', result.result);
+      trace('parse result', parseResult.result);
 
-      let value = await this.commander.evalInput(result.result);
-
-      if (value) {
-        this.host.writeOut(formatter.format(value) + '\n');
-      }
+      await this.commander.eval(parseResult.result);
     });
   }
 }

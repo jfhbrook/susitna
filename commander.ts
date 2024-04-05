@@ -1,18 +1,24 @@
 import { AssertionError } from 'assert';
 import * as readline from 'node:readline/promises';
 
-import { span } from './trace';
+import { trace, span } from './trace';
+import { Compiler } from './compiler';
 import { Config } from './config';
-import { RuntimeFault } from './faults';
+import { RuntimeFault, NotImplementedFault } from './faults';
 import { formatter } from './format';
 import { Host } from './host';
+import { Runtime, RuntimeResult } from './runtime';
+import { Result, Ok, Err, Warn } from './result';
 import { renderPrompt } from './shell';
 import { Value, nil } from './value';
+
+import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Cmd, Print, Expression } from './ast/cmd';
 import { NilLiteral } from './ast/expr';
-import { Line, Input, Program } from './ast';
 
-export class Commander {
+export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
+  private compiler: Compiler;
+  private runtime: Runtime;
   private _readline: readline.Interface | null;
 
   private ps1: string = '\\u@\\h:\\w\\$';
@@ -21,6 +27,8 @@ export class Commander {
     private config: Config,
     private host: Host,
   ) {
+    this.compiler = new Compiler();
+    this.runtime = new Runtime(host);
     this._readline = null;
   }
 
@@ -144,57 +152,72 @@ export class Commander {
   }
 
   /**
-   * Evaluate input.
+   * Evaluate input or a program.
    *
-   * @param input Input.
+   * @param tree An input or program to evaluate.
    */
-  async evalInput(input: Input): Promise<Value | null> {
-    let result: Value | null;
-    for (let row of input.input) {
-      if (row instanceof Line) {
-        console.log('TODO: write line to Editor');
-      } else {
-        for (let cmd of row.commands) {
-          result = await this.evalCommand(cmd);
-        }
+  async eval(tree: Input | Program): Promise<void> {
+    return span('eval', async () => {
+      const compilerResult = this.compiler.compile(tree);
+
+      if (compilerResult instanceof Err) {
+        this.host.writeException(compilerResult.error);
+        return null;
       }
-    }
-    return result;
+
+      if (compilerResult instanceof Warn) {
+        this.host.writeWarn(compilerResult.warning);
+      }
+
+      const compiled = compilerResult.result;
+
+      const evalResult = await compiled.accept(this);
+
+      if (evalResult instanceof Err) {
+        this.host.writeException(formatter.format(evalResult.error));
+        return;
+      }
+
+      if (evalResult instanceof Warn) {
+        this.host.writeWarn(formatter.format(evalResult.warning));
+      }
+
+      if (typeof evalResult.result !== 'undefined') {
+        this.host.writeOut(formatter.format(evalResult.result) + '\n');
+      }
+    });
   }
 
-  /**
-   * Evaluate a command.
-   *
-   * @param cmd A command.
-   */
-  async evalCommand(cmd: Cmd): Promise<Value | undefined> {
-    return await span('Commander.evalCommand', async () => {
-      if (cmd instanceof Print) {
-        const expr = cmd.expression;
-        let value = (expr as any).value;
-        if (expr instanceof NilLiteral) {
-          value = nil;
-        }
-        this.host.writeOut(formatter.format(value) + '\n');
-        return undefined;
-      } else if (cmd instanceof Expression) {
-        const expr = cmd.expression;
-        let value = (expr as any).value;
-        if (expr instanceof NilLiteral) {
-          value = nil;
-        }
-        return value;
-      } else {
-        throw RuntimeFault.fromError(
-          new AssertionError({
-            message: 'Unknown command',
-            actual: cmd,
-            expected: 'Print | Expression',
-            operator: 'instanceof',
-          }),
-          null,
-        );
+  // Evaluate the group of commands.
+  async visitCommandGroupTree(group: CommandGroup): Promise<RuntimeResult> {
+    return span('eval command group', async () => {
+      return group.accept(this.runtime);
+    });
+  }
+
+  // Add the line to the editor.
+  async visitLineTree(line: Line): Promise<RuntimeResult> {
+    return span('eval line', async () => {
+      console.log('TODO: Add line to editor');
+      return new Ok(null);
+    });
+  }
+
+  // Visit each row (a Line or CommandGroup) in the input.
+  async visitInputTree(input: Input): Promise<RuntimeResult> {
+    return span('eval input', async () => {
+      let result: RuntimeResult;
+      for (let row of input.input) {
+        result = await row.accept(this);
       }
+      return result;
+    });
+  }
+
+  // Evaluate the program.
+  async visitProgramTree(program: Program): Promise<RuntimeResult> {
+    return span('eval program', async () => {
+      return program.accept(this.runtime);
     });
   }
 }

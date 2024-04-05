@@ -1,5 +1,5 @@
 import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
-import { Cmd, CmdVisitor, Expression, Print } from './ast/cmd';
+import { CmdVisitor, Expression, Print } from './ast/cmd';
 import {
   ExprVisitor,
   IntLiteral,
@@ -12,10 +12,7 @@ import {
 export class Recreator
   implements TreeVisitor<string>, CmdVisitor<string>, ExprVisitor<string>
 {
-  recreate(tree: Cmd[] | Line | Program): string {
-    if (Array.isArray(tree)) {
-      return tree.map((cmd) => cmd.accept(this)).join('\n');
-    }
+  recreate(tree: Input | Line | Program): string {
     return tree.accept(this);
   }
 

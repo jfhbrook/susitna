@@ -14,7 +14,7 @@ import { parseInput, parseProgram } from '../parser';
 import { Result, Ok, Err, Warn } from '../result';
 
 const LITERALS: Array<[string, Cmd]> = [
-  ['1', new Expression(new IntLiteral(1))],
+  // NOTE: '1' parses as a line number.
   ['0xff', new Expression(new IntLiteral(255))],
   ['0o755', new Expression(new IntLiteral(493))],
   ['0b01', new Expression(new IntLiteral(1))],
@@ -24,13 +24,13 @@ const LITERALS: Array<[string, Cmd]> = [
   ['"hello world"', new Expression(new StringLiteral('hello world'))],
 ];
 
-for (let [source, ast] of LITERALS) {
-  t.skip(`non-numbered literal expression ${source}`, async (t: Test) => {
+for (let [source, cmd] of LITERALS) {
+  t.test(`non-numbered literal expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
     t.type(result, Ok);
 
-    t.same(result.result, ast);
+    t.same(result.result, [[cmd]]);
   });
 }
 

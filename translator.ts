@@ -53,7 +53,8 @@ export class Translator {
       } else if (result instanceof Warn) {
         this.host.writeWarn(result.warning);
       } else if (result instanceof Ok) {
-        this.host.writeInfo(result.result);
+        console.log(result.result);
+        // this.host.writeInfo(result.result);
       }
     } catch (err) {
       // TODO: Temporary for debugging

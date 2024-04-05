@@ -39,13 +39,33 @@ export class Tracer {
     let prefix = `TRACE <${this.name}> `;
     if (this.spans) {
       for (let i = 0; i < this.spans; i++) {
-        prefix += ': ';
+        prefix += '| ';
       }
       prefix += '|- ';
     }
-    const msg: string[] = inspect(message).split('\n');
+
+    let msg: string[];
+    if (typeof message === 'string') {
+      msg = message.split('\n');
+    } else {
+      msg = inspect(message).split('\n');
+    }
+
+    for (let arg of args) {
+      let inspected: string;
+      if (typeof arg === 'string') {
+        inspected = arg;
+      } else {
+        inspected = inspect(arg);
+      }
+      const sp = inspected.split('\n');
+      if (sp.length) {
+        msg[msg.length - 1] += ' ' + sp.shift();
+        msg = msg.concat(sp);
+      }
+    }
     for (let row of msg) {
-      console.log(prefix + row, ...args);
+      console.log(prefix + row);
     }
   }
 

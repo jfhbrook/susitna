@@ -38,9 +38,8 @@ class Synchronize extends Error {
 class Parser {
   private scanner: Scanner;
 
-  private previous: Token | null = null;
-  private current: Token | null = null;
-  private next: Token | null = null;
+  private previous: Token | null;
+  private current: Token;
 
   private unfinishedErrors: Array<SyntaxError | SyntaxWarning> = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
@@ -56,6 +55,8 @@ class Parser {
     private filename: string = '<unknown>',
   ) {
     this.scanner = new Scanner(source, filename);
+    this.current = this.scanner.nextToken();
+    trace('current', this.current);
   }
 
   /**
@@ -65,16 +66,18 @@ class Parser {
    */
   @runtimeMethod
   public parseInput(): Result<Row[], ParseError, ParseWarning> {
-    const result = this.rows();
+    return spanSync('parseInput', () => {
+      const result = this.rows();
 
-    if (this.isError) {
-      return new Err(result, new ParseError(this.errors));
-    } else if (this.isWarning) {
-      const warnings = this.errors as unknown as SyntaxWarning[];
-      return new Warn(result, new ParseWarning(warnings));
-    }
+      if (this.isError) {
+        return new Err(result, new ParseError(this.errors));
+      } else if (this.isWarning) {
+        const warnings = this.errors as unknown as SyntaxWarning[];
+        return new Warn(result, new ParseWarning(warnings));
+      }
 
-    return new Ok(result);
+      return new Ok(result);
+    });
   }
 
   /**
@@ -84,22 +87,25 @@ class Parser {
    */
   @runtimeMethod
   public parseProgram(): Result<Program, ParseError, ParseWarning> {
-    this.isProgram = true;
+    return spanSync('parseProgram', () => {
+      this.isProgram = true;
 
-    const result = this.rows();
-    const program = new Program(result as Line[]);
+      const result = this.rows();
+      const program = new Program(result as Line[]);
 
-    if (this.isError) {
-      return new Err(program, new ParseError(this.errors));
-    } else if (this.isWarning) {
-      const warnings = this.errors as unknown as SyntaxWarning[];
-      return new Warn(program, new ParseWarning(warnings));
-    }
+      if (this.isError) {
+        return new Err(program, new ParseError(this.errors));
+      } else if (this.isWarning) {
+        const warnings = this.errors as unknown as SyntaxWarning[];
+        return new Warn(program, new ParseWarning(warnings));
+      }
 
-    return new Ok(program);
+      return new Ok(program);
+    });
   }
 
   private match(...kinds: TokenKind[]): boolean {
+    trace(`match ${kinds.join(' ')}`);
     for (let kind of kinds) {
       if (this.check(kind)) {
         this.advance();
@@ -111,6 +117,7 @@ class Parser {
   }
 
   private check(kind: TokenKind): boolean {
+    trace(`check ${kind}`);
     if (this.done) {
       return kind === TokenKind.Eof;
     }
@@ -118,239 +125,283 @@ class Parser {
   }
 
   private advance(): Token | null {
-    this.previous = this.current;
-
-    if (this.next) {
-      this.current = this.next;
-      this.next = null;
-    } else {
+    return spanSync('advance', () => {
+      this.previous = this.current;
       this.current = this.scanner.nextToken();
-    }
 
-    this.line += this.current!.value as string;
+      this.line += this.current!.text;
 
-    if (this.current.kind === TokenKind.Whitespace) {
-      return this.advance();
-    }
+      if (this.current.kind === TokenKind.Whitespace) {
+        return this.advance();
+      }
 
-    if (this.current.kind === TokenKind.Illegal) {
-      this.syntaxError(this.current, `Illegal token ${this.current.text}`);
-    }
+      if (this.current.kind === TokenKind.Illegal) {
+        this.syntaxError(this.current, `Illegal token ${this.current.text}`);
+      }
 
-    return this.previous;
+      trace('previous', this.previous ? this.previous.text : null);
+      trace('current', this.current ? this.current.text : null);
+      trace('line', this.line);
+
+      return this.previous;
+    });
   }
 
   private get done(): boolean {
-    return this.peek().kind == TokenKind.Eof;
+    return spanSync('done', () => {
+      return this.peek().kind == TokenKind.Eof;
+    });
   }
 
   private peek(): Token {
-    if (!this.next) {
-      this.next = this.scanner.nextToken();
-    }
-    return this.next;
+    trace(`peek (${this.current.kind})`);
+    return this.current;
   }
 
   private consume(
     kind: TokenKind,
     message: string,
   ): Result<Token, SyntaxError, SyntaxWarning> {
-    if (this.check(kind)) return new Ok(this.advance());
-    const token: Token = this.peek();
-    return new Err(token, this.syntaxError(token, message));
+    return spanSync('consume', () => {
+      trace('kind', kind);
+      if (this.check(kind)) return new Ok(this.advance());
+      trace('failure:', message);
+      const token: Token = this.peek();
+      return new Err(token, this.syntaxError(token, message));
+    });
   }
 
   private syntaxError(token: Token, message: string): void {
-    const exc = new SyntaxError(
-      message,
-      this.filename,
-      token.row,
-      this.isLine,
-      this.lineNo,
-      token.offsetStart,
-      token.offsetEnd,
-      '',
-    );
-    this.isError = true;
-    this.unfinishedErrors.push(exc);
-    throw new Synchronize();
+    return spanSync('syntaxError', () => {
+      trace('kind', token.kind);
+      trace('message', message);
+      const exc = new SyntaxError(
+        message,
+        this.filename,
+        token.row,
+        this.isLine,
+        this.lineNo,
+        token.offsetStart,
+        token.offsetEnd,
+        '',
+      );
+      this.isError = true;
+      this.unfinishedErrors.push(exc);
+      throw new Synchronize();
+    });
   }
 
   private rows(): Row[] {
-    const rows: Row[] = [];
-    while (!this.scanner.done) {
-      const parsed = this.row();
-      if (parsed) {
-        rows.push(parsed);
+    return spanSync('rows', () => {
+      const rows: Row[] = [];
+      while (!this.done) {
+        const parsed = this.row();
+        trace('parsed row', parsed);
+        if (parsed) {
+          rows.push(parsed);
+        }
       }
-    }
-    return rows;
+      return rows;
+    });
   }
 
   private row(): Row | null {
-    let lineNo: number | null;
-    let cmds: Cmd[];
-    try {
-      lineNo = this.lineNumber();
+    return spanSync('row', () => {
+      trace('previous', this.previous);
+      trace('current', this.current);
 
-      cmds = this.commands();
-
-      this.rowEnding();
-    } catch (err) {
-      if (err instanceof Synchronize) {
-        this.syncNextRow();
-        return null;
-      }
-      throw err;
-    }
-
-    if (lineNo !== null) {
-      return new Line(this.lineNo, cmds);
-    }
-    return cmds;
-  }
-
-  private lineNumber(): number | null {
-    if (this.match(TokenKind.DecimalLiteral)) {
-      const lineNo = this.previous!.value as number;
-      if (lineNo < 1) {
-        this.syntaxError(this.previous, 'Line numbers must be positive');
-      } else {
-        this.lineNo = lineNo;
-        this.isLine = true;
-      }
-    } else if (this.isProgram) {
-      this.syntaxError(this.peek(), 'Expected line number');
-    } else {
-      this.lineNo = null;
-      this.isLine = false;
-    }
-
-    return this.lineNo;
-  }
-
-  private rowEnding(): void {
-    for (let error of this.unfinishedErrors) {
-      error.source = this.line;
-      this.errors.push(error);
-    }
-
-    this.unfinishedErrors = [];
-
-    if (!this.match(TokenKind.LineEnding)) {
-      const res = this.consume(TokenKind.Eof, 'Expected end of file');
-      if (res instanceof Err) {
-        throw RuntimeFault.fromException(res.error);
-      }
-    }
-
-    this.line = '';
-    this.isLine = false;
-  }
-
-  private syncNextCommand() {
-    while (
-      ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
-        this.peek().kind,
-      )
-    ) {
-      // TODO: Illegal, UnterminatedString
-      this.advance();
-    }
-  }
-
-  private syncNextRow() {
-    while (![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)) {
-      // TODO: Illegal, UnterminatedString
-      this.advance();
-    }
-    this.rowEnding();
-  }
-
-  private commands(): Cmd[] {
-    if (this.done || this.peek().kind === TokenKind.LineEnding) {
-      return [];
-    }
-
-    let cmd: Cmd | null = this.command();
-    const cmds: Cmd[] = cmd ? [cmd] : [];
-
-    while (this.match(TokenKind.Colon)) {
+      let lineNo: number | null;
+      let cmds: Cmd[];
       try {
-        cmd = this.command();
-        if (cmd) {
-          cmds.push(cmd);
-        }
+        lineNo = this.lineNumber();
+
+        cmds = this.commands();
+
+        this.rowEnding();
       } catch (err) {
         if (err instanceof Synchronize) {
-          this.syncNextCommand();
+          this.syncNextRow();
+          return null;
         }
         throw err;
       }
-    }
 
-    return cmds;
+      if (lineNo !== null) {
+        return new Line(this.lineNo, cmds);
+      }
+      return cmds;
+    });
+  }
+
+  private lineNumber(): number | null {
+    return spanSync('lineNumber', () => {
+      if (this.match(TokenKind.DecimalLiteral)) {
+        const lineNo = this.previous!.value as number;
+        if (lineNo < 1) {
+          this.syntaxError(this.previous, 'Line numbers must be positive');
+        } else {
+          this.lineNo = lineNo;
+          this.isLine = true;
+        }
+      } else if (this.isProgram) {
+        this.syntaxError(this.peek(), 'Expected line number');
+      } else {
+        this.lineNo = null;
+        this.isLine = false;
+      }
+
+      trace('lineNo', this.lineNo);
+
+      return this.lineNo;
+    });
+  }
+
+  private rowEnding(): void {
+    return spanSync('rowEnding', () => {
+      for (let error of this.unfinishedErrors) {
+        error.source = this.line;
+        this.errors.push(error);
+      }
+
+      this.unfinishedErrors = [];
+
+      if (!this.match(TokenKind.LineEnding)) {
+        const res = this.consume(TokenKind.Eof, 'Expected end of file');
+        if (res instanceof Err) {
+          throw RuntimeFault.fromException(res.error);
+        }
+      }
+
+      this.line = '';
+      this.isLine = false;
+    });
+  }
+
+  private syncNextCommand() {
+    return spanSync('syncNextCommand', () => {
+      while (
+        ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
+          this.peek().kind,
+        )
+      ) {
+        // TODO: Illegal, UnterminatedString
+        this.advance();
+      }
+    });
+  }
+
+  private syncNextRow() {
+    return spanSync('syncNextRow', () => {
+      while (
+        ![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)
+      ) {
+        // TODO: Illegal, UnterminatedString
+        this.advance();
+      }
+      this.rowEnding();
+    });
+  }
+
+  private commands(): Cmd[] {
+    return spanSync('commands', () => {
+      trace('previous', this.previous);
+      trace('current', this.current);
+      if (this.done || this.peek().kind === TokenKind.LineEnding) {
+        return [];
+      }
+
+      let cmd: Cmd | null = this.command();
+      const cmds: Cmd[] = cmd ? [cmd] : [];
+
+      while (this.match(TokenKind.Colon)) {
+        try {
+          cmd = this.command();
+          if (cmd) {
+            cmds.push(cmd);
+          }
+        } catch (err) {
+          if (err instanceof Synchronize) {
+            this.syncNextCommand();
+          }
+          throw err;
+        }
+      }
+
+      return cmds;
+    });
   }
 
   private command(): Cmd | null {
-    if (this.match(TokenKind.Print)) {
-      return this.print();
-      // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-    } else {
-      return this.expression();
-    }
+    return spanSync('command', () => {
+      if (this.match(TokenKind.Print)) {
+        return this.print();
+        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+      } else {
+        return this.expression();
+      }
+    });
   }
 
   // TODO: What's the syntax of print? lol
   private print(): Cmd | null {
-    const expr = this.expr();
-    if (expr) {
-      return new Print(this.expr());
-    }
-    return null;
+    return spanSync('print', () => {
+      const expr = this.expr();
+      if (expr) {
+        return new Print(this.expr());
+      }
+      return null;
+    });
   }
 
   private expression(): Cmd | null {
-    const expr = this.expr();
-    if (expr) {
-      return new Expression(this.expr());
-    }
-    return null;
+    return spanSync('expression', () => {
+      const expr = this.expr();
+      if (expr) {
+        return new Expression(expr);
+      }
+      return null;
+    });
   }
 
   private expr(): Expr | null {
-    return this.primary();
+    return spanSync('expr', () => {
+      return this.primary();
+    });
   }
 
   private primary(): Expr | null {
-    // TODO: Illegal, UnterminatedString
-    if (
-      this.match(
-        TokenKind.DecimalLiteral,
-        TokenKind.HexLiteral,
-        TokenKind.OctalLiteral,
-        TokenKind.BinaryLiteral,
-      )
-    ) {
-      return new IntLiteral(this.previous.value as number);
-    } else if (this.match(TokenKind.RealLiteral)) {
-      return new RealLiteral(this.previous.value as number);
-    } else if (this.match(TokenKind.TrueLiteral, TokenKind.FalseLiteral)) {
-      return new BoolLiteral(this.previous.value as boolean);
-    } else if (this.match(TokenKind.StringLiteral)) {
-      for (let warn of this.previous.warnings) {
-        warn.isLine = this.isLine;
-        warn.lineNo = this.lineNo;
-        this.errors.push(warn);
-        this.isWarning = true;
+    return spanSync('primary', () => {
+      // TODO: Illegal, UnterminatedString
+      if (
+        this.match(
+          TokenKind.DecimalLiteral,
+          TokenKind.HexLiteral,
+          TokenKind.OctalLiteral,
+          TokenKind.BinaryLiteral,
+        )
+      ) {
+        return new IntLiteral(this.previous.value as number);
+      } else if (this.match(TokenKind.RealLiteral)) {
+        return new RealLiteral(this.previous.value as number);
+      } else if (this.match(TokenKind.TrueLiteral)) {
+        return new BoolLiteral(true);
+      } else if (this.match(TokenKind.FalseLiteral)) {
+        return new BoolLiteral(false);
+      } else if (this.match(TokenKind.StringLiteral)) {
+        for (let warn of this.previous.warnings) {
+          warn.isLine = this.isLine;
+          warn.lineNo = this.lineNo;
+          this.errors.push(warn);
+          this.isWarning = true;
+        }
+        return new StringLiteral(this.previous.value as string);
+      } else {
+        const token = this.peek();
+        this.syntaxError(token, 'Unexpected token');
+        this.syncNextCommand();
+        return null;
       }
-      return new StringLiteral(this.previous.value as string);
-    } else {
-      const token = this.peek();
-      this.syntaxError(token, 'Unexpected token');
-      this.syncNextCommand();
-      return null;
-    }
+    });
   }
 }
 

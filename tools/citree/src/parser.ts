@@ -87,7 +87,14 @@ const fieldDefinition = apply(
   seq(
     tok(TokenKind.Ident),
     tok(TokenKind.OfType),
-    rep(alt(tok(TokenKind.Ident), tok(TokenKind.Union))),
+    rep(
+      alt(
+        tok(TokenKind.Ident),
+        tok(TokenKind.Union),
+        tok(TokenKind.LBracket),
+        tok(TokenKind.RBracket),
+      ),
+    ),
   ),
   ([ident, _ofType, type]) =>
     `${ident.text}: ${type.map((t) => t.text).join(' ')}`,
@@ -101,7 +108,7 @@ const nodeDefinition: Parser<TokenKind, NodeDefinition> = apply(
         tok(TokenKind.HasFields),
         list_sc(fieldDefinition, tok(TokenKind.Comma)),
       ),
-      tok(TokenKind.Bang)
+      tok(TokenKind.Bang),
     ),
   ),
   ([name, fields]) => {

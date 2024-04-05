@@ -160,8 +160,26 @@ t.test('program with non-numbered input', async (t: Test) => {
   t.matchSnapshot(formatter.format(error));
 });
 
-// TODO: multi-line numbered inputs with parseProgram
-// TODO: multi-line mixed inputs with parseProgram
-// TODO: multi-line input with a negative valued line
-// TODO: illegal tokens scattered in random places in various statements
+// Need to support unary minus
+t.skip('program with a negative line number', async (t: Test) => {
+  const result = parseProgram(
+    '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
+    FILENAME,
+  );
+
+  t.type(result, Err);
+
+  const error = (result as any).error;
+
+  t.same(
+    result.result,
+    new Program([
+      new Line(100, [new Print(new StringLiteral('hello world'))]),
+      new Line(200, [new Print(new StringLiteral('goodbye'))]),
+    ]),
+  );
+  t.matchSnapshot(formatter.format(error));
+});
+
+// TODO: tests with illegal tokens (what is an illegal token?)
 // TODO: a test involving both errors and warnings

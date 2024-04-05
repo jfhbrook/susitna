@@ -20,9 +20,9 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
-import { Line, Program } from './ast';
+import { CommandGroup, Line, Program } from './ast';
 
-export type Row = Line | Cmd[];
+export type Row = Line | CommandGroup;
 
 // The alternative to using exceptions is to set a panicMode flag to ignore
 // emitted errors until we can synchronize. This might be worth trying out
@@ -214,7 +214,7 @@ class Parser {
       trace('current', this.current);
 
       let lineNo: number | null;
-      let cmds: Cmd[];
+      let cmds: CommandGroup;
       try {
         lineNo = this.lineNumber();
 
@@ -230,7 +230,7 @@ class Parser {
       }
 
       if (lineNo !== null) {
-        return new Line(this.lineNo, cmds);
+        return new Line(this.lineNo, cmds.commands);
       }
       return cmds;
     });
@@ -313,12 +313,12 @@ class Parser {
     });
   }
 
-  private commands(): Cmd[] {
+  private commands(): CommandGroup {
     return spanSync('commands', () => {
       trace('previous', this.previous);
       trace('current', this.current);
       if (this.done || this.peek().kind === TokenKind.LineEnding) {
-        return [];
+        return new CommandGroup([]);
       }
 
       let cmd: Cmd | null = this.command();
@@ -338,7 +338,7 @@ class Parser {
         }
       }
 
-      return cmds;
+      return new CommandGroup(cmds);
     });
   }
 

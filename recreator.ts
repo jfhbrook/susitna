@@ -1,4 +1,4 @@
-import { TreeVisitor, Line, Program } from './ast';
+import { TreeVisitor, CommandGroup, Line, Program } from './ast';
 import { Cmd, CmdVisitor, Expression, Print } from './ast/cmd';
 import {
   ExprVisitor,
@@ -17,6 +17,10 @@ export class Recreator
       return tree.map((cmd) => cmd.accept(this)).join('\n');
     }
     return tree.accept(this);
+  }
+
+  visitCommandGroupTree(group: CommandGroup): string {
+    return '';
   }
 
   visitLineTree(line: Line): string {

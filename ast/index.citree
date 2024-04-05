@@ -17,6 +17,8 @@ type Cmd in './cmd' {
 
 type Tree in './index' {
   import { Cmd } from './cmd'
-  Line => lineNo: number, commands: Cmd[]
-  Program => lines: Line[]
+
+  CommandGroup => commands: Cmd[]
+  Line         => lineNo: number, commands: Cmd[]
+  Program      => lines: Line[]
 }

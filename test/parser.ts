@@ -10,7 +10,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import { Cmd, Print, Expression } from '../ast/cmd';
-import { Line, Program } from '../ast';
+import { CommandGroup, Line, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
 import { Ok, Err, Warn } from '../result';
 import { FILENAME } from './helpers/traceback';
@@ -33,7 +33,7 @@ for (let [source, cmd] of LITERALS) {
 
     t.type(result, Ok);
 
-    t.same(result.result, [[cmd]]);
+    t.same(result.result, [new CommandGroup([cmd])]);
   });
 
   t.test(`numbered literal expression ${source}`, async (t: Test) => {
@@ -52,7 +52,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
 
   const warning = (result as any).warning;
 
-  t.same(result.result, [[new Expression(new StringLiteral('\\q'))]]);
+  t.same(result.result, [new CommandGroup([new Expression(new StringLiteral('\\q'))])]);
   t.matchSnapshot(formatter.format(warning));
 });
 
@@ -74,7 +74,7 @@ t.test('non-numbered print command', async (t: Test) => {
 
   t.type(result, Ok);
 
-  t.same(result.result, [[new Print(new StringLiteral('hello world'))]]);
+  t.same(result.result, [new CommandGroup([new Print(new StringLiteral('hello world'))])]);
 });
 
 t.test('numbered print command', async (t: Test) => {
@@ -134,7 +134,7 @@ t.test('multiple inputs', async (t: Test) => {
 
   t.same(result.result, [
     new Line(100, [new Print(new StringLiteral('hello world'))]),
-    [new Expression(new StringLiteral('foo'))],
+    new CommandGroup([new Expression(new StringLiteral('foo'))]),
     new Line(200, [new Print(new StringLiteral('goodbye'))]),
   ]);
 });

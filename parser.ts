@@ -186,7 +186,7 @@ class Parser {
         this.lineNo,
         token.offsetStart,
         token.offsetEnd,
-        '',
+        '<unknown>',
       );
       this.isError = true;
       this.lineErrors.push(exc);
@@ -261,9 +261,13 @@ class Parser {
 
   private rowEnding(): void {
     return spanSync('rowEnding', () => {
+      let line = this.line;
+      if (line.endsWith('\n')) {
+        line = line.slice(0, -1);
+      }
       for (let error of this.lineErrors) {
-        trace('line', this.line);
-        error.source = this.line;
+        trace('set source to line', line);
+        error.source = line;
         this.errors.push(error);
       }
 
@@ -276,7 +280,10 @@ class Parser {
         }
       }
 
-      this.line = '';
+      line = this.current.text;
+
+      trace('reset line', line);
+      this.line = line;
       this.isLine = false;
     });
   }

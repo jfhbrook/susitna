@@ -12,9 +12,9 @@ import {
 import { Cmd, Print, Expression } from '../ast/cmd';
 import { Line } from '../ast/line';
 import { Program } from '../ast/program';
-import { TokenKind } from '../tokens';
 import { parseInput, parseProgram } from '../parser';
-import { Result, Ok, Err, Warn } from '../result';
+import { Ok, Err, Warn } from '../result';
+import { FILENAME } from './helpers/traceback';
 
 const LITERALS: Array<[string, Cmd]> = [
   // NOTE: '1' parses as a line number.
@@ -109,8 +109,57 @@ t.test('numbered print command without arguments', async (t: Test) => {
   t.matchSnapshot(formatter.format(error));
 });
 
-// TODO: multi-line numbered inputs
-// TODO: multi-line mixed inputs
+t.test('multiple inputs', async (t: Test) => {
+  const result = parseInput(
+    '100 print "hello world"\n"foo"\n200 print "goodbye"',
+  );
+
+  t.type(result, Ok);
+
+  t.same(result.result, [
+    new Line(100, [new Print(new StringLiteral('hello world'))]),
+    [new Expression(new StringLiteral('foo'))],
+    new Line(200, [new Print(new StringLiteral('goodbye'))]),
+  ]);
+});
+
+t.test('simple program', async (t: Test) => {
+  const result = parseProgram(
+    '100 print "hello world"\n200 print "goodbye"',
+    FILENAME,
+  );
+
+  t.type(result, Ok);
+
+  t.same(
+    result.result,
+    new Program([
+      new Line(100, [new Print(new StringLiteral('hello world'))]),
+      new Line(200, [new Print(new StringLiteral('goodbye'))]),
+    ]),
+  );
+});
+
+t.test('program with non-numbered input', async (t: Test) => {
+  const result = parseProgram(
+    '100 print "hello world"\n"foo"\n200 print "goodbye"',
+    FILENAME,
+  );
+
+  t.type(result, Err);
+
+  const error = (result as any).error;
+
+  t.same(
+    result.result,
+    new Program([
+      new Line(100, [new Print(new StringLiteral('hello world'))]),
+      new Line(200, [new Print(new StringLiteral('goodbye'))]),
+    ]),
+  );
+  t.matchSnapshot(formatter.format(error));
+});
+
 // TODO: multi-line numbered inputs with parseProgram
 // TODO: multi-line mixed inputs with parseProgram
 // TODO: multi-line input with a negative valued line

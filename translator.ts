@@ -1,9 +1,11 @@
+import { readFile } from 'fs/promises';
+
 import { Config } from './config';
 import { Commander } from './commander';
 import { Host } from './host';
 import { BaseException } from './exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
-import { parseInput } from './parser';
+import { parseInput, parseProgram } from './parser';
 import { Result, Ok, Err, Warn } from './result';
 
 export class Translator {
@@ -14,13 +16,11 @@ export class Translator {
   ) {}
 
   async script(filename: string) {
-    throw new NotImplementedFault('Translator#script', null);
-
-    // TODO: Read file
-    // TODO: Scan the file into tokens
-    // TODO: Parse the tokens into Line[]
-    // TODO: Use the lines to populate the Editor
-    // TODO: Call run on the Commander
+    const source: string = await readFile(filename, 'utf8');
+    const result = parseProgram(source, filename);
+    for (let line of result.result.lines) {
+      console.log(line);
+    }
   }
 
   async repl() {

@@ -28,3 +28,9 @@ exports[`test/parser.ts > TAP > numbered print command without arguments > must 
   100 print
            ^
 `
+
+exports[`test/parser.ts > TAP > program with non-numbered input > must match snapshot 1`] = `
+/home/josh/script.bas:<R2>:0 (after line 100): error: Expected line number
+  "foo"
+  ^
+`

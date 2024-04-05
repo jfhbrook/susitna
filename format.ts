@@ -13,6 +13,10 @@ import {
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { Traceback, Frame, Code } from './traceback';
+import { Expr, ExprVisitor, IntLiteral, RealLiteral, BoolLiteral, StringLiteral } from './ast/expr';
+import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+import { Line } from './ast/line';
+import { Program } from './ast/program';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
 /**
@@ -25,7 +29,7 @@ export interface Formattable {
 /**
  * Values of this type can be formatted.
  */
-export type FormatValue = string | number | boolean | Formattable;
+export type FormatValue = string | number | boolean | Expr | Cmd | Formattable;
 
 /**
  * A formatter. This is an abstract class and should not be used directly.
@@ -47,6 +51,14 @@ export abstract class Formatter {
 
     if (typeof value == 'boolean') {
       return this.formatBoolean(value);
+    }
+
+    if (value instanceof Expr) {
+      return this.formatExpr(value);
+    }
+
+    if (value instanceof Cmd) {
+      return this.formatCmd(value);
     }
 
     return value.format(this);
@@ -80,6 +92,11 @@ export abstract class Formatter {
   abstract formatUsageFault(fault: UsageFault): string;
 
   abstract formatExit(exit: Exit): string;
+
+  abstract formatLine(line: Line): string;
+  abstract formatProgram(program: Program): string;
+  abstract formatExpr(expr: Expr): string;
+  abstract formatCmd(cmd: Cmd): string;
 }
 
 /**
@@ -95,10 +112,48 @@ export function inspectString(str: string): string {
   return `'${str}'`;
 }
 
+
+export class DefaultExprFormatter implements ExprVisitor<string> {
+  visitIntLiteralExpr(int: IntLiteral): string {
+    return String(int.value);
+  }
+
+  visitRealLiteralExpr(real: RealLiteral): string {
+    return String(real.value);
+  }
+
+  visitBoolLiteralExpr(bool: BoolLiteral): string {
+    return String(bool.value);
+  }
+
+  visitStringLiteralExpr(node: StringLiteral): string {
+    return inspectString(node.value);
+  }
+}
+
+const defaultExprFormatter = new DefaultExprFormatter();
+
+export class DefaultCmdFormatter implements CmdVisitor<string> {
+
+  visitExpressionCmd(node: Expression): string {
+    return `Expression(${node.expression.accept(defaultExprFormatter)})`;
+  }
+
+  visitPrintCmd(node: Print): string {
+    return `Print(${node.expression.accept(defaultExprFormatter)})`;
+  }
+}
+
+const defaultCmdFormatter = new DefaultCmdFormatter();
+
 /**
  * A default, standard formatter.
  */
 export class DefaultFormatter extends Formatter {
+  constructor() {
+    super();
+  }
+
   formatString(str: string): string {
     return str;
   }
@@ -278,6 +333,49 @@ export class DefaultFormatter extends Formatter {
 
   formatExit(exit: Exit): string {
     return exit.message;
+  }
+
+  private formatIndentedLine(indent: number, line: Line): string {
+    let tab = '';
+    for (let i = 0; i < indent; i++) {
+      tab += '  ';
+    }
+    let formatted = `${tab}Line(\n  ${line.lineNo}) [`;
+    let cmds: string[] = [];
+    for (let cmd of line.commands) {
+      cmds.push(cmd.accept(defaultCmdFormatter));
+    }
+    for (let cmd of cmds) {
+      formatted += `\n${tab}  ${cmd},`;
+    }
+    formatted += '\n]';
+
+    return formatted;
+  }
+
+  formatLine(line: Line): string {
+    return this.formatIndentedLine(0, line);
+  }
+
+  formatProgram(program: Program): string {
+    let formatted = 'Program(\n';
+    let lines: string[] = [];
+    for (let line of program.lines) {
+      lines.push(this.formatIndentedLine(1, line));
+    }
+    for (let line of lines) {
+      formatted += `\n  ${line},`;
+    }
+    formatted += '\n)';
+    return formatted;
+  }
+
+  formatExpr(expr: Expr): string {
+    return expr.accept(defaultExprFormatter);
+  }
+
+  formatCmd(cmd: Cmd): string {
+    return cmd.accept(defaultCmdFormatter);
   }
 }
 

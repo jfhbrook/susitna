@@ -14,3 +14,9 @@ type Cmd in './cmd' {
   Expression => expression: Expr
   Print      => expression: Expr
 }
+
+type Ast in './index' {
+  import { Cmd } from './cmd'
+  Line => lineNo: number, commands: Cmd[]
+  Program => lines: Line[]
+}

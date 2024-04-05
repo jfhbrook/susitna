@@ -10,7 +10,7 @@ import { BaseException } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
 import { parseInput, parseProgram } from './parser';
 import { Ok, Err, Warn } from './result';
-import { Line } from './ast/line';
+import { Line } from './ast';
 
 export class Translator {
   constructor(

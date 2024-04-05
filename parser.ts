@@ -20,8 +20,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
-import { Line } from './ast/line';
-import { Program } from './ast/program';
+import { Line, Program } from './ast';
 
 export type Row = Line | Cmd[];
 

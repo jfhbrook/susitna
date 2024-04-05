@@ -10,8 +10,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import { Cmd, Print, Expression } from '../ast/cmd';
-import { Line } from '../ast/line';
-import { Program } from '../ast/program';
+import { Line, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
 import { Ok, Err, Warn } from '../result';
 import { FILENAME } from './helpers/traceback';

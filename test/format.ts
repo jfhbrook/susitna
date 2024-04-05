@@ -22,8 +22,7 @@ import { BaseFault, RuntimeFault, UsageFault } from '../faults';
 import { Token, TokenKind } from '../tokens';
 import { StringLiteral } from '../ast/expr';
 import { Print } from '../ast/cmd';
-import { Line } from '../ast/line';
-import { Program } from '../ast/program';
+import { Line, Program } from '../ast';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';

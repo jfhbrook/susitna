@@ -25,8 +25,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
-import { Line } from './ast/line';
-import { Program } from './ast/program';
+import { Ast, AstVisitor, Line, Program } from './ast';
 import { Token } from './tokens';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
@@ -52,7 +51,7 @@ export function indent(indent: number, value: string): string {
  * A formatter. This is an abstract class and should not be used directly.
  */
 export abstract class Formatter
-  implements ExprVisitor<string>, CmdVisitor<string>
+  implements ExprVisitor<string>, CmdVisitor<string>, AstVisitor<string>
 {
   /**
    * Format a value.
@@ -78,6 +77,10 @@ export abstract class Formatter
 
     if (value instanceof Cmd) {
       return this.formatCmd(value);
+    }
+
+    if (value instanceof Ast) {
+      return this.formatAst(value);
     }
 
     if (value && value.format) {
@@ -120,10 +123,9 @@ export abstract class Formatter
 
   abstract formatExit(exit: Exit): string;
 
-  abstract formatLine(line: Line): string;
-  abstract formatProgram(program: Program): string;
   abstract formatExpr(expr: Expr): string;
   abstract formatCmd(cmd: Cmd): string;
+  abstract formatAst(ast: Ast): string;
   abstract formatToken(token: Token): string;
 
   abstract visitIntLiteralExpr(int: IntLiteral): string;
@@ -134,6 +136,9 @@ export abstract class Formatter
 
   abstract visitPrintCmd(node: Print): string;
   abstract visitExpressionCmd(node: Expression): string;
+
+  abstract visitLineAst(node: Line): string;
+  abstract visitProgramAst(node: Program): string;
 
   abstract formatArray(array: any[]): string;
 }
@@ -340,11 +345,11 @@ export class DefaultFormatter extends Formatter {
     return exit.message;
   }
 
-  formatLine(line: Line): string {
+  visitLineAst(line: Line): string {
     let formatted = `Line(${line.lineNo}) [\n`;
     let cmds: string[] = [];
     for (let cmd of line.commands) {
-      cmds.push(cmd.accept(this));
+      cmds.push(this.format(cmd));
     }
     for (let cmd of cmds) {
       formatted += indent(1, `${cmd},\n`);
@@ -354,11 +359,11 @@ export class DefaultFormatter extends Formatter {
     return formatted;
   }
 
-  formatProgram(program: Program): string {
+  visitProgramAst(program: Program): string {
     let formatted = 'Program(\n';
     let lines: string[] = [];
     for (let line of program.lines) {
-      lines.push(indent(1, this.formatLine(line)));
+      lines.push(indent(1, this.format(line)));
     }
     for (let line of lines) {
       formatted += `${line},\n`;
@@ -373,6 +378,10 @@ export class DefaultFormatter extends Formatter {
 
   formatCmd(cmd: Cmd): string {
     return cmd.accept(this);
+  }
+
+  formatAst(ast: Ast): string {
+    return ast.accept(this);
   }
 
   formatToken(token: Token): string {

@@ -1,7 +1,7 @@
 import { errorType } from './errors';
 import { BaseException } from './exceptions';
 import { ExitCode, ExitCoded } from './exit';
-import { Formattable, Formatter, FormatValue, formatter } from './format';
+import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 
 /**
@@ -14,7 +14,7 @@ export class BaseFault extends Error implements Traceable, Formattable {
    * @param traceback The traceback for the fault, if applicable.
    */
   constructor(
-    message: FormatValue,
+    message: any,
     public readonly traceback: Traceback | null,
   ) {
     super(formatter.format(message));
@@ -48,7 +48,7 @@ export class RuntimeFault extends Fault implements ExitCoded {
    * @param traceback The traceback for the fault.
    */
   constructor(
-    message: FormatValue,
+    message: any,
     public error: Error,
     traceback: Traceback | null,
   ) {
@@ -104,7 +104,7 @@ export class RuntimeFault extends Fault implements ExitCoded {
  */
 @errorType('NotImplementedFault')
 export class NotImplementedFault extends RuntimeFault {
-  constructor(message: FormatValue, traceback: Traceback | null) {
+  constructor(message: any, traceback: Traceback | null) {
     super(message, new Error(), traceback);
     this.error = this;
   }

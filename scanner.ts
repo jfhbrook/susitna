@@ -166,7 +166,7 @@ export class Scanner {
       this.offset += this.current - this.start;
     }
 
-    return {
+    return new Token({
       kind,
       index: this.start,
       row,
@@ -175,7 +175,7 @@ export class Scanner {
       text,
       value,
       warnings,
-    };
+    });
   }
 
   nextToken(): Token {

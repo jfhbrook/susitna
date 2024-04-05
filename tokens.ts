@@ -1,4 +1,5 @@
 import { SyntaxWarning } from './exceptions';
+import { Formatter, Formattable } from './format';
 import { Value } from './value';
 
 export enum TokenKind {
@@ -96,37 +97,37 @@ export enum TokenKind {
 /**
  * A token.
  */
-export interface Token {
+export interface TokenOptions {
   /**
    * The kind of token.
    */
-  readonly kind: TokenKind;
+  kind: TokenKind;
 
   /**
    * The index of the token in the source string.
    */
-  readonly index: number;
+  index: number;
 
   /**
    * The row on which the token resides. This is not the same as the line
    * number, which is handled in the parser.
    */
-  readonly row: number;
+  row: number;
 
   /**
    * The column offset on which the token starts.
    */
-  readonly offsetStart: number;
+  offsetStart: number;
 
   /**
    * The column offset at which the token ends.
    */
-  readonly offsetEnd: number;
+  offsetEnd: number;
 
   /**
    * The original text making up the token.
    */
-  readonly text: string;
+  text: string;
 
   /**
    * Any warnings emitted for the token.
@@ -136,5 +137,31 @@ export interface Token {
   /**
    * If applicable, the literal value corresponding to the token.
    */
+  value: Value | undefined;
+}
+
+export class Token implements Formattable {
+  readonly kind: TokenKind;
+  readonly index: number;
+  readonly row: number;
+  readonly offsetStart: number;
+  readonly offsetEnd: number;
+  readonly text: string;
+  warnings: SyntaxWarning[];
   readonly value: Value | undefined;
+
+  constructor(options: TokenOptions) {
+    this.kind = options.kind;
+    this.index = options.index;
+    this.row = options.row;
+    this.offsetStart = options.offsetStart;
+    this.offsetEnd = options.offsetEnd;
+    this.text = options.text;
+    this.warnings = options.warnings;
+    this.value = options.value;
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatToken(this);
+  }
 }

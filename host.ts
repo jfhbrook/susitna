@@ -5,7 +5,7 @@ import { stdin, stdout, stderr } from 'node:process';
 import { Readable, Writable } from 'stream';
 
 import { BaseException } from './exceptions';
-import { DefaultFormatter, FormatValue } from './format';
+import { DefaultFormatter } from './format';
 
 /**
  * A logging level.
@@ -70,14 +70,14 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeOut(value: FormatValue): void;
+  writeOut(value: any): void;
 
   /**
    * Write a value to the error channel.
    *
    * @param value The value to write.
    */
-  writeError(value: FormatValue): void;
+  writeError(value: any): void;
 
   /**
    * Write a value to the debug channel. If the log level is not inclusive of
@@ -85,7 +85,7 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeDebug(value: FormatValue): void;
+  writeDebug(value: any): void;
 
   /**
    * Write a value to the info channel. If the log level is not inclusive of
@@ -93,7 +93,7 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeInfo(value: FormatValue): void;
+  writeInfo(value: any): void;
 
   /**
    * Write a value to the warn channel. If the log level is not inclusive of
@@ -101,14 +101,14 @@ export interface Host {
    *
    * @param value The value to write.
    */
-  writeWarn(value: FormatValue): void;
+  writeWarn(value: any): void;
 
   /**
    * Write an Exception to the error channel.
    *
    * @param exception The exception to write.
    */
-  writeException(value: FormatValue): void;
+  writeException(value: any): void;
 
   /**
    * Write a value to a numbered channel. The standard channels are:
@@ -128,7 +128,7 @@ export interface Host {
    * @param channel The channel to write to.
    * @param value The value to write.
    */
-  writeChannel(channel: number, value: FormatValue): void;
+  writeChannel(channel: number, value: any): void;
 
   /**
    * The OS's hostname.
@@ -200,33 +200,33 @@ export class ConsoleHost implements Host {
     this.level = level;
   }
 
-  writeOut(value: FormatValue): void {
+  writeOut(value: any): void {
     this.outputStream.write(value);
   }
 
-  writeError(value: FormatValue): void {
+  writeError(value: any): void {
     this.errorStream.write(this.formatter.format(value));
   }
 
-  writeDebug(value: FormatValue): void {
+  writeDebug(value: any): void {
     if (this.level <= Level.Debug) {
       this.errorStream.write(`DEBUG: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeInfo(value: FormatValue): void {
+  writeInfo(value: any): void {
     if (this.level <= Level.Info) {
       this.errorStream.write(`INFO: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeWarn(value: FormatValue): void {
+  writeWarn(value: any): void {
     if (this.level <= Level.Warn) {
       this.errorStream.write(`WARN: ${this.formatter.format(value)}\n`);
     }
   }
 
-  writeException(value: FormatValue): void {
+  writeException(value: any): void {
     let exc = value;
     if (
       typeof value === 'string' ||
@@ -239,7 +239,7 @@ export class ConsoleHost implements Host {
     this.errorStream.write(`${this.formatter.format(exc)}\n`);
   }
 
-  writeChannel(channel: number, value: FormatValue): void {
+  writeChannel(channel: number, value: any): void {
     switch (channel) {
       case 1:
         this.writeOut(value);

@@ -19,6 +19,11 @@ import {
 } from '../exceptions';
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
+import { Token } from '../tokens';
+import { Expr } from '../ast/expr';
+import { Cmd } from '../ast/cmd';
+import { Line } from '../ast/line';
+import { Program } from '../ast/program';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
@@ -238,6 +243,30 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
 
     t.test('it formats an Exit', async (t: Test) => {
       t.matchSnapshot(formatter.format(new Exit('message')));
+    });
+
+    t.test('it formats a Token', async (t: Test) => {
+      t.matchSnapshot('');
+    });
+
+    t.test('it formats an Expr', async (t: Test) => {
+      t.matchSnapshot('');
+    });
+
+    t.test('it formats a Cmd', async (t: Test) => {
+      t.matchSnapshot('');
+    });
+
+    t.test('it formats a Line', async (t: Test) => {
+      t.matchSnapshot('');
+    });
+
+    t.test('it formats a Program', async (t: Test) => {
+      t.matchSnapshot('');
+    });
+
+    t.test('it formats a native value', async (t: Test) => {
+      t.matchSnapshot('');
     });
   });
 }

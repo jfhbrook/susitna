@@ -1,6 +1,6 @@
 import { ExitCode, ExitCoded } from './exit';
 import { ErrorCode } from './errors';
-import { Formattable, Formatter, FormatValue } from './format';
+import { Formattable, Formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 
 /**
@@ -12,7 +12,7 @@ export class BaseException implements Traceable, Formattable {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    public message: FormatValue,
+    public message: any,
     public traceback: Traceback | null,
   ) {
     // TODO: Exceptions in Python store all args the constructor is called
@@ -98,7 +98,7 @@ export class OsError extends Exception implements ExitCoded {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    public readonly message: FormatValue,
+    public readonly message: any,
     public readonly code: ErrorCode | string,
     exitCode: ExitCode | null,
     public readonly traceback: Traceback | null,
@@ -188,7 +188,7 @@ export class FileError extends OsError {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    public message: FormatValue,
+    public message: any,
     public code: ErrorCode | string,
     exitCode: ExitCode | null,
     public paths: FileErrorPaths,
@@ -206,7 +206,7 @@ export class FileError extends OsError {
    * @param traceback The traceback for the error.
    */
   static fromError(
-    message: FormatValue | null,
+    message: any | null,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null,
   ) {
@@ -228,7 +228,7 @@ export class FileError extends OsError {
    * @param traceback The traceback for the error.
    */
   static fromReadError(
-    message: FormatValue | null,
+    message: any | null,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null,
   ) {
@@ -257,7 +257,7 @@ export class FileError extends OsError {
    * @param traceback The traceback for the error.
    */
   static fromWriteError(
-    message: FormatValue | null,
+    message: any | null,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null,
   ) {
@@ -368,7 +368,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    message: FormatValue,
+    message: any,
     public filename: string,
     public row: number,
     public isLine: boolean,
@@ -421,7 +421,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
    * @param traceback The traceback for the exception.
    */
   constructor(
-    message: FormatValue,
+    message: any,
     public filename: string,
     public row: number,
     public isLine: boolean,

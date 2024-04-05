@@ -1,3 +1,5 @@
+import { inspect } from 'util';
+
 import {
   BaseException,
   AssertionError,
@@ -13,10 +15,18 @@ import {
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { Traceback, Frame, Code } from './traceback';
-import { Expr, ExprVisitor, IntLiteral, RealLiteral, BoolLiteral, StringLiteral } from './ast/expr';
+import {
+  Expr,
+  ExprVisitor,
+  IntLiteral,
+  RealLiteral,
+  BoolLiteral,
+  StringLiteral,
+} from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 import { Line } from './ast/line';
 import { Program } from './ast/program';
+import { Token } from './tokens';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
 /**
@@ -26,10 +36,16 @@ export interface Formattable {
   format(formatter: Formatter): string;
 }
 
-/**
- * Values of this type can be formatted.
- */
-export type FormatValue = string | number | boolean | Expr | Cmd | Formattable;
+export function indent(indent: number, value: string): string {
+  let tab = '';
+  for (let i = 0; i < indent; i++) {
+    tab += '  ';
+  }
+  return value
+    .split('\n')
+    .map((line) => `${tab}${line}`)
+    .join('\n');
+}
 
 /**
  * A formatter. This is an abstract class and should not be used directly.
@@ -40,7 +56,7 @@ export abstract class Formatter {
    *
    * @param value A formattable value.
    */
-  format(value: FormatValue): string {
+  format(value: any): string {
     if (typeof value === 'string') {
       return this.formatString(value);
     }
@@ -61,7 +77,11 @@ export abstract class Formatter {
       return this.formatCmd(value);
     }
 
-    return value.format(this);
+    if (value.format) {
+      return value.format(this);
+    }
+
+    return inspect(value);
   }
 
   //
@@ -97,6 +117,7 @@ export abstract class Formatter {
   abstract formatProgram(program: Program): string;
   abstract formatExpr(expr: Expr): string;
   abstract formatCmd(cmd: Cmd): string;
+  abstract formatToken(token: Token): string;
 }
 
 /**
@@ -111,7 +132,6 @@ export function inspectString(str: string): string {
   }
   return `'${str}'`;
 }
-
 
 export class DefaultExprFormatter implements ExprVisitor<string> {
   visitIntLiteralExpr(int: IntLiteral): string {
@@ -134,7 +154,6 @@ export class DefaultExprFormatter implements ExprVisitor<string> {
 const defaultExprFormatter = new DefaultExprFormatter();
 
 export class DefaultCmdFormatter implements CmdVisitor<string> {
-
   visitExpressionCmd(node: Expression): string {
     return `Expression(${node.expression.accept(defaultExprFormatter)})`;
   }
@@ -335,33 +354,25 @@ export class DefaultFormatter extends Formatter {
     return exit.message;
   }
 
-  private formatIndentedLine(indent: number, line: Line): string {
-    let tab = '';
-    for (let i = 0; i < indent; i++) {
-      tab += '  ';
-    }
-    let formatted = `${tab}Line(\n  ${line.lineNo}) [`;
+  formatLine(line: Line): string {
+    let formatted = `Line(\n  ${line.lineNo}) [\n`;
     let cmds: string[] = [];
     for (let cmd of line.commands) {
       cmds.push(cmd.accept(defaultCmdFormatter));
     }
     for (let cmd of cmds) {
-      formatted += `\n${tab}  ${cmd},`;
+      formatted += indent(2, `$${cmd},\n`);
     }
-    formatted += '\n]';
+    formatted += ']';
 
     return formatted;
-  }
-
-  formatLine(line: Line): string {
-    return this.formatIndentedLine(0, line);
   }
 
   formatProgram(program: Program): string {
     let formatted = 'Program(\n';
     let lines: string[] = [];
     for (let line of program.lines) {
-      lines.push(this.formatIndentedLine(1, line));
+      lines.push(indent(1, this.formatLine(line)));
     }
     for (let line of lines) {
       formatted += `\n  ${line},`;
@@ -376,6 +387,27 @@ export class DefaultFormatter extends Formatter {
 
   formatCmd(cmd: Cmd): string {
     return cmd.accept(defaultCmdFormatter);
+  }
+
+  formatToken(token: Token): string {
+    let formatted = `Token(${token.kind}) {\n`;
+    formatted += `  index: ${token.index},\n`;
+    formatted += `  row: ${token.row},\n`;
+    formatted += `  offsetStart: ${token.offsetStart},\n`;
+    formatted += `  offsetEnd: ${token.offsetEnd},\n`;
+    formatted += `  text: ${inspectString(token.text)},\n`;
+    if (token.warnings.length) {
+      formatted += '  warnings: [\n';
+      for (let warning of token.warnings) {
+        formatted += indent(4, `${this.format(warning)}\n`);
+      }
+      formatted += '  ],\n';
+    }
+    if (token.value) {
+      formatted += `  value: ${this.format(token.value)},\n`;
+    }
+    formatted += '}';
+    return formatted;
   }
 }
 

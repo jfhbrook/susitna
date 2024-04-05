@@ -16,8 +16,8 @@
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "eslint \"**.ts\" --fix",
-    "test": "npm run build:versions && tap ./test/*.ts",
-    "snap": "npm run build:versions && npm run format && tap ./test/*.ts --snapshot",
+    "test": "npm run build:versions && NO_TRACE=1 tap ./test/*.ts",
+    "snap": "npm run build:versions && npm run format && NO_TRACE=1 tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node"
   },
   "keywords": [

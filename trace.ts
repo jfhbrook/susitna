@@ -140,7 +140,7 @@ let getTracer = function getTracer(name: string): Tracer {
 if (MATBAS_BUILD === 'debug') {
   dotenv.config();
 
-  if (parseBoolEnv(process.env.TRACE) && !parseBoolEnv(process.env.TAP)) {
+  if (parseBoolEnv(process.env.TRACE) && !parseBoolEnv(process.env.NO_TRACE)) {
     const tracer = new Tracer();
 
     TRACERS['main'] = tracer;

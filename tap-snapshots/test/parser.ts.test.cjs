@@ -11,6 +11,10 @@ exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match 
    ^
 `
 
+exports[`test/parser.ts > TAP > non-numbered print command without arguments > must match snapshot 1`] = `
+
+`
+
 exports[`test/parser.ts > TAP > numbered invalid string escape > must match snapshot 1`] = `
 <input>:100:5: warning: Invalid escape sequence \`\\q\` in string '\\q'
   100 '\\q'

@@ -401,7 +401,10 @@ class Parser {
         return new StringLiteral(this.previous.value as string);
       } else {
         const token = this.peek();
-        this.syntaxError(token, 'Unexpected token');
+        this.syntaxError(
+          token,
+          `Unexpected token ${token.text.length ? token.text : token.kind}`,
+        );
         this.syncNextCommand();
         return null;
       }

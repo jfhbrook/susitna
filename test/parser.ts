@@ -77,9 +77,27 @@ t.test('non-numbered print command', async (t: Test) => {
   t.same(result.result, [[new Print(new StringLiteral('hello world'))]]);
 });
 
-// TODO: numbered literal expressions
-// TODO: numbered string with invalid escape sequences
-// TODO: numbered print statement
+t.test('numbered print command', async (t: Test) => {
+  const result = parseInput('100 print "hello world"');
+
+  t.type(result, Ok);
+
+  t.same(result.result, [
+    new Line(100, [new Print(new StringLiteral('hello world'))]),
+  ]);
+});
+
+t.test('non-numbered print command without arguments', async (t: Test) => {
+  const result = parseInput('print');
+
+  t.type(result, Err);
+
+  const error = (result as any).error;
+
+  t.same(result.result, []);
+  t.matchSnapshot(formatter.format(error));
+});
+
 // TODO: bare malformed print statement
 // TODO: numbered malformed print statement
 // TODO: multi-line numbered inputs

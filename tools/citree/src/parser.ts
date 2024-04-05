@@ -93,6 +93,8 @@ const fieldDefinition = apply(
         tok(TokenKind.Union),
         tok(TokenKind.LBracket),
         tok(TokenKind.RBracket),
+        tok(TokenKind.Lt),
+        tok(TokenKind.Gt),
       ),
     ),
   ),

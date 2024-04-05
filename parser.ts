@@ -347,7 +347,7 @@ class Parser {
     return spanSync('print', () => {
       const expr = this.expr();
       if (expr) {
-        return new Print(this.expr());
+        return new Print(expr);
       }
       return null;
     });

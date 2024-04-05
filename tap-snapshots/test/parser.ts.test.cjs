@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/parser.ts > TAP > invalid string escape > must match snapshot 1`] = `
+exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match snapshot 1`] = `
 <input>:<R1>:1 (at the beginning): warning: Invalid escape sequence \`\\q\` in string '\\q'
   
   ^

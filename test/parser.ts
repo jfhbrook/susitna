@@ -35,7 +35,7 @@ for (let [source, cmd] of LITERALS) {
   });
 }
 
-t.test('invalid string escape', async (t: Test) => {
+t.test('non-numbered invalid string escape', async (t: Test) => {
   const result = parseInput("'\\q'");
 
   t.type(result, Warn);
@@ -46,7 +46,14 @@ t.test('invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
-// TODO: bare print statement
+t.test('non-numbered print command', async (t: Test) => {
+  const result = parseInput('print "hello world"');
+
+  t.type(result, Ok);
+
+  t.same(result.result, [[new Print(new StringLiteral('hello world'))]]);
+});
+
 // TODO: numbered literal expressions
 // TODO: numbered string with invalid escape sequences
 // TODO: numbered print statement

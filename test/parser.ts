@@ -108,6 +108,22 @@ t.test('numbered print command without arguments', async (t: Test) => {
   t.matchSnapshot(formatter.format(error));
 });
 
+t.test('empty input', async (t: Test) => {
+  const result = parseInput('');
+
+  t.type(result, Ok);
+
+  t.same(result.result, []);
+});
+
+t.test('empty line', async (t: Test) => {
+  const result = parseInput('100');
+
+  t.type(result, Ok);
+
+  t.same(result.result, [new Line(100, [])]);
+});
+
 t.test('multiple inputs', async (t: Test) => {
   const result = parseInput(
     '100 print "hello world"\n"foo"\n200 print "goodbye"',

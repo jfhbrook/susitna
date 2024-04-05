@@ -7,6 +7,12 @@
 'use strict'
 exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match snapshot 1`] = `
 <input>:<R1>:1 (at the beginning): warning: Invalid escape sequence \`\\q\` in string '\\q'
-  
-  ^
+  '\\q'
+   ^
+`
+
+exports[`test/parser.ts > TAP > numbered invalid string escape > must match snapshot 1`] = `
+<input>:100:5: warning: Invalid escape sequence \`\\q\` in string '\\q'
+  100 '\\q'
+       ^
 `

@@ -143,7 +143,7 @@ Token(<string>) {
   warnings:
     /home/josh/script.bas:<R0>:6 (at the beginning): warning: Invalid escape sequence \`\\q\`
       'hello\\q'
-           ^
+            ^
   value: 'hello\\q',
 }
 `
@@ -192,53 +192,53 @@ undefined
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a ParseError > must match snapshot 1`] = `
 /home/josh/script.bas:100:22: error: expected )
   100 print someFn(ident
-                       ^
+                        ^
 /home/josh/script.bas:100:17: warning: identifier has no sigil
   100 print someFn(ident
-                  ^
+                   ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a ParseWarning > must match snapshot 1`] = `
 /home/josh/script.bas:100:17: warning: identifier has no sigil
   100 print someFn(ident
-                  ^
+                   ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a SyntaxError > must match snapshot 1`] = `
 /home/josh/script.bas:100:22: error: expected )
   100 print someFn(ident
-                       ^
+                        ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a SyntaxWarning > must match snapshot 1`] = `
 /home/josh/script.bas:100:22: warning: expected )
   100 print someFn(ident
-                       ^
+                        ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a ParseError > must match snapshot 1`] = `
 /home/josh/script.bas:<R0>:22 (after line 100): error: expected )
   print someFn(ident
-                       ^
+                        ^
 /home/josh/script.bas:<R0>:17 (after line 100): warning: identifier has no sigil
   print someFn(ident
-                  ^
+                   ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a ParseWarning > must match snapshot 1`] = `
 /home/josh/script.bas:<R0>:17 (after line 100): warning: identifier has no sigil
   print someFn(ident
-                  ^
+                   ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a SyntaxError > must match snapshot 1`] = `
 /home/josh/script.bas:<R0>:22 (after line 100): error: expected )
   print someFn(ident
-                       ^
+                        ^
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line > it formats a SyntaxWarning > must match snapshot 1`] = `
 /home/josh/script.bas:<R0>:22 (after line 100): warning: expected )
   print someFn(ident
-                       ^
+                        ^
 `

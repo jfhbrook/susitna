@@ -56,6 +56,19 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
+t.test('numbered invalid string escape', async (t: Test) => {
+  const result = parseInput("100 '\\q'");
+
+  t.type(result, Warn);
+
+  const warning = (result as any).warning;
+
+  t.same(result.result, [
+    new Line(100, [new Expression(new StringLiteral('\\q'))]),
+  ]);
+  t.matchSnapshot(formatter.format(warning));
+});
+
 t.test('non-numbered print command', async (t: Test) => {
   const result = parseInput('print "hello world"');
 

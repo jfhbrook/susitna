@@ -296,7 +296,7 @@ export class DefaultFormatter extends Formatter {
     }
     let report = `${loc.filename}:${lineNo}:${loc.offsetStart}${lineNote}: ${level}: ${message}\n`;
     report += `  ${loc.source}\n`;
-    for (let i = 0; i <= loc.offsetStart; i++) {
+    for (let i = 0; i <= loc.offsetStart + 1; i++) {
       report += ' ';
     }
     report += '^';

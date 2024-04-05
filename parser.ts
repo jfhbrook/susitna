@@ -41,7 +41,7 @@ class Parser {
   private previous: Token | null;
   private current: Token;
 
-  private unfinishedErrors: Array<SyntaxError | SyntaxWarning> = [];
+  private lineErrors: Array<SyntaxError | SyntaxWarning> = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
   private isError: boolean = false;
   private isWarning: boolean = false;
@@ -56,6 +56,7 @@ class Parser {
   ) {
     this.scanner = new Scanner(source, filename);
     this.current = this.scanner.nextToken();
+    this.line = this.current.text;
     trace('current', this.current);
   }
 
@@ -188,7 +189,7 @@ class Parser {
         '',
       );
       this.isError = true;
-      this.unfinishedErrors.push(exc);
+      this.lineErrors.push(exc);
       throw new Synchronize();
     });
   }
@@ -260,12 +261,13 @@ class Parser {
 
   private rowEnding(): void {
     return spanSync('rowEnding', () => {
-      for (let error of this.unfinishedErrors) {
+      for (let error of this.lineErrors) {
+        trace('line', this.line);
         error.source = this.line;
         this.errors.push(error);
       }
 
-      this.unfinishedErrors = [];
+      this.lineErrors = [];
 
       if (!this.match(TokenKind.LineEnding)) {
         const res = this.consume(TokenKind.Eof, 'Expected end of file');
@@ -393,7 +395,7 @@ class Parser {
         for (let warn of this.previous.warnings) {
           warn.isLine = this.isLine;
           warn.lineNo = this.lineNo;
-          this.errors.push(warn);
+          this.lineErrors.push(warn);
           this.isWarning = true;
         }
         return new StringLiteral(this.previous.value as string);

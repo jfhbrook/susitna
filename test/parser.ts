@@ -3,7 +3,6 @@ import { Test } from 'tap';
 
 import { formatter } from '../format';
 import {
-  Expr,
   IntLiteral,
   RealLiteral,
   BoolLiteral,

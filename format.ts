@@ -25,7 +25,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
-import { Tree, TreeVisitor, CommandGroup, Line, Program } from './ast';
+import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
@@ -139,6 +139,7 @@ export abstract class Formatter
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
+  abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
 
   abstract formatArray(array: any[]): string;
@@ -361,6 +362,13 @@ export class DefaultFormatter extends Formatter {
     }
     formatted += ']';
 
+    return formatted;
+  }
+
+  visitInputTree(input: Input): string {
+    let formatted = 'Input(\n';
+    formatted += indent(1, this.format(input.input));
+    formatted += '\n)';
     return formatted;
   }
 

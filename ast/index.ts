@@ -4,6 +4,7 @@ import { Cmd } from './cmd';
 export interface TreeVisitor<R> {
   visitCommandGroupTree(node: CommandGroup): R;
   visitLineTree(node: Line): R;
+  visitInputTree(node: Input): R;
   visitProgramTree(node: Program): R;
 }
 
@@ -31,6 +32,16 @@ export class Line extends Tree {
 
   accept<R>(visitor: TreeVisitor<R>): R {
     return visitor.visitLineTree(this);
+  }
+}
+
+export class Input extends Tree {
+  constructor(public readonly input: Array<CommandGroup | Line>) {
+    super();
+  }
+
+  accept<R>(visitor: TreeVisitor<R>): R {
+    return visitor.visitInputTree(this);
   }
 }
 

@@ -10,6 +10,7 @@ import { renderPrompt } from './shell';
 import { Value, nil } from './value';
 import { Cmd, Print, Expression } from './ast/cmd';
 import { NilLiteral } from './ast/expr';
+import { Line, Input, Program } from './ast';
 
 export class Commander {
   private _readline: readline.Interface | null;
@@ -140,6 +141,25 @@ export class Commander {
     return span('Commander.prompt', () => {
       return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
     });
+  }
+
+  /**
+   * Evaluate input.
+   *
+   * @param input Input.
+   */
+  async evalInput(input: Input): Promise<Value | null> {
+    let result: Value | null;
+    for (let row of input.input) {
+      if (row instanceof Line) {
+        console.log('TODO: write line to Editor');
+      } else {
+        for (let cmd of row.commands) {
+          result = await this.evalCommand(cmd);
+        }
+      }
+    }
+    return result;
   }
 
   /**

@@ -20,5 +20,6 @@ type Tree in './index' {
 
   CommandGroup => commands: Cmd[]
   Line         => lineNo: number, commands: Cmd[]
+  Input        => input: Array<CommandGroup | Line>
   Program      => lines: Line[]
 }

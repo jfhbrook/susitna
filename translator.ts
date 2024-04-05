@@ -77,17 +77,10 @@ export class Translator {
 
       trace('parse result', result.result);
 
-      for (let row of result.result) {
-        if (row instanceof Line) {
-          console.log('TODO: write line to Editor');
-        } else {
-          for (let cmd of row) {
-            let value = await this.commander.evalCommand(cmd);
-            if (value) {
-              this.host.writeOut(formatter.format(value) + '\n');
-            }
-          }
-        }
+      let value = await this.commander.evalInput(result.result);
+
+      if (value) {
+        this.host.writeOut(formatter.format(value) + '\n');
       }
     });
   }

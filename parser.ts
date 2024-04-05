@@ -20,7 +20,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
-import { CommandGroup, Line, Program } from './ast';
+import { CommandGroup, Line, Input, Program } from './ast';
 
 export type Row = Line | CommandGroup;
 
@@ -66,9 +66,9 @@ class Parser {
    * @returns A list of lines and commands.
    */
   @runtimeMethod
-  public parseInput(): Result<Row[], ParseError, ParseWarning> {
+  public parseInput(): Result<Input, ParseError, ParseWarning> {
     return spanSync('parseInput', () => {
-      const result = this.rows();
+      const result = new Input(this.rows());
 
       if (this.isError) {
         return new Err(result, new ParseError(this.errors));
@@ -429,7 +429,7 @@ class Parser {
  */
 export function parseInput(
   source: string,
-): Result<Row[], ParseError, ParseWarning> {
+): Result<Input, ParseError, ParseWarning> {
   const parser = new Parser(source, '<input>');
   return parser.parseInput();
 }

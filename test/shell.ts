@@ -71,7 +71,7 @@ t.test('renderPrompt', async (t: Test) => {
       t.equal(renderPrompt('\\H', host), 'gibson.local');
     });
 
-    t.skip('jobs', async (t: Test) => {
+    t.todo('jobs', async (t: Test) => {
       t.equal(renderPrompt('\\j', host), '1');
     });
 
@@ -115,11 +115,11 @@ t.test('renderPrompt', async (t: Test) => {
       t.equal(renderPrompt('\\w', host), '~/Software/jfhbrook/matanuska');
     });
 
-    t.skip('history number', async (t: Test) => {
+    t.todo('history number', async (t: Test) => {
       t.equal(renderPrompt('\\!', host), '1');
     });
 
-    t.skip('command number', async (t: Test) => {
+    t.todo('command number', async (t: Test) => {
       t.equal(renderPrompt('\\#', host), '1');
     });
 

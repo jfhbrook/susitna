@@ -190,7 +190,7 @@ t.test('program with non-numbered input', async (t: Test) => {
 });
 
 // Need to support unary minus
-t.skip('program with a negative line number', async (t: Test) => {
+t.todo('program with a negative line number', async (t: Test) => {
   const result = parseProgram(
     '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
     FILENAME,

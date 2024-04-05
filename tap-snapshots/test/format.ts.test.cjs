@@ -19,13 +19,13 @@ BaseFault: message
     at Test.<anonymous> ({CWD}/test/format.ts:221:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1159:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:591:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
     at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1228:9)
-    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:879:29)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
+    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:880:29)
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarning > must match snapshot 1`] = `
@@ -102,12 +102,12 @@ AssertionError [ERR_ASSERTION]: underlying assertion
     at Test.<anonymous> ({CWD}/test/format.ts:225:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1151:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1159:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:591:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
     at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1228:9)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
 
 --- Traceback ---
 Traceback:

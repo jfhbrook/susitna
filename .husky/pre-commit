@@ -1,4 +1,5 @@
+#!/usr/bin/env bash
+
 npm run check
-# Exiting unsuccessfully for some reason
-# npm test
+npm test
 npm run lint

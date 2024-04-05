@@ -302,6 +302,14 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a native value', async (t: Test) => {
       t.matchSnapshot(formatter.format(new Set('abc')));
     });
+
+    t.test('it formats a null value', async (t: Test) => {
+      t.matchSnapshot(formatter.format(null));
+    });
+
+    t.test('it formats an undefined value', async (t: Test) => {
+      t.matchSnapshot(formatter.format(undefined));
+    });
   });
 }
 

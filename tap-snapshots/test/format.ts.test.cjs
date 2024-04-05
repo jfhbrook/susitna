@@ -77,6 +77,10 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a native v
 Set(3) { 'a', 'b', 'c' }
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a null value > must match snapshot 1`] = `
+null
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number > must match snapshot 1`] = `
 12345
 `
@@ -171,6 +175,10 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError
 Traceback:
   File '/home/josh/script.bas', line 100
 OsError EADDRINUSE: message
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an undefined value > must match snapshot 1`] = `
+undefined
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > when it is a line > it formats a ParseError > must match snapshot 1`] = `

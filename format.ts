@@ -77,7 +77,7 @@ export abstract class Formatter {
       return this.formatCmd(value);
     }
 
-    if (value.format) {
+    if (value && value.format) {
       return value.format(this);
     }
 

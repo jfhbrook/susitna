@@ -1,3 +1,4 @@
+import { span } from './trace';
 import { Argv, cli, Env } from './cli';
 import { Config } from './config';
 import { Host } from './host';
@@ -9,14 +10,16 @@ function parseArgs(argv: Argv, env: Env): Config {
 }
 
 async function run(config: Config, host: Host): Promise<void> {
-  const commander = new Commander(config, host);
-  const translator = new Translator(config, commander, host);
+  await span('main', async () => {
+    const commander = new Commander(config, host);
+    const translator = new Translator(config, commander, host);
 
-  if (config.script) {
-    await translator.script(config.script);
-  } else {
-    await translator.repl();
-  }
+    if (config.script) {
+      await translator.script(config.script);
+    } else {
+      await translator.repl();
+    }
+  });
 }
 
 export const main = cli({ parseArgs, run });

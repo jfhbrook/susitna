@@ -1,3 +1,4 @@
+import { span, spanSync } from './trace';
 import { Exit, ExitCode } from './exit';
 import { RuntimeFault, UsageFault } from './faults';
 import { ConsoleHost, Host, Level } from './host';
@@ -92,6 +93,7 @@ export type Main = (options: RuntimeOptions) => Promise<void>;
  * @returns A main function.
  */
 export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
+  let error: any = null;
   return async function main({
     host: overriddenHost,
     exit: overriddenExit,
@@ -101,13 +103,21 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
     const host: Host = overriddenHost || new ConsoleHost();
     const exit: ExitFn = overriddenExit || process.exit;
 
-    try {
-      const config = cli.parseArgs(argv, env);
-      host.setLevel(config.level);
-      await cli.run(config, host);
-    } catch (err) {
-      reportError(err, host);
-      exit(typeof err.exitCode === 'number' ? err.exitCode : ExitCode.Software);
+    await span('cli', async () => {
+      try {
+        const config = cli.parseArgs(argv, env);
+        host.setLevel(config.level);
+        await cli.run(config, host);
+      } catch (err) {
+        reportError(err, host);
+        error = err;
+      }
+    });
+
+    if (error) {
+      exit(
+        typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
+      );
     }
 
     // For consistency, explicitly exit instead of allowing Node to run the
@@ -123,25 +133,27 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
  * @param host A Host instance.
  */
 export function reportError(err: any, host: Host): void {
-  if (err instanceof UsageFault) {
-    host.writeOut(err);
-    host.writeOut('\n');
-  }
+  spanSync('reportError', () => {
+    if (err instanceof UsageFault) {
+      host.writeOut(err);
+      host.writeOut('\n');
+    }
 
-  // Handle successful exits.
-  if (err instanceof Exit) {
-    host.writeInfo(err.message);
-  }
+    // Handle successful exits.
+    if (err instanceof Exit) {
+      host.writeInfo(err.message);
+    }
 
-  if (err.format) {
-    try {
-      host.writeException(err);
-    } catch (_) {
+    if (err.format) {
+      try {
+        host.writeException(err);
+      } catch (_) {
+        const fault = RuntimeFault.fromError(err, null);
+        host.writeException(fault);
+      }
+    } else {
       const fault = RuntimeFault.fromError(err, null);
       host.writeException(fault);
     }
-  } else {
-    const fault = RuntimeFault.fromError(err, null);
-    host.writeException(fault);
-  }
+  });
 }

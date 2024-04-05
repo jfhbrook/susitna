@@ -1,12 +1,16 @@
+import { AssertionError } from 'assert';
 import { readFile } from 'fs/promises';
 
+import { span } from './trace';
 import { Config } from './config';
 import { Commander } from './commander';
+import { formatter } from './format';
 import { Host } from './host';
 import { BaseException } from './exceptions';
-import { BaseFault, NotImplementedFault, RuntimeFault } from './faults';
+import { BaseFault, RuntimeFault } from './faults';
 import { parseInput, parseProgram } from './parser';
-import { Result, Ok, Err, Warn } from './result';
+import { Ok, Err, Warn } from './result';
+import { Line } from './ast/line';
 
 export class Translator {
   constructor(
@@ -25,53 +29,64 @@ export class Translator {
 
   async repl() {
     await this.commander.using(async () => {
-      while (true) {
-        try {
-          const input = await this.commander.prompt();
-          await this.translate(input);
-        } catch (err) {
-          if (err instanceof BaseFault) {
-            throw err;
-          }
+      await span('repl', async () => {
+        while (true) {
+          try {
+            const input = await this.commander.prompt();
+            await this.translate(input);
+          } catch (err) {
+            if (err instanceof BaseFault) {
+              throw err;
+            }
 
-          if (err instanceof BaseException) {
-            this.host.writeException(err);
-          }
+            if (err instanceof BaseException) {
+              this.host.writeException(err);
+            }
 
-          throw RuntimeFault.fromError(err, null);
+            throw RuntimeFault.fromError(err, null);
+          }
         }
-      }
+      });
     });
   }
 
   async translate(input: string): Promise<void> {
-    try {
+    await span('translate', async () => {
       const result = parseInput(input);
 
       if (result instanceof Err) {
         this.host.writeException(result.error);
-      } else if (result instanceof Warn) {
+        return;
+      }
+
+      if (result instanceof Warn) {
         this.host.writeWarn(result.warning);
-      } else if (result instanceof Ok) {
-        console.log(result.result);
-        // this.host.writeInfo(result.result);
-      }
-    } catch (err) {
-      // TODO: Temporary for debugging
-      if (err instanceof RuntimeFault) {
-        this.host.writeException(err);
-        return;
       }
 
-      if (err instanceof BaseFault) {
-        this.host.writeException(err);
-        return;
+      if (!(result instanceof Ok)) {
+        throw RuntimeFault.fromError(
+          new AssertionError({
+            message: 'Result is not Ok',
+            actual: typeof result,
+            expected: 'Ok',
+            operator: 'instanceof',
+          }),
+          null,
+        );
       }
 
-      throw err;
-    }
-
-    // TODO: If it's a Line, pass it to the Editor
-    // TODO: If it's a Command, pass it to the Commander
+      for (let row of result.result) {
+        if (row instanceof Line) {
+          console.log('TODO: write line to Editor');
+        } else {
+          for (let cmd of row) {
+            let value = await this.commander.evalCommand(cmd);
+            if (value) {
+              this.host.writeOut(formatter.format(value) + '\n');
+            }
+          }
+        }
+      }
+    });
   }
 }

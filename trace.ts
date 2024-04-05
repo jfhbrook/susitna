@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+
 import { MATBAS_BUILD } from './constants';
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
@@ -136,7 +138,9 @@ let getTracer = function getTracer(name: string): Tracer {
 };
 
 if (MATBAS_BUILD === 'debug') {
-  if (parseBoolEnv(process.env.TRACE)) {
+  dotenv.config();
+
+  if (parseBoolEnv(process.env.TRACE) && !parseBoolEnv(process.env.TAP)) {
     const tracer = new Tracer();
 
     TRACERS['main'] = tracer;

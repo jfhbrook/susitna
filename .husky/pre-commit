@@ -2,4 +2,5 @@
 
 npm run check
 npm test
+npm run test:shell
 npm run lint

@@ -17,6 +17,8 @@
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "eslint \"**.ts\" --fix",
     "test": "npm run build:versions && NO_TRACE=1 tap ./test/*.ts",
+    "test:shell": "shellcheck ./bin/* ./scripts/* ./.husky/pre-commit",
+    "test:citree": "cd tools/citree && npm test",
     "snap": "npm run build:versions && npm run format && NO_TRACE=1 tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node",
     "prepare": "husky"

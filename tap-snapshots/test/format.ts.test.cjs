@@ -41,7 +41,7 @@ true
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Cmd > must match snapshot 1`] = `
-
+Print('hello')
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Code > must match snapshot 1`] = `
@@ -68,11 +68,13 @@ Frame(Code('/home/josh/script.bas'))
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Line > must match snapshot 1`] = `
-
+Line(100) [
+  Print('hello world'),
+]
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a native value > must match snapshot 1`] = `
-
+Set(3) { 'a', 'b', 'c' }
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number > must match snapshot 1`] = `
@@ -80,7 +82,11 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a number >
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Program > must match snapshot 1`] = `
-
+Program(
+  Line(100) [
+    Print('hello world'),
+  ],
+)
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
@@ -124,7 +130,18 @@ hello
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Token > must match snapshot 1`] = `
-
+Token(<string>) {
+  index: 0,
+  row: 0,
+  offsetStart: 0,
+  offsetEnd: 9,
+  text: "'hello\\q'",
+  warnings:
+    /home/josh/script.bas:<R0>:6 (at the beginning): warning: Invalid escape sequence \`\\q\`
+      'hello\\q'
+           ^
+  value: 'hello\\q',
+}
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
@@ -147,7 +164,7 @@ message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Expr > must match snapshot 1`] = `
-
+'hello'
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError > must match snapshot 1`] = `

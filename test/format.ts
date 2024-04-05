@@ -19,9 +19,9 @@ import {
 } from '../exceptions';
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
-import { Token } from '../tokens';
-import { Expr } from '../ast/expr';
-import { Cmd } from '../ast/cmd';
+import { Token, TokenKind } from '../tokens';
+import { StringLiteral } from '../ast/expr';
+import { Print } from '../ast/cmd';
 import { Line } from '../ast/line';
 import { Program } from '../ast/program';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
@@ -246,27 +246,61 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     });
 
     t.test('it formats a Token', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(
+        formatter.format(
+          new Token({
+            kind: TokenKind.StringLiteral,
+            index: 0,
+            row: 0,
+            offsetStart: 0,
+            offsetEnd: 9,
+            text: "'hello\\q'",
+            value: 'hello\\q',
+            warnings: [
+              new SyntaxWarning(
+                `Invalid escape sequence \`\\q\``,
+                FILENAME,
+                0,
+                false,
+                0,
+                6,
+                8,
+                "'hello\\q'",
+              ),
+            ],
+          }),
+        ),
+      );
     });
 
     t.test('it formats an Expr', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(formatter.format(new StringLiteral('hello')));
     });
 
     t.test('it formats a Cmd', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(formatter.format(new Print(new StringLiteral('hello'))));
     });
 
     t.test('it formats a Line', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(
+        formatter.format(
+          new Line(100, [new Print(new StringLiteral('hello world'))]),
+        ),
+      );
     });
 
     t.test('it formats a Program', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(
+        formatter.format(
+          new Program([
+            new Line(100, [new Print(new StringLiteral('hello world'))]),
+          ]),
+        ),
+      );
     });
 
     t.test('it formats a native value', async (t: Test) => {
-      t.matchSnapshot('');
+      t.matchSnapshot(formatter.format(new Set('abc')));
     });
   });
 }

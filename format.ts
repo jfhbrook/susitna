@@ -43,7 +43,7 @@ export function indent(indent: number, value: string): string {
   }
   return value
     .split('\n')
-    .map((line) => `${tab}${line}`)
+    .map((line) => (line.length ? `${tab}${line}` : ''))
     .join('\n');
 }
 
@@ -355,13 +355,13 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatLine(line: Line): string {
-    let formatted = `Line(\n  ${line.lineNo}) [\n`;
+    let formatted = `Line(${line.lineNo}) [\n`;
     let cmds: string[] = [];
     for (let cmd of line.commands) {
       cmds.push(cmd.accept(defaultCmdFormatter));
     }
     for (let cmd of cmds) {
-      formatted += indent(2, `$${cmd},\n`);
+      formatted += indent(1, `${cmd},\n`);
     }
     formatted += ']';
 
@@ -375,9 +375,9 @@ export class DefaultFormatter extends Formatter {
       lines.push(indent(1, this.formatLine(line)));
     }
     for (let line of lines) {
-      formatted += `\n  ${line},`;
+      formatted += `${line},\n`;
     }
-    formatted += '\n)';
+    formatted += ')';
     return formatted;
   }
 
@@ -397,14 +397,17 @@ export class DefaultFormatter extends Formatter {
     formatted += `  offsetEnd: ${token.offsetEnd},\n`;
     formatted += `  text: ${inspectString(token.text)},\n`;
     if (token.warnings.length) {
-      formatted += '  warnings: [\n';
+      formatted += '  warnings:\n';
       for (let warning of token.warnings) {
-        formatted += indent(4, `${this.format(warning)}\n`);
+        formatted += indent(2, `${this.format(warning)}\n`);
       }
-      formatted += '  ],\n';
     }
     if (token.value) {
-      formatted += `  value: ${this.format(token.value)},\n`;
+      const value =
+        typeof token.value === 'string'
+          ? inspectString(token.value)
+          : token.value;
+      formatted += `  value: ${value},\n`;
     }
     formatted += '}';
     return formatted;

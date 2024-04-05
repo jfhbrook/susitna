@@ -1,0 +1,7 @@
+{
+  "*.ts": [
+    "prettier --list-different",
+    "eslint --fix"
+  ],
+  "*.sh": ["shellcheck"]
+}

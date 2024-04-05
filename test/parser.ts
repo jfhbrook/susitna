@@ -98,8 +98,17 @@ t.test('non-numbered print command without arguments', async (t: Test) => {
   t.matchSnapshot(formatter.format(error));
 });
 
-// TODO: bare malformed print statement
-// TODO: numbered malformed print statement
+t.test('numbered print command without arguments', async (t: Test) => {
+  const result = parseInput('100 print');
+
+  t.type(result, Err);
+
+  const error = (result as any).error;
+
+  t.same(result.result, []);
+  t.matchSnapshot(formatter.format(error));
+});
+
 // TODO: multi-line numbered inputs
 // TODO: multi-line mixed inputs
 // TODO: multi-line numbered inputs with parseProgram

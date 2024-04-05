@@ -157,6 +157,14 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a UsageFau
 Usage: lol
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an array of values > must match snapshot 1`] = `
+[
+  1,
+  'two',
+  true,
+]
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an AssertionError > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100

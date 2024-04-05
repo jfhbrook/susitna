@@ -310,6 +310,10 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats an undefined value', async (t: Test) => {
       t.matchSnapshot(formatter.format(undefined));
     });
+
+    t.test('it formats an array of values', async (t: Test) => {
+      t.matchSnapshot(formatter.format([1, 'two', true]));
+    });
   });
 }
 

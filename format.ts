@@ -81,6 +81,10 @@ export abstract class Formatter {
       return value.format(this);
     }
 
+    if (Array.isArray(value)) {
+      return this.formatArray(value);
+    }
+
     return inspect(value);
   }
 
@@ -118,6 +122,8 @@ export abstract class Formatter {
   abstract formatExpr(expr: Expr): string;
   abstract formatCmd(cmd: Cmd): string;
   abstract formatToken(token: Token): string;
+
+  abstract formatArray(array: any[]): string;
 }
 
 /**
@@ -410,6 +416,20 @@ export class DefaultFormatter extends Formatter {
       formatted += `  value: ${value},\n`;
     }
     formatted += '}';
+    return formatted;
+  }
+
+  formatArray(array: any[]): string {
+    let formatted = '[\n';
+    for (let i = 0; i < array.length; i++) {
+      if (typeof array[i] === 'string') {
+        formatted += indent(1, inspectString(array[i]));
+      } else {
+        formatted += indent(1, this.format(array[i]));
+      }
+      formatted += ',\n';
+    }
+    formatted += ']';
     return formatted;
   }
 }

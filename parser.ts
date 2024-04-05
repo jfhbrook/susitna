@@ -126,10 +126,12 @@ class Parser {
 
   private advance(): Token | null {
     return spanSync('advance', () => {
-      this.previous = this.current;
+      if (this.current.kind !== TokenKind.Whitespace) {
+        this.previous = this.current;
+      }
       this.current = this.scanner.nextToken();
 
-      this.line += this.current!.text;
+      this.line += this.current.text;
 
       if (this.current.kind === TokenKind.Whitespace) {
         return this.advance();

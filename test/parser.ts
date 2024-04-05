@@ -10,6 +10,8 @@ import {
   StringLiteral,
 } from '../ast/expr';
 import { Cmd, Print, Expression } from '../ast/cmd';
+import { Line } from '../ast/line';
+import { Program } from '../ast/program';
 import { TokenKind } from '../tokens';
 import { parseInput, parseProgram } from '../parser';
 import { Result, Ok, Err, Warn } from '../result';
@@ -32,6 +34,14 @@ for (let [source, cmd] of LITERALS) {
     t.type(result, Ok);
 
     t.same(result.result, [[cmd]]);
+  });
+
+  t.test(`numbered literal expression ${source}`, async (t: Test) => {
+    const result = parseInput(`100 ${source}`);
+
+    t.type(result, Ok);
+
+    t.same(result.result, [new Line(100, [cmd])]);
   });
 }
 

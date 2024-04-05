@@ -1,16 +1,16 @@
 import { Token, TokenKind } from '../tokens';
 import { Cmd } from './cmd';
 
-export interface AstVisitor<R> {
-  visitLineAst(node: Line): R;
-  visitProgramAst(node: Program): R;
+export interface TreeVisitor<R> {
+  visitLineTree(node: Line): R;
+  visitProgramTree(node: Program): R;
 }
 
-export abstract class Ast {
-  abstract accept<R>(visitor: AstVisitor<R>): R;
+export abstract class Tree {
+  abstract accept<R>(visitor: TreeVisitor<R>): R;
 }
 
-export class Line extends Ast {
+export class Line extends Tree {
   constructor(
     public readonly lineNo: number,
     public readonly commands: Cmd[],
@@ -18,17 +18,17 @@ export class Line extends Ast {
     super();
   }
 
-  accept<R>(visitor: AstVisitor<R>): R {
-    return visitor.visitLineAst(this);
+  accept<R>(visitor: TreeVisitor<R>): R {
+    return visitor.visitLineTree(this);
   }
 }
 
-export class Program extends Ast {
+export class Program extends Tree {
   constructor(public readonly lines: Line[]) {
     super();
   }
 
-  accept<R>(visitor: AstVisitor<R>): R {
-    return visitor.visitProgramAst(this);
+  accept<R>(visitor: TreeVisitor<R>): R {
+    return visitor.visitProgramTree(this);
   }
 }

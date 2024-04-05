@@ -15,7 +15,7 @@ type Cmd in './cmd' {
   Print      => expression: Expr
 }
 
-type Ast in './index' {
+type Tree in './index' {
   import { Cmd } from './cmd'
   Line => lineNo: number, commands: Cmd[]
   Program => lines: Line[]

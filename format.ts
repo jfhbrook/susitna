@@ -25,7 +25,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
-import { Ast, AstVisitor, Line, Program } from './ast';
+import { Tree, TreeVisitor, Line, Program } from './ast';
 import { Token } from './tokens';
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
@@ -51,7 +51,7 @@ export function indent(indent: number, value: string): string {
  * A formatter. This is an abstract class and should not be used directly.
  */
 export abstract class Formatter
-  implements ExprVisitor<string>, CmdVisitor<string>, AstVisitor<string>
+  implements ExprVisitor<string>, CmdVisitor<string>, TreeVisitor<string>
 {
   /**
    * Format a value.
@@ -79,8 +79,8 @@ export abstract class Formatter
       return this.formatCmd(value);
     }
 
-    if (value instanceof Ast) {
-      return this.formatAst(value);
+    if (value instanceof Tree) {
+      return this.formatTree(value);
     }
 
     if (value && value.format) {
@@ -125,7 +125,7 @@ export abstract class Formatter
 
   abstract formatExpr(expr: Expr): string;
   abstract formatCmd(cmd: Cmd): string;
-  abstract formatAst(ast: Ast): string;
+  abstract formatTree(ast: Tree): string;
   abstract formatToken(token: Token): string;
 
   abstract visitIntLiteralExpr(int: IntLiteral): string;
@@ -137,8 +137,8 @@ export abstract class Formatter
   abstract visitPrintCmd(node: Print): string;
   abstract visitExpressionCmd(node: Expression): string;
 
-  abstract visitLineAst(node: Line): string;
-  abstract visitProgramAst(node: Program): string;
+  abstract visitLineTree(node: Line): string;
+  abstract visitProgramTree(node: Program): string;
 
   abstract formatArray(array: any[]): string;
 }
@@ -345,7 +345,7 @@ export class DefaultFormatter extends Formatter {
     return exit.message;
   }
 
-  visitLineAst(line: Line): string {
+  visitLineTree(line: Line): string {
     let formatted = `Line(${line.lineNo}) [\n`;
     let cmds: string[] = [];
     for (let cmd of line.commands) {
@@ -359,7 +359,7 @@ export class DefaultFormatter extends Formatter {
     return formatted;
   }
 
-  visitProgramAst(program: Program): string {
+  visitProgramTree(program: Program): string {
     let formatted = 'Program(\n';
     let lines: string[] = [];
     for (let line of program.lines) {
@@ -380,7 +380,7 @@ export class DefaultFormatter extends Formatter {
     return cmd.accept(this);
   }
 
-  formatAst(ast: Ast): string {
+  formatTree(ast: Tree): string {
     return ast.accept(this);
   }
 

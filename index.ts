@@ -1,4 +1,13 @@
+import * as dotenv from 'dotenv';
+
+import { MATBAS_BUILD } from './constants';
+
+if (MATBAS_BUILD === 'debug') {
+  dotenv.config();
+}
+
 import { span } from './trace';
+
 import { Argv, cli, Env } from './cli';
 import { Config } from './config';
 import { Host } from './host';

@@ -1,6 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { formatter } from '../format';
 import {
   Expr,
   IntLiteral,
@@ -34,8 +35,17 @@ for (let [source, cmd] of LITERALS) {
   });
 }
 
-// TODO: bare literal expressions
-// TODO: bare string with invalid escape sequences
+t.test('invalid string escape', async (t: Test) => {
+  const result = parseInput("'\\q'");
+
+  t.type(result, Warn);
+
+  const warning = (result as any).warning;
+
+  t.same(result.result, [[new Expression(new StringLiteral('\\q'))]]);
+  t.matchSnapshot(formatter.format(warning));
+});
+
 // TODO: bare print statement
 // TODO: numbered literal expressions
 // TODO: numbered string with invalid escape sequences

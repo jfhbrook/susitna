@@ -7,6 +7,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  NilLiteral,
 } from '../ast/expr';
 import { Cmd, Print, Expression } from '../ast/cmd';
 import { Line } from '../ast/line';
@@ -23,6 +24,7 @@ const LITERALS: Array<[string, Cmd]> = [
   ['123.456', new Expression(new RealLiteral(123.456))],
   ['true', new Expression(new BoolLiteral(true))],
   ['false', new Expression(new BoolLiteral(false))],
+  ['nil', new Expression(new NilLiteral())],
   ['"hello world"', new Expression(new StringLiteral('hello world'))],
 ];
 

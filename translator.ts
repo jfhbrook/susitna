@@ -1,7 +1,7 @@
 import { AssertionError } from 'assert';
 import { readFile } from 'fs/promises';
 
-import { span } from './trace';
+import { trace, span } from './trace';
 import { Config } from './config';
 import { Commander } from './commander';
 import { formatter } from './format';
@@ -74,6 +74,8 @@ export class Translator {
           null,
         );
       }
+
+      trace('parse result', result.result);
 
       for (let row of result.result) {
         if (row instanceof Line) {

@@ -20,10 +20,12 @@ export enum TokenKind {
 
   RealLiteral = '<real>',
 
-  TrueLiteral = 'TRUE',
-  FalseLiteral = 'FALSE',
+  TrueLiteral = 'true',
+  FalseLiteral = 'false',
 
   StringLiteral = '<string>',
+
+  NilLiteral = 'nil',
 
   Ident = '<ident>',
   StringIdent = '<string-ident>',

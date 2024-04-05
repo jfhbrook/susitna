@@ -7,8 +7,9 @@ import { RuntimeFault } from './faults';
 import { formatter } from './format';
 import { Host } from './host';
 import { renderPrompt } from './shell';
-import { Value } from './value';
+import { Value, nil } from './value';
 import { Cmd, Print, Expression } from './ast/cmd';
+import { NilLiteral } from './ast/expr';
 
 export class Commander {
   private _readline: readline.Interface | null;
@@ -150,12 +151,19 @@ export class Commander {
     return await span('Commander.evalCommand', async () => {
       if (cmd instanceof Print) {
         const expr = cmd.expression;
-        this.host.writeOut(formatter.format((expr as any).value) + '\n');
+        let value = (expr as any).value;
+        if (expr instanceof NilLiteral) {
+          value = nil;
+        }
+        this.host.writeOut(formatter.format(value) + '\n');
         return undefined;
       } else if (cmd instanceof Expression) {
         const expr = cmd.expression;
-
-        return (expr as any).value;
+        let value = (expr as any).value;
+        if (expr instanceof NilLiteral) {
+          value = nil;
+        }
+        return value;
       } else {
         throw RuntimeFault.fromError(
           new AssertionError({

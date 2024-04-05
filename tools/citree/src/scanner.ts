@@ -11,6 +11,7 @@ export enum TokenKind {
   Type = 'type',
   In = 'in',
   HasFields = '=>',
+  Bang = '!',
   OfType = ':',
   Ident = '<ident>',
   Union = '|',
@@ -28,6 +29,7 @@ export const scanner = buildLexer([
   [true, /^{/g, TokenKind.LBrace],
   [true, /^}/g, TokenKind.RBrace],
   [true, /^\*/g, TokenKind.Asterisk],
+  [true, /^!/g, TokenKind.Bang],
   [true, /^"([^"\\]|\\.)*"/g, TokenKind.Path],
   [true, /^'([^'\\]|\\.)*'/g, TokenKind.Path],
   // eslint-disable-next-line no-useless-escape

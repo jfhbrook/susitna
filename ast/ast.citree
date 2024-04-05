@@ -3,8 +3,9 @@ import { Token, TokenKind } from '../tokens'
 type Expr in './expr' {
   IntLiteral     => value: number
   RealLiteral    => value: number
-  BoolLiteral => value: boolean
+  BoolLiteral    => value: boolean
   StringLiteral  => value: string
+  NilLiteral!
 }
 
 type Cmd in './cmd' {

@@ -22,6 +22,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  NilLiteral,
 } from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 import { Line } from './ast/line';
@@ -50,7 +51,9 @@ export function indent(indent: number, value: string): string {
 /**
  * A formatter. This is an abstract class and should not be used directly.
  */
-export abstract class Formatter {
+export abstract class Formatter
+  implements ExprVisitor<string>, CmdVisitor<string>
+{
   /**
    * Format a value.
    *
@@ -123,6 +126,15 @@ export abstract class Formatter {
   abstract formatCmd(cmd: Cmd): string;
   abstract formatToken(token: Token): string;
 
+  abstract visitIntLiteralExpr(int: IntLiteral): string;
+  abstract visitRealLiteralExpr(real: RealLiteral): string;
+  abstract visitBoolLiteralExpr(bool: BoolLiteral): string;
+  abstract visitStringLiteralExpr(node: StringLiteral): string;
+  abstract visitNilLiteralExpr(node: NilLiteral): string;
+
+  abstract visitPrintCmd(node: Print): string;
+  abstract visitExpressionCmd(node: Expression): string;
+
   abstract formatArray(array: any[]): string;
 }
 
@@ -138,38 +150,6 @@ export function inspectString(str: string): string {
   }
   return `'${str}'`;
 }
-
-export class DefaultExprFormatter implements ExprVisitor<string> {
-  visitIntLiteralExpr(int: IntLiteral): string {
-    return String(int.value);
-  }
-
-  visitRealLiteralExpr(real: RealLiteral): string {
-    return String(real.value);
-  }
-
-  visitBoolLiteralExpr(bool: BoolLiteral): string {
-    return String(bool.value);
-  }
-
-  visitStringLiteralExpr(node: StringLiteral): string {
-    return inspectString(node.value);
-  }
-}
-
-const defaultExprFormatter = new DefaultExprFormatter();
-
-export class DefaultCmdFormatter implements CmdVisitor<string> {
-  visitExpressionCmd(node: Expression): string {
-    return `Expression(${node.expression.accept(defaultExprFormatter)})`;
-  }
-
-  visitPrintCmd(node: Print): string {
-    return `Print(${node.expression.accept(defaultExprFormatter)})`;
-  }
-}
-
-const defaultCmdFormatter = new DefaultCmdFormatter();
 
 /**
  * A default, standard formatter.
@@ -364,7 +344,7 @@ export class DefaultFormatter extends Formatter {
     let formatted = `Line(${line.lineNo}) [\n`;
     let cmds: string[] = [];
     for (let cmd of line.commands) {
-      cmds.push(cmd.accept(defaultCmdFormatter));
+      cmds.push(cmd.accept(this));
     }
     for (let cmd of cmds) {
       formatted += indent(1, `${cmd},\n`);
@@ -388,11 +368,11 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatExpr(expr: Expr): string {
-    return expr.accept(defaultExprFormatter);
+    return expr.accept(this);
   }
 
   formatCmd(cmd: Cmd): string {
-    return cmd.accept(defaultCmdFormatter);
+    return cmd.accept(this);
   }
 
   formatToken(token: Token): string {
@@ -417,6 +397,34 @@ export class DefaultFormatter extends Formatter {
     }
     formatted += '}';
     return formatted;
+  }
+
+  visitIntLiteralExpr(int: IntLiteral): string {
+    return String(int.value);
+  }
+
+  visitRealLiteralExpr(real: RealLiteral): string {
+    return String(real.value);
+  }
+
+  visitBoolLiteralExpr(bool: BoolLiteral): string {
+    return String(bool.value);
+  }
+
+  visitStringLiteralExpr(node: StringLiteral): string {
+    return inspectString(node.value);
+  }
+
+  visitNilLiteralExpr(node: NilLiteral): string {
+    return 'nil';
+  }
+
+  visitExpressionCmd(node: Expression): string {
+    return `Expression(${node.expression.accept(this)})`;
+  }
+
+  visitPrintCmd(node: Print): string {
+    return `Print(${node.expression.accept(this)})`;
   }
 
   formatArray(array: any[]): string {

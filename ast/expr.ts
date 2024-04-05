@@ -5,6 +5,7 @@ export interface ExprVisitor<R> {
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
   visitStringLiteralExpr(node: StringLiteral): R;
+  visitNilLiteralExpr(node: NilLiteral): R;
 }
 
 export abstract class Expr {
@@ -48,5 +49,15 @@ export class StringLiteral extends Expr {
 
   accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitStringLiteralExpr(this);
+  }
+}
+
+export class NilLiteral extends Expr {
+  constructor() {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitNilLiteralExpr(this);
   }
 }

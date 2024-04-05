@@ -1,3 +1,12 @@
 import { BaseException } from './exceptions';
+import { Formattable, Formatter } from './format';
 
-export type Value = number | string | boolean | BaseException | null;
+export class Nil implements Formattable {
+  format(formatter: Formatter): string {
+    return 'nil';
+  }
+}
+
+export const nil = new Nil();
+
+export type Value = number | string | boolean | BaseException | Nil;

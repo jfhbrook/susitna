@@ -29,7 +29,7 @@ export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
-class Assign extends Expr {
+export class Assign extends Expr {
   constructor(public readonly name: Token, public readonly value: Expr | null) {
     super();
   }
@@ -38,6 +38,7 @@ class Assign extends Expr {
     return visitor.visitAssignExpr(this);
   }
 }
+
 `;
 
 t.equal(render(CONFIG), RENDERED, 'it renders a basic config');

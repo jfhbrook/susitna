@@ -17,6 +17,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  NilLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
 import { Line } from './ast/line';
@@ -406,6 +407,8 @@ class Parser {
           this.isWarning = true;
         }
         return new StringLiteral(this.previous.value as string);
+      } else if (this.match(TokenKind.NilLiteral)) {
+        return new NilLiteral();
       } else {
         const token = this.peek();
         this.syntaxError(

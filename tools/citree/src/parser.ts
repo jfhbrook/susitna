@@ -96,14 +96,27 @@ const fieldDefinition = apply(
 const nodeDefinition: Parser<TokenKind, NodeDefinition> = apply(
   seq(
     tok(TokenKind.Ident),
-    tok(TokenKind.HasFields),
-    list_sc(fieldDefinition, tok(TokenKind.Comma)),
+    alt(
+      seq(
+        tok(TokenKind.HasFields),
+        list_sc(fieldDefinition, tok(TokenKind.Comma)),
+      ),
+      tok(TokenKind.Bang)
+    ),
   ),
-  ([name, _hasFields, fields]) => {
+  ([name, fields]) => {
+    if (Array.isArray(fields)) {
+      return {
+        type: 'node',
+        name: name.text,
+        fields: fields[1].map((f) => `public readonly ${f}`).join(', '),
+      };
+    }
+
     return {
       type: 'node',
       name: name.text,
-      fields: fields.map((f) => `public readonly ${f}`).join(', '),
+      fields: '',
     };
   },
 );

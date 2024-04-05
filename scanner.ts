@@ -5,6 +5,7 @@ import { Token, TokenKind } from './tokens';
 export const KEYWORDS: Record<string, TokenKind> = {
   true: TokenKind.TrueLiteral,
   false: TokenKind.FalseLiteral,
+  nil: TokenKind.NilLiteral,
 
   // loading, saving, running etc
   new: TokenKind.New,

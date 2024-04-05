@@ -1,7 +1,6 @@
-import { inspect } from 'util';
-
 import { MATBAS_BUILD } from './constants';
 import { parseBoolEnv } from './env';
+import { formatter } from './format';
 
 //
 // Active tracers.
@@ -48,17 +47,12 @@ export class Tracer {
     if (typeof message === 'string') {
       msg = message.split('\n');
     } else {
-      msg = inspect(message).split('\n');
+      msg = formatter.format(message).split('\n');
     }
 
     for (let arg of args) {
-      let inspected: string;
-      if (typeof arg === 'string') {
-        inspected = arg;
-      } else {
-        inspected = inspect(arg);
-      }
-      const sp = inspected.split('\n');
+      const formatted = formatter.format(arg);
+      const sp = formatted.split('\n');
       if (sp.length) {
         msg[msg.length - 1] += ' ' + sp.shift();
         msg = msg.concat(sp);

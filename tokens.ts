@@ -10,7 +10,20 @@ export enum TokenKind {
   Comma = ',',
   Semicolon = ';',
   Colon = ':',
+  Dot = '.',
+
+  Plus = '+',
+  Minus = '-',
+  Star = '*',
+  Slash = '/',
+
   Equals = '=',
+  Gt = '>',
+  Lt = '<',
+  Ge = '>=',
+  Le = '<=',
+  Ne = '<>',
+
   Hash = '#',
 
   DecimalLiteral = '<decimal>',

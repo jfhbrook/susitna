@@ -202,11 +202,33 @@ export class Scanner {
         return this.emitToken(TokenKind.Semicolon);
       case ':':
         return this.emitToken(TokenKind.Colon);
-      case '#':
-        return this.emitToken(TokenKind.Hash);
+      case '.':
+        return this.emitToken(TokenKind.Dot);
+      case '+':
+        return this.emitToken(TokenKind.Plus);
+      case '-':
+        return this.emitToken(TokenKind.Minus);
+      case '*':
+        return this.emitToken(TokenKind.Star);
+      case '/':
+        return this.emitToken(TokenKind.Slash);
       case '=':
         // TODO: How does equality work?
         return this.emitToken(TokenKind.Equals);
+      case '>':
+        if (this.match('=')) {
+          return this.emitToken(TokenKind.Ge);
+        }
+        return this.emitToken(TokenKind.Gt);
+      case '<':
+        if (this.match('>')) {
+          return this.emitToken(TokenKind.Ne);
+        } else if (this.match('=')) {
+          return this.emitToken(TokenKind.Le);
+        }
+        return this.emitToken(TokenKind.Lt);
+      case '#':
+        return this.emitToken(TokenKind.Hash);
       case '"':
         return this.string('"');
       case "'":

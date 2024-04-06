@@ -135,8 +135,7 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
 export function reportError(err: any, host: Host): void {
   spanSync('reportError', () => {
     if (err instanceof UsageFault) {
-      host.writeOut(err);
-      host.writeOut('\n');
+      host.writeLine(err);
     }
 
     // Handle successful exits.

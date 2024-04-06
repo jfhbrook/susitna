@@ -3,7 +3,6 @@ import * as readline from 'node:readline/promises';
 import { span } from './trace';
 import { Compiler } from './compiler';
 import { Config } from './config';
-import { formatter } from './format';
 import { Host } from './host';
 import { Runtime, RuntimeResult } from './runtime';
 import { Ok, Err, Warn } from './result';
@@ -169,16 +168,16 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
       const evalResult = await compiled.accept(this);
 
       if (evalResult instanceof Err) {
-        this.host.writeException(formatter.format(evalResult.error));
+        this.host.writeException(evalResult.error);
         return;
       }
 
       if (evalResult instanceof Warn) {
-        this.host.writeWarn(formatter.format(evalResult.warning));
+        this.host.writeWarn(evalResult.warning);
       }
 
       if (typeof evalResult.result !== 'undefined') {
-        this.host.writeOut(formatter.format(evalResult.result) + '\n');
+        this.host.writeLine(evalResult.result);
       }
     });
   }

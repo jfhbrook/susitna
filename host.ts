@@ -66,18 +66,31 @@ export interface Host {
   setLevel(level: Level): void;
 
   /**
-   * Write a value to the output channel.
+   * Write a value to the output channel, without a newline.
    *
    * @param value The value to write.
    */
   writeOut(value: any): void;
-
   /**
-   * Write a value to the error channel.
+   * Write a value to the error channel, without a newline.
    *
    * @param value The value to write.
    */
   writeError(value: any): void;
+
+  /**
+   * Write a value to the output channel, with a newline.
+   *
+   * @param value The value to write.
+   */
+  writeLine(value: any): void;
+
+  /**
+   * Write a value to the error channel, without a newline.
+   *
+   * @param value The value to write.
+   */
+  writeErrorLine(value: any): void;
 
   /**
    * Write a value to the debug channel. If the log level is not inclusive of
@@ -201,11 +214,19 @@ export class ConsoleHost implements Host {
   }
 
   writeOut(value: any): void {
-    this.outputStream.write(value);
+    this.outputStream.write(this.formatter.format(value));
   }
 
   writeError(value: any): void {
     this.errorStream.write(this.formatter.format(value));
+  }
+
+  writeLine(value: any): void {
+    this.outputStream.write(`${this.formatter.format(value)}\n`);
+  }
+
+  writeErrorLine(value: any): void {
+    this.errorStream.write(`${this.formatter.format(value)}\n`);
   }
 
   writeDebug(value: any): void {

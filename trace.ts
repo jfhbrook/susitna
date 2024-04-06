@@ -34,6 +34,10 @@ export class Tracer {
     this.spans--;
   }
 
+  _log(...args: any[]): void {
+    console.log(...args);
+  }
+
   trace(message: any, ...args: any[]): void {
     let prefix = `TRACE <${this.name}> `;
     if (this.spans) {
@@ -59,7 +63,7 @@ export class Tracer {
       }
     }
     for (const row of msg) {
-      console.log(prefix + row);
+      this._log(prefix + row);
     }
   }
 
@@ -81,6 +85,8 @@ export class NoopTracer extends Tracer {
   open(_name: string): void {}
 
   close(): void {}
+
+  _log(..._args: any[]): void {}
 
   trace(_message: any, ..._args: any[]): void {}
 

@@ -4,7 +4,9 @@ import { Exception, NotImplementedError } from './exceptions';
 import { formatter } from './format';
 import { Host } from './host';
 import { Result, Ok, Err, Warn } from './result';
+import { renderPrompt } from './shell';
 import { Value, nil } from './value';
+
 import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { CmdVisitor, Expression, Print } from './ast/cmd';
 import {
@@ -13,6 +15,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  PromptLiteral,
   NilLiteral,
 } from './ast/expr';
 
@@ -124,6 +127,10 @@ export class Runtime
 
   visitStringLiteralExpr(str: StringLiteral): RuntimeResult {
     return new Ok(str.value);
+  }
+
+  visitPromptLiteralExpr(ps: PromptLiteral): RuntimeResult {
+    return new Ok(renderPrompt(ps.value, this.host));
   }
 
   visitNilLiteralExpr(_: NilLiteral): RuntimeResult {

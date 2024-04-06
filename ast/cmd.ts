@@ -1,4 +1,3 @@
-import { Token, TokenKind } from '../tokens';
 import { Expr } from './expr';
 
 export interface CmdVisitor<R> {

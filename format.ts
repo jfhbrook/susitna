@@ -22,6 +22,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  PromptLiteral,
   NilLiteral,
 } from './ast/expr';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
@@ -131,7 +132,8 @@ export abstract class Formatter
   abstract visitIntLiteralExpr(int: IntLiteral): string;
   abstract visitRealLiteralExpr(real: RealLiteral): string;
   abstract visitBoolLiteralExpr(bool: BoolLiteral): string;
-  abstract visitStringLiteralExpr(node: StringLiteral): string;
+  abstract visitStringLiteralExpr(str: StringLiteral): string;
+  abstract visitPromptLiteralExpr(ps: PromptLiteral): string;
   abstract visitNilLiteralExpr(node: NilLiteral): string;
 
   abstract visitPrintCmd(node: Print): string;
@@ -427,8 +429,12 @@ export class DefaultFormatter extends Formatter {
     return String(bool.value);
   }
 
-  visitStringLiteralExpr(node: StringLiteral): string {
-    return inspectString(node.value);
+  visitStringLiteralExpr(str: StringLiteral): string {
+    return inspectString(str.value);
+  }
+
+  visitPromptLiteralExpr(str: PromptLiteral): string {
+    return inspectString(str.value);
   }
 
   visitNilLiteralExpr(_node: NilLiteral): string {

@@ -1,10 +1,9 @@
-import { Token, TokenKind } from '../tokens';
-
 export interface ExprVisitor<R> {
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
   visitStringLiteralExpr(node: StringLiteral): R;
+  visitPromptLiteralExpr(node: PromptLiteral): R;
   visitNilLiteralExpr(node: NilLiteral): R;
 }
 
@@ -49,6 +48,16 @@ export class StringLiteral extends Expr {
 
   accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitStringLiteralExpr(this);
+  }
+}
+
+export class PromptLiteral extends Expr {
+  constructor(public readonly value: string) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitPromptLiteralExpr(this);
   }
 }
 

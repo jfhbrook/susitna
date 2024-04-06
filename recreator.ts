@@ -6,6 +6,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  PromptLiteral,
   NilLiteral,
 } from './ast/expr';
 
@@ -53,6 +54,10 @@ export class Recreator
   }
 
   visitStringLiteralExpr(_string: StringLiteral): string {
+    return '';
+  }
+
+  visitPromptLiteralExpr(_ps: PromptLiteral): string {
     return '';
   }
 

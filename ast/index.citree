@@ -1,4 +1,4 @@
-import { Token, TokenKind } from '../tokens'
+// import { Token, TokenKind } from '../tokens'
 
 type Expr in './expr' {
   // Unary          => op: Token, expr: Expr
@@ -8,6 +8,7 @@ type Expr in './expr' {
   RealLiteral    => value: number
   BoolLiteral    => value: boolean
   StringLiteral  => value: string
+  PromptLiteral  => value: string
   NilLiteral!
 }
 

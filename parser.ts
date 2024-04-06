@@ -17,6 +17,7 @@ import {
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  PromptLiteral,
   NilLiteral,
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
@@ -399,7 +400,7 @@ class Parser {
       } else if (this.match(TokenKind.FalseLiteral)) {
         return new BoolLiteral(false);
       } else if (this.match(TokenKind.StringLiteral)) {
-        return this.stringLiteral();
+        return this.string();
       } else if (this.match(TokenKind.NilLiteral)) {
         return new NilLiteral();
       } else {
@@ -414,7 +415,15 @@ class Parser {
     });
   }
 
-  private stringLiteral(): StringLiteral | null {
+  private string(): StringLiteral {
+    return new StringLiteral(this.parseStringEscapeCodes(false));
+  }
+
+  private prompt(): PromptLiteral {
+    return new PromptLiteral(this.parseStringEscapeCodes(true));
+  }
+
+  private parseStringEscapeCodes(isPrompt: boolean): string {
     const warnings: SyntaxWarning[] = [];
     const text = this.previous.text;
     const input = this.previous.value as string;
@@ -439,14 +448,25 @@ class Parser {
       if (c === '\\') {
         const e = advance();
         switch (e) {
+          // ANSI bell character.
           case 'a':
             value += '\u{07}';
             break;
+          // Backspace.
           case 'b':
             value += '\u{08}';
             break;
+          // ANSI escape code.
+          case 'e':
+            value += '\u001b';
+            break;
           case 't':
-            value += '\t';
+            // Prompt strings render \t as a time format, not a tab.
+            if (isPrompt) {
+              value += '\\t';
+            } else {
+              value += '\t';
+            }
             break;
           case 'r':
             value += '\r';
@@ -497,7 +517,7 @@ class Parser {
       this.isWarning = true;
     }
 
-    return new StringLiteral(value as string);
+    return value;
   }
 }
 

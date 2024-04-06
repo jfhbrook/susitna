@@ -41,11 +41,9 @@ export function abbreviateHome(path: string, host: Host): string {
  * Like in Bash, special characters are preceded with a backslash. Most of
  * Bash's special characters are supported, with some caveats:
  *
- *     \a: A bell character.
  *     \d: The date in "Weekday Month Date" format (e.g., "Tue May 26").
  *     \D: The format is passed to strftime (a node module compatible with
  *       strftime(3). If no format is specified, the default is %H:%M:%S.
- *     \e: An escape character, ie. \u001b.
  *     \h: The hostname up to the first period.
  *     \H: The entire hostname.
  *     \j: Once I actually support shell jobs, this will be the number of jobs.
@@ -78,6 +76,16 @@ export function abbreviateHome(path: string, host: Host): string {
  *
  * In cases where there's a backslash but no escape code, the backslash is
  * dropped and the rest of the characters are left alone.
+ *
+ * A few escape characters are not handled by this function, because they
+ * should be handled in standard string parsing:
+ *
+ *     \a: A bell character.
+ *     \e: An escape character, ie. \u001b.
+ *
+ * Note the \t escape sequence has a different definition from standard
+ * strings, where it translate to a tab character. This means that the parser
+ * must treat prompt strings as a special case.
  *
  * NOTE On OS-Related Functionality:
  * ---------------------------------
@@ -124,7 +132,7 @@ export function renderPrompt(promptString: string, host: Host): string {
     return _now;
   }
 
-  function shift(): string {
+  function advance(): string {
     curr++;
     return promptString[curr - 1];
   }
@@ -134,40 +142,36 @@ export function renderPrompt(promptString: string, host: Host): string {
   }
 
   while (curr < promptString.length) {
-    const c = shift();
+    const c = advance();
     if (c === '\\') {
       if (done()) {
         return ps + '\\';
       }
-      const esc = shift();
+      const esc = advance();
       switch (esc) {
-        case 'a':
-          ps += '\u0007';
-          break;
+        // \a is handled in standard strings.
         case 'd':
           ps += strftime('%a %b %d', now());
           break;
         case 'D':
           if (promptString[curr] !== '{') {
-            ps += `\\D${shift()}`;
+            ps += `\\D${advance()}`;
             break;
           }
-          shift();
+          advance();
           let fmt: string = '';
           while (!done() && promptString[curr] !== '}') {
-            fmt += shift();
+            fmt += advance();
           }
           if (!done()) {
-            shift();
+            advance();
           }
           if (!fmt.length) {
             fmt = '%H:%M:%S';
           }
           ps += strftime(fmt, now());
           break;
-        case 'e':
-          ps += '\u001b';
-          break;
+        // \e is handled in standard strings.
         case 'h':
           ps += host.hostname().split('.')[0];
           break;
@@ -240,7 +244,7 @@ export function renderPrompt(promptString: string, host: Host): string {
             let digits = esc;
             let i = 1;
             while (OCTAL_DIGITS.has(promptString[curr]) && i < LONGEST_OCTAL) {
-              digits += shift();
+              digits += advance();
               i++;
             }
             if (digits.length < 3) {

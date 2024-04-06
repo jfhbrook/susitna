@@ -39,10 +39,6 @@ t.test('renderPrompt', async (t: Test) => {
       t.equal(renderPrompt('\\', host), '\\');
     });
 
-    t.test('bell character', async (t: Test) => {
-      t.equal(renderPrompt('\\a', host), '\u0007');
-    });
-
     t.test('weekday month date', async (t: Test) => {
       t.equal(renderPrompt('\\d', host), 'Sun Jun 23');
     });
@@ -57,10 +53,6 @@ t.test('renderPrompt', async (t: Test) => {
 
     t.test('non-initialized strftime format', async (t: Test) => {
       t.equal(renderPrompt('\\D%o of %B', host), '\\D%o of %B');
-    });
-
-    t.test('escape character', async (t: Test) => {
-      t.equal(renderPrompt('\\e', host), '\u001b');
     });
 
     t.test('short hostname', async (t: Test) => {

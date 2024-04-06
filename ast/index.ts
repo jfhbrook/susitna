@@ -1,4 +1,3 @@
-import { Token, TokenKind } from '../tokens';
 import { Cmd } from './cmd';
 
 export interface TreeVisitor<R> {

@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:221:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:230:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -36,7 +36,18 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarn
 <unknown>:<?>: BaseWarning: message
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Binary expression > must match snapshot 1`] = `
+Binary(+) {
+  1,
+  1,
+}
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a boolean > must match snapshot 1`] = `
+true
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BoolLiteral > must match snapshot 1`] = `
 true
 `
 
@@ -77,6 +88,10 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a native v
 Set(3) { 'a', 'b', 'c' }
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a NilLiteral > must match snapshot 1`] = `
+nil
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a null value > must match snapshot 1`] = `
 null
 `
@@ -93,13 +108,21 @@ Program(
 )
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a PromptLiteral > must match snapshot 1`] = `
+'\\u@\\h:\\w\\$'
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RealLiteral > must match snapshot 1`] = `
+123.456
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
 === RUNTIME FAULT ===
 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:225:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:234:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -133,6 +156,10 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a string >
 hello
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a StringLiteral > must match snapshot 1`] = `
+'hello'
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Token > must match snapshot 1`] = `
 Token(<string>) {
   index: 0,
@@ -147,6 +174,12 @@ Token(<string>) {
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Unary expression > must match snapshot 1`] = `
+Unary(-) {
+  1,
+}
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a UsageFault > must match snapshot 1`] = `
@@ -171,8 +204,8 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Exit > 
 message
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Expr > must match snapshot 1`] = `
-'hello'
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an IntLiteral > must match snapshot 1`] = `
+12
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an OsError > must match snapshot 1`] = `

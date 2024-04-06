@@ -11,6 +11,9 @@ import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { CmdVisitor, Expression, Print } from './ast/cmd';
 import {
   ExprVisitor,
+  Binary,
+  Logical,
+  Unary,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -111,6 +114,18 @@ export class Runtime
     }
     this.host.writeOut(formatter.format(value.result) + '\n');
     return new Ok(undefined);
+  }
+
+  visitBinaryExpr(_binary: Binary): RuntimeResult {
+    return new Ok(nil);
+  }
+
+  visitLogicalExpr(_logical: Logical): RuntimeResult {
+    return new Ok(nil);
+  }
+
+  visitUnaryExpr(_unary: Unary): RuntimeResult {
+    return new Ok(nil);
   }
 
   visitIntLiteralExpr(int: IntLiteral): RuntimeResult {

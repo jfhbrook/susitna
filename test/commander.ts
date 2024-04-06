@@ -22,8 +22,8 @@ const topic = discuss(
   },
 );
 
-t.test('when prompted for a command', async (t) => {
-  t.test('it gets a command', async (t) => {
+t.test('when prompted for a command', async (t: Test) => {
+  t.test('it gets a command', async (t: Test) => {
     await topic.swear(async ({ commander, host }) => {
       const prompt = commander.prompt();
       host.inputStream.write('print "hello world"\n');
@@ -35,8 +35,8 @@ t.test('when prompted for a command', async (t) => {
   });
 });
 
-t.test('when input is requested', async (t) => {
-  t.test('input is received?', async (t) => {
+t.test('when input is requested', async (t: Test) => {
+  t.test('input is received?', async (t: Test) => {
     await topic.swear(async ({ commander, host }) => {
       const question = commander.input('what is your favorite color?');
       host.inputStream.write('blue\n');

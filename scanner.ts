@@ -210,7 +210,7 @@ export class Scanner {
         return this.emitToken(TokenKind.BSlash);
       case '=':
         // TODO: How does equality work?
-        return this.emitToken(TokenKind.Equals);
+        return this.emitToken(TokenKind.Eq);
       case '>':
         if (this.match('=')) {
           return this.emitToken(TokenKind.Ge);

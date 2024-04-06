@@ -18,6 +18,9 @@ import { Traceback, Frame, Code } from './traceback';
 import {
   Expr,
   ExprVisitor,
+  Binary,
+  Logical,
+  Unary,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -129,6 +132,9 @@ export abstract class Formatter
   abstract formatTree(ast: Tree): string;
   abstract formatToken(token: Token): string;
 
+  abstract visitBinaryExpr(binary: Binary): string;
+  abstract visitLogicalExpr(logical: Logical): string;
+  abstract visitUnaryExpr(unary: Unary): string;
   abstract visitIntLiteralExpr(int: IntLiteral): string;
   abstract visitRealLiteralExpr(real: RealLiteral): string;
   abstract visitBoolLiteralExpr(bool: BoolLiteral): string;
@@ -413,6 +419,29 @@ export class DefaultFormatter extends Formatter {
           : token.value;
       formatted += `  value: ${value},\n`;
     }
+    formatted += '}';
+    return formatted;
+  }
+
+  visitBinaryExpr(binary: Binary): string {
+    let formatted = `Binary(${binary.op}) {\n`;
+    formatted += indent(1, `${this.format(binary.left)},\n`);
+    formatted += indent(1, `${this.format(binary.right)},\n`);
+    formatted += '}';
+    return formatted;
+  }
+
+  visitLogicalExpr(logical: Logical): string {
+    let formatted = `Logical(${logical.op} {\n`;
+    formatted += indent(1, `${this.format(logical.left)},\n`);
+    formatted += indent(1, `${this.format(logical.right)},\n`);
+    formatted += '}';
+    return formatted;
+  }
+
+  visitUnaryExpr(unary: Unary): string {
+    let formatted = `Unary(${unary.op}) {\n`;
+    formatted += indent(1, `${this.format(unary.expr)},\n`);
     formatted += '}';
     return formatted;
   }

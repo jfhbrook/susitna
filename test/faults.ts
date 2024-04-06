@@ -43,7 +43,7 @@ function simpleTest(t: Test, ctor: typeof BaseFault): void {
 }
 
 t.test('For simple faults', async (t: Test) => {
-  for (let ctor of SIMPLE_FAULTS) {
+  for (const ctor of SIMPLE_FAULTS) {
     simpleTest(t, ctor);
   }
 });
@@ -87,7 +87,7 @@ function runtimeTest(t: Test, ctor: typeof RuntimeFault): void {
 }
 
 t.test('For runtime faults', async (t: Test) => {
-  for (let ctor of RUNTIME_FAULTS) {
+  for (const ctor of RUNTIME_FAULTS) {
     runtimeTest(t, ctor);
   }
 });

@@ -12,7 +12,7 @@ interface TestConfig extends ConfigOptions {
   level: Level;
 }
 
-function parseArgs(argv: Argv, env: Env): TestConfig {
+function parseArgs(_argv: Argv, _env: Env): TestConfig {
   return { level: Level.Info };
 }
 
@@ -26,7 +26,7 @@ class TestExit extends Error {
 
 type TestCommand = () => Promise<void>;
 
-type CliTest = (t: Test, command: TestCommand) => Promise<void>;
+type CliTest = (command: TestCommand) => Promise<void>;
 
 async function cliTest(
   run: Run<TestConfig>,
@@ -50,7 +50,7 @@ async function cliTest(
     });
   }
 
-  await test(t, command);
+  await test(command);
 }
 
 t.test('when the command succeeds', async (t: Test) => {
@@ -59,7 +59,7 @@ t.test('when the command succeeds', async (t: Test) => {
       async function run(_config: TestConfig, _host: Host): Promise<void> {
         // Nothing.
       }
-      await cliTest(run, async (t: Test, command: TestCommand) => {
+      await cliTest(run, async (command: TestCommand) => {
         t.rejects(command, TestExit);
       });
     });
@@ -70,7 +70,7 @@ t.test('when the command succeeds', async (t: Test) => {
       async function run(_config: TestConfig, _host: Host): Promise<void> {
         throw new Exit();
       }
-      await cliTest(run, async (t: Test, command: TestCommand) => {
+      await cliTest(run, async (command: TestCommand) => {
         t.rejects(command, TestExit);
       });
     });
@@ -88,7 +88,7 @@ t.test('when the command fails with a RuntimeFault', async (t: Test) => {
     }
     await cliTest(
       run,
-      async (t: Test, command: TestCommand) => {
+      async (command: TestCommand) => {
         t.rejects(command, TestExit);
       },
       ExitCode.Software,

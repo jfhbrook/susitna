@@ -2,6 +2,9 @@ import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { CmdVisitor, Expression, Print } from './ast/cmd';
 import {
   ExprVisitor,
+  Binary,
+  Logical,
+  Unary,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -38,6 +41,18 @@ export class Recreator
   }
 
   visitPrintCmd(_print: Print): string {
+    return '';
+  }
+
+  visitBinaryExpr(_binary: Binary): string {
+    return '';
+  }
+
+  visitLogicalExpr(_logical: Logical): string {
+    return '';
+  }
+
+  visitUnaryExpr(_unary: Unary): string {
     return '';
   }
 

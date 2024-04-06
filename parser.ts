@@ -13,6 +13,9 @@ import { Token, TokenKind } from './tokens';
 
 import {
   Expr,
+  Binary,
+  Logical,
+  Unary,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -377,8 +380,75 @@ class Parser {
 
   private expression(): Expr | null {
     return spanSync('expression', () => {
-      return this.primary();
+      // TODO: assignment
+      // TODO: logical expressions (and, or)
+      return this.equality();
     });
+  }
+
+  private binaryOperator(kinds: TokenKind[], operand: () => Expr): Binary {
+    let expr: Expr = operand();
+
+    while (this.match(...kinds)) {
+      const op = this.previous.kind;
+      const right = operand();
+
+      expr = new Binary(expr, op, right);
+    }
+
+    return expr as Binary;
+  }
+
+  private logicalOperator(kinds: TokenKind[], operand: () => Expr): Logical {
+    let expr = operand();
+
+    while (this.match(...kinds)) {
+      const op = this.previous.kind;
+      const right = operand();
+
+      expr = new Logical(expr, op, right);
+    }
+
+    return expr as Binary;
+  }
+
+  private equality(): Binary {
+    return this.binaryOperator(
+      [TokenKind.Ne, TokenKind.Eq],
+      this.comparison.bind(this),
+    );
+  }
+
+  private comparison(): Binary {
+    return this.binaryOperator(
+      [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
+      this.term.bind(this),
+    );
+  }
+
+  private term(): Binary {
+    return this.binaryOperator(
+      [TokenKind.Minus, TokenKind.Plus],
+      this.factor.bind(this),
+    );
+  }
+
+  private factor(): Binary {
+    return this.binaryOperator(
+      [TokenKind.Slash, TokenKind.Star],
+      this.unary.bind(this),
+    );
+  }
+
+  private unary(): Expr {
+    if (this.match(TokenKind.Minus)) {
+      const op = this.previous.kind;
+      const right = this.unary();
+
+      return new Unary(op, right);
+    }
+
+    return this.primary();
   }
 
   private primary(): Expr | null {

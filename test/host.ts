@@ -42,7 +42,7 @@ function logTest(
   level: Level,
 ): (t: Test) => Promise<void> {
   return async (t: Test): Promise<void> => {
-    for (let setLevel of [0, 1, 2, 3]) {
+    for (const setLevel of [0, 1, 2, 3]) {
       t.test(`at level ${setLevel}`, async (t) => {
         await topic.swear(async (host) => {
           host.setLevel(setLevel);

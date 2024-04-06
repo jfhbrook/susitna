@@ -17,7 +17,10 @@ export enum TokenKind {
   Slash = '/',
   BSlash = '\\',
 
-  Equals = '=',
+  // TODO: Traditional BASIC treats = as both assignment and equality,
+  // depending on context. But maybe we should have an == for consistency
+  // with modern languages?
+  Eq = '=',
   Gt = '>',
   Lt = '<',
   Ge = '>=',

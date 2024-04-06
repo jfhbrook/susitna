@@ -58,13 +58,13 @@ function simpleTest(t: Test, ctor: typeof BaseException): void {
 }
 
 t.test('For simple exceptions', async (t: Test) => {
-  for (let ctor of SIMPLE_EXCEPTIONS) {
+  for (const ctor of SIMPLE_EXCEPTIONS) {
     simpleTest(t, ctor);
   }
 });
 
 t.test('For simple warnings', async (t: Test) => {
-  for (let ctor of SIMPLE_WARNINGS) {
+  for (const ctor of SIMPLE_WARNINGS) {
     simpleTest(t, ctor);
   }
 });
@@ -110,10 +110,10 @@ function testOverriddenExitCode(t: Test, code: string, exitCode: number): void {
 }
 
 t.test('OsError', async (t: Test) => {
-  for (let [code, defaultExitCode] of DEFAULT_EXIT_CODES) {
+  for (const [code, defaultExitCode] of DEFAULT_EXIT_CODES) {
     t.test(`with error code ${code}`, async (t: Test) => {
       t.test('when the exit code is overridden', async (t: Test) => {
-        for (let overriddenExitCode of EXIT_CODES) {
+        for (const overriddenExitCode of EXIT_CODES) {
           testOverriddenExitCode(t, code, overriddenExitCode);
         }
       });
@@ -221,7 +221,6 @@ t.test('FileError', async (t: Test) => {
 
 t.test('ParseError', async (t: Test) => {
   t.test('it can construct a ParseError', async (t: Test) => {
-    const file = './script.bas';
     const line = '100 print someFn(ident';
 
     const exc = new ParseError([

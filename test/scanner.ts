@@ -17,7 +17,7 @@ const PUNCTUATION = [
   [',', TokenKind.Comma],
   [';', TokenKind.Semicolon],
   [':', TokenKind.Colon],
-  ['=', TokenKind.Equals],
+  ['=', TokenKind.Eq],
   ['>', TokenKind.Gt],
   ['>=', TokenKind.Ge],
   ['<', TokenKind.Lt],

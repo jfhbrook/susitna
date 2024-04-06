@@ -15,7 +15,7 @@
     "check": "concurrently 'npm run build:versions' 'npm run build:ast' && tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "lint": "prettier --list-different \"**/*.ts\" && eslint \"**.ts\" --fix",
+    "lint": "prettier --list-different \"**/*.ts\" && eslint --fix \"**/*.ts\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/* ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "npm run build:versions && NO_TRACE=1 tap ./test/*.ts",

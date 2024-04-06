@@ -1,4 +1,9 @@
+import { TokenKind } from '../tokens';
+
 export interface ExprVisitor<R> {
+  visitUnaryExpr(node: Unary): R;
+  visitBinaryExpr(node: Binary): R;
+  visitLogicalExpr(node: Logical): R;
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
@@ -9,6 +14,47 @@ export interface ExprVisitor<R> {
 
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
+}
+
+export class Unary extends Expr {
+  constructor(
+    public readonly op: TokenKind,
+    public readonly expr: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitUnaryExpr(this);
+  }
+}
+
+export class Binary extends Expr {
+  constructor(
+    public readonly left: Expr,
+    public readonly op: TokenKind,
+    public readonly right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitBinaryExpr(this);
+  }
+}
+
+export class Logical extends Expr {
+  constructor(
+    public readonly left: Expr,
+    public readonly op: TokenKind,
+    public readonly right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitLogicalExpr(this);
+  }
 }
 
 export class IntLiteral extends Expr {

@@ -20,7 +20,16 @@ import {
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
 import { Token, TokenKind } from '../tokens';
-import { StringLiteral } from '../ast/expr';
+import {
+  Binary,
+  Unary,
+  IntLiteral,
+  RealLiteral,
+  BoolLiteral,
+  StringLiteral,
+  PromptLiteral,
+  NilLiteral,
+} from '../ast/expr';
 import { Print } from '../ast/cmd';
 import { Line, Program } from '../ast';
 import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
@@ -260,8 +269,52 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats an Expr', async (t: Test) => {
+    t.test('it formats a Unary expression', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(new Unary(TokenKind.Minus, new IntLiteral(1))),
+      );
+    });
+
+    t.test('it formats a Binary expression', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
+        ),
+      );
+    });
+
+    t.todo('it formats a Logical expression', async (_t: Test) => {
+      /*
+      t.matchSnapshot(formatter.format(new Logical(
+        new IntLiteral(1),
+        TokenKind.And,
+        new IntLiteral(1)
+      )));
+      */
+    });
+
+    t.test('it formats an IntLiteral', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new IntLiteral(12)));
+    });
+
+    t.test('it formats a RealLiteral', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new RealLiteral(123.456)));
+    });
+
+    t.test('it formats a BoolLiteral', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new BoolLiteral(true)));
+    });
+
+    t.test('it formats a StringLiteral', async (t: Test) => {
       t.matchSnapshot(formatter.format(new StringLiteral('hello')));
+    });
+
+    t.test('it formats a PromptLiteral', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new PromptLiteral('\\u@\\h:\\w\\$')));
+    });
+
+    t.test('it formats a NilLiteral', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new NilLiteral()));
     });
 
     t.test('it formats a Cmd', async (t: Test) => {

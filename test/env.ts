@@ -25,13 +25,13 @@ const ENV_TRUE: Array<string | undefined> = [
 ];
 
 t.test('parseBoolEnv', async (t: Test) => {
-  for (let value of ENV_FALSE) {
+  for (const value of ENV_FALSE) {
     t.test(`the string \`${value}\` parses to \`false\``, async (t: Test) => {
       t.equal(parseBoolEnv(value), false);
     });
   }
 
-  for (let value of ENV_TRUE) {
+  for (const value of ENV_TRUE) {
     t.test(`the string \`${value}\` parses to \`true\``, async (t: Test) => {
       t.equal(parseBoolEnv(value), true);
     });

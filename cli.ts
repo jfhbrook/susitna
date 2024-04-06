@@ -103,7 +103,26 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
     const host: Host = overriddenHost || new ConsoleHost();
     const exit: ExitFn = overriddenExit || process.exit;
 
+    function errorExit(error: any): void {
+      exit(
+        typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
+      );
+    }
+
+    function errorHandler(error: any): void {
+      reportError(error, host);
+      errorExit(error);
+    }
+
     await span('cli', async () => {
+      //
+      // Errors in the main coroutine should be correctly handled. However,
+      // we also need to handle errors thrown by unmanaged EventEmitters and/or
+      // Promises that aren't awaited in the main coroutine.
+      //
+      process.on('uncaughtException', errorHandler);
+      process.on('unhandledRejection', errorHandler);
+
       try {
         const config = cli.parseArgs(argv, env);
         host.setLevel(config.level);
@@ -112,12 +131,13 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
         reportError(err, host);
         error = err;
       }
+
+      process.removeListener('uncaughtException', errorHandler);
+      process.removeListener('unhandledRejection', errorHandler);
     });
 
     if (error) {
-      exit(
-        typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
-      );
+      errorExit(error);
     }
 
     // For consistency, explicitly exit instead of allowing Node to run the
@@ -127,9 +147,9 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
 }
 
 /**
- * Report an error thrown by the CLI command.
+ * Report an error.
  *
- * @param err The object thrown by the CLI command.
+ * @param err The object to report as an error.
  * @param host A Host instance.
  */
 export function reportError(err: any, host: Host): void {

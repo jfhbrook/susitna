@@ -1,4 +1,3 @@
-import { SyntaxWarning } from './exceptions';
 import { Formatter, Formattable } from './format';
 import { Value } from './value';
 
@@ -146,11 +145,6 @@ export interface TokenOptions {
   text: string;
 
   /**
-   * Any warnings emitted for the token.
-   */
-  warnings: SyntaxWarning[];
-
-  /**
    * If applicable, the literal value corresponding to the token.
    */
   value: Value | undefined;
@@ -163,7 +157,6 @@ export class Token implements Formattable {
   readonly offsetStart: number;
   readonly offsetEnd: number;
   readonly text: string;
-  warnings: SyntaxWarning[];
   readonly value: Value | undefined;
 
   constructor(options: TokenOptions) {
@@ -173,7 +166,6 @@ export class Token implements Formattable {
     this.offsetStart = options.offsetStart;
     this.offsetEnd = options.offsetEnd;
     this.text = options.text;
-    this.warnings = options.warnings;
     this.value = options.value;
   }
 

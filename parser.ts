@@ -415,13 +415,89 @@ class Parser {
   }
 
   private stringLiteral(): StringLiteral | null {
-    for (const warn of this.previous.warnings) {
-      warn.isLine = this.isLine;
-      warn.lineNo = this.lineNo;
+    const warnings: SyntaxWarning[] = [];
+    const text = this.previous.text;
+    const input = this.previous.value as string;
+    let value: string = '';
+
+    // Skip the first quote character
+    let i = 1;
+
+    function advance(): string {
+      i++;
+      return input[i - 1];
+    }
+
+    function done(): boolean {
+      // Skip the last quote character
+      return i >= input.length - 1;
+    }
+
+    while (!done()) {
+      const c: string = advance();
+
+      if (c === '\\') {
+        const e = advance();
+        switch (e) {
+          case 'a':
+            value += '\u{07}';
+            break;
+          case 'b':
+            value += '\u{08}';
+            break;
+          case 't':
+            value += '\t';
+            break;
+          case 'r':
+            value += '\r';
+            break;
+          case 'v':
+            value += '\u{0b}';
+            break;
+          case 'f':
+            value += '\u{0c}';
+            break;
+          case 'n':
+            value += '\n';
+            break;
+          case "'":
+          case '"':
+            value += e;
+            break;
+          case '\\':
+            value += '\\';
+            break;
+          default:
+            // We advanced twice, for the \\ and the character respectively
+            const offset = this.previous.offsetStart + i - 2;
+            warnings.push(
+              new SyntaxWarning(
+                `Invalid escape sequence \`\\${e}\``,
+                this.filename,
+                this.current.row,
+                this.isLine,
+                this.lineNo,
+                offset,
+                offset + 2,
+                '',
+              ),
+            );
+            this.isWarning = true;
+            value += '\\';
+            value += e;
+        }
+      } else {
+        value += c;
+      }
+    }
+
+    for (const warn of warnings) {
+      warn.message += ` in string ${text}`;
       this.lineErrors.push(warn);
       this.isWarning = true;
     }
-    return new StringLiteral(this.previous.value as string);
+
+    return new StringLiteral(value as string);
   }
 }
 

@@ -25,9 +25,12 @@ const LITERALS: Array<[string, Cmd]> = [
   ['false', new Expression(new BoolLiteral(false))],
   ['nil', new Expression(new NilLiteral())],
   ['"hello world"', new Expression(new StringLiteral('hello world'))],
+  ["'hello world'", new Expression(new StringLiteral('hello world'))],
+  ['"\\"time machine\\""', new Expression(new StringLiteral('"time machine"'))],
+  ["'don\\'t'", new Expression(new StringLiteral("don't"))],
 ];
 
-for (let [source, cmd] of LITERALS) {
+for (const [source, cmd] of LITERALS) {
   t.test(`non-numbered literal expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 

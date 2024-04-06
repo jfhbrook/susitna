@@ -404,12 +404,6 @@ export class DefaultFormatter extends Formatter {
     formatted += `  offsetStart: ${token.offsetStart},\n`;
     formatted += `  offsetEnd: ${token.offsetEnd},\n`;
     formatted += `  text: ${inspectString(token.text)},\n`;
-    if (token.warnings.length) {
-      formatted += '  warnings:\n';
-      for (const warning of token.warnings) {
-        formatted += indent(2, `${this.format(warning)}\n`);
-      }
-    }
     if (token.value) {
       const value =
         typeof token.value === 'string'

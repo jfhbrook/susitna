@@ -1,12 +1,10 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { SyntaxWarning } from '../exceptions';
 import { KEYWORDS } from '../scanner';
 import { TokenKind } from '../tokens';
 
 import { scanTokens } from './helpers/scanner';
-import { FILENAME } from './helpers/traceback';
 
 //
 // Single-token tests. This should at least show that covered tokens can
@@ -87,16 +85,16 @@ t.test('keywords', async (t: Test) => {
 });
 
 const STRINGS = [
-  ['"hello world"', 'hello world'],
-  ["'hello world'", 'hello world'],
-  ['"\\"time machine\\""', '"time machine"'],
-  ["'don\\'t'", "don't"],
+  '"hello world"',
+  "'hello world'",
+  '"\\"time machine\\""',
+  "'don\\'t'",
 ];
 
 t.test('strings', async (t: Test) => {
-  for (const [text, value] of STRINGS) {
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
-      const tokens = scanTokens(text);
+  for (const value of STRINGS) {
+    t.test(`it tokenizes ${value}`, async (t: Test) => {
+      const tokens = scanTokens(value);
       t.equal(tokens.length, 2);
 
       t.has(tokens[0], {
@@ -104,17 +102,17 @@ t.test('strings', async (t: Test) => {
         index: 0,
         row: 1,
         offsetStart: 0,
-        offsetEnd: text.length,
-        text,
+        offsetEnd: value.length,
+        text: value,
         value,
       });
 
       t.has(tokens[1], {
         kind: TokenKind.Eof,
-        index: text.length,
+        index: value.length,
         row: 1,
-        offsetStart: text.length,
-        offsetEnd: text.length,
+        offsetStart: value.length,
+        offsetEnd: value.length,
         text: '',
       });
     });
@@ -133,46 +131,6 @@ t.test('strings', async (t: Test) => {
       offsetEnd: text.length,
       text,
     });
-
-    t.has(tokens[1], {
-      kind: TokenKind.Eof,
-      index: text.length,
-      row: 1,
-      offsetStart: text.length,
-      offsetEnd: text.length,
-      text: '',
-    });
-  });
-
-  t.test('invalid escape sequence', async (t: Test) => {
-    const text = '"\\q"';
-    const tokens = scanTokens(text);
-    t.equal(tokens.length, 2);
-
-    t.has(tokens[0], {
-      kind: TokenKind.StringLiteral,
-      index: 0,
-      row: 1,
-      offsetStart: 0,
-      offsetEnd: text.length,
-      text,
-    });
-
-    t.ok(tokens[0].warnings);
-    t.equal((tokens[0].warnings || []).length, 1);
-    t.same(
-      (tokens[0].warnings || [])[0],
-      new SyntaxWarning(
-        `Invalid escape sequence \`\\q\` in string "\\q"`,
-        FILENAME,
-        1,
-        false,
-        0,
-        1,
-        3,
-        '',
-      ),
-    );
 
     t.has(tokens[1], {
       kind: TokenKind.Eof,
@@ -321,7 +279,7 @@ t.test('hello world', async (t: Test) => {
     offsetStart: 6,
     offsetEnd: 19,
     text: '"hello world"',
-    value: 'hello world',
+    value: '"hello world"',
   });
 
   t.has(tokens[2], {

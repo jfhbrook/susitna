@@ -130,7 +130,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    for (let isLine of IS_LINE) {
+    for (const isLine of IS_LINE) {
       t.test(`when it ${isLine ? 'is' : 'is not'} a line`, async (t: Test) => {
         const line = isLine ? LINE : LINE.replace(/^\d+ /, '');
         t.test('it formats a SyntaxError', async (t: Test) => {
@@ -255,18 +255,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
             offsetEnd: 9,
             text: "'hello\\q'",
             value: 'hello\\q',
-            warnings: [
-              new SyntaxWarning(
-                `Invalid escape sequence \`\\q\``,
-                FILENAME,
-                0,
-                false,
-                0,
-                6,
-                8,
-                "'hello\\q'",
-              ),
-            ],
           }),
         ),
       );
@@ -316,6 +304,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
   });
 }
 
-for (let ctor of [DefaultFormatter]) {
+for (const ctor of [DefaultFormatter]) {
   formatTestSuite(new ctor());
 }

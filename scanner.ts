@@ -1,4 +1,3 @@
-import { SyntaxWarning } from './exceptions';
 import { Value } from './value';
 import { Token, TokenKind } from './tokens';
 
@@ -150,11 +149,7 @@ export class Scanner {
     return this.source[this.current++];
   }
 
-  private emitToken(
-    kind: TokenKind,
-    value: Value = null,
-    warnings: SyntaxWarning[] = [],
-  ): Token {
+  private emitToken(kind: TokenKind, value: Value = null): Token {
     const text = this.source.slice(this.start, this.current);
     const row = this.row;
     const offsetStart = this.offset;
@@ -175,7 +170,6 @@ export class Scanner {
       offsetEnd,
       text,
       value,
-      warnings,
     });
   }
 
@@ -297,82 +291,25 @@ export class Scanner {
   //
 
   private string(quoteChar: '"' | "'"): Token {
-    let value: string = '';
-    const warnings: SyntaxWarning[] = [];
+    let value: string = quoteChar;
     while (![quoteChar, '\n', '\r'].includes(this.peek()) && !this.done) {
       const c: string = this.advance();
+      value += c;
 
       if (c === '\\') {
-        const e = this.advance();
-        switch (e) {
-          case 'a':
-            value += '\u{07}';
-            break;
-          case 'b':
-            value += '\u{08}';
-            break;
-          case 't':
-            value += '\t';
-            break;
-          case 'r':
-            value += '\r';
-            break;
-          case 'v':
-            value += '\u{0b}';
-            break;
-          case 'f':
-            value += '\u{0c}';
-            break;
-          case 'n':
-            value += '\n';
-            break;
-          case '\\':
-            value += '\\';
-            break;
-          case quoteChar:
-            value += quoteChar;
-            break;
-          case EOF:
-            value += '\\';
-            break;
-          default:
-            // We advanced twice, for the \\ and the character respectively
-            const offset = this.offset + this.current - this.start - 2;
-            warnings.push(
-              new SyntaxWarning(
-                `Invalid escape sequence \`\\${e}\``,
-                this.filename,
-                this.row,
-                false,
-                0,
-                offset,
-                offset + 2,
-                '',
-              ),
-            );
-            value += '\\';
-            value += e;
-        }
-      } else {
-        value += c;
+        value += this.advance();
       }
     }
 
-    for (const warn of warnings) {
-      warn.message += ` in string ${quoteChar}${value}${quoteChar}`;
+    if (this.peek() !== quoteChar) {
+      return this.emitToken(TokenKind.UnterminatedStringLiteral, value);
     }
 
-    if (this.peek() !== quoteChar) {
-      return this.emitToken(
-        TokenKind.UnterminatedStringLiteral,
-        value,
-        warnings,
-      );
-    }
+    value += quoteChar;
 
     this.advance();
 
-    return this.emitToken(TokenKind.StringLiteral, value, warnings);
+    return this.emitToken(TokenKind.StringLiteral, value);
   }
 
   private hex(): Token {

@@ -140,10 +140,6 @@ Token(<string>) {
   offsetStart: 0,
   offsetEnd: 9,
   text: "'hello\\q'",
-  warnings:
-    /home/josh/script.bas:<R0>:6 (at the beginning): warning: Invalid escape sequence \`\\q\`
-      'hello\\q'
-            ^
   value: 'hello\\q',
 }
 `

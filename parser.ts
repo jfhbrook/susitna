@@ -399,13 +399,7 @@ class Parser {
       } else if (this.match(TokenKind.FalseLiteral)) {
         return new BoolLiteral(false);
       } else if (this.match(TokenKind.StringLiteral)) {
-        for (const warn of this.previous.warnings) {
-          warn.isLine = this.isLine;
-          warn.lineNo = this.lineNo;
-          this.lineErrors.push(warn);
-          this.isWarning = true;
-        }
-        return new StringLiteral(this.previous.value as string);
+        return this.stringLiteral();
       } else if (this.match(TokenKind.NilLiteral)) {
         return new NilLiteral();
       } else {
@@ -418,6 +412,16 @@ class Parser {
         return null;
       }
     });
+  }
+
+  private stringLiteral(): StringLiteral | null {
+    for (const warn of this.previous.warnings) {
+      warn.isLine = this.isLine;
+      warn.lineNo = this.lineNo;
+      this.lineErrors.push(warn);
+      this.isWarning = true;
+    }
+    return new StringLiteral(this.previous.value as string);
   }
 }
 

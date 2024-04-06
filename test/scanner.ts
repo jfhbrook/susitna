@@ -259,45 +259,38 @@ t.test('identifiers', async (t: Test) => {
   }
 });
 
-const SHELL = [
-  '/',
-  './',
-  '..',
-  '../',
-  './pony',
-  '.\\pony',
-  '-o',
-  '--long-option',
+const SHELL: Array<[string, TokenKind[]]> = [
+  ['/', [TokenKind.Slash]],
+  ['./', [TokenKind.Dot, TokenKind.Slash]],
+  ['..', [TokenKind.Dot, TokenKind.Dot]],
+  ['../', [TokenKind.Dot, TokenKind.Dot, TokenKind.Slash]],
+  ['./', [TokenKind.Dot, TokenKind.Slash]],
+  ['./pony', [TokenKind.Dot, TokenKind.Slash, TokenKind.Ident]],
+  ['.\\pony', [TokenKind.Dot, TokenKind.BSlash, TokenKind.Ident]],
+  ['-o', [TokenKind.Minus, TokenKind.Ident]],
+  [
+    '--long-option',
+    [
+      TokenKind.Minus,
+      TokenKind.Minus,
+      TokenKind.Ident,
+      TokenKind.Minus,
+      TokenKind.Ident,
+    ],
+  ],
 ];
 
-//
-// Shell tokens are complicated because '/' scans as slash, '.' scans as dot,
-// and '-' scans as minus. The scanner doesn't really care, but each of these
-// examples will be multi-token and the parser will have to handle them.
-//
-t.todo('shell tokens', async (t: Test) => {
-  for (const text of SHELL) {
+t.test('shell tokens', async (t: Test) => {
+  for (const [text, kinds] of SHELL) {
+    kinds.push(TokenKind.Eof);
     t.test(`it tokenizes ${text}`, async (t: Test) => {
       const tokens = scanTokens(text);
-      t.equal(tokens.length, 2);
+      t.equal(tokens.length, kinds.length);
 
-      t.has(tokens[0], {
-        kind: TokenKind.ShellToken,
-        index: 0,
-        row: 1,
-        offsetStart: 0,
-        offsetEnd: text.length,
-        text,
-      });
-
-      t.has(tokens[1], {
-        kind: TokenKind.Eof,
-        index: text.length,
-        row: 1,
-        offsetStart: text.length,
-        offsetEnd: text.length,
-        text: '',
-      });
+      t.same(
+        tokens.map((t) => t.kind),
+        kinds,
+      );
     });
   }
 });

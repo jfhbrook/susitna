@@ -212,6 +212,8 @@ export class Scanner {
         return this.emitToken(TokenKind.Star);
       case '/':
         return this.emitToken(TokenKind.Slash);
+      case '\\':
+        return this.emitToken(TokenKind.BSlash);
       case '=':
         // TODO: How does equality work?
         return this.emitToken(TokenKind.Equals);

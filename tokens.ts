@@ -16,6 +16,7 @@ export enum TokenKind {
   Minus = '-',
   Star = '*',
   Slash = '/',
+  BSlash = '\\',
 
   Equals = '=',
   Gt = '>',

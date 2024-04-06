@@ -349,7 +349,7 @@ class Parser {
         return this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else {
-        return this.expression();
+        return this.expressionStatement();
       }
     });
   }
@@ -357,7 +357,7 @@ class Parser {
   // TODO: What's the syntax of print? lol
   private print(): Cmd | null {
     return spanSync('print', () => {
-      const expr = this.expr();
+      const expr = this.expression();
       if (expr) {
         return new Print(expr);
       }
@@ -365,9 +365,9 @@ class Parser {
     });
   }
 
-  private expression(): Cmd | null {
-    return spanSync('expression', () => {
-      const expr = this.expr();
+  private expressionStatement(): Cmd | null {
+    return spanSync('expression statement', () => {
+      const expr = this.expression();
       if (expr) {
         return new Expression(expr);
       }
@@ -375,8 +375,8 @@ class Parser {
     });
   }
 
-  private expr(): Expr | null {
-    return spanSync('expr', () => {
+  private expression(): Expr | null {
+    return spanSync('expression', () => {
       return this.primary();
     });
   }

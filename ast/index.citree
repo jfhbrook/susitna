@@ -1,6 +1,9 @@
 import { Token, TokenKind } from '../tokens'
 
 type Expr in './expr' {
+  // Unary          => op: Token, expr: Expr
+  // Binary         => left: Expr, op: Token, right: Expr
+  // Logical        => left: Expr, op: Token, right: Expr
   IntLiteral     => value: number
   RealLiteral    => value: number
   BoolLiteral    => value: boolean

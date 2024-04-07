@@ -174,6 +174,23 @@ t.test('simple program', async (t: Test) => {
   );
 });
 
+t.test('out of order program', async (t: Test) => {
+  const result = parseProgram(
+    '200 print "hello world"\n100 print "goodbye"',
+    FILENAME,
+  );
+
+  t.type(result, Ok);
+
+  t.same(
+    result.result,
+    new Program([
+      new Line(100, [new Print(new StringLiteral('goodbye'))]),
+      new Line(200, [new Print(new StringLiteral('hello world'))]),
+    ]),
+  );
+});
+
 t.test('program with non-numbered input', async (t: Test) => {
   const result = parseProgram(
     '100 print "hello world"\n"foo"\n200 print "goodbye"',

@@ -26,6 +26,7 @@ import {
 } from './ast/expr';
 import { Cmd, Print, Expression } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
+import { compareLines } from './ast/util';
 
 export type Row = Line | CommandGroup;
 
@@ -97,6 +98,7 @@ class Parser {
       this.isProgram = true;
 
       const result = this.rows();
+      result.sort(compareLines);
       const program = new Program(result as Line[]);
 
       if (this.isError) {

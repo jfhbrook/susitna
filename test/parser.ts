@@ -3,6 +3,7 @@ import { Test } from 'tap';
 
 import { formatter } from '../format';
 import {
+  Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -15,7 +16,7 @@ import { parseInput, parseProgram } from '../parser';
 import { Ok, Err, Warn } from '../result';
 import { FILENAME } from './helpers/traceback';
 
-const LITERALS: Array<[string, Cmd]> = [
+const EXPRESSIONS: Array<[string, Cmd]> = [
   // NOTE: '1' parses as a line number.
   ['0xff', new Expression(new IntLiteral(255))],
   ['0o755', new Expression(new IntLiteral(493))],
@@ -28,10 +29,11 @@ const LITERALS: Array<[string, Cmd]> = [
   ["'hello world'", new Expression(new StringLiteral('hello world'))],
   ['"\\"time machine\\""', new Expression(new StringLiteral('"time machine"'))],
   ["'don\\'t'", new Expression(new StringLiteral("don't"))],
+  ['(1)', new Expression(new Group(new IntLiteral(1)))],
 ];
 
-for (const [source, cmd] of LITERALS) {
-  t.test(`non-numbered literal expression ${source}`, async (t: Test) => {
+for (const [source, cmd] of EXPRESSIONS) {
+  t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
     t.type(result, Ok);
@@ -39,7 +41,7 @@ for (const [source, cmd] of LITERALS) {
     t.same(result.result, new Input([new CommandGroup([cmd])]));
   });
 
-  t.test(`numbered literal expression ${source}`, async (t: Test) => {
+  t.test(`numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(`100 ${source}`);
 
     t.type(result, Ok);

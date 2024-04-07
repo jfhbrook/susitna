@@ -5,6 +5,7 @@ import {
   Binary,
   Logical,
   Unary,
+  Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -53,6 +54,10 @@ export class Recreator
   }
 
   visitUnaryExpr(_unary: Unary): string {
+    return '';
+  }
+
+  visitGroupExpr(_group: Group): string {
     return '';
   }
 

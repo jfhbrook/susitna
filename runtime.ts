@@ -14,6 +14,7 @@ import {
   Binary,
   Logical,
   Unary,
+  Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -125,6 +126,10 @@ export class Runtime
   }
 
   visitUnaryExpr(_unary: Unary): RuntimeResult {
+    return new Ok(nil);
+  }
+
+  visitGroupExpr(_group: Group): RuntimeResult {
     return new Ok(nil);
   }
 

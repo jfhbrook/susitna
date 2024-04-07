@@ -16,6 +16,7 @@ import {
   Binary,
   Logical,
   Unary,
+  Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -473,6 +474,8 @@ class Parser {
         return this.string();
       } else if (this.match(TokenKind.NilLiteral)) {
         return new NilLiteral();
+      } else if (this.match(TokenKind.LParen)) {
+        return this.group();
       } else {
         const token = this.peek();
         this.syntaxError(
@@ -483,6 +486,15 @@ class Parser {
         return null;
       }
     });
+  }
+
+  private group(): Expr | null {
+    const expr = this.expression();
+    if (!expr) {
+      return null;
+    }
+    this.consume(TokenKind.RParen, 'Expected `)` after expression');
+    return new Group(expr);
   }
 
   private string(): StringLiteral {
@@ -532,6 +544,7 @@ class Parser {
             break;
           case 't':
             // Prompt strings render \t as a time format, not a tab.
+            // TODO: Evaluate tabs at runtime?
             if (isPrompt) {
               value += '\\t';
             } else {

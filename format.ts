@@ -21,6 +21,7 @@ import {
   Binary,
   Logical,
   Unary,
+  Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -135,6 +136,7 @@ export abstract class Formatter
   abstract visitBinaryExpr(binary: Binary): string;
   abstract visitLogicalExpr(logical: Logical): string;
   abstract visitUnaryExpr(unary: Unary): string;
+  abstract visitGroupExpr(group: Group): string;
   abstract visitIntLiteralExpr(int: IntLiteral): string;
   abstract visitRealLiteralExpr(real: RealLiteral): string;
   abstract visitBoolLiteralExpr(bool: BoolLiteral): string;
@@ -444,6 +446,10 @@ export class DefaultFormatter extends Formatter {
     formatted += indent(1, `${this.format(unary.expr)},\n`);
     formatted += '}';
     return formatted;
+  }
+
+  visitGroupExpr(group: Group): string {
+    return `(${this.format(group.expr)})`;
   }
 
   visitIntLiteralExpr(int: IntLiteral): string {

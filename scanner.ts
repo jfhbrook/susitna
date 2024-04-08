@@ -204,6 +204,12 @@ export class Scanner {
         return this.emitToken(TokenKind.Minus);
       case '*':
         return this.emitToken(TokenKind.Star);
+      case '%':
+        return this.emitToken(TokenKind.Percent);
+      case '$':
+        return this.emitToken(TokenKind.Dollar);
+      case '!':
+        return this.emitToken(TokenKind.Bang);
       case '/':
         return this.emitToken(TokenKind.Slash);
       case '\\':
@@ -417,8 +423,6 @@ export class Scanner {
     let kind: TokenKind;
     if (KEYWORDS[value]) {
       kind = KEYWORDS[value];
-    } else if (value.startsWith('$')) {
-      kind = TokenKind.StringIdent;
     } else {
       kind = TokenKind.Ident;
     }

@@ -14,6 +14,10 @@ export enum TokenKind {
   Plus = '+',
   Minus = '-',
   Star = '*',
+  Percent = '%',
+  Dollar = '$',
+  Hash = '#',
+  Bang = '!',
   Slash = '/',
   BSlash = '\\',
 
@@ -26,8 +30,6 @@ export enum TokenKind {
   Ge = '>=',
   Le = '<=',
   Ne = '<>',
-
-  Hash = '#',
 
   DecimalLiteral = '<decimal>',
   HexLiteral = '<hex>',
@@ -44,7 +46,6 @@ export enum TokenKind {
   NilLiteral = 'nil',
 
   Ident = '<ident>',
-  StringIdent = '<string-ident>',
 
   ShellToken = '<shell-token>',
 

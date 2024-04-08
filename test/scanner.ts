@@ -17,6 +17,16 @@ const PUNCTUATION = [
   [',', TokenKind.Comma],
   [';', TokenKind.Semicolon],
   [':', TokenKind.Colon],
+  ['.', TokenKind.Dot],
+  ['+', TokenKind.Plus],
+  ['-', TokenKind.Minus],
+  ['*', TokenKind.Star],
+  ['%', TokenKind.Percent],
+  ['$', TokenKind.Dollar],
+  ['#', TokenKind.Hash],
+  ['!', TokenKind.Bang],
+  ['/', TokenKind.Slash],
+  ['\\', TokenKind.BSlash],
   ['=', TokenKind.Eq],
   ['>', TokenKind.Gt],
   ['>=', TokenKind.Ge],
@@ -186,8 +196,6 @@ t.test('numbers', async (t: Test) => {
 const IDENT = [
   ['pony', TokenKind.Ident],
   ['_abc123', TokenKind.Ident],
-  ['$pony', TokenKind.StringIdent],
-  ['$_abc123', TokenKind.StringIdent],
 ];
 
 t.test('identifiers', async (t: Test) => {
@@ -293,9 +301,9 @@ t.test('hello world', async (t: Test) => {
 });
 
 t.test('function call', async (t: Test) => {
-  const text = 'pony($u, $v)';
+  const text = 'pony(u$, v$)';
   const tokens = scanTokens(text);
-  t.equal(tokens.length, 7);
+  t.equal(tokens.length, 9);
 
   t.has(tokens[0], {
     kind: TokenKind.Ident,
@@ -308,26 +316,36 @@ t.test('function call', async (t: Test) => {
   });
 
   t.has(tokens[2], {
-    kind: TokenKind.StringIdent,
-    text: '$u',
+    kind: TokenKind.Ident,
+    text: 'u',
   });
 
   t.has(tokens[3], {
+    kind: TokenKind.Dollar,
+    text: '$',
+  });
+
+  t.has(tokens[4], {
     kind: TokenKind.Comma,
     text: ',',
   });
 
-  t.has(tokens[4], {
-    kind: TokenKind.StringIdent,
-    text: '$v',
+  t.has(tokens[5], {
+    kind: TokenKind.Ident,
+    text: 'v',
   });
 
-  t.has(tokens[5], {
+  t.has(tokens[6], {
+    kind: TokenKind.Dollar,
+    text: '$',
+  });
+
+  t.has(tokens[7], {
     kind: TokenKind.RParen,
     text: ')',
   });
 
-  t.has(tokens[6], {
+  t.has(tokens[8], {
     kind: TokenKind.Eof,
     text: '',
   });

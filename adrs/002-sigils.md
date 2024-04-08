@@ -61,5 +61,7 @@ Between `Modern MSX Game Development` and the
 ## Decision
 
 Matanuska BASIC will begin by broadly implementing the same decisions as
-MSX BASIC. However, it will not implement default default types for identifiers
-without a sigil.
+MSX BASIC, with the following differences:
+
+1. Since we only support Reals, use the `!` sigil exclusively.
+2. Do not implement default default types for identifiers without a sigil.

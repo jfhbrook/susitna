@@ -1,12 +1,13 @@
 import { ExitCode, ExitCoded } from './exit';
-import { ErrorCode } from './errors';
-import { Formattable, Formatter } from './format';
+import { errorType, ErrorCode } from './errors';
+import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
  */
-export class BaseException implements Traceable, Formattable {
+@errorType('BaseException')
+export class BaseException extends Error implements Traceable, Formattable {
   /**
    * @param message The message for the exception.
    * @param traceback The traceback for the exception.
@@ -15,6 +16,11 @@ export class BaseException implements Traceable, Formattable {
     public message: any,
     public traceback: Traceback | null,
   ) {
+    const msg =
+      typeof message === 'string' ? message : formatter.format(message);
+    super(msg);
+    Object.setPrototypeOf(this, new.target.prototype);
+
     // TODO: Exceptions in Python store all args the constructor is called
     // with, not just a message.
     // TODO: Implement notes a la Python?
@@ -30,6 +36,7 @@ export class BaseException implements Traceable, Formattable {
  * The base class for all built-in, non-fatal exceptions. User
  * exceptions should be derived from this class.
  */
+@errorType('Exception')
 export class Exception extends BaseException {}
 
 //
@@ -39,6 +46,7 @@ export class Exception extends BaseException {}
 /**
  * An exception raised by an assertion.
  */
+@errorType('AssertionError')
 export class AssertionError extends Exception {
   format(formatter: Formatter): string {
     return formatter.formatAssertionError(this);
@@ -48,12 +56,14 @@ export class AssertionError extends Exception {
 /**
  * An exception raised on errors in the runtime.
  */
+@errorType('RuntimeError')
 export class RuntimeError extends Exception {}
 
 /**
  * An exception raised when functionality is not implemented. Extends
  * RuntimeError.
  */
+@errorType('NotImplementedError')
 export class NotImplementedError extends RuntimeError {}
 
 //
@@ -64,6 +74,7 @@ export class NotImplementedError extends RuntimeError {}
  * The base class for all warnings. Warnings are non-fatal and can not be
  * caught.
  */
+@errorType('BaseWarning')
 export class BaseWarning extends BaseException {
   format(formatter: Formatter): string {
     return formatter.formatBaseWarning(this);
@@ -73,11 +84,13 @@ export class BaseWarning extends BaseException {
 /**
  * The base class for all user warnings.
  */
+@errorType('Warning')
 export class Warning extends BaseWarning {}
 
 /**
  * A warning for deprecated functionality.
  */
+@errorType('DeprecationWarning')
 export class DeprecationWarning extends Warning {}
 
 //
@@ -87,6 +100,7 @@ export class DeprecationWarning extends Warning {}
 /**
  * An operating system level error.
  */
+@errorType('OsError')
 export class OsError extends Exception implements ExitCoded {
   public readonly exitCode: ExitCode;
 
@@ -178,6 +192,7 @@ export type FileErrorPaths = [string] | [string, string];
  * An error raised when a known file operation fails. Includes the target
  * filename(s) and a more specific exit code.
  */
+@errorType('FileError')
 export class FileError extends OsError {
   /**
    * @param message The message for the exception.
@@ -358,6 +373,7 @@ export interface SourceLocation {
  * or warnings encapsulated in a ParseError. They are not intended to be
  * thrown.
  */
+@errorType('SyntaxError')
 export class SyntaxError extends BaseException implements SourceLocation {
   /**
    * @param message The message for the exception.
@@ -411,6 +427,7 @@ export class ParseError extends Exception implements ExitCoded {
  * encapsulated in a ParseWarning. They are not intended to be logged
  * directly.
  */
+@errorType('SyntaxWarning')
 export class SyntaxWarning extends BaseWarning implements SourceLocation {
   /**
    * @param message The message for the exception.
@@ -442,6 +459,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
  * A parse warning. This is analogous to a syntax error, but contains only
  * warnings.
  */
+@errorType('ParseWarning')
 export class ParseWarning extends Exception {
   /**
    * @param message The message for the exception.

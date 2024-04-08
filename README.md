@@ -26,6 +26,7 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 
 - [Crafting Interpreters](https://craftinginterpreters.com/contents.html) by Robert Nystrom
   - My implementations of lox: <https://github.com/jfhbrook/crafting-interpreters>
+  - [A blog series on adding exception handling to clox](https://amillioncodemonkeys.com/2021/02/03/interpreter-exception-handling-implementation/)
 - `Writing Interactive Compilers and Interpreters` by PJ Brown
 - `Modern MSX BASIC Game Development` by Raul Portales
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)

@@ -1,6 +1,6 @@
-import { Value } from './value';
+import { Value } from '../value';
 
-export enum OpCode {}
+import { OpCode } from './opcodes';
 
 export class Bytecode {
   public constants: Value[] = [];

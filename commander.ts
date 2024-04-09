@@ -165,6 +165,9 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
 
       const compiled = compilerResult.result;
 
+      this.host.writeLine(compiled);
+
+      /*
       const evalResult = await compiled.accept(this);
 
       if (evalResult instanceof Err) {
@@ -179,6 +182,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
       if (typeof evalResult.result !== 'undefined') {
         this.host.writeLine(evalResult.result);
       }
+      */
     });
   }
 

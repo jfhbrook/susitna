@@ -1,8 +1,7 @@
 import { trace, spanSync } from './trace';
 
-import { Exception, NotImplementedError } from './exceptions';
+import { NotImplementedError } from './exceptions';
 import { Host } from './host';
-import { Result, Ok, Err, Warn } from './result';
 import { Stack } from './stack';
 import { TokenKind } from './tokens';
 import { Value, nil } from './value';
@@ -36,26 +35,8 @@ import {
   NilLiteral,
 } from './ast/expr';
 
-// TODO: Right now, I'm using this Result to:
-//
-// 1. Short circuit on errors
-// 2. Return values from expression commands
-//
-// What I'd rather do is:
-//
-// - Add Exceptions to the stack and call and unwind() instruction
-// - Handle expression command results with a callback to Commander
-//   - There may be other ways of handling this, but I want to implement
-//     a callback pattern anyway
-//   - Can't keep them on the stack because prior expression results get
-//     thrown away
-export type RuntimeResult = Result<Value, Exception>;
-
 export class Runtime
-  implements
-    TreeVisitor<RuntimeResult>,
-    CmdVisitor<RuntimeResult>,
-    ExprVisitor<RuntimeResult>
+  implements TreeVisitor<Value>, CmdVisitor<Value>, ExprVisitor<Value>
 {
   public stack: Stack;
   private lineNo: number = 0;
@@ -65,14 +46,14 @@ export class Runtime
     this.stack = new Stack();
   }
 
-  run(tree: Input | Program): RuntimeResult {
+  run(tree: Input | Program): Value {
     return spanSync('run', () => {
       return tree.accept(this);
     });
   }
 
-  notImplemented(message: string): RuntimeResult {
-    return new Err(undefined, new NotImplementedError(message, null));
+  notImplemented(message: string): Value {
+    throw new NotImplementedError(message, null);
   }
 
   //
@@ -96,194 +77,173 @@ export class Runtime
   // to have particular instructions for type conversions.
   //
 
-  add(): RuntimeResult {
+  add(): Value {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) + (b as any));
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  sub(): RuntimeResult {
+  sub(): Value {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) - (b as any));
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  mul(): RuntimeResult {
+  mul(): Value {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) * (b as any));
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  div(): RuntimeResult {
+  div(): Value {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     // TODO: Check types, return RuntimeErrors
     this.stack.push((a as any) / (b as any));
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  neg(): RuntimeResult {
+  neg(): Value {
     const a = this.stack.pop();
 
     this.stack.push(-(a as any));
 
-    return new Ok(undefined);
+    return undefined;
   }
 
   //
   // Visitors
   //
 
-  visitCommandGroupTree(group: CommandGroup): RuntimeResult {
+  visitCommandGroupTree(group: CommandGroup): Value {
     return spanSync('command group', () => {
-      let rv: RuntimeResult = new Ok(undefined);
+      let rv: Value = undefined;
       for (const cmd of group.commands) {
         trace('command', cmd);
         rv = cmd.accept(this);
-        if (rv instanceof Err) {
-          return rv;
-        }
       }
       return rv;
     });
   }
 
-  visitLineTree(line: Line): RuntimeResult {
+  visitLineTree(line: Line): Value {
     return spanSync(`line ${line.lineNo}`, () => {
       this.lineNo = line.lineNo;
       this.isLine = true;
-      let rv: RuntimeResult = new Ok(undefined);
+      let rv: Value = undefined;
       for (const cmd of line.commands) {
         rv = cmd.accept(this);
-        if (rv instanceof Err) {
-          return rv;
-        }
       }
       this.isLine = false;
       return rv;
     });
   }
 
-  visitInputTree(input: Input): RuntimeResult {
+  visitInputTree(input: Input): Value {
     return spanSync('input', () => {
-      let rv: RuntimeResult = new Ok(undefined);
+      let rv: Value = undefined;
       for (const row of input.input) {
         trace('row', row);
         rv = row.accept(this);
-        if (rv instanceof Err) {
-          return rv;
-        }
       }
       return rv;
     });
   }
 
-  visitProgramTree(_program: Program): RuntimeResult {
+  visitProgramTree(_program: Program): Value {
     return spanSync('execute program', () => {
       return this.notImplemented('Program execution');
     });
   }
 
-  visitExpressionCmd(expression: Expression): RuntimeResult {
+  visitExpressionCmd(expression: Expression): Value {
     return spanSync('expression command', () => {
       const expr = expression.expression;
-      const rv = expr.accept(this);
-
-      if (rv instanceof Err) {
-        return rv;
-      }
+      expr.accept(this);
 
       const value = this.stack.pop();
 
       trace('expression result', value);
-      return new Ok(value);
+      return value;
     });
   }
 
-  visitPrintCmd(print: Print): RuntimeResult {
+  visitPrintCmd(print: Print): Value {
     const expr = print.expression;
-    const rv = expr.accept(this);
-
-    if (rv instanceof Err) {
-      return rv;
-    }
-
-    if (rv instanceof Warn) {
-      this.host.writeWarn(rv.warning);
-    }
+    expr.accept(this);
 
     const value = this.pop();
     this.host.writeLine(value);
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitBinaryExpr(binary: Binary): RuntimeResult {
+  visitBinaryExpr(binary: Binary): Value {
     binary.left.accept(this);
     binary.right.accept(this);
 
     this[BINARY_OP[binary.op]]();
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitLogicalExpr(logical: Logical): RuntimeResult {
+  visitLogicalExpr(logical: Logical): Value {
     logical.left.accept(this);
     logical.right.accept(this);
 
     this[LOGICAL_OP[logical.op]]();
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitUnaryExpr(unary: Unary): RuntimeResult {
+  visitUnaryExpr(unary: Unary): Value {
     unary.expr.accept(this);
 
     this[UNARY_OP[unary.op]]();
 
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitGroupExpr(group: Group): RuntimeResult {
+  visitGroupExpr(group: Group): Value {
     return group.expr.accept(this);
   }
 
-  visitIntLiteralExpr(int: IntLiteral): RuntimeResult {
+  visitIntLiteralExpr(int: IntLiteral): Value {
     this.addConstant(int.value);
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitRealLiteralExpr(real: RealLiteral): RuntimeResult {
+  visitRealLiteralExpr(real: RealLiteral): Value {
     this.addConstant(real.value);
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitBoolLiteralExpr(bool: BoolLiteral): RuntimeResult {
+  visitBoolLiteralExpr(bool: BoolLiteral): Value {
     this.addConstant(bool.value);
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitStringLiteralExpr(str: StringLiteral): RuntimeResult {
+  visitStringLiteralExpr(str: StringLiteral): Value {
     this.addConstant(str.value);
-    return new Ok(undefined);
+    return undefined;
   }
 
-  visitPromptLiteralExpr(_ps: PromptLiteral): RuntimeResult {
-    return new Ok(undefined);
+  visitPromptLiteralExpr(_ps: PromptLiteral): Value {
+    return undefined;
   }
 
-  visitNilLiteralExpr(_: NilLiteral): RuntimeResult {
+  visitNilLiteralExpr(_: NilLiteral): Value {
     this.addConstant(nil);
-    return new Ok(undefined);
+    return undefined;
   }
 }

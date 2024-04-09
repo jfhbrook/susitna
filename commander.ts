@@ -3,14 +3,15 @@ import * as readline from 'node:readline/promises';
 import { span } from './trace';
 import { Compiler } from './compiler';
 import { Config } from './config';
+import { Exception } from './exceptions';
 import { Host } from './host';
-import { Runtime, RuntimeResult } from './runtime';
-import { Ok, Err, Warn } from './result';
+import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
+import { Value } from './value';
 
-import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
+import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 
-export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
+export class Commander implements TreeVisitor<Promise<Value>> {
   private compiler: Compiler;
   private runtime: Runtime;
   private _readline: readline.Interface | null;
@@ -152,20 +153,18 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
    */
   async eval(tree: Input | Program): Promise<void> {
     return span('eval', async () => {
-      const compilerResult = this.compiler.compile(tree);
-
-      if (compilerResult instanceof Err) {
-        this.host.writeException(compilerResult.error);
-        return null;
+      let compilerResult: Tree;
+      try {
+        compilerResult = this.compiler.compile(tree);
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return null;
+        }
+        throw err;
       }
 
-      if (compilerResult instanceof Warn) {
-        this.host.writeWarn(compilerResult.warning);
-      }
-
-      const compiled = compilerResult.result;
-
-      this.host.writeLine(compiled);
+      this.host.writeLine(compilerResult);
 
       /*
       const evalResult = await compiled.accept(this);
@@ -187,24 +186,24 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   }
 
   // Evaluate the group of commands.
-  async visitCommandGroupTree(group: CommandGroup): Promise<RuntimeResult> {
+  async visitCommandGroupTree(group: CommandGroup): Promise<Value> {
     return span('eval command group', async () => {
       return group.accept(this.runtime);
     });
   }
 
   // Add the line to the editor.
-  async visitLineTree(_line: Line): Promise<RuntimeResult> {
+  async visitLineTree(_line: Line): Promise<Value> {
     return span('eval line', async () => {
       console.log('TODO: Add line to editor');
-      return new Ok(null);
+      return undefined;
     });
   }
 
   // Visit each row (a Line or CommandGroup) in the input.
-  async visitInputTree(input: Input): Promise<RuntimeResult> {
+  async visitInputTree(input: Input): Promise<Value> {
     return span('eval input', async () => {
-      let result: RuntimeResult;
+      let result: Value;
       for (const row of input.input) {
         result = await row.accept(this);
       }
@@ -213,7 +212,7 @@ export class Commander implements TreeVisitor<Promise<RuntimeResult>> {
   }
 
   // Evaluate the program.
-  async visitProgramTree(program: Program): Promise<RuntimeResult> {
+  async visitProgramTree(program: Program): Promise<Value> {
     return span('eval program', async () => {
       return program.accept(this.runtime);
     });

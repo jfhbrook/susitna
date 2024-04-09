@@ -1,5 +1,5 @@
 import { errorType } from './errors';
-import { BaseException } from './exceptions';
+import { BaseException, Exception } from './exceptions';
 import { ExitCode, ExitCoded } from './exit';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
@@ -137,6 +137,10 @@ export function runtimeMethod<F extends Function>(
     try {
       return fn.apply(this, args);
     } catch (err) {
+      if (err instanceof Exception) {
+        throw err;
+      }
+
       if (!(err instanceof BaseFault)) {
         throw RuntimeFault.fromError(err, null);
       }

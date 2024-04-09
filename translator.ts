@@ -1,14 +1,13 @@
-import { AssertionError } from 'assert';
 import { readFile } from 'fs/promises';
 
 import { trace, span } from './trace';
 import { Config } from './config';
 import { Commander } from './commander';
 import { Host } from './host';
-import { BaseException } from './exceptions';
+import { BaseException, Exception, Warning } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
-import { parseInput, parseProgram } from './parser';
-import { Ok, Err, Warn } from './result';
+import { parseInput, parseProgram, ParseResult } from './parser';
+import { Input, Program } from './ast';
 
 export class Translator {
   constructor(
@@ -20,7 +19,7 @@ export class Translator {
   async script(filename: string) {
     const source: string = await readFile(filename, 'utf8');
     const result = parseProgram(source, filename);
-    for (const line of result.result.lines) {
+    for (const line of result[0].lines) {
       console.log(line);
     }
   }
@@ -50,32 +49,26 @@ export class Translator {
 
   async translate(input: string): Promise<void> {
     await span('translate', async () => {
-      const parseResult = parseInput(input);
+      let parseResult: ParseResult<Input | Program>;
 
-      if (parseResult instanceof Err) {
-        this.host.writeException(parseResult.error);
+      try {
+        parseResult = parseInput(input);
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+        }
+
+        throw RuntimeFault.fromException(err);
+      }
+
+      if (parseResult[1] instanceof Warning) {
+        this.host.writeWarn(parseResult[1]);
         return;
       }
 
-      if (parseResult instanceof Warn) {
-        this.host.writeWarn(parseResult.warning);
-      }
+      trace('parse result', parseResult[0]);
 
-      if (!(parseResult instanceof Ok)) {
-        throw RuntimeFault.fromError(
-          new AssertionError({
-            message: 'Result is not Ok',
-            actual: typeof parseResult,
-            expected: 'Ok',
-            operator: 'instanceof',
-          }),
-          null,
-        );
-      }
-
-      trace('parse result', parseResult.result);
-
-      await this.commander.eval(parseResult.result);
+      await this.commander.eval(parseResult[0]);
     });
   }
 }

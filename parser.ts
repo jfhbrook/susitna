@@ -8,7 +8,6 @@ import {
 } from './exceptions';
 import { runtimeMethod, RuntimeFault } from './faults';
 import { Scanner } from './scanner';
-import { Result, Ok, Err, Warn } from './result';
 import { Token, TokenKind } from './tokens';
 
 import {
@@ -28,6 +27,7 @@ import { Cmd, Print, Expression } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
+export type ParseResult<T> = [T, ParseWarning | null];
 export type Row = Line | CommandGroup;
 
 // The alternative to using exceptions is to set a panicMode flag to ignore
@@ -72,18 +72,18 @@ class Parser {
    * @returns A list of lines and commands.
    */
   @runtimeMethod
-  public parseInput(): Result<Input, ParseError, ParseWarning> {
+  public parseInput(): ParseResult<Input> {
     return spanSync('parseInput', () => {
       const result = new Input(this.rows());
 
       if (this.isError) {
-        return new Err(result, new ParseError(this.errors));
+        throw new ParseError(this.errors);
       } else if (this.isWarning) {
         const warnings = this.errors as unknown as SyntaxWarning[];
-        return new Warn(result, new ParseWarning(warnings));
+        return [result, new ParseWarning(warnings)];
       }
 
-      return new Ok(result);
+      return [result, null];
     });
   }
 
@@ -93,7 +93,7 @@ class Parser {
    * @returns A Program.
    */
   @runtimeMethod
-  public parseProgram(): Result<Program, ParseError, ParseWarning> {
+  public parseProgram(): ParseResult<Program> {
     return spanSync('parseProgram', () => {
       this.isProgram = true;
 
@@ -102,13 +102,13 @@ class Parser {
       const program = new Program(result as Line[]);
 
       if (this.isError) {
-        return new Err(program, new ParseError(this.errors));
+        throw new ParseError(this.errors);
       } else if (this.isWarning) {
         const warnings = this.errors as unknown as SyntaxWarning[];
-        return new Warn(program, new ParseWarning(warnings));
+        return [program, new ParseWarning(warnings)];
       }
 
-      return new Ok(program);
+      return [program, null];
     });
   }
 
@@ -168,16 +168,13 @@ class Parser {
     return this.current;
   }
 
-  private consume(
-    kind: TokenKind,
-    message: string,
-  ): Result<Token, SyntaxError, SyntaxWarning> {
+  private consume(kind: TokenKind, message: string): Token {
     return spanSync('consume', () => {
       trace('kind', kind);
-      if (this.check(kind)) return new Ok(this.advance());
+      if (this.check(kind)) return this.advance();
       trace('failure:', message);
       const token: Token = this.peek();
-      return new Err(token, this.syntaxError(token, message));
+      throw this.syntaxError(token, message);
     });
   }
 
@@ -281,9 +278,10 @@ class Parser {
       this.lineErrors = [];
 
       if (!this.match(TokenKind.LineEnding)) {
-        const res = this.consume(TokenKind.Eof, 'Expected end of file');
-        if (res instanceof Err) {
-          throw RuntimeFault.fromException(res.error);
+        try {
+          this.consume(TokenKind.Eof, 'Expected end of file');
+        } catch (err) {
+          throw RuntimeFault.fromException(err);
         }
       }
 
@@ -612,9 +610,7 @@ class Parser {
  * @param source The source code.
  * @param filename The source filename.
  */
-export function parseInput(
-  source: string,
-): Result<Input, ParseError, ParseWarning> {
+export function parseInput(source: string): ParseResult<Input> {
   const parser = new Parser(source, '<input>');
   return parser.parseInput();
 }
@@ -628,7 +624,7 @@ export function parseInput(
 export function parseProgram(
   source: string,
   filename: string,
-): Result<Program, ParseError, ParseWarning> {
+): ParseResult<Program> {
   const parser = new Parser(source, filename);
   return parser.parseProgram();
 }

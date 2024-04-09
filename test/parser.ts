@@ -1,6 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { ParseWarning } from '../exceptions';
 import { formatter } from '../format';
 import {
   Group,
@@ -13,7 +14,6 @@ import {
 import { Cmd, Print, Expression } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
-import { Ok, Err, Warn } from '../result';
 import { FILENAME } from './helpers/traceback';
 
 const EXPRESSIONS: Array<[string, Cmd]> = [
@@ -36,29 +36,29 @@ for (const [source, cmd] of EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
-    t.type(result, Ok);
+    t.equal(result[1], null);
 
-    t.same(result.result, new Input([new CommandGroup([cmd])]));
+    t.same(result[0], new Input([new CommandGroup([cmd])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(`100 ${source}`);
 
-    t.type(result, Ok);
+    t.equal(result[1], null);
 
-    t.same(result.result, new Input([new Line(100, [cmd])]));
+    t.same(result[0], new Input([new Line(100, [cmd])]));
   });
 }
 
 t.test('non-numbered invalid string escape', async (t: Test) => {
   const result = parseInput("'\\q'");
 
-  t.type(result, Warn);
+  t.type(result[1], ParseWarning);
 
-  const warning = (result as any).warning;
+  const warning = result[1];
 
   t.same(
-    result.result,
+    result[0],
     new Input([new CommandGroup([new Expression(new StringLiteral('\\q'))])]),
   );
   t.matchSnapshot(formatter.format(warning));
@@ -67,12 +67,12 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
 t.test('numbered invalid string escape', async (t: Test) => {
   const result = parseInput("100 '\\q'");
 
-  t.type(result, Warn);
+  t.type(result[1], ParseWarning);
 
-  const warning = (result as any).warning;
+  const warning = result[1];
 
   t.same(
-    result.result,
+    result[0],
     new Input([new Line(100, [new Expression(new StringLiteral('\\q'))])]),
   );
   t.matchSnapshot(formatter.format(warning));
@@ -81,10 +81,10 @@ t.test('numbered invalid string escape', async (t: Test) => {
 t.test('non-numbered print command', async (t: Test) => {
   const result = parseInput('print "hello world"');
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
   t.same(
-    result.result,
+    result[0],
     new Input([
       new CommandGroup([new Print(new StringLiteral('hello world'))]),
     ]),
@@ -94,50 +94,52 @@ t.test('non-numbered print command', async (t: Test) => {
 t.test('numbered print command', async (t: Test) => {
   const result = parseInput('100 print "hello world"');
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
   t.same(
-    result.result,
+    result[0],
     new Input([new Line(100, [new Print(new StringLiteral('hello world'))])]),
   );
 });
 
 t.test('non-numbered print command without arguments', async (t: Test) => {
-  const result = parseInput('print');
-
-  t.type(result, Err);
-
-  const error = (result as any).error;
-
-  t.same(result.result, new Input([]));
-  t.matchSnapshot(formatter.format(error));
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseInput('print');
+    } catch (err) {
+      t.matchSnapshot(formatter.format(err));
+      throw err;
+    }
+  });
 });
 
 t.test('numbered print command without arguments', async (t: Test) => {
-  const result = parseInput('100 print');
-
-  t.type(result, Err);
-
-  const error = (result as any).error;
-
-  t.same(result.result, new Input([]));
-  t.matchSnapshot(formatter.format(error));
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseInput('100 print');
+    } catch (err) {
+      t.matchSnapshot(formatter.format(err));
+      throw err;
+    }
+  });
 });
 
 t.test('empty input', async (t: Test) => {
   const result = parseInput('');
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
-  t.same(result.result, new Input([]));
+  t.same(result[0], new Input([]));
 });
 
 t.test('empty line', async (t: Test) => {
   const result = parseInput('100');
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
-  t.same(result.result, new Input([new Line(100, [])]));
+  t.same(result[0], new Input([new Line(100, [])]));
 });
 
 t.test('multiple inputs', async (t: Test) => {
@@ -145,10 +147,10 @@ t.test('multiple inputs', async (t: Test) => {
     '100 print "hello world"\n"foo"\n200 print "goodbye"',
   );
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
   t.same(
-    result.result,
+    result[0],
     new Input([
       new Line(100, [new Print(new StringLiteral('hello world'))]),
       new CommandGroup([new Expression(new StringLiteral('foo'))]),
@@ -163,10 +165,10 @@ t.test('simple program', async (t: Test) => {
     FILENAME,
   );
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
   t.same(
-    result.result,
+    result[0],
     new Program([
       new Line(100, [new Print(new StringLiteral('hello world'))]),
       new Line(200, [new Print(new StringLiteral('goodbye'))]),
@@ -180,10 +182,10 @@ t.test('out of order program', async (t: Test) => {
     FILENAME,
   );
 
-  t.type(result, Ok);
+  t.equal(result[1], null);
 
   t.same(
-    result.result,
+    result[0],
     new Program([
       new Line(100, [new Print(new StringLiteral('goodbye'))]),
       new Line(200, [new Print(new StringLiteral('hello world'))]),
@@ -192,44 +194,34 @@ t.test('out of order program', async (t: Test) => {
 });
 
 t.test('program with non-numbered input', async (t: Test) => {
-  const result = parseProgram(
-    '100 print "hello world"\n"foo"\n200 print "goodbye"',
-    FILENAME,
-  );
-
-  t.type(result, Err);
-
-  const error = (result as any).error;
-
-  t.same(
-    result.result,
-    new Program([
-      new Line(100, [new Print(new StringLiteral('hello world'))]),
-      new Line(200, [new Print(new StringLiteral('goodbye'))]),
-    ]),
-  );
-  t.matchSnapshot(formatter.format(error));
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseProgram(
+        '100 print "hello world"\n"foo"\n200 print "goodbye"',
+        FILENAME,
+      );
+    } catch (err) {
+      t.matchSnapshot(formatter.format(err));
+      throw err;
+    }
+  });
 });
 
 // Need to support unary minus
 t.todo('program with a negative line number', async (t: Test) => {
-  const result = parseProgram(
-    '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
-    FILENAME,
-  );
-
-  t.type(result, Err);
-
-  const error = (result as any).error;
-
-  t.same(
-    result.result,
-    new Program([
-      new Line(100, [new Print(new StringLiteral('hello world'))]),
-      new Line(200, [new Print(new StringLiteral('goodbye'))]),
-    ]),
-  );
-  t.matchSnapshot(formatter.format(error));
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseProgram(
+        '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
+        FILENAME,
+      );
+    } catch (err) {
+      t.matchSnapshot(formatter.format(err));
+      throw err;
+    }
+  });
 });
 
 // TODO: tests with illegal tokens (what is an illegal token?)

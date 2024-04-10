@@ -42,7 +42,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentLine: number = 0;
 
   private filename: string = '<input>';
-  private functionType: RoutineType = RoutineType.Command;
+  private routineType: RoutineType = RoutineType.Command;
   private lineNo: number = -1;
 
   private isError: boolean = false;
@@ -98,13 +98,13 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   /**
    * Reset the compiler.
    **/
-  init(filename: string, functionType: RoutineType) {
+  init(filename: string, routineType: RoutineType) {
     this.currentChunk = new Chunk();
     this.lines = [];
     this.currentLine = 0;
     this.currentCmd = 0;
     this.filename = filename;
-    this.functionType = functionType;
+    this.routineType = routineType;
     this.lineNo = -1;
   }
 

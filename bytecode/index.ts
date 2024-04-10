@@ -2,7 +2,7 @@ import { Value } from '../value';
 
 import { OpCode } from './opcodes';
 
-export class Bytecode {
+export class Chunk {
   public constants: Value[] = [];
   // TODO: In a C implementation, this would be an array of bytes. In clox,
   // the values are either opcodes, indexes to constants, or 16 byte offsets.

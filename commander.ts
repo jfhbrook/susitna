@@ -158,7 +158,7 @@ export class Commander implements CmdVisitor<void> {
       try {
         for (const cmd of cmds.commands) {
           // Command gets delegated via the visitor interface. Some commands
-          // are evaluted directly, but most are are compiled and executed.
+          // are evaluted directly, but most are compiled and executed.
           cmd.accept(this);
         }
       } catch (err) {
@@ -208,7 +208,7 @@ export class Commander implements CmdVisitor<void> {
 
   private runCommand(cmd: Cmd): Promise<void> {
     return span('runCommand', async () => {
-      const compiled = this.compiler.compileCommand(null, cmd);
+      const compiled = this.compiler.compileCommand(cmd);
       // TODO: get the runtime to run the command
       this.host.writeLine(compiled);
     });

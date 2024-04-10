@@ -14,54 +14,72 @@ import {
   NilLiteral,
 } from './ast/expr';
 
-import { Bytecode } from './bytecode';
+import { Chunk } from './bytecode';
 import { OpCode } from './bytecode/opcodes';
 
-// TODO: The commander implements some non-runtime commands, chiefly around
-// editing. This means I have to feed the compiler one command at a time.
+// TODO: This is roughly copied from clox. But I don't like that these aren't
+// strictly functions. Chunk type?
+export enum FunctionType {
+  Command,
+  Program,
+}
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
-  public current: Bytecode;
+  public current: Chunk;
 
   private filename: string = '<input>';
+  private functionType: FunctionType;
   private lineNo: number = -1;
 
   constructor() {
-    this.current = new Bytecode();
+    this.current = new Chunk();
+    this.functionType = FunctionType.Command;
   }
 
   /**
-   * Compile a program into bytecode.
+   * Compile a program.
    *
    * @param program The program to compile.
    * @param filename The source filename.
    */
-  compileProgram(program: Program, filename: string): Bytecode {
+  compileProgram(program: Program, filename: string): Chunk {
     const oldFilename = this.filename;
+    const oldFunctionType = this.functionType;
+
     this.filename = filename;
+    this.functionType = FunctionType.Program;
+
     for (const line of program.lines) {
       for (const cmd of line.commands) {
-        this.compileCommand(line.lineNo, cmd);
+        const oldLineNo = this.lineNo;
+        this.lineNo = line.lineNo;
+        this.compileCommand(cmd);
+        this.lineNo = oldLineNo;
       }
     }
+
     this.filename = oldFilename;
+    this.functionType = oldFunctionType;
+
     return this.current;
   }
 
-  /*
+  /**
    * Compile a command into bytecode.
    *
    * @param lineNo The line number for the command.
    * @param cmd The command to compile.
-   */
-  compileCommand(lineNo: number | null, cmd: Cmd) {
-    this.lineNo = lineNo === null ? -1 : lineNo;
+   **/
+  compileCommand(cmd: Cmd) {
     cmd.accept(this);
-    this.lineNo = -1;
   }
 
+  /**
+   * Reset the compiler.
+   **/
   reset() {
-    this.current = new Bytecode();
+    this.current = new Chunk();
+    this.functionType = FunctionType.Command;
   }
 
   //

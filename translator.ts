@@ -57,6 +57,7 @@ export class Translator {
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
+          return;
         }
 
         throw RuntimeFault.fromException(err);

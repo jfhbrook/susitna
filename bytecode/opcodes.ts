@@ -1,72 +1,38 @@
 export enum OpCode {
   // Constants and values
-  IntConstant,
-  RealConstant,
-  StringConstant,
+  Constant,
   Nil,
   True,
   False,
 
+  // !
   Pop,
-
-  // Conversions
-  IntToReal,
-  IntToBool,
-  IntToString,
-  RealToBool,
-  RealToString,
-  BoolToInt,
-  BoolToString,
 
   // Operators
   //
-  // TODO: There are a bunch of poorly-understood trade-offs between typed
-  // instructions, instanceof checks in the VM, and doing type conversions
-  // before comparison. I'd have to try some things out. But the major
-  // consideration will likely be performance.
+  // TODO: BASIC is typed - we can check the types in the compiler and use
+  // typed op codes. However, this requires tracking the state of the stack
+  // in the compiler. I'm keeping the opcodes untyped for now, just to get
+  // something working, but would like to switch to typed opcodes later.
 
-  // Comparisons are typed
-  IntEq,
-  IntGt,
-  IntGe,
-  IntLt,
-  IntLe,
-  RealEq,
-  RealGt,
-  RealGe,
-  RealLt,
-  RealLe,
-  BoolEq,
-  BoolGt,
-  BoolGe,
-  BoolLt,
-  BoolLe,
-  // Strings are compared lexicographically
-  StringEq,
-  StringGt,
-  StringGe,
-  StringLt,
-  StringLe,
+  // Comparison operators
+  Eq,
+  Gt,
+  Ge,
+  Lt,
+  Le,
 
-  // Logical operators are untyped - convert to bool first
+  // Logical operators
   And,
   Or,
   Not,
 
   // Math operators
-  IntAdd,
-  IntSub,
-  IntMul,
-  IntDiv,
-  IntNeg,
-  RealAdd,
-  RealSub,
-  RealMul,
-  RealDiv,
-  RealNeg,
-
-  // String operators
-  StringCat,
+  Add,
+  Sub,
+  Mul,
+  Div,
+  Neg,
 
   // Commands
   Print,

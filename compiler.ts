@@ -225,7 +225,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       try {
         this.emitByte(byte);
       } catch (err) {
-        console.log('error', err);
         throw err;
       }
     }

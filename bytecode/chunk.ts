@@ -21,7 +21,6 @@ export class Chunk {
 
   // Write an opcode, including its corresponding line number.
   public writeOp(op: OpCode, lineNo: number): void {
-    console.log('writeOp', op, lineNo);
     this.code.push(op);
     this.lines.push(lineNo);
   }

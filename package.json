@@ -37,6 +37,7 @@
     "@jfhbrook/citree": "file:tools/citree",
     "dotenv": "^16.4.5",
     "strftime": "^0.10.2",
+    "table": "^6.8.2",
     "typescript-parsec": "^0.3.4"
   },
   "devDependencies": {

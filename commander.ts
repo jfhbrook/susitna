@@ -2,6 +2,7 @@ import * as readline from 'node:readline/promises';
 
 import { span } from './trace';
 import { Chunk } from './bytecode/chunk';
+import { disassemble } from './bytecode/disassembler';
 import { compile } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
@@ -185,7 +186,7 @@ export class Commander implements CmdVisitor<void> {
         throw err;
       }
 
-      this.host.writeLine(chunk);
+      this.host.writeLine(disassemble(chunk));
     });
   }
 
@@ -218,7 +219,7 @@ export class Commander implements CmdVisitor<void> {
         throw err;
       }
       // TODO: get the runtime to run the command
-      this.host.writeLine(chunk);
+      this.host.writeLine(disassemble(chunk));
     });
   }
 }

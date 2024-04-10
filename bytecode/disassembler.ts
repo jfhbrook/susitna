@@ -1,4 +1,4 @@
-import { table, TableUserConfig } from 'table';
+import table from 'text-table';
 
 import { formatter } from '../format';
 import { OpCode } from './opcodes';
@@ -19,44 +19,9 @@ function toHex(value: number): string {
 }
 */
 
-const CONFIG: TableUserConfig = {
-  border: {
-    topLeft: ' ',
-    topRight: ' ',
-    topBody: ' ',
-    topJoin: ' ',
-    bottomLeft: ' ',
-    bottomRight: ' ',
-    bottomBody: ' ',
-    bottomJoin: ' ',
-    joinLeft: ' ',
-    joinRight: ' ',
-    joinBody: ' ',
-    joinJoin: ' ',
-    joinMiddleUp: ' ',
-    joinMiddleDown: ' ',
-    joinMiddleLeft: ' ',
-    joinMiddleRight: ' ',
-    headerJoin: ' ',
-    bodyRight: ' ',
-    bodyLeft: ' ',
-    bodyJoin: ' ',
-  },
-};
-
-function config(header: string): TableUserConfig {
-  return {
-    ...CONFIG,
-    header: {
-      alignment: 'left',
-      content: header,
-    },
-  };
-}
-
 export function disassemble(chunk: Chunk): string {
   const data: Row[] = [];
-  const header = `Disassembly of ${chunkName(chunk)}`;
+  const header = `Disassembly of ${chunkName(chunk)}:`;
 
   let offset = 0;
   const lineNo = 0;
@@ -172,5 +137,5 @@ export function disassemble(chunk: Chunk): string {
     }
   }
 
-  return table(data, config(header));
+  return `${header}\n${table(data)}`;
 }

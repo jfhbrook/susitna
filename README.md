@@ -29,4 +29,9 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
   - [A blog series on adding exception handling to clox](https://amillioncodemonkeys.com/2021/02/03/interpreter-exception-handling-implementation/)
 - `Writing Interactive Compilers and Interpreters` by PJ Brown
 - `Modern MSX BASIC Game Development` by Raul Portales
+- [List of Java bytecode instructions](https://en.m.wikipedia.org/wiki/List_of_Java_bytecode_instructions)
+- [Z80 Instruction Set (Complete)](https://ftp83plus.net/Tutorials/z80inset_fullA.htm)
+- [OpenJDK Architecture](https://www.dcs.gla.ac.uk/~jsinger/pdfs/sicsa_openjdk/OpenJDKArchitecture.pdf)
+- [cpython internals](https://devguide.python.org/internals/)
+  - [Python disassembler](https://docs.python.org/3/library/dis.html)
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)

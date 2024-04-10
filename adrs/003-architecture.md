@@ -31,7 +31,8 @@ Host has a lot of responsibilities:
 - Ports - both serial and networking, as well as HTTP
 - If applicable, drawing procedures - ie, wrapping
   [ink](https://github.com/vadimdemedes/ink),
-  [ratatui](https://github.com/ratatui-org/ratatui), etc.
+  [ratatui](https://github.com/ratatui-org/ratatui)
+  [crossterm](https://crates.io/crates/crossterm), etc.
 
 This is a larger surface area than most objects. However, I feel the
 division of responsibility is clear.

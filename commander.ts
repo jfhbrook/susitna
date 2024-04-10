@@ -1,8 +1,8 @@
 import * as readline from 'node:readline/promises';
 
 import { span } from './trace';
-import { Chunk } from './bytecode';
-import { Compiler } from './compiler';
+import { Chunk } from './bytecode/chunk';
+import { compile } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
 import { Host } from './host';
@@ -13,7 +13,6 @@ import { CommandGroup, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 
 export class Commander implements CmdVisitor<void> {
-  private compiler: Compiler;
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -25,7 +24,6 @@ export class Commander implements CmdVisitor<void> {
     private _config: Config,
     private host: Host,
   ) {
-    this.compiler = new Compiler();
     this.runtime = new Runtime(host);
     this._readline = null;
   }
@@ -178,7 +176,7 @@ export class Commander implements CmdVisitor<void> {
     return span('evalProgram', async () => {
       let chunk: Chunk;
       try {
-        chunk = this.compiler.compileProgram(program, filename);
+        chunk = compile(program, { filename });
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -209,7 +207,16 @@ export class Commander implements CmdVisitor<void> {
 
   private runCommand(cmd: Cmd): Promise<void> {
     return span('runCommand', async () => {
-      const chunk: Chunk = this.compiler.compileCommand(cmd);
+      let chunk: Chunk;
+      try {
+        chunk = compile(cmd);
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return;
+        }
+        throw err;
+      }
       // TODO: get the runtime to run the command
       this.host.writeLine(chunk);
     });

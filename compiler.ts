@@ -17,7 +17,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 
-import { Chunk } from './bytecode';
+import { Chunk } from './bytecode/chunk';
 // import { OpCode } from './bytecode/opcodes';
 
 export enum RoutineType {
@@ -33,14 +33,14 @@ class Synchronize extends Error {
   }
 }
 
-type InitOptions = {
-  lines?: Line[];
+export type CompilerOptions = {
   filename?: string;
-  routineType: RoutineType;
   saveResult?: boolean;
 };
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
+  private ast: Cmd | Program | null;
+
   private currentChunk: Chunk = new Chunk();
   private lines: Line[] = [];
   private currentCmd: number = 0;
@@ -49,17 +49,29 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private filename: string = '<input>';
   private routineType: RoutineType = RoutineType.Command;
   private saveResult: boolean = false;
-  private lineNo: number = -1;
 
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
-  // TODO: Unlike the parser, which always takes a string, the compiler can
-  // either take a one-off Cmd or a whole Program. This means that the
-  // constructor either needs to take a union type, or the compiler methods
-  // need to handle initialization separately. I'm currently taking the latter
-  // approach, but it also implies that the compiler - unlike the parser - can
-  // be reused.
+  constructor(ast: Program | Cmd, { filename, saveResult }: CompilerOptions) {
+    this.ast = ast;
+
+    let routineType: RoutineType;
+    if (ast instanceof Program) {
+      routineType = RoutineType.Program;
+    } else {
+      routineType = RoutineType.Command;
+    }
+
+    this.currentChunk = new Chunk();
+    this.currentLine = 0;
+    this.currentCmd = 0;
+    this.filename = filename;
+    this.routineType = routineType;
+    this.saveResult = saveResult || false;
+    this.isError = false;
+    this.errors = [];
+  }
 
   /**
    * Compile a program.
@@ -68,17 +80,20 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param filename The source filename.
    */
   @runtimeMethod
-  compileProgram(program: Program, filename: string): Chunk {
-    this.init({
-      lines: program.lines,
-      filename: filename,
-      routineType: RoutineType.Program,
-    });
+  compile(): Chunk {
+    if (this.routineType === RoutineType.Program) {
+      return this.compileProgram(this.ast as Program);
+    } else {
+      return this.compileCommand(this.ast as Cmd);
+    }
+  }
 
+  private compileProgram(program: Program): Chunk {
+    this.lines = program.lines;
     while (!this.done) {
       try {
         const cmd = this.advance();
-        this.compileCommand(cmd);
+        this.command(cmd);
       } catch (err) {
         if (err instanceof Synchronize) {
           this.synchronize();
@@ -94,19 +109,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.chunk;
   }
 
-  /**
-   * Compile a command.
-   *
-   * @param lineNo The line number for the command.
-   * @param cmd The command to compile.
-   **/
-  @runtimeMethod
-  compileCommand(cmd: Cmd, saveResult: boolean = false) {
-    this.init({
-      routineType: RoutineType.Command,
-      saveResult,
-    });
-
+  private compileCommand(cmd: Cmd) {
     try {
       this.command(cmd);
     } catch (err) {
@@ -122,20 +125,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.chunk;
   }
 
-  /**
-   * Reset the compiler.
-   **/
-  init({ lines, filename, routineType, saveResult }: InitOptions): void {
-    this.currentChunk = new Chunk();
-    this.lines = lines || [];
-    this.currentLine = 0;
-    this.currentCmd = 0;
-    this.filename = filename;
-    this.routineType = routineType;
-    this.saveResult = saveResult || false;
-    this.lineNo = -1;
-    this.isError = false;
-    this.errors = [];
+  get lineNo(): number {
+    return this.isLine ? this.lines[this.currentLine].lineNo : -1;
   }
 
   /**
@@ -262,4 +253,12 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitPromptLiteralExpr(_ps: PromptLiteral): void {}
 
   visitNilLiteralExpr(_: NilLiteral): void {}
+}
+
+export function compile(
+  ast: Program | Cmd,
+  options: CompilerOptions = {},
+): Chunk {
+  const compiler = new Compiler(ast, options);
+  return compiler.compile();
 }

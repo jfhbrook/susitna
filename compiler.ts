@@ -1,5 +1,5 @@
 import { errorType } from './errors';
-import { SyntaxError } from './exceptions';
+import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
 import { Line, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
@@ -33,6 +33,13 @@ class Synchronize extends Error {
   }
 }
 
+type InitOptions = {
+  lines?: Line[];
+  filename?: string;
+  routineType: RoutineType;
+  saveResult?: boolean;
+};
+
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk = new Chunk();
   private lines: Line[] = [];
@@ -41,10 +48,18 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private filename: string = '<input>';
   private routineType: RoutineType = RoutineType.Command;
+  private saveResult: boolean = false;
   private lineNo: number = -1;
 
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
+
+  // TODO: Unlike the parser, which always takes a string, the compiler can
+  // either take a one-off Cmd or a whole Program. This means that the
+  // constructor either needs to take a union type, or the compiler methods
+  // need to handle initialization separately. I'm currently taking the latter
+  // approach, but it also implies that the compiler - unlike the parser - can
+  // be reused.
 
   /**
    * Compile a program.
@@ -54,25 +69,26 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    */
   @runtimeMethod
   compileProgram(program: Program, filename: string): Chunk {
-    this.init(filename, RoutineType.Program);
+    this.init({
+      lines: program.lines,
+      filename: filename,
+      routineType: RoutineType.Program,
+    });
 
     while (!this.done) {
-      const cmd = this.advance();
-      this.compileCommand(cmd);
-    }
-
-    for (const line of program.lines) {
       try {
-        for (const cmd of line.commands) {
-          this.lineNo = line.lineNo;
-          this.compileCommand(cmd);
-        }
+        const cmd = this.advance();
+        this.compileCommand(cmd);
       } catch (err) {
         if (err instanceof Synchronize) {
           this.synchronize();
         }
         throw err;
       }
+    }
+
+    if (this.isError) {
+      throw new ParseError(this.errors);
     }
 
     return this.chunk;
@@ -85,10 +101,23 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param cmd The command to compile.
    **/
   @runtimeMethod
-  compileCommand(cmd: Cmd) {
-    this.init('<input>', RoutineType.Command);
+  compileCommand(cmd: Cmd, saveResult: boolean = false) {
+    this.init({
+      routineType: RoutineType.Command,
+      saveResult,
+    });
 
-    this.command(cmd);
+    try {
+      this.command(cmd);
+    } catch (err) {
+      if (err instanceof Synchronize) {
+        // There's nothing to synchronize...
+      }
+    }
+
+    if (this.isError) {
+      throw new ParseError(this.errors);
+    }
 
     return this.chunk;
   }
@@ -96,14 +125,17 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   /**
    * Reset the compiler.
    **/
-  init(filename: string, routineType: RoutineType) {
+  init({ lines, filename, routineType, saveResult }: InitOptions): void {
     this.currentChunk = new Chunk();
-    this.lines = [];
+    this.lines = lines || [];
     this.currentLine = 0;
     this.currentCmd = 0;
     this.filename = filename;
     this.routineType = routineType;
+    this.saveResult = saveResult || false;
     this.lineNo = -1;
+    this.isError = false;
+    this.errors = [];
   }
 
   /**
@@ -112,6 +144,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   get chunk(): Chunk {
     return this.currentChunk;
   }
+
+  // Parsing navigation methods. These are only used when compiling a full
+  // program that includes loops.
 
   private match(...types: (typeof Cmd)[]): boolean {
     for (const type of types) {

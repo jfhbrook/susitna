@@ -6,8 +6,8 @@ import { Commander } from './commander';
 import { Host } from './host';
 import { BaseException, Exception, Warning } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
-import { parseInput, parseProgram, ParseResult } from './parser';
-import { Input, Program } from './ast';
+import { parseInput, parseProgram } from './parser';
+import { Input, Line } from './ast';
 
 export class Translator {
   constructor(
@@ -49,10 +49,11 @@ export class Translator {
 
   async translate(input: string): Promise<void> {
     await span('translate', async () => {
-      let parseResult: ParseResult<Input | Program>;
+      let result: Input;
+      let warning: Warning | null;
 
       try {
-        parseResult = parseInput(input);
+        [result, warning] = parseInput(input);
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -61,14 +62,19 @@ export class Translator {
         throw RuntimeFault.fromException(err);
       }
 
-      if (parseResult[1] instanceof Warning) {
-        this.host.writeWarn(parseResult[1]);
-        return;
+      if (warning instanceof Warning) {
+        this.host.writeWarn(warning);
       }
 
-      trace('parse result', parseResult[0]);
+      trace('parse result', result);
 
-      await this.commander.eval(parseResult[0]);
+      for (const row of result.input) {
+        if (row instanceof Line) {
+          console.log('TODO: insert into editor', row);
+        } else {
+          await this.commander.evalCommands(row);
+        }
+      }
     });
   }
 }

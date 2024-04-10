@@ -1,18 +1,17 @@
 import * as readline from 'node:readline/promises';
 
 import { span } from './trace';
-import { Compiler } from './compiler';
+import { Bytecode } from './bytecode';
+import { compileCommands } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
 import { Host } from './host';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
-import { Value } from './value';
 
-import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
+import { CommandGroup } from './ast';
 
-export class Commander implements TreeVisitor<Promise<Value>> {
-  private compiler: Compiler;
+export class Commander {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -22,7 +21,6 @@ export class Commander implements TreeVisitor<Promise<Value>> {
     private _config: Config,
     private host: Host,
   ) {
-    this.compiler = new Compiler();
     this.runtime = new Runtime(host);
     this._readline = null;
   }
@@ -151,70 +149,20 @@ export class Commander implements TreeVisitor<Promise<Value>> {
    *
    * @param tree An input or program to evaluate.
    */
-  async eval(tree: Input | Program): Promise<void> {
-    return span('eval', async () => {
-      let compilerResult: Tree;
+  async evalCommands(cmds: CommandGroup): Promise<void> {
+    return span('evalCommands', async () => {
+      let result: Bytecode;
       try {
-        compilerResult = this.compiler.compile(tree);
+        result = compileCommands(cmds);
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
-          return null;
+          return;
         }
         throw err;
       }
 
-      this.host.writeLine(compilerResult);
-
-      /*
-      const evalResult = await compiled.accept(this);
-
-      if (evalResult instanceof Err) {
-        this.host.writeException(evalResult.error);
-        return;
-      }
-
-      if (evalResult instanceof Warn) {
-        this.host.writeWarn(evalResult.warning);
-      }
-
-      if (typeof evalResult.result !== 'undefined') {
-        this.host.writeLine(evalResult.result);
-      }
-      */
-    });
-  }
-
-  // Evaluate the group of commands.
-  async visitCommandGroupTree(group: CommandGroup): Promise<Value> {
-    return span('eval command group', async () => {
-      return group.accept(this.runtime);
-    });
-  }
-
-  // Add the line to the editor.
-  async visitLineTree(_line: Line): Promise<Value> {
-    return span('eval line', async () => {
-      console.log('TODO: Add line to editor');
-      return undefined;
-    });
-  }
-
-  // Visit each row (a Line or CommandGroup) in the input.
-  async visitInputTree(input: Input): Promise<Value> {
-    return span('eval input', async () => {
-      let result: Value;
-      for (const row of input.input) {
-        result = await row.accept(this);
-      }
-      return result;
-    });
-  }
-
-  // Evaluate the program.
-  async visitProgramTree(program: Program): Promise<Value> {
-    return span('eval program', async () => {
-      return program.accept(this.runtime);
+      this.host.writeLine(result);
     });
   }
 }

@@ -608,7 +608,6 @@ class Parser {
  * Parse input, return a list of lines and commands.
  *
  * @param source The source code.
- * @param filename The source filename.
  */
 export function parseInput(source: string): ParseResult<Input> {
   const parser = new Parser(source, '<input>');

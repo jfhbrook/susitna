@@ -7,10 +7,14 @@ const TRACER = new MockTracer();
 
 t.test('tracer', async (t: Test) => {
   TRACER.trace('before span');
-  TRACER.open('span');
-  TRACER.trace('inside span');
-  TRACER.close();
+  await TRACER.span('span', async () => {
+    TRACER.trace('inside span');
+  });
   TRACER.trace('after span');
+  TRACER.spanSync('sync span', () => {
+    TRACER.trace('inside sync span');
+  });
+  TRACER.trace('after sync span');
 
   t.matchSnapshot(TRACER.messages);
 });

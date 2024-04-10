@@ -7,8 +7,9 @@ import { Exit } from './exit';
 let TRACE_USAGE = '';
 
 if (MATBAS_BUILD === 'debug') {
-  // Document the TRACE environment variable in usage.
-  TRACE_USAGE = '\nTRACE             enable debug tracing';
+  TRACE_USAGE = `
+TRACE             enable debug tracing
+TRACE_PARSER      enable parser tracing`;
 }
 
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]

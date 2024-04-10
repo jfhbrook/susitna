@@ -1,4 +1,5 @@
-import { spanSync, trace } from './trace';
+import { getTracer } from './trace';
+import { parseBoolEnv } from './env';
 import { errorType } from './errors';
 import {
   SyntaxError,
@@ -26,6 +27,8 @@ import {
 import { Cmd, Print, Expression } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
+
+const tracer = getTracer('parser', parseBoolEnv(process.env.TRACE_PARSER));
 
 export type ParseResult<T> = [T, ParseWarning | null];
 export type Row = Line | CommandGroup;
@@ -63,7 +66,7 @@ class Parser {
     this.scanner = new Scanner(source, filename);
     this.current = this.scanner.nextToken();
     this.line = this.current.text;
-    trace('current', this.current);
+    tracer.trace('current', this.current);
   }
 
   /**
@@ -73,7 +76,7 @@ class Parser {
    */
   @runtimeMethod
   public parseInput(): ParseResult<Input> {
-    return spanSync('parseInput', () => {
+    return tracer.spanSync('parseInput', () => {
       const result = new Input(this.rows());
 
       if (this.isError) {
@@ -94,7 +97,7 @@ class Parser {
    */
   @runtimeMethod
   public parseProgram(): ParseResult<Program> {
-    return spanSync('parseProgram', () => {
+    return tracer.spanSync('parseProgram', () => {
       this.isProgram = true;
 
       const result = this.rows();
@@ -113,7 +116,7 @@ class Parser {
   }
 
   private match(...kinds: TokenKind[]): boolean {
-    trace(`match ${kinds.join(' ')}`);
+    tracer.trace(`match ${kinds.join(' ')}`);
     for (const kind of kinds) {
       if (this.check(kind)) {
         this.advance();
@@ -125,7 +128,7 @@ class Parser {
   }
 
   private check(kind: TokenKind): boolean {
-    trace(`check ${kind}`);
+    tracer.trace(`check ${kind}`);
     if (this.done) {
       return kind === TokenKind.Eof;
     }
@@ -133,7 +136,7 @@ class Parser {
   }
 
   private advance(): Token | null {
-    return spanSync('advance', () => {
+    return tracer.spanSync('advance', () => {
       if (this.current.kind !== TokenKind.Whitespace) {
         this.previous = this.current;
       }
@@ -149,39 +152,39 @@ class Parser {
         this.syntaxError(this.current, `Illegal token ${this.current.text}`);
       }
 
-      trace('previous', this.previous ? this.previous.text : null);
-      trace('current', this.current ? this.current.text : null);
-      trace('line', this.line);
+      tracer.trace('previous', this.previous ? this.previous.text : null);
+      tracer.trace('current', this.current ? this.current.text : null);
+      tracer.trace('line', this.line);
 
       return this.previous;
     });
   }
 
   private get done(): boolean {
-    return spanSync('done', () => {
+    return tracer.spanSync('done', () => {
       return this.peek().kind == TokenKind.Eof;
     });
   }
 
   private peek(): Token {
-    trace(`peek (${this.current.kind})`);
+    tracer.trace(`peek (${this.current.kind})`);
     return this.current;
   }
 
   private consume(kind: TokenKind, message: string): Token {
-    return spanSync('consume', () => {
-      trace('kind', kind);
+    return tracer.spanSync('consume', () => {
+      tracer.trace('kind', kind);
       if (this.check(kind)) return this.advance();
-      trace('failure:', message);
+      tracer.trace('failure:', message);
       const token: Token = this.peek();
       this.syntaxError(token, message);
     });
   }
 
   private syntaxError(token: Token, message: string): void {
-    return spanSync('syntaxError', () => {
-      trace('kind', token.kind);
-      trace('message', message);
+    return tracer.spanSync('syntaxError', () => {
+      tracer.trace('kind', token.kind);
+      tracer.trace('message', message);
       const exc = new SyntaxError(
         message,
         this.filename,
@@ -199,11 +202,11 @@ class Parser {
   }
 
   private rows(): Row[] {
-    return spanSync('rows', () => {
+    return tracer.spanSync('rows', () => {
       const rows: Row[] = [];
       while (!this.done) {
         const parsed = this.row();
-        trace('parsed row', parsed);
+        tracer.trace('parsed row', parsed);
         if (parsed) {
           rows.push(parsed);
         }
@@ -213,9 +216,9 @@ class Parser {
   }
 
   private row(): Row | null {
-    return spanSync('row', () => {
-      trace('previous', this.previous);
-      trace('current', this.current);
+    return tracer.spanSync('row', () => {
+      tracer.trace('previous', this.previous);
+      tracer.trace('current', this.current);
 
       let lineNo: number | null;
       let cmds: CommandGroup;
@@ -241,7 +244,7 @@ class Parser {
   }
 
   private lineNumber(): number | null {
-    return spanSync('lineNumber', () => {
+    return tracer.spanSync('lineNumber', () => {
       if (this.match(TokenKind.DecimalLiteral)) {
         const lineNo = this.previous!.value as number;
         if (lineNo < 1) {
@@ -257,20 +260,20 @@ class Parser {
         this.isLine = false;
       }
 
-      trace('lineNo', this.lineNo);
+      tracer.trace('lineNo', this.lineNo);
 
       return this.lineNo;
     });
   }
 
   private rowEnding(): void {
-    return spanSync('rowEnding', () => {
+    return tracer.spanSync('rowEnding', () => {
       let line = this.line;
       if (line.endsWith('\n')) {
         line = line.slice(0, -1);
       }
       for (const error of this.lineErrors) {
-        trace('set source to line', line);
+        tracer.trace('set source to line', line);
         error.source = line;
         this.errors.push(error);
       }
@@ -287,14 +290,14 @@ class Parser {
 
       line = this.current.text;
 
-      trace('reset line', line);
+      tracer.trace('reset line', line);
       this.line = line;
       this.isLine = false;
     });
   }
 
   private syncNextCommand() {
-    return spanSync('syncNextCommand', () => {
+    return tracer.spanSync('syncNextCommand', () => {
       while (
         ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
           this.peek().kind,
@@ -307,7 +310,7 @@ class Parser {
   }
 
   private syncNextRow() {
-    return spanSync('syncNextRow', () => {
+    return tracer.spanSync('syncNextRow', () => {
       while (
         ![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)
       ) {
@@ -319,9 +322,9 @@ class Parser {
   }
 
   private commands(): CommandGroup {
-    return spanSync('commands', () => {
-      trace('previous', this.previous);
-      trace('current', this.current);
+    return tracer.spanSync('commands', () => {
+      tracer.trace('previous', this.previous);
+      tracer.trace('current', this.current);
       if (this.done || this.peek().kind === TokenKind.LineEnding) {
         return new CommandGroup([]);
       }
@@ -348,7 +351,7 @@ class Parser {
   }
 
   private command(): Cmd | null {
-    return spanSync('command', () => {
+    return tracer.spanSync('command', () => {
       if (this.match(TokenKind.Print)) {
         return this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
@@ -360,7 +363,7 @@ class Parser {
 
   // TODO: What's the syntax of print? lol
   private print(): Cmd | null {
-    return spanSync('print', () => {
+    return tracer.spanSync('print', () => {
       const expr = this.expression();
       if (expr) {
         return new Print(expr);
@@ -370,7 +373,7 @@ class Parser {
   }
 
   private expressionStatement(): Cmd | null {
-    return spanSync('expression statement', () => {
+    return tracer.spanSync('expression statement', () => {
       const expr = this.expression();
       if (expr) {
         return new Expression(expr);
@@ -380,7 +383,7 @@ class Parser {
   }
 
   private expression(): Expr | null {
-    return spanSync('expression', () => {
+    return tracer.spanSync('expression', () => {
       // TODO: assignment
       // TODO: logical expressions (and, or)
       return this.equality();
@@ -453,7 +456,7 @@ class Parser {
   }
 
   private primary(): Expr | null {
-    return spanSync('primary', () => {
+    return tracer.spanSync('primary', () => {
       // TODO: Illegal, UnterminatedString
       if (
         this.match(

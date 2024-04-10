@@ -34,6 +34,32 @@ export class Tracer {
     this.spans--;
   }
 
+  async span<T>(name: string, fn: () => Promise<T>): Promise<T> {
+    this.open(name);
+
+    let rv: T;
+    try {
+      rv = await fn();
+    } finally {
+      this.close();
+    }
+
+    return rv;
+  }
+
+  spanSync<T>(name: string, fn: () => T): T {
+    this.open(name);
+
+    let rv: T;
+    try {
+      rv = fn();
+    } finally {
+      this.close();
+    }
+
+    return rv;
+  }
+
   _log(...args: any[]): void {
     console.log(...args);
   }
@@ -126,7 +152,7 @@ let spanSync = function spanSync<T>(_name: string, fn: () => T): T {
   return fn();
 };
 
-let NOOP_TRACER = null;
+const NOOP_TRACER = new NoopTracer();
 
 /**
  * Get a child tracer. Call this to trace async execution outside the main
@@ -134,10 +160,10 @@ let NOOP_TRACER = null;
  *
  * @paran name The name of the child tracer.
  */
-let getTracer = function getTracer(_name: string): Tracer {
-  if (!NOOP_TRACER) {
-    NOOP_TRACER = new NoopTracer();
-  }
+let getTracer = function getTracer(
+  _name: string,
+  _active: boolean = true,
+): Tracer {
   return NOOP_TRACER;
 };
 
@@ -167,20 +193,17 @@ if (MATBAS_BUILD === 'debug') {
       return rv;
     };
 
-    spanSync = function spanSync<T>(name: string, fn: () => T): T {
-      tracer.open(name);
+    span = tracer.span.bind(tracer);
 
-      let rv: T;
-      try {
-        rv = fn();
-      } finally {
-        tracer.close();
+    spanSync = tracer.spanSync.bind(tracer);
+
+    getTracer = function getTracer(
+      name: string,
+      active: boolean = true,
+    ): Tracer {
+      if (!active) {
+        return NOOP_TRACER;
       }
-
-      return rv;
-    };
-
-    getTracer = function getTracer(name: string): Tracer {
       if (!TRACERS[name]) {
         TRACERS[name] = new Tracer(name);
       }

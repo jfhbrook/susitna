@@ -157,6 +157,8 @@ export class Commander implements CmdVisitor<void> {
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return span('evalCommands', async () => {
       try {
+        // TODO: Tell the compiler to save the result of the last command
+        // if it's an expression command.
         for (const cmd of cmds.commands) {
           // Command gets delegated via the visitor interface. Some commands
           // are evaluted directly, but most are compiled and executed.

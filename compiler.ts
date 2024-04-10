@@ -115,6 +115,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         throw new ParseError(this.errors);
       }
 
+      this.emitByte(OpCode.Return);
+
       return this.chunk;
     });
   }
@@ -123,6 +125,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return tracer.spanSync('compileCommand', () => {
       try {
         this.command(cmd);
+        this.emitByte(OpCode.Return);
       } catch (err) {
         if (err instanceof Synchronize) {
           // There's nothing to synchronize...

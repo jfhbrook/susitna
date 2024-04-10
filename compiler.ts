@@ -17,40 +17,51 @@ import {
 import { Bytecode } from './bytecode';
 import { OpCode } from './bytecode/opcodes';
 
-//
-// The compiler will, like the base parser, also follow a recursive descent
-// pattern.
-//
+// TODO: The commander implements some non-runtime commands, chiefly around
+// editing. This means I have to feed the compiler one command at a time.
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
-  private code: Bytecode;
+  public current: Bytecode;
 
+  private filename: string = '<input>';
   private lineNo: number = -1;
 
-  constructor(
-    private ast: CommandGroup | Program,
-    private filename: string = '<unknown>',
-  ) {
-    this.code = new Bytecode();
+  constructor() {
+    this.current = new Bytecode();
   }
 
-  compileGroup(): Bytecode {
-    this.compileCommands(null, (this.ast as CommandGroup).commands);
-    return this.code;
-  }
-
-  compileProgram(): Bytecode {
-    for (const line of (this.ast as Program).lines) {
-      this.compileCommands(line.lineNo, line.commands);
+  /**
+   * Compile a program into bytecode.
+   *
+   * @param program The program to compile.
+   * @param filename The source filename.
+   */
+  compileProgram(program: Program, filename: string): Bytecode {
+    const oldFilename = this.filename;
+    this.filename = filename;
+    for (const line of program.lines) {
+      for (const cmd of line.commands) {
+        this.compileCommand(line.lineNo, cmd);
+      }
     }
-    return this.code;
+    this.filename = oldFilename;
+    return this.current;
   }
 
-  private compileCommands(lineNo: number | null, cmds: Cmd[]) {
-    this.lineNo = lineNo;
-    for (const cmd of cmds) {
-      cmd.accept(this);
-    }
+  /*
+   * Compile a command into bytecode.
+   *
+   * @param lineNo The line number for the command.
+   * @param cmd The command to compile.
+   */
+  compileCommand(lineNo: number | null, cmd: Cmd) {
+    this.lineNo = lineNo === null ? -1 : lineNo;
+    cmd.accept(this);
+    this.lineNo = -1;
+  }
+
+  reset() {
+    this.current = new Bytecode();
   }
 
   //
@@ -82,25 +93,4 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitPromptLiteralExpr(ps: PromptLiteral): void {}
 
   visitNilLiteralExpr(_: NilLiteral): void {}
-}
-
-/*
- * Compile a command group into bytecode.
- *
- * @param group The command group to compile.
- */
-export function compileCommands(group: CommandGroup): Bytecode {
-  const compiler = new Compiler(group, '<input>');
-  return compiler.compileGroup();
-}
-
-/*
- * Compile a program into bytecode.
- *
- * @param program The program to compile.
- * @param filename The source filename.
- */
-export function compileProgram(program: Program, filename: string): Bytecode {
-  const compiler = new Compiler(program, filename);
-  return compiler.compileProgram();
 }

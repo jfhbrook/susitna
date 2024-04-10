@@ -1,26 +1,30 @@
 import * as readline from 'node:readline/promises';
 
 import { span } from './trace';
-import { Bytecode } from './bytecode';
-import { compileCommands } from './compiler';
+import { Compiler } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
 import { Host } from './host';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
-import { CommandGroup } from './ast';
+import { CommandGroup, Program } from './ast';
+import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 
-export class Commander {
+export class Commander implements CmdVisitor<void> {
+  private compiler: Compiler;
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
   private ps1: string = '\\u@\\h:\\w\\$';
 
+  private lineNo: number = -1;
+
   constructor(
     private _config: Config,
     private host: Host,
   ) {
+    this.compiler = new Compiler();
     this.runtime = new Runtime(host);
     this._readline = null;
   }
@@ -145,15 +149,18 @@ export class Commander {
   }
 
   /**
-   * Evaluate input or a program.
+   * Evaluate a command group.
    *
-   * @param tree An input or program to evaluate.
+   * @param cmds A group of commands to evaluate.
    */
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return span('evalCommands', async () => {
-      let result: Bytecode;
       try {
-        result = compileCommands(cmds);
+        for (const cmd of cmds.commands) {
+          // Command gets delegated via the visitor interface. Some commands
+          // are evaluted directly, but most are are compiled and executed.
+          cmd.accept(this);
+        }
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -162,7 +169,48 @@ export class Commander {
         throw err;
       }
 
-      this.host.writeLine(result);
+      this.host.writeLine(this.compiler.current);
+    });
+  }
+
+  async evalProgram(program: Program, filename: string): Promise<void> {
+    return span('evalProgram', async () => {
+      try {
+        this.compiler.reset();
+        this.compiler.compileProgram(program, filename);
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return;
+        }
+        throw err;
+      }
+
+      this.host.writeLine(this.compiler.current);
+    });
+  }
+
+  //
+  // Non-program commands.
+  //
+
+  visitPrintCmd(print: Print): void {
+    this.runCommand(print);
+  }
+
+  visitExpressionCmd(expression: Expression): void {
+    this.runCommand(expression);
+  }
+
+  //
+  // Run a compiled command.
+  //
+
+  private runCommand(cmd: Cmd): Promise<void> {
+    return span('runCommand', async () => {
+      const compiled = this.compiler.compileCommand(null, cmd);
+      // TODO: get the runtime to run the command
+      this.host.writeLine(compiled);
     });
   }
 }

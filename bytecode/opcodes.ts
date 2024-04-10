@@ -21,6 +21,7 @@ export enum OpCode {
   Ge,
   Lt,
   Le,
+  Ne,
 
   // Logical operators
   And,

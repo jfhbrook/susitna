@@ -1,6 +1,8 @@
 import { errorType } from './errors';
 import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
+import { TokenKind } from './tokens';
+import { Value } from './value';
 import { Line, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 import {
@@ -18,7 +20,7 @@ import {
 } from './ast/expr';
 
 import { Chunk } from './bytecode/chunk';
-// import { OpCode } from './bytecode/opcodes';
+import { OpCode } from './bytecode/opcodes';
 
 export enum RoutineType {
   Command,
@@ -125,10 +127,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.chunk;
   }
 
-  get lineNo(): number {
-    return this.isLine ? this.lines[this.currentLine].lineNo : -1;
-  }
-
   /**
    * Get the current chunk.
    **/
@@ -210,7 +208,43 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private get isLine(): boolean {
+    return this.lines.length > 0;
+  }
+
+  // TODO: call stack exceeded error is silent given current error handling,
+  // oops
+  /*
+  private get isLine(): boolean {
     return this.lineNo !== -1;
+  }
+  */
+
+  private get lineNo(): number {
+    return this.isLine ? this.lines[this.currentLine].lineNo : -1;
+  }
+
+  private emitByte(byte: number): void {
+    this.currentChunk.writeOp(byte, this.lineNo);
+  }
+
+  private emitBytes(...bytes: number[]): void {
+    for (const byte of bytes) {
+      try {
+        this.emitByte(byte);
+      } catch (err) {
+        console.log('error', err);
+        throw err;
+      }
+    }
+  }
+
+  private emitConstant(value: Value): void {
+    this.emitBytes(OpCode.Constant, this.makeConstant(value));
+  }
+
+  private makeConstant(value: Value): number {
+    // TODO: clox validates that the return value is byte sized.
+    return this.currentChunk.addConstant(value);
   }
 
   //
@@ -223,36 +257,94 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitPrintCmd(print: Print): void {
     print.expression.accept(this);
-    // push OpCode.Print
+    this.emitByte(OpCode.Print);
   }
 
   visitExpressionCmd(expr: Expression): void {
     expr.expression.accept(this);
     // TODO: An instruction that saves the expression
-    // push OpCode.Pop
+    // this.emitByte(OpCode.Print);
   }
 
   // Expressions
 
-  visitUnaryExpr(_unary: Unary): void {}
+  visitUnaryExpr(unary: Unary): void {
+    unary.expr.accept(this);
+    switch (unary.op) {
+      case TokenKind.Minus:
+        this.emitByte(OpCode.Neg);
+        break;
+      default:
+        this.syntaxError(this.peek(), 'Invalid unary operator');
+    }
+  }
 
-  visitBinaryExpr(_binary: Binary): void {}
+  visitBinaryExpr(binary: Binary): void {
+    binary.left.accept(this);
+    binary.right.accept(this);
+    switch (binary.op) {
+      case TokenKind.Plus:
+        this.emitByte(OpCode.Add);
+        break;
+      case TokenKind.Minus:
+        this.emitByte(OpCode.Sub);
+        break;
+      case TokenKind.Star:
+        this.emitByte(OpCode.Mul);
+        break;
+      case TokenKind.Slash:
+        this.emitByte(OpCode.Div);
+        break;
+      case TokenKind.Eq:
+        this.emitByte(OpCode.Eq);
+        break;
+      case TokenKind.Gt:
+        this.emitByte(OpCode.Gt);
+        break;
+      case TokenKind.Ge:
+        this.emitByte(OpCode.Ge);
+        break;
+      case TokenKind.Lt:
+        this.emitByte(OpCode.Lt);
+        break;
+      case TokenKind.Le:
+        this.emitByte(OpCode.Le);
+        break;
+      case TokenKind.Ne:
+        this.emitByte(OpCode.Ne);
+        break;
+      default:
+        this.syntaxError(this.peek(), 'Invalid binary operator');
+    }
+  }
 
   visitLogicalExpr(_logical: Logical): void {}
 
-  visitGroupExpr(_group: Group): void {}
+  visitGroupExpr(group: Group): void {
+    group.expr.accept(this);
+  }
 
-  visitIntLiteralExpr(_int: IntLiteral): void {}
+  visitIntLiteralExpr(int: IntLiteral): void {
+    this.emitConstant(int.value);
+  }
 
-  visitRealLiteralExpr(_real: RealLiteral): void {}
+  visitRealLiteralExpr(real: RealLiteral): void {
+    this.emitConstant(real.value);
+  }
 
-  visitBoolLiteralExpr(_bool: BoolLiteral): void {}
+  visitBoolLiteralExpr(bool: BoolLiteral): void {
+    this.emitConstant(bool.value);
+  }
 
-  visitStringLiteralExpr(_str: StringLiteral): void {}
+  visitStringLiteralExpr(str: StringLiteral): void {
+    this.emitConstant(str.value);
+  }
 
   visitPromptLiteralExpr(_ps: PromptLiteral): void {}
 
-  visitNilLiteralExpr(_: NilLiteral): void {}
+  visitNilLiteralExpr(_: NilLiteral): void {
+    this.emitByte(OpCode.Nil);
+  }
 }
 
 export function compile(

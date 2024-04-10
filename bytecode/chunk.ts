@@ -21,13 +21,14 @@ export class Chunk {
 
   // Write an opcode, including its corresponding line number.
   public writeOp(op: OpCode, lineNo: number): void {
+    console.log('writeOp', op, lineNo);
     this.code.push(op);
     this.lines.push(lineNo);
   }
 
   // Returns the index of the constant. I believe clox uses this number to
   // immediately write the ADD_CONSTANT op.
-  public writeConstant(value: Value): number {
+  public addConstant(value: Value): number {
     this.constants.push(value);
     return this.constants.length - 1;
   }

@@ -22,7 +22,8 @@
     "test:citree": "cd tools/citree && npm test",
     "snap": "npm run build:versions && npm run format && NO_TRACE=1 tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node",
-    "prepare": "husky"
+    "prepare": "husky",
+    "clean": "rm -rf ./dist"
   },
   "keywords": [
     "basic",

@@ -118,6 +118,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       if (err instanceof Synchronize) {
         // There's nothing to synchronize...
       }
+      throw err;
     }
 
     if (this.isError) {
@@ -210,14 +211,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private get isLine(): boolean {
     return this.lines.length > 0;
   }
-
-  // TODO: call stack exceeded error is silent given current error handling,
-  // oops
-  /*
-  private get isLine(): boolean {
-    return this.lineNo !== -1;
-  }
-  */
 
   private get lineNo(): number {
     return this.isLine ? this.lines[this.currentLine].lineNo : -1;

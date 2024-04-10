@@ -174,7 +174,7 @@ class Parser {
       if (this.check(kind)) return this.advance();
       trace('failure:', message);
       const token: Token = this.peek();
-      throw this.syntaxError(token, message);
+      this.syntaxError(token, message);
     });
   }
 

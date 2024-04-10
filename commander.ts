@@ -1,6 +1,7 @@
 import * as readline from 'node:readline/promises';
 
 import { span } from './trace';
+import { Chunk } from './bytecode';
 import { Compiler } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
@@ -168,16 +169,14 @@ export class Commander implements CmdVisitor<void> {
         }
         throw err;
       }
-
-      this.host.writeLine(this.compiler.current);
     });
   }
 
   async evalProgram(program: Program, filename: string): Promise<void> {
     return span('evalProgram', async () => {
+      let chunk: Chunk;
       try {
-        this.compiler.reset();
-        this.compiler.compileProgram(program, filename);
+        chunk = this.compiler.compileProgram(program, filename);
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -186,7 +185,7 @@ export class Commander implements CmdVisitor<void> {
         throw err;
       }
 
-      this.host.writeLine(this.compiler.current);
+      this.host.writeLine(chunk);
     });
   }
 
@@ -208,9 +207,9 @@ export class Commander implements CmdVisitor<void> {
 
   private runCommand(cmd: Cmd): Promise<void> {
     return span('runCommand', async () => {
-      const compiled = this.compiler.compileCommand(cmd);
+      const chunk: Chunk = this.compiler.compileCommand(cmd);
       // TODO: get the runtime to run the command
-      this.host.writeLine(compiled);
+      this.host.writeLine(chunk);
     });
   }
 }

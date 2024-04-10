@@ -14,7 +14,7 @@ Array [
     "TRACE <main> span",
   ],
   Array [
-    "TRACE <main> | |- inside span",
+    "TRACE <main> |- inside span",
   ],
   Array [
     "TRACE <main> after span",
@@ -23,7 +23,7 @@ Array [
     "TRACE <main> sync span",
   ],
   Array [
-    "TRACE <main> | |- inside sync span",
+    "TRACE <main> |- inside sync span",
   ],
   Array [
     "TRACE <main> after sync span",

@@ -1,3 +1,5 @@
+import { getTracer } from './trace';
+import { parseBoolEnv } from './env';
 import { errorType } from './errors';
 import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
@@ -21,6 +23,8 @@ import {
 
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
+
+const tracer = getTracer('compiler', parseBoolEnv(process.env.TRACE_COMPILER));
 
 export enum RoutineType {
   Command,
@@ -83,49 +87,55 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    */
   @runtimeMethod
   compile(): Chunk {
-    if (this.routineType === RoutineType.Program) {
-      return this.compileProgram(this.ast as Program);
-    } else {
-      return this.compileCommand(this.ast as Cmd);
-    }
+    return tracer.spanSync('compile', () => {
+      if (this.routineType === RoutineType.Program) {
+        return this.compileProgram(this.ast as Program);
+      } else {
+        return this.compileCommand(this.ast as Cmd);
+      }
+    });
   }
 
   private compileProgram(program: Program): Chunk {
-    this.lines = program.lines;
-    while (!this.done) {
-      try {
-        const cmd = this.advance();
-        this.command(cmd);
-      } catch (err) {
-        if (err instanceof Synchronize) {
-          this.synchronize();
+    return tracer.spanSync('compileProgram', () => {
+      this.lines = program.lines;
+      while (!this.done) {
+        try {
+          const cmd = this.advance();
+          this.command(cmd);
+        } catch (err) {
+          if (err instanceof Synchronize) {
+            this.synchronize();
+          }
+          throw err;
         }
-        throw err;
       }
-    }
 
-    if (this.isError) {
-      throw new ParseError(this.errors);
-    }
+      if (this.isError) {
+        throw new ParseError(this.errors);
+      }
 
-    return this.chunk;
+      return this.chunk;
+    });
   }
 
   private compileCommand(cmd: Cmd) {
-    try {
-      this.command(cmd);
-    } catch (err) {
-      if (err instanceof Synchronize) {
-        // There's nothing to synchronize...
+    return tracer.spanSync('compileCommand', () => {
+      try {
+        this.command(cmd);
+      } catch (err) {
+        if (err instanceof Synchronize) {
+          // There's nothing to synchronize...
+        }
+        throw err;
       }
-      throw err;
-    }
 
-    if (this.isError) {
-      throw new ParseError(this.errors);
-    }
+      if (this.isError) {
+        throw new ParseError(this.errors);
+      }
 
-    return this.chunk;
+      return this.chunk;
+    });
   }
 
   /**
@@ -139,73 +149,81 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   // program that includes loops.
 
   private match(...types: (typeof Cmd)[]): boolean {
-    for (const type of types) {
-      if (this.check(type)) {
-        this.advance();
-        return true;
+    return tracer.spanSync('match', () => {
+      for (const type of types) {
+        if (this.check(type)) {
+          this.advance();
+          return true;
+        }
       }
-    }
-    return false;
+      return false;
+    });
   }
 
   private check(type: typeof Cmd): boolean {
-    if (this.done) return false;
-    return this.peek() instanceof type;
+    return tracer.spanSync('check', () => {
+      if (this.done) return false;
+      return this.peek() instanceof type;
+    });
   }
 
   private advance(): Cmd | null {
-    if (this.done) {
-      return null;
-    }
-    const cmd = this.peek();
-    this.currentCmd++;
-    if (this.currentCmd >= this.lines[this.currentLine].commands.length) {
-      this.currentLine++;
-      this.currentCmd = 0;
-    }
-    if (this.done) {
-      return null;
-    }
-    return cmd;
+    return tracer.spanSync('advance', () => {
+      if (this.done) {
+        return null;
+      }
+      const cmd = this.peek();
+      this.currentCmd++;
+      if (this.currentCmd >= this.lines[this.currentLine].commands.length) {
+        this.currentLine++;
+        this.currentCmd = 0;
+      }
+      if (this.done) {
+        return null;
+      }
+      return cmd;
+    });
   }
 
   private get done(): boolean {
-    return this.currentLine >= this.lines.length;
+    return tracer.spanSync('done', () => {
+      return this.currentLine >= this.lines.length;
+    });
   }
 
   private peek(): Cmd {
-    return this.lines[this.currentLine].commands[this.currentCmd];
-  }
-
-  private consume(type: typeof Cmd, message: string): Cmd {
-    if (this.check(type)) return this.advance()!;
-    const cmd = this.peek();
-    throw this.syntaxError(cmd, message);
+    return tracer.spanSync('peek', () => {
+      return this.lines[this.currentLine].commands[this.currentCmd];
+    });
   }
 
   private syntaxError(_cmd: Cmd, message: string): void {
-    const exc = new SyntaxError(
-      message,
-      this.filename,
-      -1,
-      this.isLine,
-      this.lineNo,
-      // TODO: Plug in offsets and source. The obvious way to do this is to
-      // pass it along from the tokens into the AST. A memory-efficient
-      // compromise might be to recreate the line and generate the offsets
-      // from there.
-      0,
-      0,
-      '<unknown>',
-    );
-    this.isError = true;
-    this.errors.push(exc);
-    throw new Synchronize();
+    return tracer.spanSync('syntaxError', () => {
+      const exc = new SyntaxError(
+        message,
+        this.filename,
+        -1,
+        this.isLine,
+        this.lineNo,
+        // TODO: Plug in offsets and source. The obvious way to do this is to
+        // pass it along from the tokens into the AST. A memory-efficient
+        // compromise might be to recreate the line and generate the offsets
+        // from there.
+        0,
+        0,
+        '<unknown>',
+      );
+      this.isError = true;
+      this.errors.push(exc);
+      throw new Synchronize();
+    });
   }
 
   private synchronize(): void {
-    this.currentLine++;
-    this.currentCmd = 0;
+    return tracer.spanSync('synchronize', () => {
+      this.currentLine++;
+      this.currentCmd = 0;
+    });
   }
 
   private get isLine(): boolean {
@@ -217,7 +235,11 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private emitByte(byte: number): void {
-    this.currentChunk.writeOp(byte, this.lineNo);
+    tracer.spanSync('emitByte', () => {
+      tracer.trace('byte', byte);
+      tracer.trace('lineNo', this.lineNo);
+      this.currentChunk.writeOp(byte, this.lineNo);
+    });
   }
 
   private emitBytes(...bytes: number[]): void {
@@ -231,7 +253,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private emitConstant(value: Value): void {
-    this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    tracer.spanSync('emitConstant', () => {
+      this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    });
   }
 
   private makeConstant(value: Value): number {
@@ -244,98 +268,123 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   //
 
   private command(cmd: Cmd) {
-    cmd.accept(this);
+    tracer.spanSync('command', () => {
+      tracer.trace('cmd', cmd);
+      cmd.accept(this);
+    });
   }
 
   visitPrintCmd(print: Print): void {
-    print.expression.accept(this);
-    this.emitByte(OpCode.Print);
+    tracer.spanSync('visitPrintCmd', () => {
+      print.expression.accept(this);
+      this.emitByte(OpCode.Print);
+    });
   }
 
   visitExpressionCmd(expr: Expression): void {
-    expr.expression.accept(this);
-    // TODO: An instruction that saves the expression
-    // this.emitByte(OpCode.Print);
+    tracer.spanSync('visitExpressionCmd', () => {
+      expr.expression.accept(this);
+      // TODO: An instruction that saves the expression
+      // this.emitByte(OpCode.Print);
+    });
   }
 
   // Expressions
 
   visitUnaryExpr(unary: Unary): void {
-    unary.expr.accept(this);
-    switch (unary.op) {
-      case TokenKind.Minus:
-        this.emitByte(OpCode.Neg);
-        break;
-      default:
-        this.syntaxError(this.peek(), 'Invalid unary operator');
-    }
+    tracer.spanSync('visitUnaryExpr', () => {
+      unary.expr.accept(this);
+      switch (unary.op) {
+        case TokenKind.Minus:
+          this.emitByte(OpCode.Neg);
+          break;
+        default:
+          this.syntaxError(this.peek(), 'Invalid unary operator');
+      }
+    });
   }
 
   visitBinaryExpr(binary: Binary): void {
-    binary.left.accept(this);
-    binary.right.accept(this);
-    switch (binary.op) {
-      case TokenKind.Plus:
-        this.emitByte(OpCode.Add);
-        break;
-      case TokenKind.Minus:
-        this.emitByte(OpCode.Sub);
-        break;
-      case TokenKind.Star:
-        this.emitByte(OpCode.Mul);
-        break;
-      case TokenKind.Slash:
-        this.emitByte(OpCode.Div);
-        break;
-      case TokenKind.Eq:
-        this.emitByte(OpCode.Eq);
-        break;
-      case TokenKind.Gt:
-        this.emitByte(OpCode.Gt);
-        break;
-      case TokenKind.Ge:
-        this.emitByte(OpCode.Ge);
-        break;
-      case TokenKind.Lt:
-        this.emitByte(OpCode.Lt);
-        break;
-      case TokenKind.Le:
-        this.emitByte(OpCode.Le);
-        break;
-      case TokenKind.Ne:
-        this.emitByte(OpCode.Ne);
-        break;
-      default:
-        this.syntaxError(this.peek(), 'Invalid binary operator');
-    }
+    tracer.spanSync('visitBinaryExpr', () => {
+      binary.left.accept(this);
+      binary.right.accept(this);
+      switch (binary.op) {
+        case TokenKind.Plus:
+          this.emitByte(OpCode.Add);
+          break;
+        case TokenKind.Minus:
+          this.emitByte(OpCode.Sub);
+          break;
+        case TokenKind.Star:
+          this.emitByte(OpCode.Mul);
+          break;
+        case TokenKind.Slash:
+          this.emitByte(OpCode.Div);
+          break;
+        case TokenKind.Eq:
+          this.emitByte(OpCode.Eq);
+          break;
+        case TokenKind.Gt:
+          this.emitByte(OpCode.Gt);
+          break;
+        case TokenKind.Ge:
+          this.emitByte(OpCode.Ge);
+          break;
+        case TokenKind.Lt:
+          this.emitByte(OpCode.Lt);
+          break;
+        case TokenKind.Le:
+          this.emitByte(OpCode.Le);
+          break;
+        case TokenKind.Ne:
+          this.emitByte(OpCode.Ne);
+          break;
+        default:
+          this.syntaxError(this.peek(), 'Invalid binary operator');
+      }
+    });
   }
 
-  visitLogicalExpr(_logical: Logical): void {}
+  visitLogicalExpr(_logical: Logical): void {
+    tracer.spanSync('visitLogicalExpr', () => {});
+  }
 
   visitGroupExpr(group: Group): void {
-    group.expr.accept(this);
+    tracer.spanSync('visitGroupExpr', () => {
+      group.expr.accept(this);
+    });
   }
 
   visitIntLiteralExpr(int: IntLiteral): void {
-    this.emitConstant(int.value);
+    tracer.spanSync('visitIntLiteralExpr', () => {
+      this.emitConstant(int.value);
+    });
   }
 
   visitRealLiteralExpr(real: RealLiteral): void {
-    this.emitConstant(real.value);
+    tracer.spanSync('visitRealLiteralExpr', () => {
+      this.emitConstant(real.value);
+    });
   }
 
   visitBoolLiteralExpr(bool: BoolLiteral): void {
-    this.emitConstant(bool.value);
+    tracer.spanSync('visitBoolLiteralExpr', () => {
+      this.emitConstant(bool.value);
+    });
   }
 
   visitStringLiteralExpr(str: StringLiteral): void {
-    this.emitConstant(str.value);
+    tracer.spanSync('visitStringLiteralExpr', () => {
+      this.emitConstant(str.value);
+    });
   }
 
   visitPromptLiteralExpr(_ps: PromptLiteral): void {}
 
   visitNilLiteralExpr(_: NilLiteral): void {
-    this.emitByte(OpCode.Nil);
+    tracer.spanSync('visitNilLiteralExpr', () => {
+      this.emitByte(OpCode.Nil);
+    });
   }
 }
 

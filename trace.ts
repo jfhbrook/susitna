@@ -67,7 +67,7 @@ export class Tracer {
   trace(message: any, ...args: any[]): void {
     let prefix = `TRACE <${this.name}> `;
     if (this.spans) {
-      for (let i = 0; i < this.spans; i++) {
+      for (let i = 0; i < this.spans - 1; i++) {
         prefix += '| ';
       }
       prefix += '|- ';

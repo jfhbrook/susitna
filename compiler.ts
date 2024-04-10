@@ -20,8 +20,6 @@ import {
 import { Chunk } from './bytecode';
 // import { OpCode } from './bytecode/opcodes';
 
-// TODO: This is roughly copied from clox. But I don't like that these aren't
-// strictly functions. Chunk type?
 export enum RoutineType {
   Command,
   Program,

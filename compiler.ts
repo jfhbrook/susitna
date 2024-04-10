@@ -22,7 +22,7 @@ import { Chunk } from './bytecode';
 
 // TODO: This is roughly copied from clox. But I don't like that these aren't
 // strictly functions. Chunk type?
-export enum FunctionType {
+export enum RoutineType {
   Command,
   Program,
 }
@@ -42,7 +42,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentLine: number = 0;
 
   private filename: string = '<input>';
-  private functionType: FunctionType = FunctionType.Command;
+  private functionType: RoutineType = RoutineType.Command;
   private lineNo: number = -1;
 
   private isError: boolean = false;
@@ -56,7 +56,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    */
   @runtimeMethod
   compileProgram(program: Program, filename: string): Chunk {
-    this.init(filename, FunctionType.Program);
+    this.init(filename, RoutineType.Program);
 
     while (!this.done) {
       const cmd = this.advance();
@@ -81,14 +81,14 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   /**
-   * Compile a command into bytecode.
+   * Compile a command.
    *
    * @param lineNo The line number for the command.
    * @param cmd The command to compile.
    **/
   @runtimeMethod
   compileCommand(cmd: Cmd) {
-    this.init('<input>', FunctionType.Command);
+    this.init('<input>', RoutineType.Command);
 
     this.command(cmd);
 
@@ -98,7 +98,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   /**
    * Reset the compiler.
    **/
-  init(filename: string, functionType: FunctionType) {
+  init(filename: string, functionType: RoutineType) {
     this.currentChunk = new Chunk();
     this.lines = [];
     this.currentLine = 0;
@@ -197,9 +197,16 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     cmd.accept(this);
   }
 
-  visitPrintCmd(_print: Print): void {}
+  visitPrintCmd(print: Print): void {
+    print.expression.accept(this);
+    // push OpCode.Print
+  }
 
-  visitExpressionCmd(_expression: Expression): void {}
+  visitExpressionCmd(expr: Expression): void {
+    expr.expression.accept(this);
+    // TODO: An instruction that saves the expression
+    // push OpCode.Pop
+  }
 
   // Expressions
 

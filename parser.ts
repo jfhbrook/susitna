@@ -547,7 +547,6 @@ class Parser {
             break;
           case 't':
             // Prompt strings render \t as a time format, not a tab.
-            // TODO: Evaluate tabs at runtime?
             if (isPrompt) {
               value += '\\t';
             } else {

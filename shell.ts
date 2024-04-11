@@ -223,11 +223,9 @@ export function renderPrompt(promptString: string, host: Host): string {
           ps += abbreviateHome(basename(host.cwd()), host);
           break;
         case '!':
-          // TODO: The Commander would probably know this.
           ps += '0';
           break;
         case '#':
-          // TODO: The Commander would probably know this.
           ps += '0';
           break;
         case '$':

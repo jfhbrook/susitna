@@ -41,6 +41,9 @@ minus some plumbing, the interpreter will be able to run "hello world".
 
 ### Near Term Polish
 
+- Polished tracing
+  - Tracing in the compiler and runtime
+  - Logging ASTs and chunks when tracing enabled
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
   - Plumb location information through the AST to the compiler

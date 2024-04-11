@@ -99,6 +99,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - `SET PS1` and `SET PS2`?
 - If/else
 - For and while
+- Gotos
 - "Expect" tests for the REPL and script input
 
 ### Up Next

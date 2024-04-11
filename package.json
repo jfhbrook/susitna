@@ -23,6 +23,7 @@
     "snap": "npm run build:versions && npm run format && NO_TRACE=1 tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node",
     "prepare": "husky",
+    "linecount": "bash ./scripts/linecount.sh",
     "clean": "rm -rf ./dist"
   },
   "keywords": [

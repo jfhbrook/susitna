@@ -131,6 +131,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 
 ### The Future
 
+- Run tests with GitHub Actions
 - Module system
 - Package manager
 - Partial rewrite in Rust and/or C/C++

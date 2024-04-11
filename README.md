@@ -113,6 +113,19 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Functions and/or subroutines
   - Local variables
   - Closures
+  - Native functions
+- Implement Acey Ducey
+  - `tab$(n)` function (or other formatting mechanism)
+  - `rnd!` (random) function
+  - If/then/goto
+  - `end` command
+- Implement Amazing
+  - `rnd!`
+  - If/then/goto
+  - Arrays
+  - [`@` function](https://www3.rocketsoftware.com/rocketd3/support/documentation/d3nt/91/refman/pickbasic-flashbasic/at_parenthesis_function.htm)
+  - `on x% goto` (or multi-line if/then/else if and goto)
+  - `end` command
 - Hashes
 - Date/time language support
 - Exception language support

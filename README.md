@@ -110,6 +110,8 @@ minus some plumbing, the interpreter will be able to run "hello world".
 ### Up Next
 
 - Arrays
+  - Including array literals - BASIC assigns each index one at a time, or
+    uses the `data` command
 - Functions and/or subroutines
   - Local variables
   - Closures

@@ -141,6 +141,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Rollup "release build"
 - Object support
 - Vector/matrix support for 1D/2D integer/float arrays
+- Assembler mini-language
 
 ## Resources
 

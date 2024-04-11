@@ -74,6 +74,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - Document "real example" in citree
   - Break parsing up into smaller recursive components
   - Potentially publish citree
+- Combine versions and constants
 
 ### New Features
 

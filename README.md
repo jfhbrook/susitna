@@ -38,6 +38,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Tests for the runtime
   - With "stack effects" tests
 - Test programs with asserted output
+  - Including generated "exceedingly large" tests
 
 ### Near Term Polish
 
@@ -133,6 +134,9 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Profiling
   - Line-based for users
   - Opcode-based for me
+- Performance tests
+  - Benchmarks
+  - Profile slow benchmarks
 
 ### The Future
 

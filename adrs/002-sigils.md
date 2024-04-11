@@ -65,3 +65,42 @@ MSX BASIC, with the following differences:
 
 1. Since we only support Reals, use the `!` sigil exclusively.
 2. Do not implement default default types for identifiers without a sigil.
+3. Booleans will use a `?` sigil.
+
+## Deferred Decisions
+
+### Untyped and Union Identifiers
+
+There are cases where untyped or union identifiers would be useful. For
+instance, many native functions in BASIC can accept union or any types.
+
+One option is to list multiple sigils for union types. For instance, `ident%!`
+could be a union of integers and reals. In this case, ordering may be a
+linting rule.
+
+Another option is to allow completely untyped identifiers. These are two major
+options:
+
+1. Use a dedicated sigil. Unfortunately, many of the natural sigils - such as
+   `?` - are taken.
+2. Use no sigil at all. Given the behavior of traditional BASICs of
+   auto-assigning a type, this may be a natural choice. However, it's less
+   explicit, and may discourage users from using types.
+
+This decision will be deferred until functions are implemented, or there is
+otherwise a use case for untyped or union identifiers.
+
+### Complex Types in Call Signatures
+
+In the context of a program, the type of an array or function is unambiguous.
+However, in the context of a call signature, they may be. There are a few
+options:
+
+1. Allow call signatures to be untyped. This appears to be the case with at
+   least a few implementations of BASIC. While this is likely straightforward
+   to implement, it may cause performance issues.
+2. Implement prefix sigils for functions and arrays. There is already an
+   example of prefix sigils for channels, and this would allow reuse of sigils
+   already used in a postfix context.
+
+This decision will be deferred until functions are implemented.

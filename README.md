@@ -180,3 +180,4 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - [cpython internals](https://devguide.python.org/internals/)
   - [Python disassembler](https://docs.python.org/3/library/dis.html)
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)
+- [An Introduction to Programming BBC BASIC](https://www.bbcbasic.co.uk/bbcwin/tutorial/index.html)

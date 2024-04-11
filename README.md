@@ -79,6 +79,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
+- Code formatting
 - Shell commands
   - Will need to research jobs in Bash
   - Scanner and parser support for shell commands and "shell tokens"

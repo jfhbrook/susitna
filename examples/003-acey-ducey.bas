@@ -1,7 +1,19 @@
-10  print center$("Acey Ducey Card Game")
+1   rem This is a simulation of the Acey Ducey card game. In the game, the
+2   rem dealer (the computer) deals two cards face up. You have an option to
+3   rem bet or not to bet, depending on whether or not you feel the next card
+4   rem dealt will have a value between the first two.
+5   rem
+6   rem Your initial money (money%) is set to $100; you may alter statement
+7   rem 300 if you want to start with more or less than $100. The game keeps
+8   rem going on until you lost all your money or interrupt the program.
+9   rem
+10  rem This game was found in 'BASIC Computer Games Microcomputer Edition'
+11  rem and ported to Matanuska BASIC by Josh Holbrook. The original program
+12  rem author was Bill Palmby of Prarie View, Illinois and credited to
+13  rem Creating Computing, Morristown, New Jersey.
+14  print center$("Acey Ducey Card Game")
 19  print center$("Josh Holbrook  Wasilla, Alaska")
-20  print center$("Based on Acey Ducey from 'BASIC Computer Games Microcomputer Edition'")
-21  print center$("by Creative Computing  Morristown, New Jersey")
+21  print center$("Creative Computing  Morristown, New Jersey")
 22  print
 23  print
 24  print
@@ -33,20 +45,20 @@
 270 end def
 280 
 290 label START_GAME
-300 let holdings% = 100
+300 let money% = 100
 310 
-320 label SHOW_HOLDINGS
-330 print "you now have"; holdings%; "dollars"
+320 label SHOW_MONEY
+330 print "you now have"; money%; "dollars"
 340 print
 350 goto DRAW_CARDS
 360 
 370 label ADD_WINNINGS
-210 holdings% += bet%
-000 goto SHOW_HOLDINGS
+210 money% += bet%
+000 goto SHOW_MONEY
 390 
 220 goto TAKE_LOSSES
-240 holdings% -= bet%
-250 goto SHOW_HOLDINGS
+240 money% -= bet%
+250 goto SHOW_MONEY
 260
 270 label DRAW_CARDS
 280 print "Here are your next two cards:"
@@ -63,9 +75,9 @@
 410   print
 420   goto DRAW_CARDS
 430 end if
-440 if bet% <= holdings% then DRAW_DEALER
+440 if bet% <= money% then DRAW_DEALER
 460 print "Sorry, my friend, but you bet too much!"
-470 print "You have only"; holdings%; "dollars to bet"
+470 print "You have only"; money%; "dollars to bet"
 480 goto GET_BET
 490
 500 label DRAW_DEALER
@@ -77,7 +89,7 @@
 580
 590 label YOU_LOSE
 600 print "SORRY, YOU LOSE"
-610 if bet% < holdings% then TAKE_LOSSES
+610 if bet% < money% then TAKE_LOSSES
 619
 620 rem "Game over"
 630 print 

@@ -75,12 +75,16 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - Break parsing up into smaller recursive components
   - Potentially publish citree
 - Combine versions and constants
+- Escaped newlines
+- Warn if lines in program loaded out of order
+- Warn if lines not in increments of 10
 
 ### New Features
 
 - Editing
   - Editor class
   - Editor commands
+  - Syntax for blank (not removed) line
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
@@ -121,6 +125,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - `tab$(n)` function (or other formatting mechanism)
   - `rnd!` (random) function
   - If/then/goto
+  - no-arguments print
   - `end` command
 - Implement Amazing
   - `rnd!`
@@ -153,6 +158,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Performance tests
   - Benchmarks
   - Profile slow benchmarks
+- Editor plugins
 
 ### The Future
 
@@ -181,3 +187,4 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - [Python disassembler](https://docs.python.org/3/library/dis.html)
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)
 - [An Introduction to Programming BBC BASIC](https://www.bbcbasic.co.uk/bbcwin/tutorial/index.html)
+- [BASIC Computer Games Microcomputer Edition](https://annarchive.com/files/Basic_Computer_Games_Microcomputer_Edition.pdf)

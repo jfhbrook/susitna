@@ -78,6 +78,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Escaped newlines
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
+- Finalize sigils ADR
 
 ### New Features
 

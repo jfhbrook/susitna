@@ -1,4 +1,4 @@
-# ADR 003 - Architecture
+# ADR 002 - Architecture
 ### Status: Accepted
 ### Josh Holbrook
 

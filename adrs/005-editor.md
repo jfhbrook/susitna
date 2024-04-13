@@ -1,4 +1,4 @@
-# ADR 006 - Editor Operations
+# ADR 005 - Editor Operations
 ### Status: Accepted
 ### Josh Holbrook
 

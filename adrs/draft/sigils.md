@@ -1,5 +1,5 @@
 # ADR 002 - Sigils
-### Status: Accepted
+### Status: Draft
 ### Josh Holbrook
 
 ## Context
@@ -51,14 +51,19 @@ Between `Modern MSX Game Development` and the
    default type. For MSX this is initially configured to doubles, though it's
    common practice to change it to integers. This is widely considered to
    be a footgun.
-6. Arrays and functions have the same postfix sigils as their *return values*.
-   While the syntax doesn't show their type in context, they are defined within
-   the program using unambiguous syntax.
+6. Arrays and functions *by convention* have the same postfix sigils as their
+   *return values* - but not always! While the syntax doesn't show their type
+   in context, they are defined within the program using unambiguous syntax.
 7. Channels aren't variables, but are *prefixed* with `#` when specified.
 8. MSX BASIC doesn't have a dedicated boolean type. Instead, the integer `0`
    is treated as `false` and the integer `-1` is treated as `true`.
+9. Variables of different types can reuse the same names. The correct variable
+   is fetched based on the compiler's knowledge of the type.
 
 ## Decision
+
+**This decision is incomplete. It's close, but I'm learning new things about
+this problem over time.**
 
 Matanuska BASIC will begin by broadly implementing the same decisions as
 MSX BASIC, with the following differences:
@@ -90,7 +95,7 @@ options:
 This decision will be deferred until functions are implemented, or there is
 otherwise a use case for untyped or union identifiers.
 
-### Complex Types in Call Signatures
+### Types in Call Signatures
 
 In the context of a program, the type of an array or function is unambiguous.
 However, in the context of a call signature, they may be. There are a few
@@ -102,5 +107,10 @@ options:
 2. Implement prefix sigils for functions and arrays. There is already an
    example of prefix sigils for channels, and this would allow reuse of sigils
    already used in a postfix context.
+3. Use sigils within a call syntax: `foo$(%)`. Combined with a prefix sigil,
+   this may look like `@foo$(%)` or `&foo!($)`.
+
+In addition, a callable may return a void type. One solution is to use no
+return sigil in those cases.
 
 This decision will be deferred until functions are implemented.

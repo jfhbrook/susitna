@@ -87,7 +87,8 @@ Another option is to allow completely untyped identifiers. These are two major
 options:
 
 1. Use a dedicated sigil. Unfortunately, many of the natural sigils - such as
-   `?` - are taken.
+   `?` - are taken. `_` may work, if identifiers are modified to disallow that
+   character at the end.
 2. Use no sigil at all. Given the behavior of traditional BASICs of
    auto-assigning a type, this may be a natural choice. However, it's less
    explicit, and may discourage users from using types.

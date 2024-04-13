@@ -123,9 +123,10 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - Closures
   - Native functions
 - Implement Acey Ducey
-  - `tab$(n)` function (or other formatting mechanism)
+  - `center$(n)`
   - `rnd!` (random) function
   - If/then/goto
+  - functions
   - no-arguments print
   - `end` command
 - Hashes

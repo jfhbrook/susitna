@@ -13,6 +13,6 @@ and Microsoft Basic. The versions in the book are thoroughly tested with
 Microsoft Basic 4.0 with an 80 column terminal, with ports to Apple II BASIC,
 DEC Basic Plus, Commodore BASIC and others being straightforward.
 
-These games operate both as a showcase of what Sie7e BASIC is capable of and
-as a way to show where Sie7e BASIC is or is not compatibile with Microsoft
+These games operate both as a showcase of what Matanuska BASIC is capable of and
+as a way to show where Matanuska BASIC is or is not compatibile with Microsoft
 BASIC 4.0.

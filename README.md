@@ -45,6 +45,7 @@ minus some plumbing, the interpreter will be able to run "hello world".
 - Polished tracing
   - Tracing in the compiler and runtime
   - Logging ASTs and chunks when tracing enabled
+  - Build trace.ts like I do constants
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
   - Plumb location information through the AST to the compiler

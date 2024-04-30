@@ -95,7 +95,9 @@ export class Config {
       let eval_ = null;
       let script = null;
       let level = Level.Info;
-      const scriptArgv: string[] = ['matbas'];
+      const scriptArgv: string[] = [
+        process.env.__MATBAS_DOLLAR_ZERO || 'matbas',
+      ];
 
       if (env.MATBAS_LOG_LEVEL) {
         level = parseLevel(env.MATBAS_LOG_LEVEL);

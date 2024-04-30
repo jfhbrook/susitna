@@ -2,7 +2,7 @@
 .env
 
 # compiled output
-versions.ts
+constants.ts
 /dist
 /node_modules
 

@@ -1,5 +1,6 @@
 import { inspect } from 'util';
 
+import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './constants';
 import {
   BaseException,
   AssertionError,
@@ -32,7 +33,6 @@ import {
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
-import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './versions';
 
 /**
  * Objects implementing this interface can be formatted.

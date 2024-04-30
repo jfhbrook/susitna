@@ -1,5 +1,5 @@
 import { spanSync } from './trace';
-import { MATBAS_BUILD } from './constants';
+import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
 import { Exit } from './exit';
@@ -28,8 +28,6 @@ MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)${TRACE_USAGE}
 function help(): Exit {
   return new Exit(USAGE);
 }
-
-import { MATBAS_VERSION } from './versions';
 
 function version(): Exit {
   return new Exit(`v${MATBAS_VERSION}`);

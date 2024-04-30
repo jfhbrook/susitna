@@ -1,8 +1,8 @@
 import { basename } from 'path';
 import strftime from 'strftime';
 
+import { MATBAS_VERSION } from './constants';
 import { Host } from './host';
-import { MATBAS_VERSION } from './versions';
 
 const shortVersion = MATBAS_VERSION.split('.').slice(0, 2).join('.');
 

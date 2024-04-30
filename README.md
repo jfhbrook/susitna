@@ -74,7 +74,6 @@ minus some plumbing, the interpreter will be able to run "hello world".
   - Document "real example" in citree
   - Break parsing up into smaller recursive components
   - Potentially publish citree
-- Combine versions and constants
 - Escaped newlines
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ -f .env ]; then
+  # shellcheck source=.env
+  source .env
+fi
+
 MATBAS_VERSION="$(node -pe 'require("./package.json").version')"
 TYPESCRIPT_VERSION="$(tsc --version | sed 's/^Version //')"
 

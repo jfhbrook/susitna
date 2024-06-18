@@ -21,20 +21,27 @@ function toHex(value: number): string {
 
 export function disassemble(chunk: Chunk): string {
   const data: Row[] = [];
-  const header = `Disassembly of ${chunkName(chunk)}:`;
+  const header = `=== Disassembly of ${chunkName(chunk)}: ===`;
 
   let offset = 0;
+  let row: Row;
+
+  while (offset < chunk.code.length) {
+    [offset, row] = _disassembleInstruction(chunk, offset);
+    data.push(row);
+  }
+
+  return `${header}\n${table(data)}`;
+}
+
+export function disassembleInstruction(chunk: Chunk, offset: number): string {
+  const row = _disassembleInstruction(chunk, offset)[1];
+  return table([row]);
+}
+
+function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
   const lineNo = 0;
-
-  function done() {
-    return offset >= chunk.code.length;
-  }
-
-  /*
-  function peek(): number {
-    return chunk.code[offset];
-  }
-  */
+  let row: Row;
 
   function advance(): number {
     offset++;
@@ -54,90 +61,74 @@ export function disassemble(chunk: Chunk): string {
     ];
   }
 
-  /*
-  function byte(code: string): Row {
-    return [String(lineNo), String(offset), code, toHex(advance())];
-  }
-  */
-
-  while (!done()) {
-    switch (advance()) {
-      case OpCode.Constant:
-        data.push(constant());
-        break;
-      case OpCode.Nil:
-        data.push(simple('NIL'));
-        break;
-      case OpCode.True:
-        data.push(simple('TRUE'));
-        break;
-      case OpCode.False:
-        data.push(simple('FALSE'));
-        break;
-      case OpCode.Pop:
-        data.push(simple('POP'));
-        break;
-      case OpCode.Eq:
-        data.push(simple('NIL'));
-        break;
-      case OpCode.Gt:
-        data.push(simple('GT'));
-        break;
-      case OpCode.Ge:
-        data.push(simple('GE'));
-        break;
-      case OpCode.Lt:
-        data.push(simple('LT'));
-        break;
-      case OpCode.Le:
-        data.push(simple('LE'));
-        break;
-      case OpCode.Ne:
-        data.push(simple('NE'));
-        break;
-      case OpCode.Not:
-        data.push(simple('NOT'));
-        break;
-      case OpCode.Add:
-        data.push(simple('ADD'));
-        break;
-      case OpCode.Sub:
-        data.push(simple('SUB'));
-        break;
-      case OpCode.Mul:
-        data.push(simple('MUL'));
-        break;
-      case OpCode.Div:
-        data.push(simple('DIV'));
-        break;
-      case OpCode.Neg:
-        data.push(simple('NEG'));
-        break;
-      case OpCode.Print:
-        data.push(simple('PRINT'));
-        break;
-      case OpCode.Jump:
-        data.push(simple('JUMP'));
-        break;
-      case OpCode.JumpIfFalse:
-        data.push(simple('JUMP_IF_FALSE'));
-        break;
-      case OpCode.Loop:
-        data.push(simple('LOOP'));
-        break;
-      case OpCode.Return:
-        data.push(simple('RETURN'));
-        break;
-    }
+  switch (advance()) {
+    case OpCode.Constant:
+      row = constant();
+      break;
+    case OpCode.Nil:
+      row = simple('NIL');
+      break;
+    case OpCode.True:
+      row = simple('TRUE');
+      break;
+    case OpCode.False:
+      row = simple('FALSE');
+      break;
+    case OpCode.Pop:
+      row = simple('POP');
+      break;
+    case OpCode.Eq:
+      row = simple('NIL');
+      break;
+    case OpCode.Gt:
+      row = simple('GT');
+      break;
+    case OpCode.Ge:
+      row = simple('GE');
+      break;
+    case OpCode.Lt:
+      row = simple('LT');
+      break;
+    case OpCode.Le:
+      row = simple('LE');
+      break;
+    case OpCode.Ne:
+      row = simple('NE');
+      break;
+    case OpCode.Not:
+      row = simple('NOT');
+      break;
+    case OpCode.Add:
+      row = simple('ADD');
+      break;
+    case OpCode.Sub:
+      row = simple('SUB');
+      break;
+    case OpCode.Mul:
+      row = simple('MUL');
+      break;
+    case OpCode.Div:
+      row = simple('DIV');
+      break;
+    case OpCode.Neg:
+      row = simple('NEG');
+      break;
+    case OpCode.Print:
+      row = simple('PRINT');
+      break;
+    case OpCode.Jump:
+      row = simple('JUMP');
+      break;
+    case OpCode.JumpIfFalse:
+      row = simple('JUMP_IF_FALSE');
+      break;
+    case OpCode.Loop:
+      row = simple('LOOP');
+      break;
+    case OpCode.Return:
+      row = simple('RETURN');
+      break;
   }
 
-  return `${header}\n${table(data)}`;
-}
-
-// TODO: Refactor to implement this function and call it from disassemble
-export function disassembleInstruction(
-  _chunk: Chunk,
-  _pc: number,
-): [number, Row] {
-  return [0, ['', '', '', '']];
+  return [offset, row];
 }

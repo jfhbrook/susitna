@@ -1,4 +1,4 @@
-import { getTracer, traceExec } from './debug';
+import { getTracer, startTraceExec, traceExec } from './debug';
 
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
@@ -48,6 +48,8 @@ export class Runtime {
       let a: any = null;
       let b: any = null;
       let rv: Value | null = null;
+
+      startTraceExec();
 
       while (true) {
         traceExec(this);

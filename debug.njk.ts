@@ -123,6 +123,11 @@ let showChunk = function showChunk(_chunk: Chunk): void {
 };
 
 /**
+ * Log the start of execution tracing.
+ */
+let startTraceExec = function startTraceExec(): void {};
+
+/**
  * Trace a step in execution.
  * @param rt The runtime.
  */
@@ -253,9 +258,12 @@ showChunk = function showChunk(chunk: Chunk): void {
 `{% endif %}`;
 
 `{% if trace_runtime %}`;
+startTraceExec = function startTraceExec(): void {
+  console.log('=== Execution Trace: ===');
+};
 traceExec = function traceExec(rt: Runtime): void {
-  console.log(formatter.format(rt.stack));
-  console.log(disassembleInstruction(rt.chunk, rt.pc));
+  console.log('> stack:', formatter.format(rt.stack));
+  console.log('>', disassembleInstruction(rt.chunk, rt.pc));
 };
 `{% endif %}`;
 
@@ -273,4 +281,4 @@ TRACERS['runtime'] = NOOP_TRACER;
 TRACERS['gc'] = NOOP_TRACER;
 `{% endif %}`;
 
-export { getTracer, showTree, showChunk, traceExec };
+export { getTracer, showTree, showChunk, startTraceExec, traceExec };

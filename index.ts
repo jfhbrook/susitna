@@ -6,7 +6,7 @@ if (MATBAS_BUILD === 'debug') {
   dotenv.config();
 }
 
-import { span } from './trace';
+import { getTracer } from './debug';
 
 import { Argv, cli, Env } from './cli';
 import { Config } from './config';
@@ -14,12 +14,14 @@ import { Host } from './host';
 import { Commander } from './commander';
 import { Translator } from './translator';
 
+const tracer = getTracer('main');
+
 function parseArgs(argv: Argv, env: Env): Config {
   return Config.load(argv, env);
 }
 
 async function run(config: Config, host: Host): Promise<void> {
-  await span('main', async () => {
+  await tracer.span('main', async () => {
     const commander = new Commander(config, host);
     const translator = new Translator(config, commander, host);
 

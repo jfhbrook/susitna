@@ -126,7 +126,7 @@ let showChunk = function showChunk(_chunk: Chunk): void {
  * Trace a step in execution.
  * @param rt The runtime.
  */
-let traceExec = function traceRuntime(_rt: Runtime): void {};
+let traceExec = function traceExec(_rt: Runtime): void {};
 
 `{% if matbas_build == 'debug' %}`;
 

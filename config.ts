@@ -1,8 +1,10 @@
-import { spanSync } from './trace';
+import { getTracer } from './debug';
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
 import { Exit } from './exit';
+
+const tracer = getTracer('main');
 
 let TRACE_USAGE = '';
 
@@ -90,7 +92,7 @@ export class Config {
    * @param env Environment variables. In practice, this is `process.env`.
    */
   static load(argv: typeof process.argv, env: typeof process.env) {
-    return spanSync('Config.load', () => {
+    return tracer.spanSync('Config.load', () => {
       let command = null;
       let eval_ = null;
       let script = null;

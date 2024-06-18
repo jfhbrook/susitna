@@ -1,5 +1,4 @@
-import { getTracer } from './trace';
-import { parseBoolEnv } from './env';
+import { getTracer } from './debug';
 import { errorType } from './errors';
 import {
   SyntaxError,
@@ -28,7 +27,7 @@ import { Cmd, Print, Expression } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
-const tracer = getTracer('parser', parseBoolEnv(process.env.TRACE_PARSER));
+const tracer = getTracer('parser');
 
 export type ParseResult<T> = [T, ParseWarning | null];
 export type Row = Line | CommandGroup;

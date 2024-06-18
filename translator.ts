@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-import { trace, span } from './trace';
+import { getTracer, showTree } from './debug';
 import { Config } from './config';
 import { Commander } from './commander';
 import { Host } from './host';
@@ -8,6 +8,8 @@ import { BaseException, Exception, Warning } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
 import { parseInput, parseProgram } from './parser';
 import { Input, Line, Program } from './ast';
+
+const tracer = getTracer('main');
 
 export class Translator {
   constructor(
@@ -18,7 +20,7 @@ export class Translator {
 
   async script(filename: string) {
     await this.commander.using(async () => {
-      await span('script', async () => {
+      await tracer.span('script', async () => {
         const source: string = await readFile(filename, 'utf8');
 
         let result: Program;
@@ -38,7 +40,7 @@ export class Translator {
           this.host.writeWarn(warning);
         }
 
-        trace('parse result', result);
+        showTree(result);
 
         await this.commander.evalProgram(result, filename);
       });
@@ -47,7 +49,7 @@ export class Translator {
 
   async repl() {
     await this.commander.using(async () => {
-      await span('repl', async () => {
+      await tracer.span('repl', async () => {
         while (true) {
           try {
             const input = await this.commander.prompt();
@@ -69,7 +71,7 @@ export class Translator {
   }
 
   async translateInput(input: string): Promise<void> {
-    await span('translateInput', async () => {
+    await tracer.span('translateInput', async () => {
       let result: Input;
       let warning: Warning | null;
 
@@ -88,7 +90,7 @@ export class Translator {
         this.host.writeWarn(warning);
       }
 
-      trace('parse result', result);
+      showTree(result);
 
       for (const row of result.input) {
         if (row instanceof Line) {

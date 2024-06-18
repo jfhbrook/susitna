@@ -1,9 +1,9 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { MockTracer } from './helpers/trace';
+import { MockTracer } from './helpers/debug';
 
-const TRACER = new MockTracer();
+const TRACER = new MockTracer('main');
 
 t.test('tracer', async (t: Test) => {
   TRACER.trace('before span');

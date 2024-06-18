@@ -1,7 +1,9 @@
-import { span, spanSync } from './trace';
+import { getTracer } from './debug';
 import { Exit, ExitCode } from './exit';
 import { RuntimeFault, UsageFault } from './faults';
 import { ConsoleHost, Host, Level } from './host';
+
+const tracer = getTracer('main');
 
 /**
  * Command line arguments.
@@ -114,7 +116,7 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
       errorExit(error);
     }
 
-    await span('cli', async () => {
+    await tracer.span('cli', async () => {
       //
       // Errors in the main coroutine should be correctly handled. However,
       // we also need to handle errors thrown by unmanaged EventEmitters and/or
@@ -153,7 +155,7 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
  * @param host A Host instance.
  */
 export function reportError(err: any, host: Host): void {
-  spanSync('reportError', () => {
+  tracer.spanSync('reportError', () => {
     if (err instanceof UsageFault) {
       host.writeLine(err);
     }

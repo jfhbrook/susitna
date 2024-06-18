@@ -1,5 +1,4 @@
-import { getTracer } from './trace';
-import { parseBoolEnv } from './env';
+import { getTracer } from './debug';
 import { errorType } from './errors';
 import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
@@ -24,7 +23,7 @@ import {
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
 
-const tracer = getTracer('compiler', parseBoolEnv(process.env.TRACE_COMPILER));
+const tracer = getTracer('compiler');
 
 export enum RoutineType {
   Command,

@@ -1,6 +1,6 @@
 import * as readline from 'node:readline/promises';
 
-import { span } from './trace';
+import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { disassemble } from './bytecode/disassembler';
 import { compile } from './compiler';
@@ -12,6 +12,8 @@ import { renderPrompt } from './shell';
 
 import { CommandGroup, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+
+const tracer = getTracer('main');
 
 export class Commander implements CmdVisitor<void> {
   private runtime: Runtime;
@@ -33,7 +35,7 @@ export class Commander implements CmdVisitor<void> {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    return await span('Commander.init', async () => {
+    return await tracer.span('Commander.init', async () => {
       await this.close();
 
       // TODO: Support for tab-completion and history. Note:
@@ -75,7 +77,7 @@ export class Commander implements CmdVisitor<void> {
    * Close the commander.
    */
   async close(): Promise<void> {
-    return span('Commander.close', () => {
+    return tracer.span('Commander.close', () => {
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
@@ -131,7 +133,7 @@ export class Commander implements CmdVisitor<void> {
    * @returns A promise that resolves to the user input.
    */
   input(question: string): Promise<string> {
-    return span('Commander.input', () => {
+    return tracer.span('Commander.input', () => {
       return this.readline.question(`${question} > `);
     });
   }
@@ -143,7 +145,7 @@ export class Commander implements CmdVisitor<void> {
    * @returns A promise that resolves to the source line.
    */
   prompt(): Promise<string> {
-    return span('Commander.prompt', () => {
+    return tracer.span('Commander.prompt', () => {
       return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
     });
   }
@@ -154,7 +156,7 @@ export class Commander implements CmdVisitor<void> {
    * @param cmds A group of commands to evaluate.
    */
   async evalCommands(cmds: CommandGroup): Promise<void> {
-    return span('evalCommands', async () => {
+    return tracer.span('evalCommands', async () => {
       try {
         // TODO: Tell the compiler to save the result of the last command
         // if it's an expression command.
@@ -174,7 +176,7 @@ export class Commander implements CmdVisitor<void> {
   }
 
   async evalProgram(program: Program, filename: string): Promise<void> {
-    return span('evalProgram', async () => {
+    return tracer.span('evalProgram', async () => {
       let chunk: Chunk;
       try {
         chunk = compile(program, { filename });
@@ -207,7 +209,7 @@ export class Commander implements CmdVisitor<void> {
   //
 
   private runCommand(cmd: Cmd): Promise<void> {
-    return span('runCommand', async () => {
+    return tracer.span('runCommand', async () => {
       let chunk: Chunk;
       try {
         chunk = compile(cmd);

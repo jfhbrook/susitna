@@ -1,6 +1,6 @@
-import { Tracer } from '../../trace';
+import { DebugTracer } from '../../debug';
 
-export class MockTracer extends Tracer {
+export class MockTracer extends DebugTracer {
   messages: any[] = [];
 
   _log(...args: any[]): void {

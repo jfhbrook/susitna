@@ -1,4 +1,4 @@
-import { spanSync } from './trace';
+import { getTracer, traceExec } from './debug';
 
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
@@ -7,6 +7,8 @@ import { Value, nil } from './value';
 
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
+
+const tracer = getTracer('main');
 
 export class Runtime {
   public stack: Stack;
@@ -42,12 +44,13 @@ export class Runtime {
   }
 
   run(): Value {
-    return spanSync('run', () => {
+    return tracer.spanSync('run', () => {
       let a: any = null;
       let b: any = null;
       let rv: Value | null = null;
 
       while (true) {
+        traceExec(this);
         const instruction = this.readByte();
 
         switch (instruction) {

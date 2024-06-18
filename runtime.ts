@@ -1,54 +1,122 @@
-import { trace, spanSync } from './trace';
+import { spanSync } from './trace';
 
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
 import { Stack } from './stack';
-import { TokenKind } from './tokens';
 import { Value, nil } from './value';
 
-const BINARY_OP = {
-  [TokenKind.Plus]: 'add',
-  [TokenKind.Minus]: 'sub',
-  [TokenKind.Star]: 'mul',
-  [TokenKind.Slash]: 'div',
-};
+import { Chunk } from './bytecode/chunk';
+import { OpCode } from './bytecode/opcodes';
 
-const LOGICAL_OP = {};
-
-const UNARY_OP = {
-  [TokenKind.Minus]: 'neg',
-};
-
-import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
-import { CmdVisitor, Expression, Print } from './ast/cmd';
-import {
-  ExprVisitor,
-  Binary,
-  Logical,
-  Unary,
-  Group,
-  IntLiteral,
-  RealLiteral,
-  BoolLiteral,
-  StringLiteral,
-  PromptLiteral,
-  NilLiteral,
-} from './ast/expr';
-
-export class Runtime
-  implements TreeVisitor<Value>, CmdVisitor<Value>, ExprVisitor<Value>
-{
+export class Runtime {
   public stack: Stack;
   private lineNo: number = 0;
   private isLine: boolean = false;
+  private pc: number = -1;
+  private chunk: Chunk | null = null;
 
   constructor(private host: Host) {
     this.stack = new Stack();
   }
 
-  run(tree: Input | Program): Value {
+  interpret(chunk: Chunk): Value {
+    this.chunk = chunk;
+    this.pc = 0;
+    return this.run();
+  }
+
+  // NOTE: I'm calling this readByte to be consistent with clox, but in truth
+  // we're not reading bytes at all. See chunk.ts for more details.
+  //
+  // In the future, I might rename this.
+  readByte(): OpCode {
+    const code = this.chunk.code[this.pc];
+    this.pc++;
+    return code;
+  }
+
+  readConstant(): Value {
+    return this.chunk.constants[this.readByte()];
+  }
+
+  run(): Value {
     return spanSync('run', () => {
-      return tree.accept(this);
+      let rv: Value | null = null;
+
+      while (true) {
+        const instruction = this.readByte();
+
+        switch (instruction) {
+          case OpCode.Constant:
+            this.stack.push(this.readConstant());
+            break;
+          case OpCode.Nil:
+            this.stack.push(nil);
+            break;
+          case OpCode.True:
+            this.stack.push(true);
+            break;
+          case OpCode.False:
+            this.stack.push(false);
+            break;
+          case OpCode.Pop:
+            this.stack.pop();
+            break;
+          case OpCode.Eq:
+            this.eq();
+            break;
+          case OpCode.Gt:
+            this.gt();
+            break;
+          case OpCode.Ge:
+            this.ge();
+            break;
+          case OpCode.Lt:
+            this.lt();
+            break;
+          case OpCode.Le:
+            this.le();
+            break;
+          case OpCode.Ne:
+            this.ne();
+            break;
+          case OpCode.Not:
+            this.not();
+            break;
+          case OpCode.Add:
+            this.add();
+            break;
+          case OpCode.Sub:
+            this.sub();
+            break;
+          case OpCode.Mul:
+            this.mul();
+            break;
+          case OpCode.Div:
+            this.div();
+            break;
+          case OpCode.Neg:
+            this.neg();
+            break;
+          case OpCode.Print:
+            this.host.writeLine(this.stack.pop());
+            break;
+          case OpCode.Jump:
+            this.notImplemented('Jump');
+            break;
+          case OpCode.JumpIfFalse:
+            this.notImplemented('JumpIfFalse');
+            break;
+          case OpCode.Loop:
+            this.notImplemented('Loop');
+            break;
+          case OpCode.Return:
+            rv = this.stack.pop();
+            // TODO: Clean up the current frame, and only return if we're
+            // done with the main program.
+            return rv;
+        }
+      }
     });
   }
 
@@ -57,193 +125,97 @@ export class Runtime
   }
 
   //
-  // Instructions
-  //
-
-  addConstant(value: Value): void {
-    return spanSync('add constant', () => {
-      this.stack.push(value);
-    });
-  }
-
-  pop(): Value {
-    return this.stack.pop();
-  }
-
-  //
   // TODO: These don't do any type checking right now. At a minimum I need
   // to check what the types of a/b are and switch accordingly. But I may
   // also want separate instructions for different types. I may also want
   // to have particular instructions for type conversions.
   //
+  // TODO: Define my own semantics for equality.
+  //
+  // TODO: Can/should I template this? It's a lot of boilerplate and clox
+  // uses macros for binary operations. tslox uses mapping functions, but
+  // ick.
 
-  add(): Value {
+  eq(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) === (b as any));
+  }
+
+  gt(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) > (b as any));
+  }
+
+  ge(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) >= (b as any));
+  }
+
+  lt(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) < (b as any));
+  }
+
+  le(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) <= (b as any));
+  }
+
+  ne(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) !== (b as any));
+  }
+
+  not(): void {
+    const b = this.stack.pop();
+    const a = this.stack.pop();
+
+    this.stack.push((a as any) === (b as any));
+  }
+
+  add(): void {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) + (b as any));
-
-    return undefined;
   }
 
-  sub(): Value {
+  sub(): void {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) - (b as any));
-
-    return undefined;
   }
 
-  mul(): Value {
+  mul(): void {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
     this.stack.push((a as any) * (b as any));
-
-    return undefined;
   }
 
-  div(): Value {
+  div(): void {
     const b = this.stack.pop();
     const a = this.stack.pop();
 
-    // TODO: Check types, return RuntimeErrors
     this.stack.push((a as any) / (b as any));
-
-    return undefined;
   }
 
-  neg(): Value {
+  neg(): void {
     const a = this.stack.pop();
 
     this.stack.push(-(a as any));
-
-    return undefined;
-  }
-
-  //
-  // Visitors
-  //
-
-  visitCommandGroupTree(group: CommandGroup): Value {
-    return spanSync('command group', () => {
-      let rv: Value = undefined;
-      for (const cmd of group.commands) {
-        trace('command', cmd);
-        rv = cmd.accept(this);
-      }
-      return rv;
-    });
-  }
-
-  visitLineTree(line: Line): Value {
-    return spanSync(`line ${line.lineNo}`, () => {
-      this.lineNo = line.lineNo;
-      this.isLine = true;
-      let rv: Value = undefined;
-      for (const cmd of line.commands) {
-        rv = cmd.accept(this);
-      }
-      this.isLine = false;
-      return rv;
-    });
-  }
-
-  visitInputTree(input: Input): Value {
-    return spanSync('input', () => {
-      let rv: Value = undefined;
-      for (const row of input.input) {
-        trace('row', row);
-        rv = row.accept(this);
-      }
-      return rv;
-    });
-  }
-
-  visitProgramTree(_program: Program): Value {
-    return spanSync('execute program', () => {
-      return this.notImplemented('Program execution');
-    });
-  }
-
-  visitExpressionCmd(expression: Expression): Value {
-    return spanSync('expression command', () => {
-      const expr = expression.expression;
-      expr.accept(this);
-
-      const value = this.stack.pop();
-
-      trace('expression result', value);
-      return value;
-    });
-  }
-
-  visitPrintCmd(print: Print): Value {
-    const expr = print.expression;
-    expr.accept(this);
-
-    const value = this.pop();
-    this.host.writeLine(value);
-    return undefined;
-  }
-
-  visitBinaryExpr(binary: Binary): Value {
-    binary.left.accept(this);
-    binary.right.accept(this);
-
-    this[BINARY_OP[binary.op]]();
-
-    return undefined;
-  }
-
-  visitLogicalExpr(logical: Logical): Value {
-    logical.left.accept(this);
-    logical.right.accept(this);
-
-    this[LOGICAL_OP[logical.op]]();
-
-    return undefined;
-  }
-
-  visitUnaryExpr(unary: Unary): Value {
-    unary.expr.accept(this);
-
-    this[UNARY_OP[unary.op]]();
-
-    return undefined;
-  }
-
-  visitGroupExpr(group: Group): Value {
-    return group.expr.accept(this);
-  }
-
-  visitIntLiteralExpr(int: IntLiteral): Value {
-    this.addConstant(int.value);
-    return undefined;
-  }
-
-  visitRealLiteralExpr(real: RealLiteral): Value {
-    this.addConstant(real.value);
-    return undefined;
-  }
-
-  visitBoolLiteralExpr(bool: BoolLiteral): Value {
-    this.addConstant(bool.value);
-    return undefined;
-  }
-
-  visitStringLiteralExpr(str: StringLiteral): Value {
-    this.addConstant(str.value);
-    return undefined;
-  }
-
-  visitPromptLiteralExpr(_ps: PromptLiteral): Value {
-    return undefined;
-  }
-
-  visitNilLiteralExpr(_: NilLiteral): Value {
-    this.addConstant(nil);
-    return undefined;
   }
 }

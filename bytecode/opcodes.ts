@@ -23,12 +23,8 @@ export enum OpCode {
   Le,
   Ne,
 
-  // Logical operators
-  And,
-  Or,
+  // Operators
   Not,
-
-  // Math operators
   Add,
   Sub,
   Mul,

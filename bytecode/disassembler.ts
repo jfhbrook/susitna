@@ -95,12 +95,6 @@ export function disassemble(chunk: Chunk): string {
       case OpCode.Ne:
         data.push(simple('NE'));
         break;
-      case OpCode.And:
-        data.push(simple('AND'));
-        break;
-      case OpCode.Or:
-        data.push(simple('OR'));
-        break;
       case OpCode.Not:
         data.push(simple('NOT'));
         break;

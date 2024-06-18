@@ -218,8 +218,10 @@ export class Commander implements CmdVisitor<void> {
         }
         throw err;
       }
-      // TODO: get the runtime to run the command
-      this.host.writeLine(disassemble(chunk));
+      const rv = this.runtime.interpret(chunk);
+      if (rv != null) {
+        this.host.writeLine(rv);
+      }
     });
   }
 }

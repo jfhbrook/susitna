@@ -30,7 +30,6 @@ minus some plumbing, the interpreter will be able to run "hello world".
 
 ### Immediate Needs
 
-- Implement "hello world" runtime from REPL
 - Implement "hello world" files
   - Including merged errors from parser and compiler
 - Tests for the compiler and disassembler

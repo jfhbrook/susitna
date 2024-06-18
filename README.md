@@ -24,18 +24,20 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 
 ## Current Status and Next Steps
 
-Most of the interpreter's architecture is in-place. The last piece is the
-runtime. That's probably an afternoon of hacking - once that's done, plus or
-minus some plumbing, the interpreter will be able to run "hello world".
+The interpreter can run "hello world" in a REPL and evaluate simple
+expressions. But it's brittle, and has a lot of gaps.
 
 ### Immediate Needs
 
 - Implement "hello world" files
   - Including merged errors from parser and compiler
+- Execution tracing
 - Tests for the compiler and disassembler
   - Including error cases
 - Tests for the runtime
   - With "stack effects" tests
+- Additional tests for parsing
+  - Bare expressions aren't parsing right now
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
 

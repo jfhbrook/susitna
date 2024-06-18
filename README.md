@@ -29,7 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Immediate Needs
 
-- Execution tracing in the runtime
 - Tests for the compiler
   - Including full programs
   - Including error cases
@@ -46,10 +45,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Polished tracing
-  - Tracing in the compiler and runtime
-  - Logging ASTs and chunks when tracing enabled
-  - Build trace.ts like I do constants
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
   - Plumb location information through the AST to the compiler

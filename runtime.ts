@@ -10,8 +10,6 @@ import { OpCode } from './bytecode/opcodes';
 
 export class Runtime {
   public stack: Stack;
-  private lineNo: number = 0;
-  private isLine: boolean = false;
   private pc: number = -1;
   private chunk: Chunk | null = null;
 
@@ -24,6 +22,10 @@ export class Runtime {
     this.pc = 0;
     return this.run();
   }
+
+  // TODO: Using templates can help decrease boilerplate while increasing the
+  // amount of inlining. But if I'm going down that road, I might want to
+  // consider porting this to C++ anyway.
 
   // NOTE: I'm calling this readByte to be consistent with clox, but in truth
   // we're not reading bytes at all. See chunk.ts for more details.
@@ -41,6 +43,8 @@ export class Runtime {
 
   run(): Value {
     return spanSync('run', () => {
+      let a: any = null;
+      let b: any = null;
       let rv: Value | null = null;
 
       while (true) {
@@ -62,41 +66,72 @@ export class Runtime {
           case OpCode.Pop:
             this.stack.pop();
             break;
+          //
+          // TODO: These operators don't do any type checking right now. At a minimum
+          // I need
+          // to check what the types of a/b are and switch accordingly. But I may
+          // also want separate instructions for different types. I may also want
+          // to have particular instructions for type conversions.
+          //
+          // TODO: Define my own semantics for equality.
+          //
           case OpCode.Eq:
-            this.eq();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a === b);
             break;
           case OpCode.Gt:
-            this.gt();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a > b);
             break;
           case OpCode.Ge:
-            this.ge();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a >= b);
             break;
           case OpCode.Lt:
-            this.lt();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a < b);
             break;
           case OpCode.Le:
-            this.le();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a <= b);
             break;
           case OpCode.Ne:
-            this.ne();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a !== b);
             break;
           case OpCode.Not:
-            this.not();
+            a = this.stack.pop();
+            this.stack.push(!a);
             break;
           case OpCode.Add:
-            this.add();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a + b);
             break;
           case OpCode.Sub:
-            this.sub();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a - b);
             break;
           case OpCode.Mul:
-            this.mul();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a * b);
             break;
           case OpCode.Div:
-            this.div();
+            b = this.stack.pop();
+            a = this.stack.pop();
+            this.stack.push(a / b);
             break;
           case OpCode.Neg:
-            this.neg();
+            a = this.stack.pop();
+            this.stack.push(-a);
             break;
           case OpCode.Print:
             this.host.writeLine(this.stack.pop());
@@ -122,100 +157,5 @@ export class Runtime {
 
   notImplemented(message: string): Value {
     throw new NotImplementedError(message, null);
-  }
-
-  //
-  // TODO: These don't do any type checking right now. At a minimum I need
-  // to check what the types of a/b are and switch accordingly. But I may
-  // also want separate instructions for different types. I may also want
-  // to have particular instructions for type conversions.
-  //
-  // TODO: Define my own semantics for equality.
-  //
-  // TODO: Can/should I template this? It's a lot of boilerplate and clox
-  // uses macros for binary operations. tslox uses mapping functions, but
-  // ick.
-
-  eq(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) === (b as any));
-  }
-
-  gt(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) > (b as any));
-  }
-
-  ge(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) >= (b as any));
-  }
-
-  lt(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) < (b as any));
-  }
-
-  le(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) <= (b as any));
-  }
-
-  ne(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) !== (b as any));
-  }
-
-  not(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) === (b as any));
-  }
-
-  add(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) + (b as any));
-  }
-
-  sub(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) - (b as any));
-  }
-
-  mul(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) * (b as any));
-  }
-
-  div(): void {
-    const b = this.stack.pop();
-    const a = this.stack.pop();
-
-    this.stack.push((a as any) / (b as any));
-  }
-
-  neg(): void {
-    const a = this.stack.pop();
-
-    this.stack.push(-(a as any));
   }
 }

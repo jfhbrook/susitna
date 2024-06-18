@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-import { getTracer, showTree } from './debug';
+import { getTracer } from './debug';
 import { Config } from './config';
 import { Commander } from './commander';
 import { Host } from './host';
@@ -39,8 +39,6 @@ export class Translator {
         if (warning instanceof Warning) {
           this.host.writeWarn(warning);
         }
-
-        showTree(result);
 
         await this.commander.evalProgram(result, filename);
       });
@@ -89,8 +87,6 @@ export class Translator {
       if (warning instanceof Warning) {
         this.host.writeWarn(warning);
       }
-
-      showTree(result);
 
       for (const row of result.input) {
         if (row instanceof Line) {

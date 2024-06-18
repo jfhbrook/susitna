@@ -1,4 +1,4 @@
-import { getTracer } from './debug';
+import { getTracer, showTree } from './debug';
 import { errorType } from './errors';
 import {
   SyntaxError,
@@ -612,7 +612,9 @@ class Parser {
  */
 export function parseInput(source: string): ParseResult<Input> {
   const parser = new Parser(source, '<input>');
-  return parser.parseInput();
+  const input = parser.parseInput();
+  showTree(input[0]);
+  return input;
 }
 
 /*
@@ -626,5 +628,7 @@ export function parseProgram(
   filename: string,
 ): ParseResult<Program> {
   const parser = new Parser(source, filename);
-  return parser.parseProgram();
+  const program = parser.parseProgram();
+  showTree(program[0]);
+  return program;
 }

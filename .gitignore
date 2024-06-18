@@ -3,6 +3,7 @@
 
 # compiled output
 constants.ts
+debug.ts
 /dist
 /node_modules
 

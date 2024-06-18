@@ -2,7 +2,7 @@
 // Constants. These are configured by the build process.
 //
 
-export type BuildTypes = 'debug' | 'release';
+export type BuildTypes = '{{ matbas_build }}' | 'debug' | 'release';
 
 export const MATBAS_BUILD: BuildTypes = '{{ matbas_build }}';
 export const MATBAS_VERSION = '{{ matbas_version }}';

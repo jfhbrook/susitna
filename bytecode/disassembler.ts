@@ -133,3 +133,11 @@ export function disassemble(chunk: Chunk): string {
 
   return `${header}\n${table(data)}`;
 }
+
+// TODO: Refactor to implement this function and call it from disassemble
+export function disassembleInstruction(
+  _chunk: Chunk,
+  _pc: number,
+): [number, Row] {
+  return [0, ['', '', '', '']];
+}

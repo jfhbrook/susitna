@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/trace.ts > TAP > tracer > must match snapshot 1`] = `
+exports[`test/debug.ts > TAP > tracer > must match snapshot 1`] = `
 Array [
   Array [
     "TRACE <main> before span",

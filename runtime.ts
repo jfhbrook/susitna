@@ -10,8 +10,8 @@ import { OpCode } from './bytecode/opcodes';
 
 export class Runtime {
   public stack: Stack;
-  private pc: number = -1;
-  private chunk: Chunk | null = null;
+  public pc: number = -1;
+  public chunk: Chunk | null = null;
 
   constructor(private host: Host) {
     this.stack = new Stack();

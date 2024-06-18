@@ -67,11 +67,11 @@ export class Runtime {
             this.stack.pop();
             break;
           //
-          // TODO: These operators don't do any type checking right now. At a minimum
-          // I need
-          // to check what the types of a/b are and switch accordingly. But I may
-          // also want separate instructions for different types. I may also want
-          // to have particular instructions for type conversions.
+          // TODO: These operators don't do any type checking right now. At a
+          // minimum I need to check what the types of a/b are and switch
+          // accordingly. But I may also want separate instructions for
+          // different types. I may also want to have particular instructions
+          // for type conversions.
           //
           // TODO: Define my own semantics for equality.
           //

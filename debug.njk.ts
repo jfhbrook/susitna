@@ -12,6 +12,8 @@ import { disassembleInstruction } from './bytecode/disassembler';
 `{% endif %}`;
 `{% endif %}`;
 
+let NO_TRACE = true;
+
 //
 // Active tracers.
 //
@@ -135,6 +137,8 @@ let traceExec = function traceExec(_rt: Runtime): void {};
 
 `{% if matbas_build == 'debug' %}`;
 
+NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
+
 /**
  * A debug tracer. Used in development builds only.
  */
@@ -219,7 +223,7 @@ export class DebugTracer implements Tracer {
 }
 
 getTracer = function getTracer(name: string): Tracer {
-  if (!parseBoolEnv(process.env.NO_TRACE)) {
+  if (NO_TRACE) {
     return NOOP_TRACER;
   }
 
@@ -240,8 +244,10 @@ TRACERS['parser'] = NOOP_TRACER;
 
 `{% if show_tree %}`;
 showTree = function showTree(tree: Tree): void {
-  console.log('=== Parse Tree: ===');
-  console.log(formatter.format(tree));
+  if (!NO_TRACE) {
+    console.log('=== Parse Tree: ===');
+    console.log(formatter.format(tree));
+  }
 };
 `{% endif %}`;
 
@@ -253,17 +259,23 @@ TRACERS['compiler'] = NOOP_TRACER;
 
 `{% if show_chunk %}`;
 showChunk = function showChunk(chunk: Chunk): void {
-  console.log(disassemble(chunk));
+  if (!NO_TRACE) {
+    console.log(disassemble(chunk));
+  }
 };
 `{% endif %}`;
 
 `{% if trace_runtime %}`;
 startTraceExec = function startTraceExec(): void {
-  console.log('=== Execution Trace: ===');
+  if (!NO_TRACE) {
+    console.log('=== Execution Trace: ===');
+  }
 };
 traceExec = function traceExec(rt: Runtime): void {
-  console.log('> stack:', formatter.format(rt.stack));
-  console.log('>', disassembleInstruction(rt.chunk, rt.pc));
+  if (!NO_TRACE) {
+    console.log('> stack:', formatter.format(rt.stack));
+    console.log('>', disassembleInstruction(rt.chunk, rt.pc));
+  }
 };
 `{% endif %}`;
 

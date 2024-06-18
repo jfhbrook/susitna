@@ -1,7 +1,8 @@
+import { Formattable, Formatter } from './format';
 import { Value } from './value';
 
-export class Stack {
-  private stack: Value[] = [];
+export class Stack implements Formattable {
+  public stack: Value[] = [];
 
   push(value: Value): void {
     this.stack.push(value);
@@ -28,5 +29,9 @@ export class Stack {
 
   reset(): void {
     this.stack = [];
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatStack(this);
   }
 }

@@ -15,6 +15,7 @@ import {
 } from './exceptions';
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
+import { Stack } from './stack';
 import { Traceback, Frame, Code } from './traceback';
 import {
   Expr,
@@ -151,6 +152,8 @@ export abstract class Formatter
   abstract visitLineTree(node: Line): string;
   abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
+
+  abstract formatStack(stack: Stack): string;
 
   abstract formatArray(array: any[]): string;
 }
@@ -482,6 +485,15 @@ export class DefaultFormatter extends Formatter {
 
   visitPrintCmd(node: Print): string {
     return `Print(${node.expression.accept(this)})`;
+  }
+
+  formatStack(stack: Stack): string {
+    let formatted = '{ ';
+    for (const v of stack.stack) {
+      formatted += this.format(v);
+      formatted += ', ';
+    }
+    return formatted + '}';
   }
 
   formatArray(array: any[]): string {

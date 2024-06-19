@@ -4,7 +4,7 @@ import { Chunk } from './bytecode/chunk';
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
 import { Runtime } from './runtime';
-`{% if show_chunk or show_runtime %}`;
+`{% if show_chunk %}`;
 import { disassemble } from './bytecode/disassembler';
 `{% endif %}`;
 `{% if trace_runtime %}`;

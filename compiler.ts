@@ -1,4 +1,4 @@
-import { getTracer } from './debug';
+import { getTracer, showChunk } from './debug';
 import { errorType } from './errors';
 import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
@@ -87,11 +87,14 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   @runtimeMethod
   compile(): Chunk {
     return tracer.spanSync('compile', () => {
+      let result: Chunk;
       if (this.routineType === RoutineType.Program) {
-        return this.compileProgram(this.ast as Program);
+        result = this.compileProgram(this.ast as Program);
       } else {
-        return this.compileCommand(this.ast as Cmd);
+        result = this.compileCommand(this.ast as Cmd);
       }
+      showChunk(result);
+      return result;
     });
   }
 

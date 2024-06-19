@@ -1,6 +1,6 @@
 import * as readline from 'node:readline/promises';
 
-import { getTracer, showChunk } from './debug';
+import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { compile } from './compiler';
 import { Config } from './config';
@@ -187,7 +187,7 @@ export class Commander implements CmdVisitor<void> {
         throw err;
       }
 
-      showChunk(chunk);
+      this.runtime.interpret(chunk);
     });
   }
 
@@ -219,7 +219,6 @@ export class Commander implements CmdVisitor<void> {
         }
         throw err;
       }
-      showChunk(chunk);
       const rv = this.runtime.interpret(chunk);
       if (rv != null) {
         this.host.writeLine(rv);

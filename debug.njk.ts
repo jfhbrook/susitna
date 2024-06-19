@@ -243,12 +243,12 @@ TRACERS['parser'] = NOOP_TRACER;
 `{% endif %}`;
 
 `{% if show_tree %}`;
-showTree = function showTree(tree: Tree): void {
-  if (!NO_TRACE) {
+if (!NO_TRACE) {
+  showTree = function showTree(tree: Tree): void {
     console.log('=== Parse Tree: ===');
     console.log(formatter.format(tree));
-  }
-};
+  };
+}
 `{% endif %}`;
 
 `{% if trace_compiler %}`;
@@ -258,25 +258,24 @@ TRACERS['compiler'] = NOOP_TRACER;
 `{% endif %}`;
 
 `{% if show_chunk %}`;
-showChunk = function showChunk(chunk: Chunk): void {
-  if (!NO_TRACE) {
+if (!NO_TRACE) {
+  showChunk = function showChunk(chunk: Chunk): void {
     console.log(disassemble(chunk));
-  }
-};
+  };
+}
 `{% endif %}`;
 
 `{% if trace_runtime %}`;
-startTraceExec = function startTraceExec(): void {
-  if (!NO_TRACE) {
+if (!NO_TRACE) {
+  startTraceExec = function startTraceExec(): void {
     console.log('=== Execution Trace: ===');
-  }
-};
-traceExec = function traceExec(rt: Runtime): void {
-  if (!NO_TRACE) {
+  };
+
+  traceExec = function traceExec(rt: Runtime): void {
     console.log('> stack:', formatter.format(rt.stack));
     console.log('>', disassembleInstruction(rt.chunk, rt.pc));
-  }
-};
+  };
+}
 `{% endif %}`;
 
 `{% if trace_gc %}`;

@@ -29,15 +29,11 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Immediate Needs
 
-- Tests for the compiler
-  - Including full programs
-  - Including error cases
 - Tests for the disassembler
   - Including error cases
 - Tests for the runtime
   - With "stack effects" tests
 - Merge errors from parser and compiler when running files
-- Ensure executing from file works
 - Additional tests for parsing
   - Bare expressions aren't parsing right now
 - Test programs with asserted output

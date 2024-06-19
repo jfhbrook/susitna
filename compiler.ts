@@ -198,9 +198,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private get done(): boolean {
-    return tracer.spanSync('done', () => {
+    return tracer.spanSync('done?', () => {
       if (this.currentLine >= this.lines.length) {
-        tracer.trace('done');
+        tracer.trace('done!');
         return true;
       } else {
         tracer.trace('not done');

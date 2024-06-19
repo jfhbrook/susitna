@@ -1,9 +1,10 @@
-`{% if matbas_build == 'debug' %}`;
 import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
+import { Runtime } from './runtime';
+
+`{% if matbas_build == 'debug' %}`;
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
-import { Runtime } from './runtime';
 `{% if show_chunk %}`;
 import { disassemble } from './bytecode/disassembler';
 `{% endif %}`;

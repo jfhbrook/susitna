@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-if [ -f .env ]; then
-  # shellcheck source=.env
-  source .env
-fi
-
 exercise-bike \
   --matbas_build "${MATBAS_BUILD:-debug}" \
   --trace "${DEBUG_TRACE:-0}" \

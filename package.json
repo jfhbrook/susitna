@@ -9,8 +9,8 @@
   "scripts": {
     "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:typescript",
     "build:release": "MATBAS_BUILD=release npm run build",
-    "build:constants": "bash ./scripts/constants.sh",
-    "build:debug": "bash ./scripts/debug.sh",
+    "build:constants": "dotenv bash ./scripts/constants.sh",
+    "build:debug": "dotenv bash ./scripts/debug.sh",
     "build:templates": "concurrently 'npm run build:constants' 'npm run build:debug'",
     "build:typescript": "tsc -p tsconfig.build.json",
     "build:citree": "cd tools/citree && npm run build",
@@ -51,6 +51,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "concurrently": "^8.2.2",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

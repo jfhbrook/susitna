@@ -1,22 +1,24 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { Print, Expression } from '../ast/cmd';
 import {
+  Binary,
   Group,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
   StringLiteral,
+  Unary,
   NilLiteral,
 } from '../ast/expr';
-import { Print, Expression } from '../ast/cmd';
-import { Binary } from '../ast/expr';
 import { Program, Line } from '../ast';
-import { TokenKind } from '../tokens';
-import { chunk } from './helpers/bytecode';
-
-import { compile } from '../compiler';
 import { OpCode } from '../bytecode/opcodes';
+import { compile } from '../compiler';
+import { formatter } from '../format';
+import { TokenKind } from '../tokens';
+
+import { chunk } from './helpers/bytecode';
 
 t.test('expressions', async (t: Test) => {
   await t.test('255', async (t: Test) => {
@@ -105,6 +107,17 @@ t.test('expressions', async (t: Test) => {
           OpCode.Return,
         ],
         lines: [-1, -1, -1, -1, -1, -1],
+      }),
+    );
+  });
+
+  await t.test('-1', async (t: Test) => {
+    t.same(
+      compile(new Expression(new Unary(TokenKind.Minus, new IntLiteral(1)))),
+      chunk({
+        constants: [1],
+        code: [OpCode.Constant, 0, OpCode.Neg, OpCode.Return],
+        lines: [-1, -1, -1, -1],
       }),
     );
   });
@@ -252,4 +265,18 @@ t.test('simple program', async (t: Test) => {
       lines: [100, 100, 100, 200, 200, 200, 200],
     }),
   );
+});
+
+t.test('syntax errors', async (t: Test) => {
+  await t.test('*1', async (t: Test) => {
+    t.plan(2);
+    t.throws(() => {
+      try {
+        compile(new Expression(new Unary(TokenKind.Star, new IntLiteral(1))));
+      } catch (err) {
+        t.matchSnapshot(formatter.format(err));
+        throw err;
+      }
+    });
+  });
 });

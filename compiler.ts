@@ -47,8 +47,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
 
   private currentChunk: Chunk = new Chunk();
+  private currentCmd: Cmd | null = null;
   private lines: Line[] = [];
-  private currentCmd: number = -1;
+  private currentCmdNo: number = -1;
   private currentLine: number = 0;
 
   private filename: string = '<input>';
@@ -129,10 +130,10 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         this.command(cmd);
         this.emitByte(OpCode.Return);
       } catch (err) {
-        if (err instanceof Synchronize) {
-          // There's nothing to synchronize...
+        // There's nothing to synchronize...
+        if (!(err instanceof Synchronize)) {
+          throw err;
         }
-        throw err;
       }
 
       if (this.isError) {
@@ -178,13 +179,13 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         tracer.trace('already done, returning null');
         return null;
       }
-      this.currentCmd++;
-      if (this.currentCmd >= this.lines[this.currentLine].commands.length) {
+      this.currentCmdNo++;
+      if (this.currentCmdNo >= this.lines[this.currentLine].commands.length) {
         this.currentLine++;
-        this.currentCmd = 0;
+        this.currentCmdNo = 0;
       }
       tracer.trace(`current line: ${this.lineNo}`);
-      tracer.trace(`current cmd: ${this.currentCmd}`);
+      tracer.trace(`current cmd: ${this.currentCmdNo}`);
       if (this.done) {
         tracer.trace('done after advancing, returning null');
         return null;
@@ -207,7 +208,11 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private peek(): Cmd {
     return tracer.spanSync('peek', () => {
-      return this.lines[this.currentLine].commands[this.currentCmd];
+      if (this.lines.length) {
+        return this.lines[this.currentLine].commands[this.currentCmdNo];
+      }
+
+      return this.currentCmd as Cmd;
     });
   }
 
@@ -236,7 +241,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private synchronize(): void {
     return tracer.spanSync('synchronize', () => {
       this.currentLine++;
-      this.currentCmd = 0;
+      this.currentCmdNo = 0;
     });
   }
 
@@ -292,7 +297,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private command(cmd: Cmd) {
     tracer.spanSync('command', () => {
       tracer.trace('cmd', cmd);
+      this.currentCmd = cmd;
       cmd.accept(this);
+      this.currentCmd = null;
     });
   }
 

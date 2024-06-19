@@ -3,6 +3,7 @@ import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
 
 `{% if matbas_build == 'debug' %}`;
+import * as c from 'ansi-colors';
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
 `{% if show_chunk %}`;
@@ -140,6 +141,22 @@ let traceExec = function traceExec(_rt: Runtime): void {};
 
 NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
 
+function encodingLocation(): string {
+  try {
+    throw new Error();
+  } catch (err) {
+    const line = err.stack.split('\n')[5];
+    return line.match(/\(([^)]+)\)/)[1];
+  }
+}
+
+const SPAN_COLORS = ['yellow', 'green', 'cyan', 'blue', 'magenta', 'red'];
+
+function spanColor(i: number, text: string): string {
+  const method = SPAN_COLORS[i % SPAN_COLORS.length];
+  return c[method](text);
+}
+
 /**
  * A debug tracer. Used in development builds only.
  */
@@ -188,12 +205,13 @@ export class DebugTracer implements Tracer {
   }
 
   trace(message: any, ...args: any[]): void {
-    let prefix = `TRACE <${this.name}> `;
+    const loc = encodingLocation();
+    let prefix = `${c.green('TRACE')} <${c.cyan(this.name)}> `;
     if (this.spans) {
       for (let i = 0; i < this.spans - 1; i++) {
-        prefix += '| ';
+        prefix += spanColor(i, '| ');
       }
-      prefix += '|- ';
+      prefix += spanColor(this.spans - 1, '|- ');
     }
 
     let msg: string[];
@@ -212,7 +230,7 @@ export class DebugTracer implements Tracer {
       }
     }
     for (const row of msg) {
-      this._log(prefix + row);
+      this._log(prefix + row + c.gray(` at ${loc}`));
     }
   }
 

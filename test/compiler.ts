@@ -11,6 +11,7 @@ import {
 } from '../ast/expr';
 import { Print, Expression } from '../ast/cmd';
 import { Binary } from '../ast/expr';
+import { Program, Line } from '../ast';
 import { TokenKind } from '../tokens';
 import { chunk } from './helpers/bytecode';
 
@@ -227,4 +228,36 @@ t.test('print', async (t: Test) => {
       }),
     );
   });
+});
+
+t.skip('simple program', async (t: Test) => {
+  t.same(
+    compile(
+      new Program([
+        new Line(100, [new Print(new StringLiteral('hello world'))]),
+        new Line(200, [new Print(new StringLiteral('goodbye'))]),
+      ]),
+    ),
+    chunk({
+      constants: ['hello world', 'goodbye'],
+      code: [
+        OpCode.Constant,
+        0,
+        OpCode.Print,
+        OpCode.Constant,
+        1,
+        OpCode.Print,
+        OpCode.Return,
+      ],
+      lines: [
+        100,
+        100,
+        100,
+        200,
+        200,
+        200,
+        200
+      ]
+    })
+  );
 });

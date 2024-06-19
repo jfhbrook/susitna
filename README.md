@@ -45,6 +45,7 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
+- Save/print result for bare expressions
 - Exit command
 - Robust locations
   - Figure out exactly what location information is needed for a traceback

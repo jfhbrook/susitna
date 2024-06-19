@@ -146,6 +146,9 @@ function encodingLocation(): string {
     throw new Error();
   } catch (err) {
     const line = err.stack.split('\n')[5];
+    if (!line) {
+      return '<unknown>';
+    }
     return line.match(/\(([^)]+)\)/)[1];
   }
 }

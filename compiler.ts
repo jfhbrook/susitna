@@ -47,6 +47,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
 
   private currentChunk: Chunk = new Chunk();
+  // TODO: Interactive commands are tracked by currentCmd, but programs are
+  // tracked by currentCmdNo and currentLine. The two mechanisms feels a
+  // little dirty. Would I rather create a "ghost line"?
   private currentCmd: Cmd | null = null;
   private lines: Line[] = [];
   private currentCmdNo: number = -1;

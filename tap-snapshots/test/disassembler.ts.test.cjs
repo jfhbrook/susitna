@@ -90,6 +90,22 @@ exports[`test/disassembler.ts > TAP > expressions > true > must match snapshot 1
 0  5  RETURN
 `
 
+exports[`test/disassembler.ts > TAP > malformed lines > must match snapshot 1`] = `
+=== Disassembly of <chunk>: ===
+0  1  CONSTANT  hello world
+0  3  POP
+0  4  NIL
+0  5  RETURN
+`
+
+exports[`test/disassembler.ts > TAP > missing constants > must match snapshot 1`] = `
+=== Disassembly of <chunk>: ===
+0  1  CONSTANT  undefined
+0  3  POP
+0  4  NIL
+0  5  RETURN
+`
+
 exports[`test/disassembler.ts > TAP > print > print "hello world" > must match snapshot 1`] = `
 === Disassembly of <chunk>: ===
 0  1  CONSTANT  hello world

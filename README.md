@@ -29,8 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Immediate Needs
 
-- Tests for the disassembler
-  - Including error cases
 - Tests for the runtime
   - With "stack effects" tests
 - Merge errors from parser and compiler when running files

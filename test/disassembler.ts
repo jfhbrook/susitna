@@ -260,3 +260,27 @@ t.test('simple program', async (t: Test) => {
     ),
   );
 });
+
+t.test('malformed lines', async (t: Test) => {
+  t.matchSnapshot(
+    disassemble(
+      chunk({
+        constants: ['hello world'],
+        code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
+        lines: [],
+      }),
+    ),
+  );
+});
+
+t.test('missing constants', async (t: Test) => {
+  t.matchSnapshot(
+    disassemble(
+      chunk({
+        constants: [],
+        code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ),
+  );
+});

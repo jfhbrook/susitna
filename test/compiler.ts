@@ -279,4 +279,20 @@ t.test('syntax errors', async (t: Test) => {
       }
     });
   });
+
+  await t.test('1 $ 1', async (t: Test) => {
+    t.plan(2);
+    t.throws(() => {
+      try {
+        compile(
+          new Expression(
+            new Binary(new IntLiteral(1), TokenKind.Dollar, new IntLiteral(1)),
+          ),
+        );
+      } catch (err) {
+        t.matchSnapshot(formatter.format(err));
+        throw err;
+      }
+    });
+  });
 });

@@ -10,3 +10,9 @@ undefined:<R-1>:0 (at the beginning): error: Invalid unary operator
   <unknown>
   ^
 `
+
+exports[`test/compiler.ts > TAP > syntax errors > 1 $ 1 > must match snapshot 1`] = `
+undefined:<R-1>:0 (at the beginning): error: Invalid binary operator
+  <unknown>
+  ^
+`

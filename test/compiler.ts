@@ -230,7 +230,7 @@ t.test('print', async (t: Test) => {
   });
 });
 
-t.skip('simple program', async (t: Test) => {
+t.test('simple program', async (t: Test) => {
   t.same(
     compile(
       new Program([
@@ -249,15 +249,7 @@ t.skip('simple program', async (t: Test) => {
         OpCode.Print,
         OpCode.Return,
       ],
-      lines: [
-        100,
-        100,
-        100,
-        200,
-        200,
-        200,
-        200
-      ]
-    })
+      lines: [100, 100, 100, 200, 200, 200, 200],
+    }),
   );
 });

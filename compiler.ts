@@ -48,7 +48,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private currentChunk: Chunk = new Chunk();
   private lines: Line[] = [];
-  private currentCmd: number = 0;
+  private currentCmd: number = -1;
   private currentLine: number = 0;
 
   private filename: string = '<input>';
@@ -69,8 +69,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     }
 
     this.currentChunk = new Chunk();
-    this.currentLine = 0;
-    this.currentCmd = 0;
     this.filename = filename;
     this.routineType = routineType;
     this.saveResult = saveResult || false;
@@ -101,13 +99,15 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private compileProgram(program: Program): Chunk {
     return tracer.spanSync('compileProgram', () => {
       this.lines = program.lines;
-      while (!this.done) {
+      let cmd: Cmd | null = this.advance();
+      while (cmd) {
         try {
-          const cmd = this.advance();
           this.command(cmd);
+          cmd = this.advance();
         } catch (err) {
           if (err instanceof Synchronize) {
             this.synchronize();
+            cmd = this.peek();
           }
           throw err;
         }
@@ -175,24 +175,33 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private advance(): Cmd | null {
     return tracer.spanSync('advance', () => {
       if (this.done) {
+        tracer.trace('already done, returning null');
         return null;
       }
-      const cmd = this.peek();
       this.currentCmd++;
       if (this.currentCmd >= this.lines[this.currentLine].commands.length) {
         this.currentLine++;
         this.currentCmd = 0;
       }
+      tracer.trace(`current line: ${this.lineNo}`);
+      tracer.trace(`current cmd: ${this.currentCmd}`);
       if (this.done) {
+        tracer.trace('done after advancing, returning null');
         return null;
       }
-      return cmd;
+      return this.peek();
     });
   }
 
   private get done(): boolean {
     return tracer.spanSync('done', () => {
-      return this.currentLine >= this.lines.length;
+      if (this.currentLine >= this.lines.length) {
+        tracer.trace('done');
+        return true;
+      } else {
+        tracer.trace('not done');
+        return false;
+      }
     });
   }
 
@@ -236,6 +245,14 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private get lineNo(): number {
+    if (!this.isLine) {
+      return -1;
+    }
+
+    if (this.currentLine >= this.lines.length) {
+      return this.lines[this.lines.length - 1].lineNo;
+    }
+
     return this.isLine ? this.lines[this.currentLine].lineNo : -1;
   }
 

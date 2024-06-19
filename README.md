@@ -80,6 +80,8 @@ expressions. But it's brittle, and has a lot of gaps.
 - Warn if lines not in increments of 10
 - Finalize sigils ADR
 - Child tracers for parser, compiler and runtime
+- .env loading in build scripts not respecting `MATBAS_BUILD` override for
+  release builds
 
 ### New Features
 

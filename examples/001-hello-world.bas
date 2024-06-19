@@ -1,2 +1,2 @@
-100 "hello world"
-200 "goodbye world"
+100 print "hello world"
+200 print "goodbye world"

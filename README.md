@@ -80,7 +80,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
 - Finalize sigils ADR
-- Child tracers for parser, compiler and runtime
 
 ### New Features
 

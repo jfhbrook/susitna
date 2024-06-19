@@ -65,6 +65,8 @@ export interface Tracer {
    */
   spanSync<T>(name: string, fn: () => T): T;
 
+  child(name: string): Tracer;
+
   /**
    * Destroy the tracer. If getTracer is called again for the same tracer,
    * it will now be a fresh tracer.
@@ -88,6 +90,10 @@ export class NoopTracer implements Tracer {
 
   spanSync<T>(_name: string, fn: () => T): T {
     return fn();
+  }
+
+  child(_name: string): Tracer {
+    return this;
   }
 
   destroy(): void {}
@@ -160,13 +166,28 @@ function spanColor(i: number, text: string): string {
   return c[method](text);
 }
 
+let padBy = 22;
+
 /**
  * A debug tracer. Used in development builds only.
  */
 export class DebugTracer implements Tracer {
-  private spans: number = 0;
+  private _spans: number = 0;
 
-  constructor(private name: string) {}
+  get spans(): number {
+    return this._spans;
+  }
+
+  set spans(value: number) {
+    this._spans = value;
+  }
+
+  constructor(private name: string) {
+    padBy = Math.max(
+      padBy,
+      ` <${c.cyan(this.name)}> `.padEnd(padBy, ' ').length,
+    );
+  }
 
   open(name: string): void {
     this.trace(name);
@@ -209,7 +230,8 @@ export class DebugTracer implements Tracer {
 
   trace(message: any, ...args: any[]): void {
     const loc = encodingLocation();
-    let prefix = `${c.green('TRACE')} <${c.cyan(this.name)}> `;
+    let prefix =
+      c.green('TRACE') + ` <${c.cyan(this.name)}> `.padEnd(padBy, ' ');
     if (this.spans) {
       for (let i = 0; i < this.spans - 1; i++) {
         prefix += spanColor(i, '| ');
@@ -237,10 +259,31 @@ export class DebugTracer implements Tracer {
     }
   }
 
+  child(name: string): Tracer {
+    return new ChildDebugTracer(this, name);
+  }
+
   destroy(): void {
     if (TRACERS[this.name] && this.name !== 'main') {
       TRACERS[this.name] = undefined;
     }
+  }
+}
+
+export class ChildDebugTracer extends DebugTracer {
+  constructor(
+    private parent: DebugTracer,
+    name: string,
+  ) {
+    super(name);
+  }
+
+  get spans(): number {
+    return this.parent.spans;
+  }
+
+  set spans(value: number) {
+    this.parent.spans = value;
   }
 }
 
@@ -252,14 +295,16 @@ getTracer = function getTracer(name: string): Tracer {
   return TRACERS[name];
 };
 
+const mainTracer = new DebugTracer('main');
+
 `{% if trace %}`;
-TRACERS['main'] = new DebugTracer('main');
+TRACERS['main'] = mainTracer;
 `{% else %}`;
 TRACERS['main'] = NOOP_TRACER;
 `{% endif %}`;
 
 `{% if trace_parser %}`;
-TRACERS['parser'] = new DebugTracer('parser');
+TRACERS['parser'] = mainTracer.child('parser');
 `{% else %}`;
 TRACERS['parser'] = NOOP_TRACER;
 `{% endif %}`;
@@ -274,7 +319,7 @@ if (!NO_TRACE) {
 `{% endif %}`;
 
 `{% if trace_compiler %}`;
-TRACERS['compiler'] = new DebugTracer('compiler');
+TRACERS['compiler'] = mainTracer.child('compiler');
 `{% else %}`;
 TRACERS['compiler'] = NOOP_TRACER;
 `{% endif %}`;
@@ -301,7 +346,7 @@ if (!NO_TRACE) {
 `{% endif %}`;
 
 `{% if trace_gc %}`;
-TRACERS['gc'] = new DebugTracer('gc');
+TRACERS['gc'] = mainTracer.child('gc');
 `{% else %}`;
 TRACERS['gc'] = NOOP_TRACER;
 `{% endif %}`;

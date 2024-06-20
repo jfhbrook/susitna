@@ -140,6 +140,7 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
 
     if (error) {
       errorExit(error);
+      return;
     }
 
     // For consistency, explicitly exit instead of allowing Node to run the

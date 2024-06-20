@@ -30,12 +30,21 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Pop results of expression statements
-- Push nil on bare return
-  - (Is this how clox does it?)
+- Fix Return
+  - Return command parser would check for a statement-terminating token,
+    otherwise attempt to parse a statement, and include that in the body -
+    bare return assumes a nil value
+  - Compiler will generate a Nil, Return if the end of the function is reached
+    without an explicit return at the very end
 - Save/print result for bare expressions
-  - Replace the final pop code with a return, if the most recent compiled
-    command is an Expression
+  - Replace the final pop code with a return, if we're compiling an interactive
+    bare expression command (note, the runtime will never receive multiple
+    interactive commands at once because the commander can run some directly)
 - Exit command
+  - Add to tokens
+  - Add to parser (with tests)
+  - Add to compiler (with tests)
+  - Add to runtime (with tests)
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
   - Plumb location information through the AST to the compiler

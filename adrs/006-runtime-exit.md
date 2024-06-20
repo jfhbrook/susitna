@@ -11,8 +11,8 @@ exit handler configured in the `Cli` class, and a special exception called
 `Exit`. Currently, the `Exit` exception only supports successful exits.
 
 While implementing the `exit` command in Matanuska, I first opted to emit an
-event on `Runtime` (which is now an `EventEmitter`), listened to that event in
-the `Commander`, and implemented a `Host#exit` method to actually call
+event on `Runtime` (which would now be an `EventEmitter`), listened to that
+event in the `Commander`, and implemented a `Host#exit` method to actually call
 `process.exit`.
 
 These two mechanisms are redundant and inconsistent. We would like to find one
@@ -107,10 +107,15 @@ occur:
 2. The host will throw an `Exit` error with the exit code.
 3. The error will be caught and handled in the `Cli` class.
 
-Note a subtlety in testing: both `Host#exit` and the CLI exit handler *must*
-throw an error to stop execution. If either of these fails to throw an error,
-execution will continue instead of short circuiting. This is currently solved
-by having both `MockConsoleHost#exit` and the test exit handler throw a
+Note a subtlety in testing: both `Host#exit` and the CLI exit handler *should*
+throw an error to stop execution. This is to ensure that they short-circuit
+execution in tests as they do in practice. The code has been factored to
+include a return after the relevant calls, which *should* protect against
+that, but it's an easy footgun. This could be addressed through the typing
+system by returning `never` instead of `void`, but this is unimplemented in
+the interest of maximizing flexibility.
+
+Therefore, both `MockConsoleHost#exit` and the test exit handler throw a
 `MockExit`. A consequence of this is that it's not possible to distinguish
 between a triggered exit and a "clean exit" - but the tests don't cover that
 distinction, instead simply asserting the exit code as 0.

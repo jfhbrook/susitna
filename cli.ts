@@ -168,6 +168,7 @@ export function reportError(err: any, host: Host): void {
       if (err.message.length) {
         host.writeInfo(err.message);
       }
+      return;
     }
 
     if (err.format) {

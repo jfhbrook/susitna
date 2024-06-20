@@ -30,15 +30,12 @@ process. In the relevant tests, I override the exit handler that asserts the
 expected exit code and throws a test-only Error to stop execution and signal
 the exit.
 
-The motivation for an `Exit` Error type is largely in anticipation of a
-[click-like](https://click.palletsprojects.com/en/8.1.x/) API. It was a
-decision made on the guess that being able to exit through exceptions would
-be useful. In practice, it's entirely unused outside of the CLI tests.
-
-That said, one nice property of the `Exit` error is that it allows a graceful
-shutdown - that is, error handling in the rest of the application can call its
-"finally" blocks to cleanly spin down resources before an exit. Calling
-`process.exit` directly doesn't allow for that.
+The motivation for an `Exit` Error type is that it allows for error handling
+to implement graceful shutdown - that is, error handling in the rest of the
+application can call its "finally" blocks to cleanly spin down resources before
+an exit. It's also inspired by [click](https://click.palletsprojects.com/en/8.1.x/)'s
+API - the actual needs were unknown, but given I was implementing a CLI
+framework, following click's lead seemed reasonable.
 
 ### Why Host#exit?
 
@@ -87,23 +84,16 @@ host's functionality to the commander muddies its interface.
 2. The `Runtime` will *not* inherit from `EventEmitter`, instead preferring
    to call methods on an injected `Commander` instance. This will create one
    consistent way to call back to the `Commander` that supports "yielding".
-3. Runtime options will no longer accept an exit handler. Instead, that
-   behavior will be delegated to the already injected Host.
-4. `ConsoleHost#exit` will call `process.exit` for now.
+3. `ConsoleHost#exit` will throw an `Exit` error. This error will be handled
+   in the `Cli` class, like other errors.
+4. The `Exit` error will be extended to take an exit code. This will allow for
+   its use with intentional non-zero exits.
 5. `MockConsoleHost#exit` will throw a `MockExit` error, maintaining the
    current structure of the tests.
-6. The `Exit` exception will be retained as-is for now.
 
-## The Future
+In other words, when the runtime handles an `OpCode.Exit`, the following will
+occur:
 
-The remaining bit of ambiguity is in whether or not `ConsoleHost#exit` should
-call `process.exit` directly, or throw the special `Exit` error. As discussed,
-the latter is somewhat valuable as a mechanism to allow graceful shutdowns.
-This motivates extending `Exit` to take an exit code, and making the host
-throw it. However, this removes some responsibility from the host object
-and places it on `Cli`, which is a somewhat bitter pill.
-
-In the meantime, calling `process.exit` directly works, and the `Exit`
-exception is non-harmful as it stands. This decision can be comfortably
-deferred.
-
+1. The runtime will call `Host#exit` with the exit code.
+2. The host will throw an `Exit` error with the exit code.
+3. The error will be caught and handled in the `Cli` class.

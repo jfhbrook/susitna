@@ -232,10 +232,12 @@ export class DebugTracer implements Tracer {
     const loc = encodingLocation();
     let prefix =
       c.green('TRACE') + ` <${c.cyan(this.name)}> `.padEnd(padBy, ' ');
+    let multiLinePrefix: string;
     if (this.spans) {
       for (let i = 0; i < this.spans - 1; i++) {
         prefix += spanColor(i, '| ');
       }
+      multiLinePrefix = prefix + spanColor(this.spans - 1, '|  ');
       prefix += spanColor(this.spans - 1, '|- ');
     }
 
@@ -254,8 +256,9 @@ export class DebugTracer implements Tracer {
         msg = msg.concat(sp);
       }
     }
+    this._log(prefix + msg.shift() + c.gray(` at ${loc}`));
     for (const row of msg) {
-      this._log(prefix + row + c.gray(` at ${loc}`));
+      this._log(multiLinePrefix + row + c.gray(` at ${loc}`));
     }
   }
 

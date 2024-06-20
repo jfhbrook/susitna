@@ -29,8 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Immediate Needs
 
-- Tests for the runtime
-  - With "stack effects" tests
 - Merge errors from parser and compiler when running files
 - Additional tests for parsing
   - Bare expressions aren't parsing right now

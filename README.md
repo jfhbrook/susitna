@@ -29,7 +29,12 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
+- Pop results of expression statements
+- Push nil on bare return
+  - (Is this how clox does it?)
 - Save/print result for bare expressions
+  - Replace the final pop code with a return, if the most recent compiled
+    command is an Expression
 - Exit command
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
@@ -37,8 +42,8 @@ expressions. But it's brittle, and has a lot of gaps.
   - Replace Chunk#lines with required location information
   - Ensure location information is in decompiler output
   - Update tests as best I can
-- Expand opcodes, compiler and runtime to be type-aware
-  - Will require simulating the stack in the compiler
+- Make compiler type-aware
+  - An ADR for having a type-unaware bytecode
 - IOError for unknown channel in Host
 - Narrower types for AST nodes
   - Will require improvements to citree

@@ -162,7 +162,8 @@ export function reportError(err: any, host: Host): void {
 
     // Handle intentional exits.
     if (err instanceof Exit) {
-      host.writeDebug(`Exit ${err.exitCode}`);
+      // TODO: Should the user be able to access this log in a release build?
+      tracer.trace(`Exit ${err.exitCode}`);
       host.writeInfo(err.message);
     }
 

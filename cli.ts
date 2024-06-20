@@ -164,7 +164,9 @@ export function reportError(err: any, host: Host): void {
     if (err instanceof Exit) {
       // TODO: Should the user be able to access this log in a release build?
       tracer.trace(`Exit ${err.exitCode}`);
-      host.writeInfo(err.message);
+      if (err.message.length) {
+        host.writeInfo(err.message);
+      }
     }
 
     if (err.format) {

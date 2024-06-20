@@ -154,7 +154,7 @@ export class Runtime {
               exitCode = 0;
             }
             this.host.exit(exitCode);
-            break;
+            return;
           case OpCode.Jump:
             this.notImplemented('Jump');
             break;

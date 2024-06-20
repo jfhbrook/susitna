@@ -10,7 +10,7 @@ import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
@@ -22,12 +22,17 @@ export class Commander implements CmdVisitor<void> {
 
   private lineNo: number = -1;
 
+  private exitHandler: (code: number) => void;
+
   constructor(
     private _config: Config,
     private host: Host,
   ) {
     this.runtime = new Runtime(host);
     this._readline = null;
+    this.exitHandler = (code: number) => {
+      this.host.exit(code);
+    };
   }
 
   /**
@@ -35,7 +40,10 @@ export class Commander implements CmdVisitor<void> {
    */
   async init(): Promise<void> {
     return await tracer.span('Commander.init', async () => {
+      // Ensure the commander's state is clean before initializing.
       await this.close();
+
+      this.runtime.on('exit', this.exitHandler);
 
       // TODO: Support for tab-completion and history. Note:
       // - Tab complete will only apply for source input.
@@ -76,7 +84,7 @@ export class Commander implements CmdVisitor<void> {
    * Close the commander.
    */
   async close(): Promise<void> {
-    return tracer.span('Commander.close', () => {
+    return tracer.span('Commander.close', async () => {
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
@@ -87,7 +95,9 @@ export class Commander implements CmdVisitor<void> {
         this._readline.close();
       }
 
-      return p;
+      await p;
+
+      this.runtime.removeListener('exit', this.exitHandler);
     });
   }
 
@@ -197,6 +207,10 @@ export class Commander implements CmdVisitor<void> {
 
   visitPrintCmd(print: Print): void {
     this.runCommand(print);
+  }
+
+  visitExitCmd(exit: Exit): void {
+    this.runCommand(exit);
   }
 
   visitExpressionCmd(expression: Expression): void {

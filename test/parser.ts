@@ -11,7 +11,7 @@ import {
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Expression } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
 import { FILENAME } from './helpers/traceback';
@@ -78,51 +78,93 @@ t.test('numbered invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
-t.test('non-numbered print command', async (t: Test) => {
-  const result = parseInput('print "hello world"');
+t.test('print command', async (t: Test) => {
+  await t.test('non-numbered', async (t: Test) => {
+    const result = parseInput('print "hello world"');
 
-  t.equal(result[1], null);
+    t.equal(result[1], null);
 
-  t.same(
-    result[0],
-    new Input([
-      new CommandGroup([new Print(new StringLiteral('hello world'))]),
-    ]),
-  );
-});
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup([new Print(new StringLiteral('hello world'))]),
+      ]),
+    );
+  });
 
-t.test('numbered print command', async (t: Test) => {
-  const result = parseInput('100 print "hello world"');
+  await t.test('numbered', async (t: Test) => {
+    const result = parseInput('100 print "hello world"');
 
-  t.equal(result[1], null);
+    t.equal(result[1], null);
 
-  t.same(
-    result[0],
-    new Input([new Line(100, [new Print(new StringLiteral('hello world'))])]),
-  );
-});
+    t.same(
+      result[0],
+      new Input([new Line(100, [new Print(new StringLiteral('hello world'))])]),
+    );
+  });
 
-t.test('non-numbered print command without arguments', async (t: Test) => {
-  t.plan(2);
-  t.throws(() => {
-    try {
-      parseInput('print');
-    } catch (err) {
-      t.matchSnapshot(formatter.format(err));
-      throw err;
-    }
+  await t.test('non-numbered, without arguments', async (t: Test) => {
+    t.plan(2);
+    t.throws(() => {
+      try {
+        parseInput('print');
+      } catch (err) {
+        t.matchSnapshot(formatter.format(err));
+        throw err;
+      }
+    });
+  });
+
+  await t.test('numbered, without arguments', async (t: Test) => {
+    t.plan(2);
+    t.throws(() => {
+      try {
+        parseInput('100 print');
+      } catch (err) {
+        t.matchSnapshot(formatter.format(err));
+        throw err;
+      }
+    });
   });
 });
 
-t.test('numbered print command without arguments', async (t: Test) => {
-  t.plan(2);
-  t.throws(() => {
-    try {
-      parseInput('100 print');
-    } catch (err) {
-      t.matchSnapshot(formatter.format(err));
-      throw err;
-    }
+t.test('exit command', async (t: Test) => {
+  await t.test('non-numbered', async (t: Test) => {
+    const result = parseInput('exit 0');
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([new CommandGroup([new Exit(new IntLiteral(0))])]),
+    );
+  });
+
+  await t.test('numbered', async (t: Test) => {
+    const result = parseInput('100 exit 0');
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([new Line(100, [new Exit(new IntLiteral(0))])]),
+    );
+  });
+
+  await t.test('non-numbered, without arguments', async (t: Test) => {
+    const result = parseInput('exit');
+
+    t.equal(result[1], null);
+
+    t.same(result[0], new Input([new CommandGroup([new Exit(null)])]));
+  });
+
+  await t.test('numbered, without arguments', async (t: Test) => {
+    const result = parseInput('100 exit');
+
+    t.equal(result[1], null);
+
+    t.same(result[0], new Input([new Line(100, [new Exit(null)])]));
   });
 });
 

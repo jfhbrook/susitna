@@ -31,7 +31,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Print, Exit as ExitCmd, Expression } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
 
@@ -146,6 +146,7 @@ export abstract class Formatter
   abstract visitNilLiteralExpr(node: NilLiteral): string;
 
   abstract visitPrintCmd(node: Print): string;
+  abstract visitExitCmd(node: ExitCmd): string;
   abstract visitExpressionCmd(node: Expression): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
@@ -480,11 +481,15 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitExpressionCmd(node: Expression): string {
-    return `Expression(${node.expression.accept(this)})`;
+    return `Expression(${this.format(node.expression)})`;
   }
 
   visitPrintCmd(node: Print): string {
-    return `Print(${node.expression.accept(this)})`;
+    return `Print(${this.format(node.expression)})`;
+  }
+
+  visitExitCmd(node: ExitCmd): string {
+    return `Exit(${this.format(node.expression)})`;
   }
 
   formatStack(stack: Stack): string {

@@ -19,6 +19,7 @@ type Cmd in './cmd' {
 
   Expression => expression: Expr
   Print      => expression: Expr
+  Exit       => expression: Expr | null
 }
 
 type Tree in './index' {

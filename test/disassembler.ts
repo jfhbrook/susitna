@@ -284,3 +284,16 @@ t.test('missing constants', async (t: Test) => {
     ),
   );
 });
+
+t.test('unknown opcode', async (t: Test) => {
+  t.matchSnapshot(
+    disassemble(
+      chunk({
+        constants: [],
+        // It's over nine thousand!!!
+        code: [9001 as OpCode],
+        lines: [-1],
+      }),
+    ),
+  );
+});

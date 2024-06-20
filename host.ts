@@ -189,6 +189,8 @@ export interface Host {
    * shell's current working directory.
    */
   cwd(): string;
+
+  exit(code: number): void;
 }
 
 /**
@@ -367,5 +369,9 @@ export class ConsoleHost implements Host {
 
   cwd(): string {
     return process.cwd();
+  }
+
+  exit(code: number): void {
+    process.exit(code);
   }
 }

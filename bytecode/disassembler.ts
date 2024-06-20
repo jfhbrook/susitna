@@ -13,11 +13,9 @@ function chunkName(_chunk: Chunk): string {
   return '<chunk>';
 }
 
-/*
 function toHex(value: number): string {
   return `0x${value.toString(16)}`;
 }
-*/
 
 export function disassemble(chunk: Chunk): string {
   const data: Row[] = [];
@@ -42,10 +40,12 @@ export function disassembleInstruction(chunk: Chunk, offset: number): string {
 function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
   const lineNo = 0;
   let row: Row;
+  let code: number;
 
   function advance(): number {
     offset++;
-    return chunk.code[offset - 1];
+    code = chunk.code[offset - 1];
+    return code;
   }
 
   function simple(code: string): Row {
@@ -116,6 +116,9 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
     case OpCode.Print:
       row = simple('PRINT');
       break;
+    case OpCode.Exit:
+      row = simple('EXIT');
+      break;
     case OpCode.Jump:
       row = simple('JUMP');
       break;
@@ -128,6 +131,8 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
     case OpCode.Return:
       row = simple('RETURN');
       break;
+    default:
+      row = [String(lineNo), String(offset), 'Unknown opcode', toHex(code)];
   }
 
   return [offset, row];

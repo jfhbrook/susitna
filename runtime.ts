@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import { getTracer, startTraceExec, traceExec } from './debug';
 
 import { NotImplementedError } from './exceptions';
@@ -10,12 +12,13 @@ import { OpCode } from './bytecode/opcodes';
 
 const tracer = getTracer('main');
 
-export class Runtime {
+export class Runtime extends EventEmitter {
   public stack: Stack;
   public pc: number = -1;
   public chunk: Chunk | null = null;
 
   constructor(private host: Host) {
+    super();
     this.stack = new Stack();
   }
 
@@ -141,6 +144,16 @@ export class Runtime {
           case OpCode.Print:
             this.host.writeLine(this.stack.pop());
             break;
+          case OpCode.Exit:
+            const v = this.stack.pop();
+            if (Number.isInteger(v)) {
+              this.emit('exit', v);
+            } else if (v) {
+              this.emit('exit', 1);
+            } else {
+              this.emit('exit', 0);
+            }
+            break;
           case OpCode.Jump:
             this.notImplemented('Jump');
             break;
@@ -155,6 +168,8 @@ export class Runtime {
             // TODO: Clean up the current frame, and only return if we're
             // done with the main program.
             return rv;
+          default:
+            this.notImplemented(`Unknown opcode: ${instruction}`);
         }
       }
     });

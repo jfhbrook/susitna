@@ -5,7 +5,7 @@ import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
 import { Line, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Print, Exit, Expression } from './ast/cmd';
 import {
   ExprVisitor,
   Unary,
@@ -310,6 +310,17 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     tracer.spanSync('visitPrintCmd', () => {
       print.expression.accept(this);
       this.emitByte(OpCode.Print);
+    });
+  }
+
+  visitExitCmd(exit: Exit): void {
+    tracer.spanSync('visitExitCmd', () => {
+      if (exit.expression) {
+        exit.expression.accept(this);
+      } else {
+        this.emitConstant(0);
+      }
+      this.emitByte(OpCode.Exit);
     });
   }
 

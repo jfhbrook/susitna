@@ -5,6 +5,70 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
+exports[`test/runtime.ts > TAP > exit > exit "banana" > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit "banana" > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 1 + 1 > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 1 + 1 > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 1 > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 1 > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 100 > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 100 > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 123.456 > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit 123.456 > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit false > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit false > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit nil > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit nil > must match snapshot 2`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit true > must match snapshot 1`] = `
+
+`
+
+exports[`test/runtime.ts > TAP > exit > exit true > must match snapshot 2`] = `
+
+`
+
 exports[`test/runtime.ts > TAP > expressions > -1 > must match snapshot 1`] = `
 
 `

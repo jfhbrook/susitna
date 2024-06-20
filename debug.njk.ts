@@ -279,11 +279,11 @@ export class ChildDebugTracer extends DebugTracer {
   }
 
   get spans(): number {
-    return this.parent.spans;
+    return this.parent.spans + 1;
   }
 
   set spans(value: number) {
-    this.parent.spans = value;
+    this.parent.spans = value - 1;
   }
 }
 

@@ -75,7 +75,9 @@ from the commander *eventually* - so we might as well inject it now and avoid
 two interfaces.
 
 But we could also inject the host into the runtime, and have it call `Host#exit`
-directly. The alternative to this is implementing proxy methods on the
+directly. In fact, the host is already injected, just not used.
+
+The alternative to this is implementing proxy methods on the
 commander whenever the runtime needs to access anything from the host. But
 the host contains a *lot* of functionality, and effectively adding all of the
 host's functionality to the commander muddies its interface.
@@ -88,7 +90,9 @@ host's functionality to the commander muddies its interface.
 2. The `Runtime` will *not* inherit from `EventEmitter`, instead preferring
    to call methods on an injected `Commander` instance. This will create one
    consistent way to call back to the `Commander` that supports "yielding".
-3. `ConsoleHost#exit` will throw an `Exit` error.
+3. `ConsoleHost#exit` will throw an `Exit` error. This will allow for graceful
+   shutdown behavior, while using the host as the common path for exits within
+   the interpreter.
 4. The `Exit` error will be extended to take an exit code. This will allow for
    its use with intentional non-zero exits.
 5. `Cli` will continue to handle actual exit behavior. This will include
@@ -102,3 +106,11 @@ occur:
 1. The runtime will call `Host#exit` with the exit code.
 2. The host will throw an `Exit` error with the exit code.
 3. The error will be caught and handled in the `Cli` class.
+
+Note a subtlety in testing: both `Host#exit` and the CLI exit handler *must*
+throw an error to stop execution. If either of these fails to throw an error,
+execution will continue instead of short circuiting. This is currently solved
+by having both `MockConsoleHost#exit` and the test exit handler throw a
+`MockExit`. A consequence of this is that it's not possible to distinguish
+between a triggered exit and a "clean exit" - but the tests don't cover that
+distinction, instead simply asserting the exit code as 0.

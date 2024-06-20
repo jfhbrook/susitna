@@ -27,12 +27,6 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 The interpreter can run "hello world" in a REPL and evaluate simple
 expressions. But it's brittle, and has a lot of gaps.
 
-### Immediate Needs
-
-- Merge errors from parser and compiler when running files
-- Test programs with asserted output
-  - Including generated "exceedingly large" tests
-
 ### Near Term Polish
 
 - Save/print result for bare expressions
@@ -70,6 +64,9 @@ expressions. But it's brittle, and has a lot of gaps.
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
 - Finalize sigils ADR
+- Merge errors from parser and compiler when running files
+- Test programs with asserted output
+  - Including generated "exceedingly large" tests
 
 ### New Features
 

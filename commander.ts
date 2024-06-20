@@ -22,17 +22,12 @@ export class Commander implements CmdVisitor<void> {
 
   private lineNo: number = -1;
 
-  private exitHandler: (code: number) => void;
-
   constructor(
     private _config: Config,
     private host: Host,
   ) {
     this.runtime = new Runtime(host);
     this._readline = null;
-    this.exitHandler = (code: number) => {
-      this.host.exit(code);
-    };
   }
 
   /**

@@ -9,7 +9,11 @@ export class Stack implements Formattable {
   }
 
   pop(): Value | null {
-    return this.stack.pop() || null;
+    const val = this.stack.pop();
+    if (val === undefined) {
+      return null;
+    }
+    return val;
   }
 
   peek(): Value | null {

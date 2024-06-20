@@ -137,7 +137,7 @@ t.test('expressions', async (t: Test) => {
           1,
           OpCode.Return,
         ],
-        lines: [-1, -1, -1],
+        lines: [-1, -1, -1, -1, -1, -1],
       }),
     );
   });

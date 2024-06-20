@@ -30,8 +30,6 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Immediate Needs
 
 - Merge errors from parser and compiler when running files
-- Additional tests for parsing
-  - Bare expressions aren't parsing right now
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
 

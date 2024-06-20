@@ -159,6 +159,31 @@ t.test('multiple inputs', async (t: Test) => {
   );
 });
 
+// TODO: This error just says "unexpected token". If we can detect when a
+// failed expression is immediately following a line number, we should be able
+// to show a better error. The trace is basically:
+//
+// - successfully parse line number
+// - attempt to parse commands
+// - parse the *first* command
+// - fall through to an expression statement
+// - fail to parse a valid expression statement
+//
+// We would need to track that we just parsed a line number (isLine), that
+// we're parsing the very first command, and that we're parsing an expression
+// statement. That's a boatload of state, but I think it's doable.
+t.test('bare expression starting with an integer', async (t: Test) => {
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseInput('1 + 1');
+    } catch (err) {
+      t.matchSnapshot(formatter.format(err));
+      throw err;
+    }
+  });
+});
+
 t.test('simple program', async (t: Test) => {
   const result = parseProgram(
     '100 print "hello world"\n200 print "goodbye"',
@@ -208,8 +233,7 @@ t.test('program with non-numbered input', async (t: Test) => {
   });
 });
 
-// Need to support unary minus
-t.todo('program with a negative line number', async (t: Test) => {
+t.test('program with a negative line number', async (t: Test) => {
   t.plan(2);
   t.throws(() => {
     try {

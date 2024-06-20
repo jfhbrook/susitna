@@ -170,6 +170,11 @@ class Parser {
     return this.current;
   }
 
+  private peekPrev(): Token {
+    tracer.trace(`prev (${this.previous.kind})`);
+    return this.previous;
+  }
+
   private consume(kind: TokenKind, message: string): Token {
     return tracer.spanSync('consume', () => {
       tracer.trace('kind', kind);
@@ -245,13 +250,8 @@ class Parser {
   private lineNumber(): number | null {
     return tracer.spanSync('lineNumber', () => {
       if (this.match(TokenKind.DecimalLiteral)) {
-        const lineNo = this.previous!.value as number;
-        if (lineNo < 1) {
-          this.syntaxError(this.previous, 'Line numbers must be positive');
-        } else {
-          this.lineNo = lineNo;
-          this.isLine = true;
-        }
+        this.lineNo = this.previous!.value as number;
+        this.isLine = true;
       } else if (this.isProgram) {
         this.syntaxError(this.peek(), 'Expected line number');
       } else {

@@ -5,6 +5,12 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
+exports[`test/parser.ts > TAP > bare expression starting with an integer > must match snapshot 1`] = `
+<input>:1:2: error: Unexpected token +
+  1 + 1
+    ^
+`
+
 exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match snapshot 1`] = `
 <input>:<R1>:1 (at the beginning): warning: Invalid escape sequence \`\\q\` in string '\\q'
   '\\q'
@@ -27,6 +33,12 @@ exports[`test/parser.ts > TAP > numbered print command without arguments > must 
 <input>:100:9: error: Unexpected token <EOF>
   100 print
            ^
+`
+
+exports[`test/parser.ts > TAP > program with a negative line number > must match snapshot 1`] = `
+/home/josh/script.bas:<R2>:0 (after line 100): error: Expected line number
+  -100 "foo"
+  ^
 `
 
 exports[`test/parser.ts > TAP > program with non-numbered input > must match snapshot 1`] = `

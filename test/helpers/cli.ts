@@ -14,10 +14,6 @@ function parseArgs(_argv: Argv, _env: Env): TestConfig {
   return { level: Level.Info };
 }
 
-export type TestCommand = () => Promise<void>;
-
-export type CliTest = (command: TestCommand) => Promise<void>;
-
 export async function cliTest(
   t: Test,
   run: Run<TestConfig>,

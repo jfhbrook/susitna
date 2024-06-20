@@ -76,7 +76,6 @@ export class Translator {
       try {
         [result, warning] = parseInput(input);
       } catch (err) {
-        console.log(err);
         if (err instanceof Exception) {
           this.host.writeException(err);
           return;

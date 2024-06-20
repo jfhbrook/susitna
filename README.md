@@ -77,6 +77,7 @@ expressions. But it's brittle, and has a lot of gaps.
 - Escaped newlines
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
+- Add Inspector class to format
 - Finalize sigils ADR
 - Merge errors from parser and compiler when running files
 - Test programs with asserted output

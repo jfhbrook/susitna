@@ -1,4 +1,7 @@
+import { Test } from 'tap';
+
 import { Argv, cli, Env, Run, ConfigOptions } from '../../cli';
+import { ExitCode } from '../../exit';
 import { Level } from '../../host';
 
 import { MockConsoleHost, MockExit } from './host';
@@ -16,16 +19,19 @@ export type TestCommand = () => Promise<void>;
 export type CliTest = (command: TestCommand) => Promise<void>;
 
 export async function cliTest(
+  t: Test,
   run: Run<TestConfig>,
-  test: CliTest,
+  exitCode: ExitCode = ExitCode.Success,
 ): Promise<void> {
   const main = cli({
     parseArgs,
     run,
   });
 
-  function command(): Promise<void> {
-    return main({
+  t.plan(2);
+
+  try {
+    await main({
       host: new MockConsoleHost(),
       exit(code: number) {
         throw new MockExit(code || 0);
@@ -33,7 +39,8 @@ export async function cliTest(
       argv: [],
       env: {},
     });
+  } catch (err) {
+    t.equal(err.exitCode, exitCode);
+    t.type(err, MockExit);
   }
-
-  await test(command);
 }

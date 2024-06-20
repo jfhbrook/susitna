@@ -5,7 +5,7 @@ import { ExitCode } from '../exit';
 import { RuntimeFault } from '../faults';
 import { Host } from '../host';
 
-import { cliTest, TestCommand, TestConfig } from './helpers/cli';
+import { cliTest, TestConfig } from './helpers/cli';
 import { MockExit } from './helpers/host';
 
 t.test('when the command succeeds', async (t: Test) => {
@@ -14,14 +14,7 @@ t.test('when the command succeeds', async (t: Test) => {
       async function run(_config: TestConfig, _host: Host): Promise<void> {
         // Nothing.
       }
-      await cliTest(run, async (command: TestCommand) => {
-        try {
-          await command();
-        } catch (err) {
-          t.equal(err.exitCode, ExitCode.Success);
-          t.type(err, MockExit);
-        }
-      });
+      await cliTest(t, run);
     });
   });
 
@@ -30,15 +23,7 @@ t.test('when the command succeeds', async (t: Test) => {
       async function run(_config: TestConfig, _host: Host): Promise<void> {
         throw new MockExit(0);
       }
-      await cliTest(run, async (command: TestCommand) => {
-        t.plan(2);
-        try {
-          await command();
-        } catch (err) {
-          t.equal(err.exitCode, ExitCode.Success);
-          t.type(err, MockExit);
-        }
-      });
+      await cliTest(t, run);
     });
   });
 });
@@ -52,14 +37,6 @@ t.test('when the command fails with a RuntimeFault', async (t: Test) => {
         null,
       );
     }
-    await cliTest(run, async (command: TestCommand) => {
-      t.plan(2);
-      try {
-        await command();
-      } catch (err) {
-        t.equal(err.exitCode, ExitCode.Software);
-        t.type(err, MockExit);
-      }
-    });
+    await cliTest(t, run, ExitCode.Software);
   });
 });

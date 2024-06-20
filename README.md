@@ -40,11 +40,6 @@ expressions. But it's brittle, and has a lot of gaps.
   - Replace the final pop code with a return, if we're compiling an interactive
     bare expression command (note, the runtime will never receive multiple
     interactive commands at once because the commander can run some directly)
-- Exit command
-  - Add to tokens
-  - Add to parser (with tests)
-  - Add to compiler (with tests)
-  - Add to runtime (with tests)
 - Robust locations
   - Figure out exactly what location information is needed for a traceback
   - Plumb location information through the AST to the compiler

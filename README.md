@@ -75,6 +75,7 @@ expressions. But it's brittle, and has a lot of gaps.
 - Add Inspector class to format
 - Finalize sigils ADR
 - Merge errors from parser and compiler when running files
+- Exit should stop prompt from being rendered
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
 

@@ -49,6 +49,8 @@ export enum TokenKind {
 
   ShellToken = '<shell-token>',
 
+  Exit = 'exit',
+
   New = 'new',
   Load = 'load',
   Save = 'save',

@@ -131,10 +131,11 @@ export interface ExitCoded {
  */
 @errorType('Exit')
 export class Exit extends Error implements ExitCoded, Formattable {
-  public readonly exitCode = ExitCode.Success;
-
-  constructor(message?: string) {
-    super(message || '');
+  constructor(
+    public exitCode: number | ExitCode = ExitCode.Success,
+    message: string = '',
+  ) {
+    super(message);
     Object.setPrototypeOf(this, new.target.prototype);
   }
 

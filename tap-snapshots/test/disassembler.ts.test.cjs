@@ -181,3 +181,8 @@ exports[`test/disassembler.ts > TAP > simple program > must match snapshot 1`] =
 0  7  NIL
 0  8  RETURN
 `
+
+exports[`test/disassembler.ts > TAP > unknown opcode > must match snapshot 1`] = `
+=== Disassembly of <chunk>: ===
+0  1  Unknown opcode  0x2329
+`

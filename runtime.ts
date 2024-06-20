@@ -3,7 +3,7 @@ import { getTracer, startTraceExec, traceExec } from './debug';
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
 import { Stack } from './stack';
-import { Value, nil } from './value';
+import { Value, nil, Nil } from './value';
 
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
@@ -141,6 +141,20 @@ export class Runtime {
           case OpCode.Print:
             this.host.writeLine(this.stack.pop());
             break;
+          case OpCode.Exit:
+            const value = this.stack.pop();
+            let exitCode: number;
+            if (Number.isInteger(value)) {
+              exitCode = value as number;
+            } else if (value instanceof Nil) {
+              exitCode = 0;
+            } else if (value) {
+              exitCode = 1;
+            } else {
+              exitCode = 0;
+            }
+            this.host.exit(exitCode);
+            return;
           case OpCode.Jump:
             this.notImplemented('Jump');
             break;
@@ -155,6 +169,8 @@ export class Runtime {
             // TODO: Clean up the current frame, and only return if we're
             // done with the main program.
             return rv;
+          default:
+            this.notImplemented(`Unknown opcode: ${instruction}`);
         }
       }
     });

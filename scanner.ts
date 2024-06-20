@@ -6,6 +6,8 @@ export const KEYWORDS: Record<string, TokenKind> = {
   false: TokenKind.FalseLiteral,
   nil: TokenKind.NilLiteral,
 
+  exit: TokenKind.Exit,
+
   // loading, saving, running etc
   new: TokenKind.New,
   load: TokenKind.Load,

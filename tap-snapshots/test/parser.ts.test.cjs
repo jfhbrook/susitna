@@ -17,19 +17,19 @@ exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match 
    ^
 `
 
-exports[`test/parser.ts > TAP > non-numbered print command without arguments > must match snapshot 1`] = `
-<input>:<R1>:5 (at the beginning): error: Unexpected token <EOF>
-  print
-       ^
-`
-
 exports[`test/parser.ts > TAP > numbered invalid string escape > must match snapshot 1`] = `
 <input>:100:5: warning: Invalid escape sequence \`\\q\` in string '\\q'
   100 '\\q'
        ^
 `
 
-exports[`test/parser.ts > TAP > numbered print command without arguments > must match snapshot 1`] = `
+exports[`test/parser.ts > TAP > print command > non-numbered, without arguments > must match snapshot 1`] = `
+<input>:<R1>:5 (at the beginning): error: Unexpected token <EOF>
+  print
+       ^
+`
+
+exports[`test/parser.ts > TAP > print command > numbered, without arguments > must match snapshot 1`] = `
 <input>:100:9: error: Unexpected token <EOF>
   100 print
            ^

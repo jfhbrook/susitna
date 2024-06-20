@@ -1,5 +1,5 @@
 import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
-import { CmdVisitor, Expression, Print } from './ast/cmd';
+import { CmdVisitor, Expression, Exit, Print } from './ast/cmd';
 import {
   ExprVisitor,
   Binary,
@@ -42,6 +42,10 @@ export class Recreator
   }
 
   visitPrintCmd(_print: Print): string {
+    return '';
+  }
+
+  visitExitCmd(_exit: Exit): string {
     return '';
   }
 

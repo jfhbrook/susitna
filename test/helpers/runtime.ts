@@ -4,11 +4,12 @@ import { Chunk } from '../../bytecode/chunk';
 import { Runtime } from '../../runtime';
 import { Value } from '../../value';
 
-import { MockConsoleHost } from './host';
+import { MockConsoleHost, MockExit } from './host';
 
 export interface ChunkTests {
   effect?: [Value[], Value[]];
   throws?: Error;
+  exitCode?: number;
 }
 
 export function testChunk(t: Test, chunk: Chunk, tests: ChunkTests = {}): void {
@@ -19,11 +20,23 @@ export function testChunk(t: Test, chunk: Chunk, tests: ChunkTests = {}): void {
   runtime.stack.stack = stackBefore;
 
   if (tests.throws) {
-    t.throws(() => runtime.interpret(chunk), tests.throws);
+    t.throws(() => {
+      try {
+        runtime.interpret(chunk);
+      } catch (err) {
+        if (!(err instanceof MockExit)) {
+          throw err;
+        }
+      }
+    }, tests.throws);
     return;
   }
 
-  runtime.interpret(chunk);
+  try {
+    runtime.interpret(chunk);
+  } catch (err) {
+    t.equal(err.exitCode, tests.exitCode || 0);
+  }
 
   t.matchSnapshot(host.outputStream.output);
   t.matchSnapshot(host.errorStream.output);

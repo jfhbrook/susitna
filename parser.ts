@@ -23,7 +23,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Expression } from './ast/cmd';
+import { Cmd, Print, Exit, Expression } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
@@ -354,6 +354,8 @@ class Parser {
       if (this.match(TokenKind.Print)) {
         return this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+      } else if (this.match(TokenKind.Exit)) {
+        return this.exit();
       } else {
         return this.expressionStatement();
       }
@@ -371,7 +373,17 @@ class Parser {
     });
   }
 
-  private expressionStatement(): Cmd | null {
+  private exit(): Cmd {
+    return tracer.spanSync('exit', () => {
+      const expr = this.optionalExpression();
+      if (expr) {
+        return new Exit(expr);
+      }
+      return new Exit(null);
+    });
+  }
+
+  private expressionStatement(): Cmd {
     return tracer.spanSync('expression statement', () => {
       const expr = this.expression();
       if (expr) {
@@ -381,7 +393,22 @@ class Parser {
     });
   }
 
-  private expression(): Expr | null {
+  private optionalExpression(): Expr | null {
+    return tracer.spanSync('optionalExpression', () => {
+      for (const tok of [
+        TokenKind.Colon,
+        TokenKind.LineEnding,
+        TokenKind.Eof,
+      ]) {
+        if (this.check(tok)) {
+          return null;
+        }
+      }
+      return this.expression();
+    });
+  }
+
+  private expression(): Expr {
     return tracer.spanSync('expression', () => {
       // TODO: assignment
       // TODO: logical expressions (and, or)

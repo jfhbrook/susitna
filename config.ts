@@ -2,7 +2,7 @@ import { getTracer } from './debug';
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
-import { Exit } from './exit';
+import { Exit, ExitCode } from './exit';
 
 const tracer = getTracer('main');
 
@@ -28,11 +28,11 @@ MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)${TRACE_USAGE}
 `;
 
 function help(): Exit {
-  return new Exit(USAGE);
+  return new Exit(ExitCode.Success, USAGE);
 }
 
 function version(): Exit {
-  return new Exit(`v${MATBAS_VERSION}`);
+  return new Exit(ExitCode.Success, `v${MATBAS_VERSION}`);
 }
 
 function usage(message: string): UsageFault {

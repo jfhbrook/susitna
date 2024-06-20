@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Print, Expression } from '../ast/cmd';
+import { Print, Exit, Expression } from '../ast/cmd';
 import {
   Binary,
   Group,
@@ -235,6 +235,106 @@ t.test('print', async (t: Test) => {
           1,
           OpCode.Add,
           OpCode.Print,
+          OpCode.Return,
+        ],
+        lines: [-1, -1, -1, -1, -1, -1, -1],
+      }),
+    );
+  });
+});
+
+t.test('exit', async (t: Test) => {
+  await t.test('print 255', async (t: Test) => {
+    t.same(
+      compile(new Exit(new IntLiteral(255))),
+      chunk({
+        constants: [255],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
+        lines: [-1, -1, -1, -1],
+      }),
+    );
+  });
+
+  await t.test('print 123.456', async (t: Test) => {
+    t.same(
+      compile(new Exit(new RealLiteral(123.456))),
+      chunk({
+        constants: [123.456],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
+        lines: [-1, -1, -1, -1],
+      }),
+    );
+  });
+
+  for (const bool of [true, false]) {
+    await t.test(`print ${bool}`, async (t: Test) => {
+      t.same(
+        compile(new Exit(new BoolLiteral(bool))),
+        chunk({
+          constants: [bool],
+          // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+          code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
+          lines: [-1, -1, -1, -1],
+        }),
+      );
+    });
+  }
+
+  await t.test('print nil', async (t: Test) => {
+    t.same(
+      compile(new Exit(new NilLiteral())),
+      chunk({
+        constants: [],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [OpCode.Nil, OpCode.Exit, OpCode.Return],
+        lines: [-1, -1, -1],
+      }),
+    );
+  });
+
+  await t.test('print "hello world"', async (t: Test) => {
+    t.same(
+      compile(new Exit(new StringLiteral('hello world'))),
+      chunk({
+        constants: ['hello world'],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
+        lines: [-1, -1, -1, -1],
+      }),
+    );
+  });
+
+  await t.test('print (1)', async (t: Test) => {
+    t.same(
+      compile(new Exit(new Group(new IntLiteral(1)))),
+      chunk({
+        constants: [1],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
+        lines: [-1, -1, -1, -1],
+      }),
+    );
+  });
+
+  await t.test('print 1 + 1', async (t: Test) => {
+    t.same(
+      compile(
+        new Exit(
+          new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
+        ),
+      ),
+      chunk({
+        constants: [1, 1],
+        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
+        code: [
+          OpCode.Constant,
+          0,
+          OpCode.Constant,
+          1,
+          OpCode.Add,
+          OpCode.Exit,
           OpCode.Return,
         ],
         lines: [-1, -1, -1, -1, -1, -1, -1],

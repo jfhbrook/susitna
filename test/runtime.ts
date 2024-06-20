@@ -222,6 +222,129 @@ t.test('print', async (t: Test) => {
   });
 });
 
+t.test('exit', async (t: Test) => {
+  await t.test('exit 1', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [1],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 1,
+      },
+    );
+  });
+
+  await t.test('exit 100', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [100],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 100,
+      },
+    );
+  });
+
+  await t.test('exit "banana"', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: ['banana'],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 1,
+      },
+    );
+  });
+
+  await t.test('exit 123.456', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [123.456],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 1,
+      },
+    );
+  });
+
+  await t.test('exit true', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [true],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 1,
+      },
+    );
+  });
+
+  await t.test('exit false', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [false],
+        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 0,
+      },
+    );
+  });
+
+  await t.test('exit nil', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [],
+        code: [OpCode.Nil, OpCode.Exit, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 0,
+      },
+    );
+  });
+
+  await t.test('exit 1 + 1', async (t: Test) => {
+    testChunk(
+      t,
+      chunk({
+        constants: [1, 1],
+        code: [
+          OpCode.Constant,
+          0,
+          OpCode.Constant,
+          1,
+          OpCode.Add,
+          OpCode.Exit,
+          OpCode.Nil,
+          OpCode.Return,
+        ],
+        lines: [-1, -1, -1, -1, -1, -1, -1],
+      }),
+      {
+        exitCode: 2,
+      },
+    );
+  });
+});
+
 t.test('simple program', async (t: Test) => {
   testChunk(
     t,

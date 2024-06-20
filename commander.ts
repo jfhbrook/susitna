@@ -10,7 +10,7 @@ import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
@@ -35,6 +35,7 @@ export class Commander implements CmdVisitor<void> {
    */
   async init(): Promise<void> {
     return await tracer.span('Commander.init', async () => {
+      // Ensure the commander's state is clean before initializing.
       await this.close();
 
       // TODO: Support for tab-completion and history. Note:
@@ -197,6 +198,10 @@ export class Commander implements CmdVisitor<void> {
 
   visitPrintCmd(print: Print): void {
     this.runCommand(print);
+  }
+
+  visitExitCmd(exit: Exit): void {
+    this.runCommand(exit);
   }
 
   visitExpressionCmd(expression: Expression): void {

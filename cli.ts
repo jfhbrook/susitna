@@ -140,6 +140,7 @@ export function cli<C extends ConfigOptions>(cli: Cli<C>): Main {
 
     if (error) {
       errorExit(error);
+      return;
     }
 
     // For consistency, explicitly exit instead of allowing Node to run the
@@ -160,9 +161,14 @@ export function reportError(err: any, host: Host): void {
       host.writeLine(err);
     }
 
-    // Handle successful exits.
+    // Handle intentional exits.
     if (err instanceof Exit) {
-      host.writeInfo(err.message);
+      // TODO: Should the user be able to access this log in a release build?
+      tracer.trace(`Exit ${err.exitCode}`);
+      if (err.message.length) {
+        host.writeInfo(err.message);
+      }
+      return;
     }
 
     if (err.format) {

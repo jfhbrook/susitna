@@ -249,8 +249,12 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(formatter.format(new UsageFault('Usage: lol')));
     });
 
-    t.test('it formats an Exit', async (t: Test) => {
-      t.matchSnapshot(formatter.format(new Exit('message')));
+    t.test('it formats an Exit with a message', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new Exit(ExitCode.Success, 'message')));
+    });
+
+    t.test('it formats an Exit without message', async (t: Test) => {
+      t.matchSnapshot(formatter.format(new Exit(ExitCode.Success)));
     });
 
     t.test('it formats a Token', async (t: Test) => {

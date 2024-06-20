@@ -160,8 +160,9 @@ export function reportError(err: any, host: Host): void {
       host.writeLine(err);
     }
 
-    // Handle successful exits.
+    // Handle intentional exits.
     if (err instanceof Exit) {
+      host.writeDebug(`Exit ${err.exitCode}`);
       host.writeInfo(err.message);
     }
 

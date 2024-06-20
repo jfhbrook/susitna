@@ -43,8 +43,6 @@ export class Commander implements CmdVisitor<void> {
       // Ensure the commander's state is clean before initializing.
       await this.close();
 
-      this.runtime.on('exit', this.exitHandler);
-
       // TODO: Support for tab-completion and history. Note:
       // - Tab complete will only apply for source input.
       // - History will be different between user and source input.
@@ -84,7 +82,7 @@ export class Commander implements CmdVisitor<void> {
    * Close the commander.
    */
   async close(): Promise<void> {
-    return tracer.span('Commander.close', async () => {
+    return tracer.span('Commander.close', () => {
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
@@ -95,9 +93,7 @@ export class Commander implements CmdVisitor<void> {
         this._readline.close();
       }
 
-      await p;
-
-      this.runtime.removeListener('exit', this.exitHandler);
+      return p;
     });
   }
 

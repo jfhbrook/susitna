@@ -200,8 +200,12 @@ Traceback:
 AssertionError: message
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Exit > must match snapshot 1`] = `
-message
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Exit with a message > must match snapshot 1`] = `
+Exit(0)
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an Exit without message > must match snapshot 1`] = `
+Exit(0)
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an IntLiteral > must match snapshot 1`] = `

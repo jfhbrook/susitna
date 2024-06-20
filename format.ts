@@ -358,7 +358,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatExit(exit: Exit): string {
-    return exit.message;
+    return `Exit(${exit.exitCode})`;
   }
 
   visitCommandGroupTree(node: CommandGroup): string {

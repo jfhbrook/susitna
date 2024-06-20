@@ -2,8 +2,10 @@ import { basename } from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
+
 import { Readable, Writable } from 'stream';
 
+import { Exit } from './exit';
 import { BaseException } from './exceptions';
 import { DefaultFormatter } from './format';
 
@@ -371,7 +373,7 @@ export class ConsoleHost implements Host {
     return process.cwd();
   }
 
-  exit(code: number): void {
-    process.exit(code);
+  exit(exitCode: number): void {
+    throw new Exit(exitCode);
   }
 }

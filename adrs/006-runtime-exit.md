@@ -37,6 +37,10 @@ an exit. It's also inspired by [click](https://click.palletsprojects.com/en/8.1.
 API - the actual needs were unknown, but given I was implementing a CLI
 framework, following click's lead seemed reasonable.
 
+A behavior to keep in mind is that the `Exit` error type's message is written
+to output. This is so that `Exit` can be used to share help text (and similar
+use cases) when doing options parsing in the `Config` class.
+
 ### Why Host#exit?
 
 As Matanuska has evolved, it's become clear that the `Host` abstraction owns
@@ -84,10 +88,11 @@ host's functionality to the commander muddies its interface.
 2. The `Runtime` will *not* inherit from `EventEmitter`, instead preferring
    to call methods on an injected `Commander` instance. This will create one
    consistent way to call back to the `Commander` that supports "yielding".
-3. `ConsoleHost#exit` will throw an `Exit` error. This error will be handled
-   in the `Cli` class, like other errors.
+3. `ConsoleHost#exit` will throw an `Exit` error.
 4. The `Exit` error will be extended to take an exit code. This will allow for
    its use with intentional non-zero exits.
+5. `Cli` will continue to handle actual exit behavior. This will include
+   overriding the `exit` handler in tests.
 5. `MockConsoleHost#exit` will throw a `MockExit` error, maintaining the
    current structure of the tests.
 

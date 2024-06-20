@@ -1,7 +1,16 @@
 import { Buffer } from 'buffer';
 import { Transform, Writable } from 'stream';
 
+import { errorType } from '../../errors';
 import { ConsoleHost } from '../../host';
+
+@errorType('MockExit')
+export class MockExit extends Error {
+  constructor(public exitCode: number) {
+    super(`Exit ${exitCode}`);
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
 
 /**
  * An input stream for testing.
@@ -105,5 +114,9 @@ export class MockConsoleHost extends ConsoleHost {
 
   cwd(): string {
     return '/Users/josh/Software/jfhbrook/matanuska';
+  }
+
+  exit(exitCode: number): void {
+    throw new MockExit(exitCode);
   }
 }

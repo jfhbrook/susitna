@@ -1,24 +1,21 @@
-import { EventEmitter } from 'events';
-
 import { getTracer, startTraceExec, traceExec } from './debug';
 
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
 import { Stack } from './stack';
-import { Value, nil } from './value';
+import { Value, nil, Nil } from './value';
 
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
 
 const tracer = getTracer('main');
 
-export class Runtime extends EventEmitter {
+export class Runtime {
   public stack: Stack;
   public pc: number = -1;
   public chunk: Chunk | null = null;
 
   constructor(private host: Host) {
-    super();
     this.stack = new Stack();
   }
 
@@ -145,14 +142,18 @@ export class Runtime extends EventEmitter {
             this.host.writeLine(this.stack.pop());
             break;
           case OpCode.Exit:
-            const v = this.stack.pop();
-            if (Number.isInteger(v)) {
-              this.emit('exit', v);
-            } else if (v) {
-              this.emit('exit', 1);
+            const value = this.stack.pop();
+            let exitCode: number;
+            if (Number.isInteger(value)) {
+              exitCode = value as number;
+            } else if (value instanceof Nil) {
+              exitCode = 0;
+            } else if (value) {
+              exitCode = 1;
             } else {
-              this.emit('exit', 0);
+              exitCode = 0;
             }
+            this.host.exit(exitCode);
             break;
           case OpCode.Jump:
             this.notImplemented('Jump');

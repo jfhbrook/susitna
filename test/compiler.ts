@@ -244,7 +244,7 @@ t.test('print', async (t: Test) => {
 });
 
 t.test('exit', async (t: Test) => {
-  await t.test('print 255', async (t: Test) => {
+  await t.test('exit 255', async (t: Test) => {
     t.same(
       compile(new Exit(new IntLiteral(255))),
       chunk({
@@ -256,7 +256,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('print 123.456', async (t: Test) => {
+  await t.test('exit 123.456', async (t: Test) => {
     t.same(
       compile(new Exit(new RealLiteral(123.456))),
       chunk({
@@ -269,7 +269,7 @@ t.test('exit', async (t: Test) => {
   });
 
   for (const bool of [true, false]) {
-    await t.test(`print ${bool}`, async (t: Test) => {
+    await t.test(`exit ${bool}`, async (t: Test) => {
       t.same(
         compile(new Exit(new BoolLiteral(bool))),
         chunk({
@@ -282,7 +282,7 @@ t.test('exit', async (t: Test) => {
     });
   }
 
-  await t.test('print nil', async (t: Test) => {
+  await t.test('exit nil', async (t: Test) => {
     t.same(
       compile(new Exit(new NilLiteral())),
       chunk({
@@ -294,7 +294,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('print "hello world"', async (t: Test) => {
+  await t.test('exit "hello world"', async (t: Test) => {
     t.same(
       compile(new Exit(new StringLiteral('hello world'))),
       chunk({
@@ -306,7 +306,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('print (1)', async (t: Test) => {
+  await t.test('exit (1)', async (t: Test) => {
     t.same(
       compile(new Exit(new Group(new IntLiteral(1)))),
       chunk({
@@ -318,7 +318,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('print 1 + 1', async (t: Test) => {
+  await t.test('exit 1 + 1', async (t: Test) => {
     t.same(
       compile(
         new Exit(

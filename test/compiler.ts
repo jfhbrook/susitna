@@ -24,19 +24,14 @@ import { chunk } from './helpers/bytecode';
 
 type TestCase = [string, Cmd | Program, Chunk];
 
-// - Non-expression command cases that append Nil, Return
-// - Expression command cases that append Return
-// - Program cases that wrap in a Line and append Pop, Nil, Return
-
 const EXPRESSION_STATEMENTS: TestCase[] = [
   [
     '255',
     new Expression(new IntLiteral(255)),
     chunk({
       constants: [255],
-      // NOTE: Bare expressions as commands should return the result
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
   [
@@ -44,8 +39,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new RealLiteral(123.456)),
     chunk({
       constants: [123.456],
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
   [
@@ -53,8 +48,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new BoolLiteral(true)),
     chunk({
       constants: [true],
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
   [
@@ -62,8 +57,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new BoolLiteral(false)),
     chunk({
       constants: [false],
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
   [
@@ -71,8 +66,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new NilLiteral()),
     chunk({
       constants: [],
-      code: [OpCode.Nil, OpCode.Return],
-      lines: [-1, -1],
+      code: [OpCode.Nil],
+      lines: [-1],
     }),
   ],
   [
@@ -80,8 +75,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new StringLiteral('hello world')),
     chunk({
       constants: ['hello world'],
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
   [
@@ -89,8 +84,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new Group(new IntLiteral(1))),
     chunk({
       constants: [1],
-      code: [OpCode.Constant, 0, OpCode.Return],
-      lines: [-1, -1, -1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
     }),
   ],
 
@@ -101,8 +96,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     ),
     chunk({
       constants: [1, 1],
-      code: [OpCode.Constant, 0, OpCode.Constant, 1, OpCode.Add, OpCode.Return],
-      lines: [-1, -1, -1, -1, -1, -1],
+      code: [OpCode.Constant, 0, OpCode.Constant, 1, OpCode.Add],
+      lines: [-1, -1, -1, -1, -1],
     }),
   ],
 
@@ -111,8 +106,8 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     new Expression(new Unary(TokenKind.Minus, new IntLiteral(1))),
     chunk({
       constants: [1],
-      code: [OpCode.Constant, 0, OpCode.Neg, OpCode.Return],
-      lines: [-1, -1, -1, -1],
+      code: [OpCode.Constant, 0, OpCode.Neg],
+      lines: [-1, -1, -1],
     }),
   ],
 ];
@@ -210,7 +205,24 @@ function commandExpr1Cases<C extends Cmd>(
   ];
 }
 
-const COMMANDS: TestCase[] = [
+// Expressions are handled differently in Programs versus other commands,
+// so we leave them off when building out programs from the other commands,
+// and append them to COMMANDS afterwards.
+const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
+  ([source, ast, { constants, code, lines }]): TestCase => {
+    return [
+      source,
+      ast,
+      chunk({
+        constants,
+        code: code.concat([OpCode.Return]),
+        lines: lines.concat([-1]),
+      }),
+    ];
+  },
+);
+
+let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('print', Print, OpCode.Print),
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
 ];
@@ -227,10 +239,8 @@ const PROGRAMS: TestCase[] = [
         new Program([new Line(-1, [ast as Cmd])]),
         chunk({
           constants,
-          code: code
-            .slice(0, -1)
-            .concat([OpCode.Pop, OpCode.Nil, OpCode.Return]),
-          lines: lines.concat([-1, -1]),
+          code: code.concat([OpCode.Pop, OpCode.Nil, OpCode.Return]),
+          lines: lines.concat([-1, -1, -1]),
         }),
       ];
     },
@@ -270,6 +280,8 @@ const PROGRAMS: TestCase[] = [
     }),
   ],
 ];
+
+COMMANDS = COMMANDS.concat(EXPRESSION_COMMANDS);
 
 function runTest([source, ast, ch]: TestCase): void {
   t.test(source, async (t: Test) => {

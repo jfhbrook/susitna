@@ -15,7 +15,7 @@ import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
-export class Commander implements CmdVisitor<Value> {
+export class Commander implements CmdVisitor<Value | null> {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -167,7 +167,9 @@ export class Commander implements CmdVisitor<Value> {
 
         if (lastCmd) {
           const rv = lastCmd.accept(this);
-          this.host.writeLine(rv.toString());
+          if (rv !== null) {
+            this.host.writeLine(rv);
+          }
         }
       } catch (err) {
         if (err instanceof Exception) {
@@ -200,15 +202,17 @@ export class Commander implements CmdVisitor<Value> {
   // Non-program commands.
   //
 
-  visitPrintCmd(print: Print): Value {
-    return this.runCommand(print);
+  visitPrintCmd(print: Print): Value | null {
+    this.runCommand(print);
+    return null;
   }
 
-  visitExitCmd(exit: Exit): Value {
-    return this.runCommand(exit);
+  visitExitCmd(exit: Exit): Value | null {
+    this.runCommand(exit);
+    return null;
   }
 
-  visitExpressionCmd(expression: Expression): Value {
+  visitExpressionCmd(expression: Expression): Value | null {
     return this.runCommand(expression);
   }
 

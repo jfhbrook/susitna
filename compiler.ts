@@ -57,12 +57,16 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private filename: string = '<input>';
   private routineType: RoutineType = RoutineType.Command;
-  private saveResult: boolean = false;
+
+  // Set to true whenever an expression command is compiled. In the case of
+  // Cmds, this will signal that the result of the single expression
+  // should be returned. In Program cases, it's ignored.
+  private isExpressionCmd: boolean = false;
 
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
-  constructor(ast: Program | Cmd, { filename, saveResult }: CompilerOptions) {
+  constructor(ast: Program | Cmd, { filename }: CompilerOptions) {
     this.ast = ast;
 
     let routineType: RoutineType;
@@ -75,7 +79,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     this.currentChunk = new Chunk();
     this.filename = filename;
     this.routineType = routineType;
-    this.saveResult = saveResult || false;
     this.isError = false;
     this.errors = [];
   }
@@ -121,7 +124,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         throw new ParseError(this.errors);
       }
 
-      this.emitByte(OpCode.Return);
+      this.emitReturn();
 
       return this.chunk;
     });
@@ -131,7 +134,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return tracer.spanSync('compileCommand', () => {
       try {
         this.command(cmd);
-        this.emitByte(OpCode.Return);
+        this.emitReturn();
       } catch (err) {
         // There's nothing to synchronize...
         if (!(err instanceof Synchronize)) {
@@ -288,6 +291,18 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
+  // NOTE: This is only used to emit implicit and bare returns. Valued
+  // returns would be handled in visitReturnStmt.
+  private emitReturn(): void {
+    // NOTE: If/when implementing classes, I would need to detect when
+    // compiling a constructor and return "this", not nil.
+
+    if (this.routineType !== RoutineType.Command || !this.isExpressionCmd) {
+      this.emitByte(OpCode.Nil);
+    }
+    this.emitByte(OpCode.Return);
+  }
+
   private makeConstant(value: Value): number {
     // TODO: clox validates that the return value is byte sized.
     return this.currentChunk.addConstant(value);
@@ -326,9 +341,13 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitExpressionCmd(expr: Expression): void {
     tracer.spanSync('visitExpressionCmd', () => {
+      this.isExpressionCmd = true;
       expr.expression.accept(this);
-      // TODO: An instruction that saves the expression
-      // this.emitByte(OpCode.Print);
+
+      // NOTE: In interactive commands, save the result to return later.
+      if (this.routineType === RoutineType.Program) {
+        this.emitByte(OpCode.Pop);
+      }
     });
   }
 

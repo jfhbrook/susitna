@@ -1,8 +1,9 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Print, Exit, Expression } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression } from '../ast/cmd';
 import {
+  Expr,
   Binary,
   Group,
   IntLiteral,
@@ -13,6 +14,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import { Program, Line } from '../ast';
+import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 import { compile } from '../compiler';
 import { formatter } from '../format';
@@ -20,352 +22,280 @@ import { TokenKind } from '../tokens';
 
 import { chunk } from './helpers/bytecode';
 
-t.test('expressions', async (t: Test) => {
-  await t.test('255', async (t: Test) => {
-    t.same(
-      compile(new Expression(new IntLiteral(255))),
-      chunk({
-        constants: [255],
-        code: [OpCode.Constant, 0, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
+type TestCase = [string, Cmd | Program, Chunk];
 
-  await t.test('123.456', async (t: Test) => {
-    t.same(
-      compile(new Expression(new RealLiteral(123.456))),
-      chunk({
-        constants: [123.456],
-        code: [OpCode.Constant, 0, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
+const EXPRESSION_STATEMENTS: TestCase[] = [
+  [
+    '255',
+    new Expression(new IntLiteral(255)),
+    chunk({
+      constants: [255],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
+  [
+    '123.456',
+    new Expression(new RealLiteral(123.456)),
+    chunk({
+      constants: [123.456],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
+  [
+    'true',
+    new Expression(new BoolLiteral(true)),
+    chunk({
+      constants: [true],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
+  [
+    'false',
+    new Expression(new BoolLiteral(false)),
+    chunk({
+      constants: [false],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
+  [
+    'nil',
+    new Expression(new NilLiteral()),
+    chunk({
+      constants: [],
+      code: [OpCode.Nil],
+      lines: [-1],
+    }),
+  ],
+  [
+    '"hello world"',
+    new Expression(new StringLiteral('hello world')),
+    chunk({
+      constants: ['hello world'],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
+  [
+    '(1)',
+    new Expression(new Group(new IntLiteral(1))),
+    chunk({
+      constants: [1],
+      code: [OpCode.Constant, 0],
+      lines: [-1, -1],
+    }),
+  ],
 
-  for (const bool of [true, false]) {
-    await t.test(`${bool}`, async (t: Test) => {
-      t.same(
-        compile(new Expression(new BoolLiteral(bool))),
-        chunk({
-          constants: [bool],
-          code: [OpCode.Constant, 0, OpCode.Return],
-          lines: [-1, -1, -1],
-        }),
-      );
-    });
-  }
-
-  await t.test('nil', async (t: Test) => {
-    t.same(
-      compile(new Expression(new NilLiteral())),
-      chunk({
-        constants: [],
-        code: [OpCode.Nil, OpCode.Return],
-        lines: [-1, -1],
-      }),
-    );
-  });
-
-  await t.test('"hello world"', async (t: Test) => {
-    t.same(
-      compile(new Expression(new StringLiteral('hello world'))),
-      chunk({
-        constants: ['hello world'],
-        code: [OpCode.Constant, 0, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('(1)', async (t: Test) => {
-    t.same(
-      compile(new Expression(new Group(new IntLiteral(1)))),
-      chunk({
-        constants: [1],
-        code: [OpCode.Constant, 0, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('1 + 1', async (t: Test) => {
-    t.same(
-      compile(
-        new Expression(
-          new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
-        ),
-      ),
-      chunk({
-        constants: [1, 1],
-        code: [
-          OpCode.Constant,
-          0,
-          OpCode.Constant,
-          1,
-          OpCode.Add,
-          OpCode.Return,
-        ],
-        lines: [-1, -1, -1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('-1', async (t: Test) => {
-    t.same(
-      compile(new Expression(new Unary(TokenKind.Minus, new IntLiteral(1)))),
-      chunk({
-        constants: [1],
-        code: [OpCode.Constant, 0, OpCode.Neg, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.skip('1 : 1', async (t: Test) => {
-    t.same(
-      compile(new Expression(new IntLiteral(255))),
-      chunk({
-        constants: [1, 1],
-        code: [
-          // TODO: Bare expressions should pop UNLESS they're the last
-          // expression in an interactive command
-          OpCode.Constant,
-          0,
-          OpCode.Pop,
-          OpCode.Constant,
-          1,
-          OpCode.Return,
-        ],
-        lines: [-1, -1, -1, -1, -1, -1],
-      }),
-    );
-  });
-});
-
-t.test('print', async (t: Test) => {
-  await t.test('print 255', async (t: Test) => {
-    t.same(
-      compile(new Print(new IntLiteral(255))),
-      chunk({
-        constants: [255],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Print, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('print 123.456', async (t: Test) => {
-    t.same(
-      compile(new Print(new RealLiteral(123.456))),
-      chunk({
-        constants: [123.456],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Print, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  for (const bool of [true, false]) {
-    await t.test(`print ${bool}`, async (t: Test) => {
-      t.same(
-        compile(new Print(new BoolLiteral(bool))),
-        chunk({
-          constants: [bool],
-          // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-          code: [OpCode.Constant, 0, OpCode.Print, OpCode.Return],
-          lines: [-1, -1, -1, -1],
-        }),
-      );
-    });
-  }
-
-  await t.test('print nil', async (t: Test) => {
-    t.same(
-      compile(new Print(new NilLiteral())),
-      chunk({
-        constants: [],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Nil, OpCode.Print, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('print "hello world"', async (t: Test) => {
-    t.same(
-      compile(new Print(new StringLiteral('hello world'))),
-      chunk({
-        constants: ['hello world'],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Print, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('print (1)', async (t: Test) => {
-    t.same(
-      compile(new Print(new Group(new IntLiteral(1)))),
-      chunk({
-        constants: [1],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Print, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('print 1 + 1', async (t: Test) => {
-    t.same(
-      compile(
-        new Print(
-          new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
-        ),
-      ),
-      chunk({
-        constants: [1, 1],
-        // TODO: [... OpCode.Print, OpCode.Nil, OpCode.Return]
-        code: [
-          OpCode.Constant,
-          0,
-          OpCode.Constant,
-          1,
-          OpCode.Add,
-          OpCode.Print,
-          OpCode.Return,
-        ],
-        lines: [-1, -1, -1, -1, -1, -1, -1],
-      }),
-    );
-  });
-});
-
-t.test('exit', async (t: Test) => {
-  await t.test('exit 255', async (t: Test) => {
-    t.same(
-      compile(new Exit(new IntLiteral(255))),
-      chunk({
-        constants: [255],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('exit 123.456', async (t: Test) => {
-    t.same(
-      compile(new Exit(new RealLiteral(123.456))),
-      chunk({
-        constants: [123.456],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  for (const bool of [true, false]) {
-    await t.test(`exit ${bool}`, async (t: Test) => {
-      t.same(
-        compile(new Exit(new BoolLiteral(bool))),
-        chunk({
-          constants: [bool],
-          // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-          code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
-          lines: [-1, -1, -1, -1],
-        }),
-      );
-    });
-  }
-
-  await t.test('exit nil', async (t: Test) => {
-    t.same(
-      compile(new Exit(new NilLiteral())),
-      chunk({
-        constants: [],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Nil, OpCode.Exit, OpCode.Return],
-        lines: [-1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('exit "hello world"', async (t: Test) => {
-    t.same(
-      compile(new Exit(new StringLiteral('hello world'))),
-      chunk({
-        constants: ['hello world'],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('exit (1)', async (t: Test) => {
-    t.same(
-      compile(new Exit(new Group(new IntLiteral(1)))),
-      chunk({
-        constants: [1],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Return],
-        lines: [-1, -1, -1, -1],
-      }),
-    );
-  });
-
-  await t.test('exit 1 + 1', async (t: Test) => {
-    t.same(
-      compile(
-        new Exit(
-          new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
-        ),
-      ),
-      chunk({
-        constants: [1, 1],
-        // TODO: [... OpCode.Exit, OpCode.Nil, OpCode.Return]
-        code: [
-          OpCode.Constant,
-          0,
-          OpCode.Constant,
-          1,
-          OpCode.Add,
-          OpCode.Exit,
-          OpCode.Return,
-        ],
-        lines: [-1, -1, -1, -1, -1, -1, -1],
-      }),
-    );
-  });
-});
-
-t.test('simple program', async (t: Test) => {
-  t.same(
-    compile(
-      new Program([
-        new Line(100, [new Print(new StringLiteral('hello world'))]),
-        new Line(200, [new Print(new StringLiteral('goodbye'))]),
-      ]),
+  [
+    '1 + 1',
+    new Expression(
+      new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
     ),
     chunk({
-      constants: ['hello world', 'goodbye'],
+      constants: [1, 1],
+      code: [OpCode.Constant, 0, OpCode.Constant, 1, OpCode.Add],
+      lines: [-1, -1, -1, -1, -1],
+    }),
+  ],
+
+  [
+    '-1',
+    new Expression(new Unary(TokenKind.Minus, new IntLiteral(1))),
+    chunk({
+      constants: [1],
+      code: [OpCode.Constant, 0, OpCode.Neg],
+      lines: [-1, -1, -1],
+    }),
+  ],
+];
+
+type CmdCtor<C> = { new <E extends Expr>(expr: E): C };
+
+function commandExpr1Cases<C extends Cmd>(
+  name: string,
+  cmd: CmdCtor<C>,
+  code: OpCode,
+): TestCase[] {
+  return [
+    [
+      `${name} 225`,
+      new cmd(new IntLiteral(255)),
+      chunk({
+        constants: [255],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} 123.456`,
+      new cmd(new IntLiteral(123.456)),
+      chunk({
+        constants: [123.456],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} true`,
+      new cmd(new BoolLiteral(true)),
+      chunk({
+        constants: [true],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} false`,
+      new cmd(new BoolLiteral(false)),
+      chunk({
+        constants: [false],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} nil`,
+      new cmd(new NilLiteral()),
+      chunk({
+        constants: [],
+        code: [OpCode.Nil, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} "hello world"`,
+      new cmd(new StringLiteral('hello world')),
+      chunk({
+        constants: ['hello world'],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+    [
+      `${name} (1)`,
+      new cmd(new Group(new IntLiteral(1))),
+      chunk({
+        constants: [1],
+        code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
+        lines: [-1, -1, -1, -1, -1],
+      }),
+    ],
+
+    [
+      `${name} 1 + 1`,
+      new cmd(new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1))),
+      chunk({
+        constants: [1, 1],
+        code: [
+          OpCode.Constant,
+          0,
+          OpCode.Constant,
+          1,
+          OpCode.Add,
+          code,
+          OpCode.Nil,
+          OpCode.Return,
+        ],
+        lines: [-1, -1, -1, -1, -1, -1, -1, -1],
+      }),
+    ],
+  ];
+}
+
+// Expressions are handled differently in Programs versus other commands,
+// so we leave them off when building out programs from the other commands,
+// and append them to COMMANDS afterwards.
+const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
+  ([source, ast, { constants, code, lines }]): TestCase => {
+    return [
+      source,
+      ast,
+      chunk({
+        constants,
+        code: code.concat([OpCode.Return]),
+        lines: lines.concat([-1]),
+      }),
+    ];
+  },
+);
+
+let COMMANDS: TestCase[] = [
+  ...commandExpr1Cases('print', Print, OpCode.Print),
+  ...commandExpr1Cases('exit', Exit, OpCode.Exit),
+];
+
+// TODO: Line numbers are set to -1 because the interactive command cases
+// are defaulting them to -1. These should be set to 100, and the interactive
+// command cases should also yield line 100 by default.
+
+const PROGRAMS: TestCase[] = [
+  ...EXPRESSION_STATEMENTS.map(
+    ([source, ast, { constants, code, lines }]): TestCase => {
+      return [
+        `100 ${source}`,
+        new Program([new Line(-1, [ast as Cmd])]),
+        chunk({
+          constants,
+          code: code.concat([OpCode.Pop, OpCode.Nil, OpCode.Return]),
+          lines: lines.concat([-1, -1, -1]),
+        }),
+      ];
+    },
+  ),
+  ...COMMANDS.map(([source, ast, { constants, code, lines }]): TestCase => {
+    return [
+      `100 ${source}`,
+      new Program([new Line(-1, [ast as Cmd])]),
+      chunk({
+        constants,
+        code,
+        lines,
+      }),
+    ];
+  }),
+  [
+    '100 1 : 1',
+    new Program([
+      new Line(-1, [
+        new Expression(new IntLiteral(1)),
+        new Expression(new IntLiteral(255)),
+      ]),
+    ]),
+    chunk({
+      constants: [1, 255],
       code: [
         OpCode.Constant,
         0,
-        OpCode.Print,
+        OpCode.Pop,
         OpCode.Constant,
         1,
-        OpCode.Print,
+        OpCode.Pop,
+        OpCode.Nil,
         OpCode.Return,
       ],
-      lines: [100, 100, 100, 200, 200, 200, 200],
+      lines: [-1, -1, -1, -1, -1, -1, -1, -1],
     }),
-  );
-});
+  ],
+];
+
+COMMANDS = COMMANDS.concat(EXPRESSION_COMMANDS);
+
+function runTest([source, ast, ch]: TestCase): void {
+  t.test(source, async (t: Test) => {
+    t.same(compile(ast), ch);
+  });
+}
+
+for (const cmd of COMMANDS) {
+  runTest(cmd);
+}
+
+for (const prog of PROGRAMS) {
+  runTest(prog);
+}
 
 t.test('syntax errors', async (t: Test) => {
   await t.test('*1', async (t: Test) => {

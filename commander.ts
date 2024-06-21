@@ -8,13 +8,14 @@ import { Exception } from './exceptions';
 import { Host } from './host';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
+import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
 import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
-export class Commander implements CmdVisitor<void> {
+export class Commander implements CmdVisitor<Value | null> {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -158,12 +159,17 @@ export class Commander implements CmdVisitor<void> {
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return tracer.span('evalCommands', async () => {
       try {
-        // TODO: Tell the compiler to save the result of the last command
-        // if it's an expression command.
-        for (const cmd of cmds.commands) {
-          // Command gets delegated via the visitor interface. Some commands
-          // are evaluted directly, but most are compiled and executed.
+        const commands = Array.from(cmds.commands);
+        const lastCmd = commands.pop();
+        for (const cmd of commands) {
           cmd.accept(this);
+        }
+
+        if (lastCmd) {
+          const rv = lastCmd.accept(this);
+          if (rv !== null) {
+            this.host.writeLine(rv);
+          }
         }
       } catch (err) {
         if (err instanceof Exception) {
@@ -196,27 +202,29 @@ export class Commander implements CmdVisitor<void> {
   // Non-program commands.
   //
 
-  visitPrintCmd(print: Print): void {
+  visitPrintCmd(print: Print): Value | null {
     this.runCommand(print);
+    return null;
   }
 
-  visitExitCmd(exit: Exit): void {
+  visitExitCmd(exit: Exit): Value | null {
     this.runCommand(exit);
+    return null;
   }
 
-  visitExpressionCmd(expression: Expression): void {
-    this.runCommand(expression);
+  visitExpressionCmd(expression: Expression): Value | null {
+    return this.runCommand(expression);
   }
 
   //
   // Run a compiled command.
   //
 
-  private runCommand(cmd: Cmd): Promise<void> {
-    return tracer.span('runCommand', async () => {
+  private runCommand(cmd: Cmd): Value {
+    return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd, { saveResult: true });
+        chunk = compile(cmd);
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -224,10 +232,7 @@ export class Commander implements CmdVisitor<void> {
         }
         throw err;
       }
-      const rv = this.runtime.interpret(chunk);
-      if (rv != null) {
-        this.host.writeLine(rv);
-      }
+      return this.runtime.interpret(chunk);
     });
   }
 }

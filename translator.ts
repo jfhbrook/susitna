@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { getTracer } from './debug';
 import { Config } from './config';
 import { Commander } from './commander';
+import { Exit } from './exit';
 import { Host } from './host';
 import { BaseException, Exception, Warning } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
@@ -53,7 +54,7 @@ export class Translator {
             const input = await this.commander.prompt();
             await this.translateInput(input);
           } catch (err) {
-            if (err instanceof BaseFault) {
+            if (err instanceof BaseFault || err instanceof Exit) {
               throw err;
             }
 

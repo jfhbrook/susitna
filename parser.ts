@@ -385,11 +385,7 @@ class Parser {
 
   private expressionStatement(): Cmd {
     return tracer.spanSync('expression statement', () => {
-      const expr = this.expression();
-      if (expr) {
-        return new Expression(expr);
-      }
-      return null;
+      return new Expression(this.expression());
     });
   }
 

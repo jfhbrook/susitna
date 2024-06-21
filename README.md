@@ -169,6 +169,7 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ## Resources
 
+- [Architecture Diagram on Google Drawings](https://docs.google.com/drawings/d/1RmTGs-GMPhkeLOoZW9sSs_WXXnlG2CRBoIJOK83_qkk/edit?usp=sharing)
 - [Crafting Interpreters](https://craftinginterpreters.com/contents.html) by Robert Nystrom
   - My implementations of lox: <https://github.com/jfhbrook/crafting-interpreters>
   - [A blog series on adding exception handling to clox](https://amillioncodemonkeys.com/2021/02/03/interpreter-exception-handling-implementation/)

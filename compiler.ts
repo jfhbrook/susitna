@@ -57,12 +57,16 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private filename: string = '<input>';
   private routineType: RoutineType = RoutineType.Command;
-  private saveResult: boolean = false;
+
+  // Set to true whenever an expression command is compiled. In the case of
+  // Cmds, this will signal that the result of the single expression
+  // should be returned. In Program cases, it's ignored.
+  private isExpressionCmd: boolean = false;
 
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
-  constructor(ast: Program | Cmd, { filename, saveResult }: CompilerOptions) {
+  constructor(ast: Program | Cmd, { filename }: CompilerOptions) {
     this.ast = ast;
 
     let routineType: RoutineType;
@@ -75,7 +79,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     this.currentChunk = new Chunk();
     this.filename = filename;
     this.routineType = routineType;
-    this.saveResult = saveResult || false;
     this.isError = false;
     this.errors = [];
   }
@@ -297,7 +300,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     // TODO: For interactive commands, I want to return the value of the
     // final expression statement. This will mean replacing the final
     // OpCode.Pop with OpCode.Return instead.
-    this.emitByte(OpCode.Nil);
+    if (this.routineType !== RoutineType.Command || !this.isExpressionCmd) {
+      this.emitByte(OpCode.Nil);
+    }
     this.emitByte(OpCode.Return);
   }
 
@@ -339,6 +344,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitExpressionCmd(expr: Expression): void {
     tracer.spanSync('visitExpressionCmd', () => {
+      this.isExpressionCmd = true;
       expr.expression.accept(this);
       // TODO: For interactive commands, I want to return the value of the
       // final expression statement. I should be able to accomplish this by
@@ -346,7 +352,9 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       // it. Note that, under the current architecture, interactive commands
       // are always compiled one at a time - in other words, there isn't a
       // need to track whether the expression is the final one.
-      this.emitByte(OpCode.Pop);
+      if (this.routineType === RoutineType.Program) {
+        this.emitByte(OpCode.Pop);
+      }
     });
   }
 

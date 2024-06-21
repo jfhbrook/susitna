@@ -216,7 +216,7 @@ export class Commander implements CmdVisitor<void> {
     return tracer.span('runCommand', async () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd, { saveResult: true });
+        chunk = compile(cmd);
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);

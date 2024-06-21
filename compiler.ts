@@ -297,9 +297,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     // NOTE: If/when implementing classes, I would need to detect when
     // compiling a constructor and return "this", not nil.
 
-    // TODO: For interactive commands, I want to return the value of the
-    // final expression statement. This will mean replacing the final
-    // OpCode.Pop with OpCode.Return instead.
     if (this.routineType !== RoutineType.Command || !this.isExpressionCmd) {
       this.emitByte(OpCode.Nil);
     }
@@ -346,12 +343,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     tracer.spanSync('visitExpressionCmd', () => {
       this.isExpressionCmd = true;
       expr.expression.accept(this);
-      // TODO: For interactive commands, I want to return the value of the
-      // final expression statement. I should be able to accomplish this by
-      // replacing this instruction - that may require keeping a handle on
-      // it. Note that, under the current architecture, interactive commands
-      // are always compiled one at a time - in other words, there isn't a
-      // need to track whether the expression is the final one.
+
+      // NOTE: In interactive commands, save the result to return later.
       if (this.routineType === RoutineType.Program) {
         this.emitByte(OpCode.Pop);
       }

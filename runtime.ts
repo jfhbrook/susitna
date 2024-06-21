@@ -144,8 +144,8 @@ export class Runtime {
           case OpCode.Exit:
             const value = this.stack.pop();
             let exitCode: number;
-            if (Number.isInteger(value)) {
-              exitCode = value as number;
+            if (typeof value === 'number') {
+              exitCode = Math.floor(value);
             } else if (value instanceof Nil) {
               exitCode = 0;
             } else if (value) {

@@ -274,7 +274,7 @@ t.test('exit', async (t: Test) => {
         lines: [-1, -1, -1, -1, -1, -1],
       }),
       {
-        exitCode: 1,
+        exitCode: 123,
       },
     );
   });

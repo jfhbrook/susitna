@@ -121,7 +121,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         throw new ParseError(this.errors);
       }
 
-      this.emitByte(OpCode.Return);
+      this.emitReturn();
 
       return this.chunk;
     });
@@ -131,7 +131,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     return tracer.spanSync('compileCommand', () => {
       try {
         this.command(cmd);
-        this.emitByte(OpCode.Return);
+        this.emitReturn();
       } catch (err) {
         // There's nothing to synchronize...
         if (!(err instanceof Synchronize)) {
@@ -288,6 +288,19 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
+  // NOTE: This is only used to emit implicit and bare returns. Valued
+  // returns would be handled in visitReturnStmt.
+  private emitReturn(): void {
+    // NOTE: If/when implementing classes, I would need to detect when
+    // compiling a constructor and return "this", not nil.
+
+    // TODO: For interactive commands, I want to return the value of the
+    // final expression statement. This will mean replacing the final
+    // OpCode.Pop with OpCode.Return instead.
+    this.emitByte(OpCode.Nil);
+    this.emitByte(OpCode.Return);
+  }
+
   private makeConstant(value: Value): number {
     // TODO: clox validates that the return value is byte sized.
     return this.currentChunk.addConstant(value);
@@ -327,8 +340,13 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitExpressionCmd(expr: Expression): void {
     tracer.spanSync('visitExpressionCmd', () => {
       expr.expression.accept(this);
-      // TODO: An instruction that saves the expression
-      // this.emitByte(OpCode.Print);
+      // TODO: For interactive commands, I want to return the value of the
+      // final expression statement. I should be able to accomplish this by
+      // replacing this instruction - that may require keeping a handle on
+      // it. Note that, under the current architecture, interactive commands
+      // are always compiled one at a time - in other words, there isn't a
+      // need to track whether the expression is the final one.
+      this.emitByte(OpCode.Pop);
     });
   }
 

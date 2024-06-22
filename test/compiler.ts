@@ -227,10 +227,6 @@ let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
 ];
 
-// TODO: Line numbers are set to 100 because the interactive command cases
-// are defaulting them to 100. These should be set to 100, and the interactive
-// command cases should also yield line 100 by default.
-
 const PROGRAMS: TestCase[] = [
   ...EXPRESSION_STATEMENTS.map(
     ([source, ast, { constants, code, lines }]): TestCase => {

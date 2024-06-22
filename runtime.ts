@@ -191,6 +191,6 @@ export class Runtime {
   }
 
   private notImplemented(message: string): Value {
-    throw new NotImplementedError(message, null);
+    throw new NotImplementedError(message);
   }
 }

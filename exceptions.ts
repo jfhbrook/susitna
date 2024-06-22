@@ -14,7 +14,7 @@ export class BaseException extends Error implements Traceable, Formattable {
    */
   constructor(
     public message: any,
-    public traceback: Traceback | null,
+    public traceback: Traceback | null = null,
   ) {
     const msg =
       typeof message === 'string' ? message : formatter.format(message);

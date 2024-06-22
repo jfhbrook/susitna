@@ -34,7 +34,6 @@ expressions. But it's brittle, and has a lot of gaps.
   - Finalized sigils ADR
   - An ADR on type-aware bytecode
   - Potentially make compiler type-aware
-- IOError for unknown channel in Host
 - Comparisons syntax polish
   - Support `=` and `==` but warn on the former
   - Support `!=` and `<>` but warn on the former

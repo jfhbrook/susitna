@@ -32,7 +32,7 @@ import {
 } from '../ast/expr';
 import { Print } from '../ast/cmd';
 import { Line, Program } from '../ast';
-import { FILENAME, FRAME, CODE, TRACEBACK } from './helpers/traceback';
+import { FILENAME, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
 const IS_LINE = [true, false];
@@ -69,14 +69,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
 
     t.test('it formats a boolean', async (t: Test) => {
       t.matchSnapshot(formatter.format(true));
-    });
-
-    t.test('it formats a Code', async (t: Test) => {
-      t.matchSnapshot(formatter.format(CODE));
-    });
-
-    t.test('it formats a Frame', async (t: Test) => {
-      t.matchSnapshot(formatter.format(FRAME));
     });
 
     t.test('it formats a Traceback', async (t: Test) => {

@@ -230,3 +230,9 @@ goodbye
 exports[`test/runtime.ts > TAP > simple program > must match snapshot 2`] = `
 
 `
+
+exports[`test/runtime.ts > TAP > something not implemented > must match snapshot 1`] = `
+Traceback:
+  File '<unknown>', line 100
+NotImplementedError: Jump
+`

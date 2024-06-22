@@ -1,7 +1,5 @@
-import { Traceback, Frame, Code } from '../../traceback';
+import { Traceback } from '../../traceback';
 
 export const FILENAME = '/home/josh/script.bas';
 
-export const CODE = new Code(FILENAME);
-export const FRAME = new Frame(null, CODE);
-export const TRACEBACK = new Traceback(null, FRAME, 100);
+export const TRACEBACK = new Traceback(null, FILENAME, 100);

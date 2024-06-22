@@ -1,6 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { NotImplementedError } from '../exceptions';
 import { OpCode } from '../bytecode/opcodes';
 
 import { chunk } from './helpers/bytecode';
@@ -362,5 +363,19 @@ t.test('simple program', async (t: Test) => {
       ],
       lines: [100, 100, 100, 200, 200, 200, 200, 200],
     }),
+  );
+});
+
+t.test('something not implemented', async (t: Test) => {
+  testChunk(
+    t,
+    chunk({
+      constants: [],
+      code: [OpCode.Jump],
+      lines: [100],
+    }),
+    {
+      throws: NotImplementedError,
+    },
   );
 });

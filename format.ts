@@ -16,7 +16,7 @@ import {
 import { Exit } from './exit';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { Stack } from './stack';
-import { Traceback, Frame, Code } from './traceback';
+import { Traceback } from './traceback';
 import {
   Expr,
   ExprVisitor,
@@ -110,8 +110,6 @@ export abstract class Formatter
   abstract formatBoolean(value: boolean): string;
 
   abstract formatTraceback(traceback: Traceback | null): string;
-  abstract formatFrame(frame: Frame): string;
-  abstract formatCode(code: Code): string;
 
   abstract formatBaseException(exc: BaseException): string;
   abstract formatBaseWarning(warn: BaseWarning): string;
@@ -201,18 +199,10 @@ export class DefaultFormatter extends Formatter {
     // TODO: Python also prints the module name
     while (tb) {
       // TODO: inspect string, quotes etc
-      report += `  File ${inspectString(tb.frame.code.filename)}, line ${tb.lineNo}`;
+      report += `  File ${inspectString(tb.filename)}, line ${tb.lineNo}`;
       tb = tb.next;
     }
     return report;
-  }
-
-  formatFrame(frame: Frame): string {
-    return `Frame(${this.format(frame.code)})`;
-  }
-
-  formatCode(code: Code): string {
-    return `Code(${inspectString(code.filename)})`;
   }
 
   formatBaseException(exc: BaseException): string {
@@ -230,7 +220,7 @@ export class DefaultFormatter extends Formatter {
   formatBaseWarning(warn: BaseWarning): string {
     let report = '';
     if (warn.traceback) {
-      report += `${warn.traceback.frame.code.filename}:${warn.traceback.lineNo}`;
+      report += `${warn.traceback.filename}:${warn.traceback.lineNo}`;
     } else {
       report += '<unknown>:<?>';
     }

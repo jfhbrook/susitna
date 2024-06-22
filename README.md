@@ -30,23 +30,7 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Robust locations
-  - [ ] Refactor Chunk to include a filename
-    - [ ] Make sure this is reflected in the disassembler!
-  - [ ] Refactor Traceback to include just a filename and a lineNo
-    - The shape of Python tracebacks is an artifact of its implementation,
-      we don't need to follow it. If we eventually recreate its structure
-      later, so be it
-    - That said, retaining the linked list aspects is probably fine
-  - [ ] Add `createTraceback` method to `Runtime`
-    - lineNo can be gotten with the `pc`, just like the instruction
-    - we don't have a call stack right now, so we can just grab the one on
-      top and call it a day
-  - [ ] Populate `NotImplementedError` with the results of `createTraceback`
-  - [ ] Attempt adding a test for something that currently throws a
-        `NotImplementedError`
   - **BONUS:** Add offsetEnd to Locations, it's already on the Token
-  - Note, the reason traceback output feels lacking is because we don't have
-    named functions yet
 - Handle types
   - An ADR to specify semantics
   - Finalized sigils ADR

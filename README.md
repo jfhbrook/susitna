@@ -42,6 +42,8 @@ expressions. But it's brittle, and has a lot of gaps.
     - [X] compiler already knows `lineNo` for Programs
     - [ ] command compiling can be refactored to take a `lineNo` and generate a
       "fake line" - this can be `100` for now and plumbed into history later
+  - [ ] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
+    constructors
   - [ ] Use location fields on AST nodes to populate SyntaxErrors and SyntaxWarnings
     in the compiler
   - [ ] Refactor Chunk to include a filename
@@ -50,9 +52,7 @@ expressions. But it's brittle, and has a lot of gaps.
     - The shape of Python tracebacks is an artifact of its implementation,
       we don't need to follow it. If we eventually recreate its structure
       later, so be it
-    - But some semantics will need to be considered - Python tracebacks are
-      linked lists, but in my case they're Arrays. Is `Traceback[]` really
-      appropriate? Or should it be `type Traceback = TracebackLocation[]`?
+    - That said, retaining the linked list aspects is probably fine
   - [ ] Add `createTraceback` method to `Runtime`
     - lineNo can be gotten with the `pc`, just like the instruction
     - we don't have a call stack right now, so we can just grab the one on
@@ -65,7 +65,7 @@ expressions. But it's brittle, and has a lot of gaps.
     named functions yet
 - Handle types
   - An ADR to specify semantics
-  - An ADR settling on type annotations
+  - Finalized sigils ADR
   - An ADR on type-aware bytecode
   - Potentially make compiler type-aware
 - IOError for unknown channel in Host
@@ -84,7 +84,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - Improved error handling in Scanner
   - Many TODOs for places to throw RuntimeFaults
 - Use regular expressions in scanner
-- "Return values" from expression commands in REPL
 - Polish citree
   - Document "real example" in citree
   - Break parsing up into smaller recursive components
@@ -93,7 +92,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
 - Add Inspector class to format
-- Finalize sigils ADR
 - Merge errors from parser and compiler when running files
 - Test programs with asserted output
   - Including generated "exceedingly large" tests

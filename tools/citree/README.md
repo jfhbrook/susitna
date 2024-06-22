@@ -220,7 +220,7 @@ You can run current tests with npm:
 npm test
 ```
 
-**TODO:** End-to-end tests using some examples.
+This includes an end-to-end test with the example.
 
 ## License
 

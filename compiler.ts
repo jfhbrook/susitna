@@ -52,7 +52,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentCmdNo: number = -1;
   private currentLine: number = 0;
 
-  private filename: string = '<input>';
+  private filename: string;
   private routineType: RoutineType = RoutineType.Command;
 
   // Set to true whenever an expression command is compiled. In the case of
@@ -81,7 +81,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     }
 
     this.currentChunk = new Chunk();
-    this.filename = filename;
+    this.filename = filename || '<input>';
     this.routineType = routineType;
     this.isError = false;
     this.errors = [];
@@ -163,6 +163,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         this.currentCmdNo = 0;
       }
       tracer.trace(`current line: ${this.lineNo}`);
+      tracer.trace(`current row: ${this.rowNo}`);
       tracer.trace(`current cmd: ${this.currentCmdNo}`);
       if (this.done) {
         tracer.trace('done after advancing, returning null');
@@ -193,20 +194,18 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private syntaxError(_cmd: Cmd, message: string): void {
+  private syntaxError(cmd: Cmd, message: string): void {
     return tracer.spanSync('syntaxError', () => {
       const exc = new SyntaxError(message, {
         filename: this.filename,
-        // TODO: Plumb through from CommandGroup
-        row: -1,
+        row: this.rowNo,
         isLine: this.isLine,
-        // TODO: Plumb through from CommandGroup
         lineNo: this.lineNo,
         // TODO: Plug in offsets and source. The obvious way to do this is to
         // pass it along from the tokens into the AST.
-        offsetStart: 0,
-        offsetEnd: 0,
-        source: '<unknown>',
+        offsetStart: cmd.offsetStart,
+        offsetEnd: cmd.offsetEnd,
+        source: this.lineSource,
       });
       this.isError = true;
       this.errors.push(exc);
@@ -222,19 +221,31 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private get isLine(): boolean {
-    return this.lines.length > 0;
+    return true;
   }
 
   private get lineNo(): number {
-    if (!this.isLine) {
-      return -1;
-    }
-
     if (this.currentLine >= this.lines.length) {
       return this.lines[this.lines.length - 1].lineNo;
     }
 
-    return this.isLine ? this.lines[this.currentLine].lineNo : -1;
+    return this.lines[this.currentLine].lineNo;
+  }
+
+  private get rowNo(): number {
+    if (this.currentLine >= this.lines.length) {
+      return this.lines[this.lines.length - 1].row;
+    }
+
+    return this.lines[this.currentLine].row;
+  }
+
+  private get lineSource(): string {
+    if (this.currentLine >= this.lines.length) {
+      return this.lines[this.lines.length - 1].source;
+    }
+
+    return this.lines[this.currentLine].source;
   }
 
   private emitByte(byte: number): void {

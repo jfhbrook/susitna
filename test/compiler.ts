@@ -302,7 +302,10 @@ t.test('syntax errors', async (t: Test) => {
     t.plan(2);
     t.throws(() => {
       try {
-        compile(new Expression(new Unary(TokenKind.Star, new IntLiteral(1))));
+        compile(
+          new Expression(new Unary(TokenKind.Star, new IntLiteral(1)), 0, 2),
+          { cmdSource: '*1' },
+        );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
         throw err;
@@ -317,7 +320,10 @@ t.test('syntax errors', async (t: Test) => {
         compile(
           new Expression(
             new Binary(new IntLiteral(1), TokenKind.Dollar, new IntLiteral(1)),
+            0,
+            5,
           ),
+          { cmdSource: '1 $ 1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));

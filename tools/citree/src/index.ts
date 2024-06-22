@@ -2,8 +2,9 @@ import { readFile, writeFile } from 'fs/promises';
 
 import minimist from 'minimist';
 
-import { parseSpec, Spec } from './parser';
+import { Spec } from './ast';
 import { resolveImports, Imports } from './imports';
+import { parseSpec } from './parser';
 import { resolveTypes, Types } from './types';
 import { renderAll, RenderedFiles } from './templates';
 import { format } from './format';
@@ -47,7 +48,7 @@ function error(err: any, code: number): never {
 }
 
 export function parseArgs(argv: typeof process.argv): Args {
-  const args = minimist(argv.slice(2), {
+  const args = minimist(argv, {
     alias: {
       h: 'help',
       v: 'version',
@@ -93,8 +94,10 @@ async function read(filename: string): Promise<string> {
   return contents;
 }
 
-export default async function main() {
-  const { filename } = parseArgs(process.argv);
+export default async function main(
+  argv: typeof process.argv = process.argv.slice(2),
+): Promise<void> {
+  const { filename } = parseArgs(argv);
 
   const contents = await read(filename);
 

@@ -1,6 +1,6 @@
 import { resolvePath } from './paths';
 
-import { Spec } from './parser';
+import { Spec } from './ast';
 
 type TypeName = string;
 type Path = string;

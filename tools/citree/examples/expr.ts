@@ -1,37 +1,39 @@
-import { Token } from './token';
-import { Value } from './value';
+import { TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
-  visitAssignExpr(node: Assign): R;
-  visitBinaryExpr(node: Binary): R;
-  visitCallExpr(node: Call): R;
-  visitGroupingExpr(node: Grouping): R;
-  visitLiteralExpr(node: Literal): R;
-  visitLogicalExpr(node: Logical): R;
   visitUnaryExpr(node: Unary): R;
-  visitVariableExpr(node: Variable): R;
+  visitBinaryExpr(node: Binary): R;
+  visitLogicalExpr(node: Logical): R;
+  visitGroupExpr(node: Group): R;
+  visitIntLiteralExpr(node: IntLiteral): R;
+  visitRealLiteralExpr(node: RealLiteral): R;
+  visitBoolLiteralExpr(node: BoolLiteral): R;
+  visitStringLiteralExpr(node: StringLiteral): R;
+  visitPromptLiteralExpr(node: PromptLiteral): R;
+  visitNilLiteralExpr(node: NilLiteral): R;
 }
 
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
-class Assign extends Expr {
+export class Unary extends Expr {
   constructor(
-    public readonly name: Token,
-    public readonly value: Expr,
+    public readonly op: TokenKind,
+    public readonly expr: Expr,
   ) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitAssignExpr(this);
+    return visitor.visitUnaryExpr(this);
   }
 }
-class Binary extends Expr {
+
+export class Binary extends Expr {
   constructor(
     public readonly left: Expr,
-    public readonly operator: Token,
+    public readonly op: TokenKind,
     public readonly right: Expr,
   ) {
     super();
@@ -41,41 +43,11 @@ class Binary extends Expr {
     return visitor.visitBinaryExpr(this);
   }
 }
-class Call extends Expr {
-  constructor(
-    public readonly callee: Expr,
-    public readonly paren: Token,
-    public readonly args: Expr[],
-  ) {
-    super();
-  }
 
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitCallExpr(this);
-  }
-}
-class Grouping extends Expr {
-  constructor(public readonly expression: Expr) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitGroupingExpr(this);
-  }
-}
-class Literal extends Expr {
-  constructor(public readonly value: Value) {
-    super();
-  }
-
-  accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitLiteralExpr(this);
-  }
-}
-class Logical extends Expr {
+export class Logical extends Expr {
   constructor(
     public readonly left: Expr,
-    public readonly operator: Token,
+    public readonly op: TokenKind,
     public readonly right: Expr,
   ) {
     super();
@@ -85,24 +57,73 @@ class Logical extends Expr {
     return visitor.visitLogicalExpr(this);
   }
 }
-class Unary extends Expr {
-  constructor(
-    public readonly operator: Token,
-    public readonly right: Expr,
-  ) {
+
+export class Group extends Expr {
+  constructor(public readonly expr: Expr) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitUnaryExpr(this);
+    return visitor.visitGroupExpr(this);
   }
 }
-class Variable extends Expr {
-  constructor(public readonly name: Token) {
+
+export class IntLiteral extends Expr {
+  constructor(public readonly value: number) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitVariableExpr(this);
+    return visitor.visitIntLiteralExpr(this);
+  }
+}
+
+export class RealLiteral extends Expr {
+  constructor(public readonly value: number) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitRealLiteralExpr(this);
+  }
+}
+
+export class BoolLiteral extends Expr {
+  constructor(public readonly value: boolean) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitBoolLiteralExpr(this);
+  }
+}
+
+export class StringLiteral extends Expr {
+  constructor(public readonly value: string) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitStringLiteralExpr(this);
+  }
+}
+
+export class PromptLiteral extends Expr {
+  constructor(public readonly value: string) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitPromptLiteralExpr(this);
+  }
+}
+
+export class NilLiteral extends Expr {
+  constructor() {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitNilLiteralExpr(this);
   }
 }

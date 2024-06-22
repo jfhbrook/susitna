@@ -3,6 +3,7 @@ import { getTracer, startTraceExec, traceExec } from './debug';
 import { NotImplementedError } from './exceptions';
 import { Host } from './host';
 import { Stack } from './stack';
+import { Traceback } from './traceback';
 import { Value, nil, Nil } from './value';
 
 import { Chunk } from './bytecode/chunk';
@@ -13,13 +14,13 @@ const tracer = getTracer('main');
 export class Runtime {
   public stack: Stack;
   public pc: number = -1;
-  public chunk: Chunk | null = null;
+  public chunk: Chunk = new Chunk();
 
   constructor(private host: Host) {
     this.stack = new Stack();
   }
 
-  interpret(chunk: Chunk): Value {
+  public interpret(chunk: Chunk): Value {
     this.chunk = chunk;
     this.pc = 0;
     return this.run();
@@ -33,17 +34,25 @@ export class Runtime {
   // we're not reading bytes at all. See chunk.ts for more details.
   //
   // In the future, I might rename this.
-  readByte(): OpCode {
+  private readByte(): OpCode {
     const code = this.chunk.code[this.pc];
     this.pc++;
     return code;
   }
 
-  readConstant(): Value {
+  private readConstant(): Value {
     return this.chunk.constants[this.readByte()];
   }
 
-  run(): Value {
+  private createTraceback(): Traceback | null {
+    return new Traceback(
+      null,
+      this.chunk.filename,
+      this.chunk.lines[this.pc - 1],
+    );
+  }
+
+  private run(): Value {
     return tracer.spanSync('run', () => {
       let a: any = null;
       let b: any = null;
@@ -176,7 +185,7 @@ export class Runtime {
     });
   }
 
-  notImplemented(message: string): Value {
-    throw new NotImplementedError(message, null);
+  private notImplemented(message: string): Value {
+    throw new NotImplementedError(message, this.createTraceback());
   }
 }

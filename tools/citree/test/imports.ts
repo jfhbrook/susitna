@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import t from 'tap';
 
-import { Spec } from '../src/parser';
+import { Spec } from '../src/ast';
 import { Imports, resolveImports } from '../src/imports';
 
 const SPEC: Spec = {
@@ -24,7 +24,13 @@ const SPEC: Spec = {
           path: './value',
         },
       ],
-      nodes: [{ type: 'node', name: 'Call', fields: 'args: Expr[]' }],
+      nodes: [
+        {
+          type: 'node',
+          name: 'Call',
+          fields: [{ name: 'args', type: 'Expr[]', default: null }],
+        },
+      ],
     },
   ],
 };

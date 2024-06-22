@@ -189,16 +189,15 @@ class Parser {
     return tracer.spanSync('syntaxError', () => {
       tracer.trace('kind', token.kind);
       tracer.trace('message', message);
-      const exc = new SyntaxError(
-        message,
-        this.filename,
-        token.row,
-        this.isLine,
-        this.lineNo,
-        token.offsetStart,
-        token.offsetEnd,
-        '<unknown>',
-      );
+      const exc = new SyntaxError(message, {
+        filename: this.filename,
+        row: token.row,
+        isLine: this.isLine,
+        lineNo: this.lineNo,
+        offsetStart: token.offsetStart,
+        offsetEnd: token.offsetEnd,
+        source: '<unknown>',
+      });
       this.isError = true;
       this.lineErrors.push(exc);
       throw new Synchronize();
@@ -224,14 +223,17 @@ class Parser {
       tracer.trace('previous', this.previous);
       tracer.trace('current', this.current);
 
+      const rowNo = this.peek().row;
+
       let lineNo: number | null;
-      let cmds: CommandGroup;
+      let cmds: Cmd[];
+      let source: string;
       try {
         lineNo = this.lineNumber();
 
         cmds = this.commands();
 
-        this.rowEnding();
+        source = this.rowEnding();
       } catch (err) {
         if (err instanceof Synchronize) {
           this.syncNextRow();
@@ -241,9 +243,9 @@ class Parser {
       }
 
       if (lineNo !== null) {
-        return new Line(this.lineNo, cmds.commands);
+        return new Line(this.lineNo, rowNo, source, cmds);
       }
-      return cmds;
+      return new CommandGroup(rowNo, source, cmds);
     });
   }
 
@@ -265,12 +267,13 @@ class Parser {
     });
   }
 
-  private rowEnding(): void {
+  private rowEnding(): string {
     return tracer.spanSync('rowEnding', () => {
       let line = this.line;
       if (line.endsWith('\n')) {
         line = line.slice(0, -1);
       }
+
       for (const error of this.lineErrors) {
         tracer.trace('set source to line', line);
         error.source = line;
@@ -287,11 +290,13 @@ class Parser {
         }
       }
 
-      line = this.current.text;
+      const nextLine = this.current.text;
 
-      tracer.trace('reset line', line);
-      this.line = line;
+      tracer.trace('reset line', nextLine);
+      this.line = nextLine;
       this.isLine = false;
+
+      return line;
     });
   }
 
@@ -320,12 +325,12 @@ class Parser {
     });
   }
 
-  private commands(): CommandGroup {
+  private commands(): Cmd[] {
     return tracer.spanSync('commands', () => {
       tracer.trace('previous', this.previous);
       tracer.trace('current', this.current);
       if (this.done || this.peek().kind === TokenKind.LineEnding) {
-        return new CommandGroup([]);
+        return [];
       }
 
       let cmd: Cmd | null = this.command();
@@ -345,20 +350,31 @@ class Parser {
         }
       }
 
-      return new CommandGroup(cmds);
+      return cmds;
     });
   }
 
   private command(): Cmd | null {
     return tracer.spanSync('command', () => {
+      const { offsetStart } = this.peek();
+
+      let cmd: Cmd | null;
+
       if (this.match(TokenKind.Print)) {
-        return this.print();
+        cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
-        return this.exit();
+        cmd = this.exit();
       } else {
-        return this.expressionStatement();
+        cmd = this.expressionStatement();
       }
+
+      const { offsetEnd } = this.peekPrev();
+
+      cmd.offsetStart = offsetStart;
+      cmd.offsetEnd = offsetEnd;
+
+      return cmd;
     });
   }
 
@@ -598,16 +614,15 @@ class Parser {
             // We advanced twice, for the \\ and the character respectively
             const offset = this.previous.offsetStart + i - 2;
             warnings.push(
-              new SyntaxWarning(
-                `Invalid escape sequence \`\\${e}\``,
-                this.filename,
-                this.current.row,
-                this.isLine,
-                this.lineNo,
-                offset,
-                offset + 2,
-                '',
-              ),
+              new SyntaxWarning(`Invalid escape sequence \`\\${e}\``, {
+                filename: this.filename,
+                row: this.current.row,
+                isLine: this.isLine,
+                lineNo: this.lineNo,
+                offsetStart: offset,
+                offsetEnd: offset + 2,
+                source: '<unknown>',
+              }),
             );
             this.isWarning = true;
             value += '\\';

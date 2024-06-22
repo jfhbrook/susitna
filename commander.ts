@@ -21,7 +21,8 @@ export class Commander implements CmdVisitor<Value | null> {
 
   private ps1: string = '\\u@\\h:\\w\\$';
 
-  private lineNo: number = -1;
+  private cmdNo: number = 0;
+  private cmdSource: string = '';
 
   constructor(
     private _config: Config,
@@ -158,6 +159,8 @@ export class Commander implements CmdVisitor<Value | null> {
    */
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return tracer.span('evalCommands', async () => {
+      this.cmdNo += 100;
+      this.cmdSource = cmds.source;
       try {
         const commands = Array.from(cmds.commands);
         const lastCmd = commands.pop();
@@ -178,6 +181,7 @@ export class Commander implements CmdVisitor<Value | null> {
         }
         throw err;
       }
+      this.cmdSource = '';
     });
   }
 
@@ -224,7 +228,11 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd);
+        chunk = compile(cmd, {
+          filename: '<input>',
+          cmdNo: this.cmdNo,
+          cmdSource: this.cmdSource,
+        });
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);

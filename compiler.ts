@@ -40,22 +40,19 @@ class Synchronize extends Error {
 
 export type CompilerOptions = {
   filename?: string;
-  saveResult?: boolean;
+  cmdNo?: number;
+  cmdSource?: string;
 };
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
 
   private currentChunk: Chunk;
-  // TODO: Interactive commands are tracked by currentCmd, but programs are
-  // tracked by currentCmdNo and currentLine. The two mechanisms feels a
-  // little dirty. Would I rather create a "ghost line"?
-  private currentCmd: Cmd | null = null;
   private lines: Line[] = [];
   private currentCmdNo: number = -1;
   private currentLine: number = 0;
 
-  private filename: string = '<input>';
+  private filename: string;
   private routineType: RoutineType = RoutineType.Command;
 
   // Set to true whenever an expression command is compiled. In the case of
@@ -66,18 +63,26 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
-  constructor(ast: Program | Cmd, { filename }: CompilerOptions) {
+  constructor(
+    ast: Program | Cmd,
+    { filename, cmdNo, cmdSource }: CompilerOptions,
+  ) {
     this.ast = ast;
 
     let routineType: RoutineType;
     if (ast instanceof Program) {
       routineType = RoutineType.Program;
+      this.lines = (this.ast as Program).lines;
     } else {
       routineType = RoutineType.Command;
+      this.lines = [
+        new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [this.ast as Cmd]),
+      ];
     }
 
     this.currentChunk = new Chunk();
-    this.filename = filename;
+    this.filename = filename || '<unknown>';
+    this.currentChunk.filename = this.filename;
     this.routineType = routineType;
     this.isError = false;
     this.errors = [];
@@ -92,20 +97,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   @runtimeMethod
   compile(): Chunk {
     return tracer.spanSync('compile', () => {
-      let result: Chunk;
-      if (this.routineType === RoutineType.Program) {
-        result = this.compileProgram(this.ast as Program);
-      } else {
-        result = this.compileCommand(this.ast as Cmd);
-      }
-      showChunk(result);
-      return result;
-    });
-  }
-
-  private compileProgram(program: Program): Chunk {
-    return tracer.spanSync('compileProgram', () => {
-      this.lines = program.lines;
       let cmd: Cmd | null = this.advance();
       while (cmd) {
         try {
@@ -115,6 +106,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
           if (err instanceof Synchronize) {
             this.synchronize();
             cmd = this.peek();
+            continue;
           }
           throw err;
         }
@@ -126,26 +118,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
       this.emitReturn();
 
-      return this.chunk;
-    });
-  }
-
-  private compileCommand(cmd: Cmd) {
-    return tracer.spanSync('compileCommand', () => {
-      try {
-        this.command(cmd);
-        this.emitReturn();
-      } catch (err) {
-        // There's nothing to synchronize...
-        if (!(err instanceof Synchronize)) {
-          throw err;
-        }
-      }
-
-      if (this.isError) {
-        throw new ParseError(this.errors);
-      }
-
+      showChunk(this.chunk);
       return this.chunk;
     });
   }
@@ -191,6 +164,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         this.currentCmdNo = 0;
       }
       tracer.trace(`current line: ${this.lineNo}`);
+      tracer.trace(`current row: ${this.rowNo}`);
       tracer.trace(`current cmd: ${this.currentCmdNo}`);
       if (this.done) {
         tracer.trace('done after advancing, returning null');
@@ -212,32 +186,28 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private peek(): Cmd {
+  private peek(): Cmd | null {
     return tracer.spanSync('peek', () => {
-      if (this.lines.length) {
-        return this.lines[this.currentLine].commands[this.currentCmdNo];
+      if (this.done) {
+        return null;
       }
-
-      return this.currentCmd as Cmd;
+      return this.lines[this.currentLine].commands[this.currentCmdNo];
     });
   }
 
-  private syntaxError(_cmd: Cmd, message: string): void {
+  private syntaxError(cmd: Cmd, message: string): void {
     return tracer.spanSync('syntaxError', () => {
-      const exc = new SyntaxError(
-        message,
-        this.filename,
-        -1,
-        this.isLine,
-        this.lineNo,
+      const exc = new SyntaxError(message, {
+        filename: this.filename,
+        row: this.rowNo,
+        isLine: this.isLine,
+        lineNo: this.lineNo,
         // TODO: Plug in offsets and source. The obvious way to do this is to
-        // pass it along from the tokens into the AST. A memory-efficient
-        // compromise might be to recreate the line and generate the offsets
-        // from there.
-        0,
-        0,
-        '<unknown>',
-      );
+        // pass it along from the tokens into the AST.
+        offsetStart: cmd.offsetStart,
+        offsetEnd: cmd.offsetEnd,
+        source: this.lineSource,
+      });
       this.isError = true;
       this.errors.push(exc);
       throw new Synchronize();
@@ -252,19 +222,31 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private get isLine(): boolean {
-    return this.lines.length > 0;
+    return true;
   }
 
   private get lineNo(): number {
-    if (!this.isLine) {
-      return -1;
-    }
-
     if (this.currentLine >= this.lines.length) {
       return this.lines[this.lines.length - 1].lineNo;
     }
 
-    return this.isLine ? this.lines[this.currentLine].lineNo : -1;
+    return this.lines[this.currentLine].lineNo;
+  }
+
+  private get rowNo(): number {
+    if (this.currentLine >= this.lines.length) {
+      return this.lines[this.lines.length - 1].row;
+    }
+
+    return this.lines[this.currentLine].row;
+  }
+
+  private get lineSource(): string {
+    if (this.currentLine >= this.lines.length) {
+      return this.lines[this.lines.length - 1].source;
+    }
+
+    return this.lines[this.currentLine].source;
   }
 
   private emitByte(byte: number): void {
@@ -315,9 +297,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private command(cmd: Cmd) {
     tracer.spanSync('command', () => {
       tracer.trace('cmd', cmd);
-      this.currentCmd = cmd;
       cmd.accept(this);
-      this.currentCmd = null;
     });
   }
 

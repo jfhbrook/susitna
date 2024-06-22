@@ -31,7 +31,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [255],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
   [
@@ -40,7 +40,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [123.456],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
   [
@@ -49,7 +49,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [true],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
   [
@@ -58,7 +58,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [false],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
   [
@@ -67,7 +67,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [],
       code: [OpCode.Nil],
-      lines: [-1],
+      lines: [100],
     }),
   ],
   [
@@ -76,7 +76,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: ['hello world'],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
   [
@@ -85,7 +85,7 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [1],
       code: [OpCode.Constant, 0],
-      lines: [-1, -1],
+      lines: [100, 100],
     }),
   ],
 
@@ -97,17 +97,17 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
     chunk({
       constants: [1, 1],
       code: [OpCode.Constant, 0, OpCode.Constant, 1, OpCode.Add],
-      lines: [-1, -1, -1, -1, -1],
+      lines: [100, 100, 100, 100, 100],
     }),
   ],
 
   [
-    '-1',
+    '100',
     new Expression(new Unary(TokenKind.Minus, new IntLiteral(1))),
     chunk({
       constants: [1],
       code: [OpCode.Constant, 0, OpCode.Neg],
-      lines: [-1, -1, -1],
+      lines: [100, 100, 100],
     }),
   ],
 ];
@@ -126,7 +126,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [255],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
     [
@@ -135,7 +135,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [123.456],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
     [
@@ -144,7 +144,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [true],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
     [
@@ -153,7 +153,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [false],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
     [
@@ -162,7 +162,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [],
         code: [OpCode.Nil, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1],
+        lines: [100, 100, 100, 100],
       }),
     ],
     [
@@ -171,7 +171,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: ['hello world'],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
     [
@@ -180,7 +180,7 @@ function commandExpr1Cases<C extends Cmd>(
       chunk({
         constants: [1],
         code: [OpCode.Constant, 0, code, OpCode.Nil, OpCode.Return],
-        lines: [-1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100],
       }),
     ],
 
@@ -199,7 +199,7 @@ function commandExpr1Cases<C extends Cmd>(
           OpCode.Nil,
           OpCode.Return,
         ],
-        lines: [-1, -1, -1, -1, -1, -1, -1, -1],
+        lines: [100, 100, 100, 100, 100, 100, 100, 100],
       }),
     ],
   ];
@@ -216,7 +216,7 @@ const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
       chunk({
         constants,
         code: code.concat([OpCode.Return]),
-        lines: lines.concat([-1]),
+        lines: lines.concat([100]),
       }),
     ];
   },
@@ -227,8 +227,8 @@ let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
 ];
 
-// TODO: Line numbers are set to -1 because the interactive command cases
-// are defaulting them to -1. These should be set to 100, and the interactive
+// TODO: Line numbers are set to 100 because the interactive command cases
+// are defaulting them to 100. These should be set to 100, and the interactive
 // command cases should also yield line 100 by default.
 
 const PROGRAMS: TestCase[] = [
@@ -236,11 +236,11 @@ const PROGRAMS: TestCase[] = [
     ([source, ast, { constants, code, lines }]): TestCase => {
       return [
         `100 ${source}`,
-        new Program([new Line(-1, [ast as Cmd])]),
+        new Program([new Line(100, 1, `100 ${source}`, [ast as Cmd])]),
         chunk({
           constants,
           code: code.concat([OpCode.Pop, OpCode.Nil, OpCode.Return]),
-          lines: lines.concat([-1, -1, -1]),
+          lines: lines.concat([100, 100, 100]),
         }),
       ];
     },
@@ -248,7 +248,7 @@ const PROGRAMS: TestCase[] = [
   ...COMMANDS.map(([source, ast, { constants, code, lines }]): TestCase => {
     return [
       `100 ${source}`,
-      new Program([new Line(-1, [ast as Cmd])]),
+      new Program([new Line(100, 1, `100 ${source}`, [ast as Cmd])]),
       chunk({
         constants,
         code,
@@ -259,7 +259,7 @@ const PROGRAMS: TestCase[] = [
   [
     '100 1 : 1',
     new Program([
-      new Line(-1, [
+      new Line(100, 1, '100 1 : 1', [
         new Expression(new IntLiteral(1)),
         new Expression(new IntLiteral(255)),
       ]),
@@ -276,7 +276,7 @@ const PROGRAMS: TestCase[] = [
         OpCode.Nil,
         OpCode.Return,
       ],
-      lines: [-1, -1, -1, -1, -1, -1, -1, -1],
+      lines: [100, 100, 100, 100, 100, 100, 100, 100],
     }),
   ],
 ];
@@ -302,7 +302,10 @@ t.test('syntax errors', async (t: Test) => {
     t.plan(2);
     t.throws(() => {
       try {
-        compile(new Expression(new Unary(TokenKind.Star, new IntLiteral(1))));
+        compile(
+          new Expression(new Unary(TokenKind.Star, new IntLiteral(1)), 0, 2),
+          { filename: '<input>', cmdSource: '*1' },
+        );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
         throw err;
@@ -317,7 +320,10 @@ t.test('syntax errors', async (t: Test) => {
         compile(
           new Expression(
             new Binary(new IntLiteral(1), TokenKind.Dollar, new IntLiteral(1)),
+            0,
+            5,
           ),
+          { filename: '<input>', cmdSource: '1 $ 1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));

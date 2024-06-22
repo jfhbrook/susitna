@@ -2,8 +2,9 @@ import { readFile, writeFile } from 'fs/promises';
 
 import minimist from 'minimist';
 
-import { parseSpec, Spec } from './parser';
+import { Spec } from './ast';
 import { resolveImports, Imports } from './imports';
+import { parseSpec } from './parser';
 import { resolveTypes, Types } from './types';
 import { renderAll, RenderedFiles } from './templates';
 import { format } from './format';
@@ -41,8 +42,13 @@ function usage(message: string) {
   process.exit(70);
 }
 
+function error(err: any, code: number): never {
+  console.error(err);
+  process.exit(code);
+}
+
 export function parseArgs(argv: typeof process.argv): Args {
-  const args = minimist(argv.slice(2), {
+  const args = minimist(argv, {
     alias: {
       h: 'help',
       v: 'version',
@@ -78,17 +84,22 @@ export function parseArgs(argv: typeof process.argv): Args {
   return { filename };
 }
 
-export default async function main() {
-  const { filename } = parseArgs(process.argv);
-
+async function read(filename: string): Promise<string> {
   let contents: string;
-
   try {
     contents = await readFile(filename, 'utf8');
   } catch (err: any) {
-    console.log(err.message);
-    process.exit(EXIT_NOINPUT);
+    error(err, EXIT_NOINPUT);
   }
+  return contents;
+}
+
+export default async function main(
+  argv: typeof process.argv = process.argv.slice(2),
+): Promise<void> {
+  const { filename } = parseArgs(argv);
+
+  const contents = await read(filename);
 
   let spec: Spec;
   let imports: Imports;
@@ -99,8 +110,7 @@ export default async function main() {
     imports = resolveImports(filename, spec);
     types = resolveTypes(filename, spec);
   } catch (err: any) {
-    console.log(err);
-    process.exit(EXIT_SOFTWARE);
+    error(err, EXIT_SOFTWARE);
   }
 
   let rendered: RenderedFiles;
@@ -108,8 +118,7 @@ export default async function main() {
   try {
     rendered = renderAll(imports, types);
   } catch (err: any) {
-    console.log(err.message);
-    process.exit(EXIT_SOFTWARE);
+    error(err, EXIT_SOFTWARE);
   }
 
   try {
@@ -117,15 +126,13 @@ export default async function main() {
       await writeFile(path, contents);
     }
   } catch (err: any) {
-    console.log(err);
-    process.exit(EXIT_CANTCREATE);
+    error(err, EXIT_CANTCREATE);
   }
 
   try {
     await format(types);
   } catch (err) {
-    console.log(err);
-    process.exit(EXIT_SOFTWARE);
+    error(err, EXIT_SOFTWARE);
   }
 
   console.log(`${Object.keys(rendered).length} files generated successfully.`);

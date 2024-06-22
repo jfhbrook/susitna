@@ -1,5 +1,5 @@
 import { resolvePath } from './paths';
-import { Spec } from './parser';
+import { Spec } from './ast';
 
 type ImportStatement = string;
 type Path = string;

@@ -18,18 +18,21 @@ import { FILENAME } from './helpers/traceback';
 
 const EXPRESSIONS: Array<[string, Cmd]> = [
   // NOTE: '1' parses as a line number.
-  ['0xff', new Expression(new IntLiteral(255))],
-  ['0o755', new Expression(new IntLiteral(493))],
-  ['0b01', new Expression(new IntLiteral(1))],
-  ['123.456', new Expression(new RealLiteral(123.456))],
-  ['true', new Expression(new BoolLiteral(true))],
-  ['false', new Expression(new BoolLiteral(false))],
-  ['nil', new Expression(new NilLiteral())],
-  ['"hello world"', new Expression(new StringLiteral('hello world'))],
-  ["'hello world'", new Expression(new StringLiteral('hello world'))],
-  ['"\\"time machine\\""', new Expression(new StringLiteral('"time machine"'))],
-  ["'don\\'t'", new Expression(new StringLiteral("don't"))],
-  ['(1)', new Expression(new Group(new IntLiteral(1)))],
+  ['0xff', new Expression(new IntLiteral(255), 0, 4)],
+  ['0o755', new Expression(new IntLiteral(493), 0, 5)],
+  ['0b01', new Expression(new IntLiteral(1), 0, 4)],
+  ['123.456', new Expression(new RealLiteral(123.456), 0, 7)],
+  ['true', new Expression(new BoolLiteral(true), 0, 4)],
+  ['false', new Expression(new BoolLiteral(false), 0, 5)],
+  ['nil', new Expression(new NilLiteral(), 0, 3)],
+  ['"hello world"', new Expression(new StringLiteral('hello world'), 0, 13)],
+  ["'hello world'", new Expression(new StringLiteral('hello world'), 0, 13)],
+  [
+    '"\\"time machine\\""',
+    new Expression(new StringLiteral('"time machine"'), 0, 18),
+  ],
+  ["'don\\'t'", new Expression(new StringLiteral("don't"), 0, 8)],
+  ['(1)', new Expression(new Group(new IntLiteral(1)), 0, 3)],
 ];
 
 for (const [source, cmd] of EXPRESSIONS) {
@@ -38,7 +41,7 @@ for (const [source, cmd] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new CommandGroup([cmd])]));
+    t.same(result[0], new Input([new CommandGroup(1, source, [cmd])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -46,12 +49,19 @@ for (const [source, cmd] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Line(100, [cmd])]));
+    cmd.offsetStart += 4;
+    cmd.offsetEnd += 4;
+
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+
+    cmd.offsetStart -= 4;
+    cmd.offsetEnd -= 4;
   });
 }
 
 t.test('non-numbered invalid string escape', async (t: Test) => {
-  const result = parseInput("'\\q'");
+  const source = "'\\q'";
+  const result = parseInput(source);
 
   t.type(result[1], ParseWarning);
 
@@ -59,13 +69,18 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
 
   t.same(
     result[0],
-    new Input([new CommandGroup([new Expression(new StringLiteral('\\q'))])]),
+    new Input([
+      new CommandGroup(1, source, [
+        new Expression(new StringLiteral('\\q'), 0, 4),
+      ]),
+    ]),
   );
   t.matchSnapshot(formatter.format(warning));
 });
 
 t.test('numbered invalid string escape', async (t: Test) => {
-  const result = parseInput("100 '\\q'");
+  const source = "100 '\\q'";
+  const result = parseInput(source);
 
   t.type(result[1], ParseWarning);
 
@@ -73,33 +88,45 @@ t.test('numbered invalid string escape', async (t: Test) => {
 
   t.same(
     result[0],
-    new Input([new Line(100, [new Expression(new StringLiteral('\\q'))])]),
+    new Input([
+      new Line(100, 1, source, [
+        new Expression(new StringLiteral('\\q'), 4, 8),
+      ]),
+    ]),
   );
   t.matchSnapshot(formatter.format(warning));
 });
 
 t.test('print command', async (t: Test) => {
   await t.test('non-numbered', async (t: Test) => {
-    const result = parseInput('print "hello world"');
+    const source = 'print "hello world"';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
     t.same(
       result[0],
       new Input([
-        new CommandGroup([new Print(new StringLiteral('hello world'))]),
+        new CommandGroup(1, source, [
+          new Print(new StringLiteral('hello world'), 0, 19),
+        ]),
       ]),
     );
   });
 
   await t.test('numbered', async (t: Test) => {
-    const result = parseInput('100 print "hello world"');
+    const source = '100 print "hello world"';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
     t.same(
       result[0],
-      new Input([new Line(100, [new Print(new StringLiteral('hello world'))])]),
+      new Input([
+        new Line(100, 1, source, [
+          new Print(new StringLiteral('hello world'), 4, 23),
+        ]),
+      ]),
     );
   });
 
@@ -130,41 +157,55 @@ t.test('print command', async (t: Test) => {
 
 t.test('exit command', async (t: Test) => {
   await t.test('non-numbered', async (t: Test) => {
-    const result = parseInput('exit 0');
+    const source = 'exit 0';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
     t.same(
       result[0],
-      new Input([new CommandGroup([new Exit(new IntLiteral(0))])]),
+      new Input([
+        new CommandGroup(1, source, [new Exit(new IntLiteral(0), 0, 6)]),
+      ]),
     );
   });
 
   await t.test('numbered', async (t: Test) => {
-    const result = parseInput('100 exit 0');
+    const source = '100 exit 0';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
     t.same(
       result[0],
-      new Input([new Line(100, [new Exit(new IntLiteral(0))])]),
+      new Input([
+        new Line(100, 1, source, [new Exit(new IntLiteral(0), 4, 10)]),
+      ]),
     );
   });
 
   await t.test('non-numbered, without arguments', async (t: Test) => {
-    const result = parseInput('exit');
+    const source = 'exit';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new CommandGroup([new Exit(null)])]));
+    t.same(
+      result[0],
+      new Input([new CommandGroup(1, source, [new Exit(null, 0, 4)])]),
+    );
   });
 
   await t.test('numbered, without arguments', async (t: Test) => {
-    const result = parseInput('100 exit');
+    const source = '100 exit';
+    const result = parseInput(source);
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Line(100, [new Exit(null)])]));
+    t.same(
+      result[0],
+      new Input([new Line(100, 1, source, [new Exit(null, 4, 8)])]),
+    );
   });
 });
 
@@ -177,26 +218,32 @@ t.test('empty input', async (t: Test) => {
 });
 
 t.test('empty line', async (t: Test) => {
-  const result = parseInput('100');
+  const source = '100';
+  const result = parseInput(source);
 
   t.equal(result[1], null);
 
-  t.same(result[0], new Input([new Line(100, [])]));
+  t.same(result[0], new Input([new Line(100, 1, source, [])]));
 });
 
 t.test('multiple inputs', async (t: Test) => {
-  const result = parseInput(
-    '100 print "hello world"\n"foo"\n200 print "goodbye"',
-  );
+  const source = ['100 print "hello world"', '"foo"', '200 print "goodbye"'];
+  const result = parseInput(source.join('\n'));
 
   t.equal(result[1], null);
 
   t.same(
     result[0],
     new Input([
-      new Line(100, [new Print(new StringLiteral('hello world'))]),
-      new CommandGroup([new Expression(new StringLiteral('foo'))]),
-      new Line(200, [new Print(new StringLiteral('goodbye'))]),
+      new Line(100, 1, source[0], [
+        new Print(new StringLiteral('hello world'), 4, 23),
+      ]),
+      new CommandGroup(2, source[1], [
+        new Expression(new StringLiteral('foo'), 0, 5),
+      ]),
+      new Line(200, 3, source[2], [
+        new Print(new StringLiteral('goodbye'), 4, 19),
+      ]),
     ]),
   );
 });
@@ -227,35 +274,39 @@ t.test('bare expression starting with an integer', async (t: Test) => {
 });
 
 t.test('simple program', async (t: Test) => {
-  const result = parseProgram(
-    '100 print "hello world"\n200 print "goodbye"',
-    FILENAME,
-  );
+  const source = ['100 print "hello world"', '200 print "goodbye"'];
+  const result = parseProgram(source.join('\n'), FILENAME);
 
   t.equal(result[1], null);
 
   t.same(
     result[0],
     new Program([
-      new Line(100, [new Print(new StringLiteral('hello world'))]),
-      new Line(200, [new Print(new StringLiteral('goodbye'))]),
+      new Line(100, 1, source[0], [
+        new Print(new StringLiteral('hello world'), 4, 23),
+      ]),
+      new Line(200, 2, source[1], [
+        new Print(new StringLiteral('goodbye'), 4, 19),
+      ]),
     ]),
   );
 });
 
 t.test('out of order program', async (t: Test) => {
-  const result = parseProgram(
-    '200 print "hello world"\n100 print "goodbye"',
-    FILENAME,
-  );
+  const source = ['200 print "hello world"', '100 print "goodbye"'];
+  const result = parseProgram(source.join('\n'), FILENAME);
 
   t.equal(result[1], null);
 
   t.same(
     result[0],
     new Program([
-      new Line(100, [new Print(new StringLiteral('goodbye'))]),
-      new Line(200, [new Print(new StringLiteral('hello world'))]),
+      new Line(100, 2, source[1], [
+        new Print(new StringLiteral('goodbye'), 4, 19),
+      ]),
+      new Line(200, 1, source[0], [
+        new Print(new StringLiteral('hello world'), 4, 23),
+      ]),
     ]),
   );
 });

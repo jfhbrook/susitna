@@ -15,7 +15,7 @@
     "build:debug": "dotenv -- bash ./scripts/debug.sh",
     "build:templates": "concurrently 'npm run build:constants' 'npm run build:debug'",
     "build:typescript": "tsc -p tsconfig.build.json",
-    "build:citree": "cd tools/citree && npm run build",
+    "build:citree": "cp ast/index.citree tools/citree/example/ast.citree && cd tools/citree && npm run build",
     "build:ast": "citree ast/index.citree",
     "check": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' && tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",

@@ -1,6 +1,6 @@
 {
   "name": "@jfhbrook/citree",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A DSL for generating ASTs in TypeScript",
   "main": "dist/index.js",
   "bin": {
@@ -11,12 +11,14 @@
     "build": "concurrently 'npm run build:templates' 'npm run build:typescript' && chmod +x dist/main.js",
     "build:templates": "mkdir -p dist/templates && cp -r src/templates/*.njk dist/templates",
     "build:typescript": "tsc -p tsconfig.build.json",
+    "build:readme": "tap ./test/int.ts && bash ./scripts/readme.sh",
     "start": "npm run build && node --enable-source-maps ./dist/main.js",
-    "test": "tap ./test/*.ts",
+    "test": "npm run build && tap ./test/*.ts",
+    "snap": "npm run build && tap ./test/*.ts --snapshot",
     "lint": "eslint \"**.ts\" --fix",
     "check": "tsc --noEmit",
     "console": "npm run build && ts-node",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && npm run build:readme"
   },
   "keywords": [
     "ast",

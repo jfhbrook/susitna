@@ -224,7 +224,8 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd);
+        // TODO: Plug readline history into cmdNo
+        chunk = compile(cmd, { cmdNo: 100 });
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);

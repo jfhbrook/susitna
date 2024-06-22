@@ -40,7 +40,7 @@ class Synchronize extends Error {
 
 export type CompilerOptions = {
   filename?: string;
-  saveResult?: boolean;
+  cmdNo?: number;
 };
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
@@ -48,6 +48,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private currentChunk: Chunk;
   private lines: Line[] = [];
+  private cmdNo: number = 100;
   private currentCmdNo: number = -1;
   private currentLine: number = 0;
 
@@ -62,14 +63,16 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
-  constructor(ast: Program | Cmd, { filename }: CompilerOptions) {
+  constructor(ast: Program | Cmd, { filename, cmdNo }: CompilerOptions) {
     this.ast = ast;
 
     let routineType: RoutineType;
     if (ast instanceof Program) {
       routineType = RoutineType.Program;
+      this.lines = (this.ast as Program).lines;
     } else {
       routineType = RoutineType.Command;
+      this.lines = [new Line(cmdNo || 100, 1, '<unknown>', [this.ast as Cmd])];
     }
 
     this.currentChunk = new Chunk();
@@ -88,20 +91,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   @runtimeMethod
   compile(): Chunk {
     return tracer.spanSync('compile', () => {
-      if (this.routineType === RoutineType.Program) {
-        this.lines = (this.ast as Program).lines;
-      } else {
-        const cmd = this.ast as Cmd;
-        this.lines = [new Line(100, 1, '<unknown>', [cmd])];
-      }
-      const result = this._compile();
-      showChunk(result);
-      return result;
-    });
-  }
-
-  private _compile(): Chunk {
-    return tracer.spanSync('_compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
         try {
@@ -123,6 +112,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
       this.emitReturn();
 
+      showChunk(this.chunk);
       return this.chunk;
     });
   }

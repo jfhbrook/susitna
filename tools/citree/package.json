@@ -11,6 +11,7 @@
     "build": "concurrently 'npm run build:templates' 'npm run build:typescript' && chmod +x dist/main.js",
     "build:templates": "mkdir -p dist/templates && cp -r src/templates/*.njk dist/templates",
     "build:typescript": "tsc -p tsconfig.build.json",
+    "build:readme": "tap ./test/int.ts && bash ./scripts/readme.sh",
     "start": "npm run build && node --enable-source-maps ./dist/main.js",
     "test": "npm run build && tap ./test/*.ts",
     "snap": "npm run build && tap ./test/*.ts --snapshot",

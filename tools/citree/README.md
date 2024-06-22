@@ -15,50 +15,47 @@ npm i --save-dev @jfhbrook/citree
 
 ## Usage
 
-### Creating a Specification
+The best way to see how `citree` works is to look at the
+[example](./example/ast.citree):
 
-**TODO:** Use an example driven by a real example - either making `tslox`
-use `citree`, or using an example based on `matanuska`.
+### Creating a Specification
 
 First, make an `ast.citree` file. That would look something like this:
 
 ```
-// Import Token for all generated files
-import { Token } from './token'
-
-// Generate an Expr class and an ExprVisitor interface in ./expr.ts
 type Expr in './expr' {
-  // Only import Value in ./expr.ts
-  import { Value } from './value'
+  import { TokenKind } from '../tokens'
 
-  // Generate Expr subclasses containing these properties with corresponding
-  // ExprVisitor methods
-  Assign   => name: Token, value: Expr
-  Binary   => left: Expr, operator: Token, right: Expr
-  Call     => callee: Expr, paren: Token, args: Expr[]
-  Grouping => expression: Expr
-  Literal  => value: Value
-  Logical  => left: Expr, operator: Token, right: Expr
-  Unary    => operator: Token, right: Expr
-  Variable => name: Token
+  Unary          => op: TokenKind, expr: Expr
+  Binary         => left: Expr, op: TokenKind, right: Expr
+  Logical        => left: Expr, op: TokenKind, right: Expr
+  Group          => expr: Expr
+  IntLiteral     => value: number
+  RealLiteral    => value: number
+  BoolLiteral    => value: boolean
+  StringLiteral  => value: string
+  PromptLiteral  => value: string
+  NilLiteral!
 }
 
-// Generate a Stmt class and a StmtVisitor interface in ./stmt.ts
-type Stmt in './stmt' {
-  // Only import Expr in ./stmt.ts
+type Cmd in './cmd' {
   import { Expr } from './expr'
 
-  // Generate Stmt subclasses containing these properties with corresponding
-  // StmtVisitor methods
-  Block      => statements: Stmt[]
+  Cmd => offsetStart: number = -1, offsetEnd: number = -1
   Expression => expression: Expr
-  Function   => name: Token, params: Token[], body: Stmt[]
-  If         => condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null
   Print      => expression: Expr
-  Return     => keyword: Token, value: Expr | null
-  Var        => name: Token, initializer: Expr | null
-  While      => condition: Expr, body: Stmt
+  Exit       => expression: Expr | null
 }
+
+type Tree in './index' {
+  import { Cmd } from './cmd'
+
+  CommandGroup => row: number, source: string, commands: Cmd[]
+  Line         => lineNo: number, row: number, source: string, commands: Cmd[]
+  Input        => input: Array<CommandGroup | Line>
+  Program      => lines: Line[]
+}
+
 ```
 
 ### Running `citree`
@@ -71,50 +68,149 @@ npx @jfhbrook/citree -- ast.citree
 
 This will generate two files, `expr.ts` and `stmt.ts`. Each of these files
 will contain a class, a visitor interface, and a series of subclasses
-corresponding to the specified types. For example, `expr.ts` will contain the
-following imports, interface and root class:
+corresponding to the specified types. It will also contain classes
+corresponding to each type.
+
+For example, `expr.ts` will look like this:
 
 ```typescript
-import { Token } from './token';
-import { Value } from './value';
+import { TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
-  visitAssignExpr(node: Assign): R;
-  visitBinaryExpr(node: Binary): R;
-  visitCallExpr(node: Call): R;
-  visitGroupingExpr(node: Grouping): R;
-  visitLiteralExpr(node: Literal): R;
-  visitLogicalExpr(node: Logical): R;
   visitUnaryExpr(node: Unary): R;
-  visitVariableExpr(node: Variable): R;
+  visitBinaryExpr(node: Binary): R;
+  visitLogicalExpr(node: Logical): R;
+  visitGroupExpr(node: Group): R;
+  visitIntLiteralExpr(node: IntLiteral): R;
+  visitRealLiteralExpr(node: RealLiteral): R;
+  visitBoolLiteralExpr(node: BoolLiteral): R;
+  visitStringLiteralExpr(node: StringLiteral): R;
+  visitPromptLiteralExpr(node: PromptLiteral): R;
+  visitNilLiteralExpr(node: NilLiteral): R;
 }
 
 export abstract class Expr {
   abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
-```
 
-It will also contain classes corresponding to each type. For example, here's
-the definition for an `Assign` expression:
-
-```typescript
-class Assign extends Expr {
+export class Unary extends Expr {
   constructor(
-    public readonly name: Token,
-    public readonly value: Expr,
+    public op: TokenKind,
+    public expr: Expr,
   ) {
     super();
   }
 
   accept<R>(visitor: ExprVisitor<R>): R {
-    return visitor.visitAssignExpr(this);
+    return visitor.visitUnaryExpr(this);
   }
 }
+
+export class Binary extends Expr {
+  constructor(
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitBinaryExpr(this);
+  }
+}
+
+export class Logical extends Expr {
+  constructor(
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitLogicalExpr(this);
+  }
+}
+
+export class Group extends Expr {
+  constructor(public expr: Expr) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitGroupExpr(this);
+  }
+}
+
+export class IntLiteral extends Expr {
+  constructor(public value: number) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitIntLiteralExpr(this);
+  }
+}
+
+export class RealLiteral extends Expr {
+  constructor(public value: number) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitRealLiteralExpr(this);
+  }
+}
+
+export class BoolLiteral extends Expr {
+  constructor(public value: boolean) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitBoolLiteralExpr(this);
+  }
+}
+
+export class StringLiteral extends Expr {
+  constructor(public value: string) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitStringLiteralExpr(this);
+  }
+}
+
+export class PromptLiteral extends Expr {
+  constructor(public value: string) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitPromptLiteralExpr(this);
+  }
+}
+
+export class NilLiteral extends Expr {
+  constructor() {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitNilLiteralExpr(this);
+  }
+}
+
 ```
 
 ### Using the Generated Files
 
-**TODO:** Create an example of using the generated files.
+For a complete example of using the generated files, check out
+[Matanuska BASIC](https://github.com/jfhbrook/matanuska), which uses `citree`
+to generate its AST.
 
 ## Testing
 

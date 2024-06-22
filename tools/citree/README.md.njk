@@ -1,0 +1,66 @@
+# citree
+
+`citree` is a DSL for generating TypeScript AST files. It's inspired by the
+[Java AST generator](https://craftinginterpreters.com/representing-code.html#metaprogramming-the-trees)
+in [Crafting Interpreters](https://craftinginterpreters.com/index.html) by
+Robert Nystrom.
+
+## Install
+
+You can install `citree` into your project with npm:
+
+```sh
+npm i --save-dev @jfhbrook/citree
+```
+
+## Usage
+
+The best way to see how `citree` works is to look at the
+[example](./example/ast.citree):
+
+### Creating a Specification
+
+First, make an `ast.citree` file. That would look something like this:
+
+```
+{{example}}
+```
+
+### Running `citree`
+
+Then, run `citree` against that file:
+
+```sh
+npx @jfhbrook/citree -- ast.citree
+```
+
+This will generate two files, `expr.ts` and `stmt.ts`. Each of these files
+will contain a class, a visitor interface, and a series of subclasses
+corresponding to the specified types. It will also contain classes
+corresponding to each type.
+
+For example, `expr.ts` will look like this:
+
+```typescript
+{{expr}}
+```
+
+### Using the Generated Files
+
+For a complete example of using the generated files, check out
+[Matanuska BASIC](https://github.com/jfhbrook/matanuska), which uses `citree`
+to generate its AST.
+
+## Testing
+
+You can run current tests with npm:
+
+```sh
+npm test
+```
+
+**TODO:** End-to-end tests using some examples.
+
+## License
+
+This project is MIT licensed. For more, see [./LICENSE](./LICENSE).

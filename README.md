@@ -29,6 +29,13 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
+- Revisit citree
+  - Break parsing up into smaller recursive components
+  - Type parameters for nodes, so that I can have narrower types on
+    Binary/Unary expressions?
+  - "super" properties that all nodes of a type have - useful for Robust Locations
+  - Document "real example" in citree
+  - Potentially publish citree
 - Robust locations
   - [X] Add line numbers to disassembler (easy)
   - [X] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
@@ -36,9 +43,12 @@ expressions. But it's brittle, and has a lot of gaps.
   - [ ] AST nodes need to include enough fields to populate a Location in the
     compiler
     - [ ] Add `offsetStart` and `offsetEnd` to `Cmd`
-    - [ ] Add `row` and `source` to `Line` and `CommandGroup`
-    - [ ] Plumb this up in the parser
-    - [ ] Whack at tests/typing until tests pass and interpreter starts
+      - !!! I think I need to add "super" arguments support to citree?
+    - [X] Add `row` and `source` to `Line` and `CommandGroup`
+    - [X] Plumb this up in the parser
+    - [ ] Fix parser tests to create correct AST nodes
+    - [ ] Fix compiler tests to create correct AST nodes
+    - [ ] Make sure interpreter starts
   - [ ] refactor compiler to take a `lineNo` and generate a "fake line" - this
     can be `100` for now and plumbed into history later
   - [ ] Use location fields on AST nodes to populate SyntaxErrors and SyntaxWarnings
@@ -66,8 +76,6 @@ expressions. But it's brittle, and has a lot of gaps.
   - An ADR on type-aware bytecode
   - Potentially make compiler type-aware
 - IOError for unknown channel in Host
-- Narrower types for AST nodes
-  - Will require improvements to citree
 - Comparisons syntax polish
   - Support `=` and `==` but warn on the former
   - Support `!=` and `<>` but warn on the former
@@ -81,10 +89,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - Improved error handling in Scanner
   - Many TODOs for places to throw RuntimeFaults
 - Use regular expressions in scanner
-- Polish citree
-  - Document "real example" in citree
-  - Break parsing up into smaller recursive components
-  - Potentially publish citree
 - Escaped newlines
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10

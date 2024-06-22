@@ -17,6 +17,7 @@ type Expr in './expr' {
 type Cmd in './cmd' {
   import { Expr } from './expr'
 
+  // TODO: How to attach offsets to every Cmd?
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null
@@ -25,8 +26,8 @@ type Cmd in './cmd' {
 type Tree in './index' {
   import { Cmd } from './cmd'
 
-  CommandGroup => commands: Cmd[]
-  Line         => lineNo: number, commands: Cmd[]
+  CommandGroup => row: number, source: string, commands: Cmd[]
+  Line         => lineNo: number, row: number, source: string, commands: Cmd[]
   Input        => input: Array<CommandGroup | Line>
   Program      => lines: Line[]
 }

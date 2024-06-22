@@ -245,9 +245,9 @@ class Parser {
       // XXX: Attach rowNo and source to Line and CommandGroup
 
       if (lineNo !== null) {
-        return new Line(this.lineNo, cmds);
+        return new Line(this.lineNo, rowNo, source, cmds);
       }
-      return new CommandGroup(cmds);
+      return new CommandGroup(rowNo, source, cmds);
     });
   }
 

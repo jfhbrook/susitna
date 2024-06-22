@@ -12,7 +12,11 @@ export abstract class Tree {
 }
 
 export class CommandGroup extends Tree {
-  constructor(public readonly commands: Cmd[]) {
+  constructor(
+    public readonly row: number,
+    public readonly source: string,
+    public readonly commands: Cmd[],
+  ) {
     super();
   }
 
@@ -24,6 +28,8 @@ export class CommandGroup extends Tree {
 export class Line extends Tree {
   constructor(
     public readonly lineNo: number,
+    public readonly row: number,
+    public readonly source: string,
     public readonly commands: Cmd[],
   ) {
     super();

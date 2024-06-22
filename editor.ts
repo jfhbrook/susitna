@@ -12,7 +12,7 @@ export class Editor {
   // dictionary operations on a program will either require lots of
   // indexing or lots of linear scans - probably both.
   getLine(lineNo: number): Line {
-    return new Line(lineNo, []);
+    return new Line(lineNo, 0, '', []);
   }
 
   setLine(_line: Line): void {}

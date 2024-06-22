@@ -202,8 +202,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         row: this.rowNo,
         isLine: this.isLine,
         lineNo: this.lineNo,
-        // TODO: Plug in offsets and source. The obvious way to do this is to
-        // pass it along from the tokens into the AST.
         offsetStart: cmd.offsetStart,
         offsetEnd: cmd.offsetEnd,
         source: this.lineSource,

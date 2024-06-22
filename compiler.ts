@@ -81,7 +81,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     }
 
     this.currentChunk = new Chunk();
-    this.filename = filename || '<input>';
+    this.filename = filename || '<unknown>';
+    this.currentChunk.filename = this.filename;
     this.routineType = routineType;
     this.isError = false;
     this.errors = [];

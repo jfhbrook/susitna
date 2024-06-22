@@ -9,8 +9,8 @@ type Offset = string;
 type Code = string;
 type Row = [LineNo, Offset, Code, string];
 
-function chunkName(_chunk: Chunk): string {
-  return '<chunk>';
+function chunkName(chunk: Chunk): string {
+  return chunk.filename;
 }
 
 function toHex(value: number): string {

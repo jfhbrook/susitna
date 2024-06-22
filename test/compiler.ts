@@ -304,7 +304,7 @@ t.test('syntax errors', async (t: Test) => {
       try {
         compile(
           new Expression(new Unary(TokenKind.Star, new IntLiteral(1)), 0, 2),
-          { cmdSource: '*1' },
+          { filename: '<input>', cmdSource: '*1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
@@ -323,7 +323,7 @@ t.test('syntax errors', async (t: Test) => {
             0,
             5,
           ),
-          { cmdSource: '1 $ 1' },
+          { filename: '<input>', cmdSource: '1 $ 1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));

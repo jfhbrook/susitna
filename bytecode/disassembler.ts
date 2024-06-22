@@ -38,13 +38,14 @@ export function disassembleInstruction(chunk: Chunk, offset: number): string {
 }
 
 function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
-  const lineNo = 0;
-  let row: Row;
+  let lineNo = 0;
   let code: number;
+  let row: Row;
 
   function advance(): number {
     offset++;
     code = chunk.code[offset - 1];
+    lineNo = chunk.lines[offset - 1];
     return code;
   }
 

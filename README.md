@@ -30,7 +30,7 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Robust locations
-  - [ ] Add line numbers to disassembler (easy)
+  - [X] Add line numbers to disassembler (easy)
   - [ ] AST nodes need to include enough fields to populate a Location in the
     compiler
     - [X] `filename` not needed, can be passed to the compiler

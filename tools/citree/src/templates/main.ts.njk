@@ -1,4 +1,5 @@
-{% macro typedef(field) %}{{field.name}}: {{field.type}}{% endmacro %}{% for import in imports %}{{import}}
+{% macro typedef(field) %}{{field.name}}: {{field.type}}{% if field.default %} = {{field.default}}{% endif %}{% endmacro %}
+{% for import in imports %}{{import}}
 {% endfor %}
 {% for type in types %}export interface {{type.name}}Visitor<R> {
   {% for node in type.nodes %}visit{{node.name}}{{type.name}}(node: {{node.name}}): R;

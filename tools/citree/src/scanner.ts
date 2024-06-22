@@ -21,6 +21,12 @@ export enum TokenKind {
   Ident = '<ident>',
   Union = '|',
   Comma = ',',
+  // Used in expressions
+  Plus = '+',
+  Minus = '-',
+  Slash = '/',
+  Digit = '<digit>',
+  Dot = '.',
   Comment = '<comment>',
   Whitespace = '<whitespace>',
 }
@@ -48,6 +54,10 @@ export const scanner = buildLexer([
   [true, /^:/g, TokenKind.OfType],
   [true, /^\|/g, TokenKind.Union],
   [true, /^,/g, TokenKind.Comma],
+  [true, /^\+/g, TokenKind.Plus],
+  [true, /^-/g, TokenKind.Minus],
+  [true, /^\//g, TokenKind.Slash],
+  [true, /^\d/g, TokenKind.Digit],
   [false, /^[/][/][^\n]*\n/g, TokenKind.Comment],
   [false, /^\s+/g, TokenKind.Whitespace],
 ]);

@@ -28,7 +28,7 @@ const SPEC: Spec = {
         {
           type: 'node',
           name: 'Call',
-          fields: [{ name: 'args', type: 'Expr[]' }],
+          fields: [{ name: 'args', type: 'Expr[]', default: null }],
         },
       ],
     },

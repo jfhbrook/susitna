@@ -6,6 +6,7 @@
  */
 'use strict'
 exports[`test/templates.ts > TAP > it renders a basic config 1`] = `
+
 import { Token } from "./token";
 
 export interface ExprVisitor<R> {
@@ -21,7 +22,7 @@ export abstract class Expr {
 export class Assign extends Expr {
   constructor(
     public name: Token,
-    public value: Expr | null,
+    public value: Expr | null = null,
   ) {
     super(
     );

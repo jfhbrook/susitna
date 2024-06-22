@@ -16,8 +16,8 @@ export interface CmdVisitor<R> {
 
 export abstract class Cmd {
   constructor(
-    public offsetStart: number,
-    public offsetEnd: number,
+    public offsetStart: number = -1,
+    public offsetEnd: number = -1,
   ) {}
 
   abstract accept<R>(visitor: CmdVisitor<R>): R;
@@ -26,8 +26,8 @@ export abstract class Cmd {
 export class Expression extends Cmd {
   constructor(
     public expression: Expr,
-    offsetStart: number,
-    offsetEnd: number,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
   ) {
     super(offsetStart, offsetEnd);
   }
@@ -40,8 +40,8 @@ export class Expression extends Cmd {
 export class Print extends Cmd {
   constructor(
     public expression: Expr,
-    offsetStart: number,
-    offsetEnd: number,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
   ) {
     super(offsetStart, offsetEnd);
   }
@@ -54,8 +54,8 @@ export class Print extends Cmd {
 export class Exit extends Cmd {
   constructor(
     public expression: Expr | null,
-    offsetStart: number,
-    offsetEnd: number,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
   ) {
     super(offsetStart, offsetEnd);
   }

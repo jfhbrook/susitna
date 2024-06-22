@@ -12,8 +12,8 @@ const CONFIG: RenderConfig = {
         {
           name: 'Assign',
           fields: [
-            { name: 'name', type: 'Token' },
-            { name: 'value', type: 'Expr | null' },
+            { name: 'name', type: 'Token', default: null },
+            { name: 'value', type: 'Expr | null', default: 'null' },
           ],
         },
       ],

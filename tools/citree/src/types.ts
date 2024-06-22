@@ -8,6 +8,7 @@ type Path = string;
 export interface Field {
   name: string;
   type: string;
+  default: string | null;
 }
 
 export interface Node {

@@ -19,8 +19,8 @@ export abstract class Expr {
 
 export class Unary extends Expr {
   constructor(
-    public readonly op: TokenKind,
-    public readonly expr: Expr,
+    public op: TokenKind,
+    public expr: Expr,
   ) {
     super();
   }
@@ -32,9 +32,9 @@ export class Unary extends Expr {
 
 export class Binary extends Expr {
   constructor(
-    public readonly left: Expr,
-    public readonly op: TokenKind,
-    public readonly right: Expr,
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
   ) {
     super();
   }
@@ -46,9 +46,9 @@ export class Binary extends Expr {
 
 export class Logical extends Expr {
   constructor(
-    public readonly left: Expr,
-    public readonly op: TokenKind,
-    public readonly right: Expr,
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
   ) {
     super();
   }
@@ -59,7 +59,7 @@ export class Logical extends Expr {
 }
 
 export class Group extends Expr {
-  constructor(public readonly expr: Expr) {
+  constructor(public expr: Expr) {
     super();
   }
 
@@ -69,7 +69,7 @@ export class Group extends Expr {
 }
 
 export class IntLiteral extends Expr {
-  constructor(public readonly value: number) {
+  constructor(public value: number) {
     super();
   }
 
@@ -79,7 +79,7 @@ export class IntLiteral extends Expr {
 }
 
 export class RealLiteral extends Expr {
-  constructor(public readonly value: number) {
+  constructor(public value: number) {
     super();
   }
 
@@ -89,7 +89,7 @@ export class RealLiteral extends Expr {
 }
 
 export class BoolLiteral extends Expr {
-  constructor(public readonly value: boolean) {
+  constructor(public value: boolean) {
     super();
   }
 
@@ -99,7 +99,7 @@ export class BoolLiteral extends Expr {
 }
 
 export class StringLiteral extends Expr {
-  constructor(public readonly value: string) {
+  constructor(public value: string) {
     super();
   }
 
@@ -109,7 +109,7 @@ export class StringLiteral extends Expr {
 }
 
 export class PromptLiteral extends Expr {
-  constructor(public readonly value: string) {
+  constructor(public value: string) {
     super();
   }
 

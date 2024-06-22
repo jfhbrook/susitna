@@ -13,9 +13,9 @@ export abstract class Tree {
 
 export class CommandGroup extends Tree {
   constructor(
-    public readonly row: number,
-    public readonly source: string,
-    public readonly commands: Cmd[],
+    public row: number,
+    public source: string,
+    public commands: Cmd[],
   ) {
     super();
   }
@@ -27,10 +27,10 @@ export class CommandGroup extends Tree {
 
 export class Line extends Tree {
   constructor(
-    public readonly lineNo: number,
-    public readonly row: number,
-    public readonly source: string,
-    public readonly commands: Cmd[],
+    public lineNo: number,
+    public row: number,
+    public source: string,
+    public commands: Cmd[],
   ) {
     super();
   }
@@ -41,7 +41,7 @@ export class Line extends Tree {
 }
 
 export class Input extends Tree {
-  constructor(public readonly input: Array<CommandGroup | Line>) {
+  constructor(public input: Array<CommandGroup | Line>) {
     super();
   }
 
@@ -51,7 +51,7 @@ export class Input extends Tree {
 }
 
 export class Program extends Tree {
-  constructor(public readonly lines: Line[]) {
+  constructor(public lines: Line[]) {
     super();
   }
 

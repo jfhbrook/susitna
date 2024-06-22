@@ -10,6 +10,7 @@ nunjucks.configure({ autoescape: false });
 export interface FieldConfig {
   name: string;
   type: string;
+  default: string | null;
 }
 
 export interface NodeConfig {

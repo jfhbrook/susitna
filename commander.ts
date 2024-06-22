@@ -4,8 +4,9 @@ import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { compile } from './compiler';
 import { Config } from './config';
-import { Exception } from './exceptions';
+import { Exception, ParseWarning } from './exceptions';
 import { Host } from './host';
+import { ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 import { Value } from './value';
@@ -14,6 +15,34 @@ import { CommandGroup, Program } from './ast';
 import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
+
+function mergeWarnings(
+  ...warnings: (ParseWarning | null)[]
+): ParseWarning | null {
+  let warning: ParseWarning | null = null;
+  for (const warn of warnings) {
+    if (warn) {
+      if (!warning) {
+        warning = new ParseWarning(warn.warnings);
+        continue;
+      }
+
+      warning.warnings = warning.warnings.concat(warn.warnings);
+    }
+  }
+
+  warning.warnings.sort((a, b) => {
+    if (a.filename > b.filename) {
+      return 1;
+    }
+    if (a.filename < b.filename) {
+      return -1;
+    }
+    return a.row - b.row;
+  });
+
+  return warning;
+}
 
 export class Commander implements CmdVisitor<Value | null> {
   private runtime: Runtime;
@@ -185,17 +214,29 @@ export class Commander implements CmdVisitor<Value | null> {
     });
   }
 
-  async evalProgram(program: Program, filename: string): Promise<void> {
+  async evalProgram(
+    [program, parseWarning]: ParseResult<Program>,
+    filename: string,
+  ): Promise<void> {
     return tracer.span('evalProgram', async () => {
       let chunk: Chunk;
+      let compilerWarning: ParseWarning | null = null;
       try {
-        chunk = compile(program, { filename });
+        const result = compile(program, { filename });
+        chunk = result[0];
+        compilerWarning = result[1];
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
           return;
         }
         throw err;
+      }
+
+      const warning = mergeWarnings(parseWarning, compilerWarning);
+
+      if (warning) {
+        this.host.writeWarn(warning);
       }
 
       this.runtime.interpret(chunk);
@@ -228,11 +269,22 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd, {
+        const result = compile(cmd, {
           filename: '<input>',
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,
         });
+
+        chunk = result[0];
+
+        // TODO: The current behavior for interactive commands is to
+        // log the warnings as they occur. But what we should do is compile
+        // all interactive commands first, return that to evalCommands, then
+        // have that merge/log warnings before execution. This does mean
+        // that non-runtime commands will need to return a thunk.
+        if (result[1]) {
+          this.host.writeWarn(result[1]);
+        }
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);

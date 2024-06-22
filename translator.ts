@@ -7,7 +7,7 @@ import { Exit } from './exit';
 import { Host } from './host';
 import { BaseException, Exception, Warning } from './exceptions';
 import { BaseFault, RuntimeFault } from './faults';
-import { parseInput, parseProgram } from './parser';
+import { parseInput, parseProgram, ParseResult } from './parser';
 import { Input, Line, Program } from './ast';
 
 const tracer = getTracer('main');
@@ -24,21 +24,16 @@ export class Translator {
       await tracer.span('script', async () => {
         const source: string = await readFile(filename, 'utf8');
 
-        let result: Program;
-        let warning: Warning | null;
+        let result: ParseResult<Program>;
 
         try {
-          [result, warning] = parseProgram(source, filename);
+          result = parseProgram(source, filename);
         } catch (err) {
           if (err instanceof Exception) {
             throw err;
           }
 
           throw RuntimeFault.fromException(err);
-        }
-
-        if (warning instanceof Warning) {
-          this.host.writeWarn(warning);
         }
 
         await this.commander.evalProgram(result, filename);
@@ -85,6 +80,9 @@ export class Translator {
         throw RuntimeFault.fromException(err);
       }
 
+      // TODO: Ideally, we would pass this warning to the commander, so it
+      // can merge them with warnings from the commands. But the warning
+      // is for all input, not just an individual row.
       if (warning instanceof Warning) {
         this.host.writeWarn(warning);
       }

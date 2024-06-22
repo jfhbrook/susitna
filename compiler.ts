@@ -1,6 +1,6 @@
 import { getTracer, showChunk } from './debug';
 import { errorType } from './errors';
-import { SyntaxError, ParseError } from './exceptions';
+import { SyntaxError, ParseError, ParseWarning } from './exceptions';
 import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
@@ -43,6 +43,8 @@ export type CompilerOptions = {
   cmdNo?: number;
   cmdSource?: string;
 };
+
+export type CompilerResult = [Chunk, ParseWarning | null];
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
@@ -95,7 +97,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param filename The source filename.
    */
   @runtimeMethod
-  compile(): Chunk {
+  compile(): CompilerResult {
     return tracer.spanSync('compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
@@ -119,7 +121,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       this.emitReturn();
 
       showChunk(this.chunk);
-      return this.chunk;
+      return [this.chunk, null];
     });
   }
 
@@ -427,7 +429,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 export function compile(
   ast: Program | Cmd,
   options: CompilerOptions = {},
-): Chunk {
+): CompilerResult {
   const compiler = new Compiler(ast, options);
   return compiler.compile();
 }

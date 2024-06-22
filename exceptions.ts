@@ -364,6 +364,7 @@ export interface SourceLocation {
    */
   source: string;
 
+  // TODO: Add this when there are multi-line sytax structures.
   // endLineNo: number | null,
 }
 

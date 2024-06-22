@@ -29,8 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Robust locations
-  - **BONUS:** Add offsetEnd to Locations, it's already on the Token
 - Handle types
   - An ADR to specify semantics
   - Finalized sigils ADR

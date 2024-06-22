@@ -24,7 +24,7 @@
     "lint:shell": "shellcheck ./bin/* ./scripts/* ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test/*.ts",
-    "test:citree": "npm run build:citree && cd tools/citree && npm test",
+    "test:citree": "cd tools/citree && npm test",
     "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test/*.ts --snapshot",
     "console": "npm run build && ts-node",
     "prepare": "husky",

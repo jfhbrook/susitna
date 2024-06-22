@@ -7,13 +7,19 @@ import { Types } from '../types';
 
 nunjucks.configure({ autoescape: false });
 
+export interface FieldConfig {
+  name: string;
+  type: string;
+}
+
 export interface NodeConfig {
   name: string;
-  fields: string;
+  fields: FieldConfig[];
 }
 
 export interface TypeConfig {
   name: string;
+  fields: FieldConfig[] | null;
   nodes: NodeConfig[];
 }
 
@@ -36,7 +42,15 @@ export function renderAll(imports: Imports, types: Types): RenderedFiles {
       path,
       render({
         imports: imports[path] || [],
-        types: Object.entries(ts).map(([_, t]): TypeConfig => t),
+        types: Object.entries(ts).map(
+          ([_, { name, fields, nodes }]): TypeConfig => {
+            return {
+              name,
+              fields: fields.length ? fields : null,
+              nodes,
+            };
+          },
+        ),
       }),
     ]),
   );

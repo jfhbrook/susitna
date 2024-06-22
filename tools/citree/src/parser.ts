@@ -12,7 +12,13 @@ import {
   expectSingleResult,
 } from 'typescript-parsec';
 
-import { ImportStatement, NodeDefinition, TypeDefinition, Spec } from './ast';
+import {
+  ImportStatement,
+  FieldDefinition,
+  NodeDefinition,
+  TypeDefinition,
+  Spec,
+} from './ast';
 import { scanner, TokenKind } from './scanner';
 
 /**
@@ -86,37 +92,33 @@ const typeAnnotation: Parser<TokenKind, string> = apply(
   (tokens) => tokens.map((t) => t.text).join(' '),
 );
 
-const fieldDefinition: Parser<TokenKind, string> = apply(
+function applyFieldDefinition([ident, _ofType, type]) {
+  return { name: ident.text, type };
+}
+
+const fieldDefinition: Parser<TokenKind, FieldDefinition> = apply(
   seq(tok(TokenKind.Ident), tok(TokenKind.OfType), typeAnnotation),
-  ([ident, _ofType, type]) => `${ident.text}: ${type}`,
+  applyFieldDefinition,
 );
 
-const fieldDefinitions: Parser<TokenKind, string[]> = apply(
+const fieldDefinitions: Parser<TokenKind, FieldDefinition[]> = apply(
   seq(tok(TokenKind.HasFields), list_sc(fieldDefinition, tok(TokenKind.Comma))),
   ([_hasFields, fields]) => fields,
 );
 
-const noFieldDefinitions: Parser<TokenKind, string[]> = apply(
+const noFieldDefinitions: Parser<TokenKind, FieldDefinition[]> = apply(
   tok(TokenKind.Bang),
   (_) => [],
 );
 
 function applyNodeDefinition([name, fields]: [
   Token<TokenKind>,
-  string[],
+  FieldDefinition[],
 ]): NodeDefinition {
-  if (fields instanceof Array) {
-    return {
-      type: 'node',
-      name: name.text,
-      fields: fields.map((f) => `public readonly ${f}`).join(', '),
-    };
-  }
-
   return {
     type: 'node',
     name: name.text,
-    fields: '',
+    fields,
   };
 }
 

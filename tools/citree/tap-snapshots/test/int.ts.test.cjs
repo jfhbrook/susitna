@@ -15,12 +15,21 @@ export interface CmdVisitor<R> {
 }
 
 export abstract class Cmd {
+  constructor(
+    public readonly offsetStart: number,
+    public readonly offsetEnd: number,
+  ) {}
+
   abstract accept<R>(visitor: CmdVisitor<R>): R;
 }
 
 export class Expression extends Cmd {
-  constructor(public readonly expression: Expr) {
-    super();
+  constructor(
+    public readonly expression: Expr,
+    offsetStart: number,
+    offsetEnd: number,
+  ) {
+    super(offsetStart, offsetEnd);
   }
 
   accept<R>(visitor: CmdVisitor<R>): R {
@@ -29,8 +38,12 @@ export class Expression extends Cmd {
 }
 
 export class Print extends Cmd {
-  constructor(public readonly expression: Expr) {
-    super();
+  constructor(
+    public readonly expression: Expr,
+    offsetStart: number,
+    offsetEnd: number,
+  ) {
+    super(offsetStart, offsetEnd);
   }
 
   accept<R>(visitor: CmdVisitor<R>): R {
@@ -39,8 +52,12 @@ export class Print extends Cmd {
 }
 
 export class Exit extends Cmd {
-  constructor(public readonly expression: Expr | null) {
-    super();
+  constructor(
+    public readonly expression: Expr | null,
+    offsetStart: number,
+    offsetEnd: number,
+  ) {
+    super(offsetStart, offsetEnd);
   }
 
   accept<R>(visitor: CmdVisitor<R>): R {

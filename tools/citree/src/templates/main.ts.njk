@@ -1,4 +1,4 @@
-{% for import in imports %}{{import}}
+{% macro typedef(field) %}{{field.name}}: {{field.type}}{% endmacro %}{% for import in imports %}{{import}}
 {% endfor %}
 {% for type in types %}export interface {{type.name}}Visitor<R> {
   {% for node in type.nodes %}visit{{node.name}}{{type.name}}(node: {{node.name}}): R;
@@ -6,12 +6,22 @@
 }
 
 export abstract class {{type.name}} {
+  {% if type.fields %}
+  constructor({% for field in type.fields %}
+    public readonly {{ typedef(field) }},{% endfor %}
+  ) {}
+  {% endif %}
   abstract accept<R>(visitor: {{type.name}}Visitor<R>): R;
 }
 {% for node in type.nodes %}
 export class {{node.name}} extends {{type.name}} {
-  constructor({{node.fields}}) {
-    super();
+  constructor({% for field in node.fields %}
+    public readonly {{ typedef(field) }},{% endfor %}
+  {% if type.fields %}{% for field in type.fields %}{{ typedef(field) }},
+  {% endfor %}{% endif %}) {
+    super({% if type.fields %}{% for field in type.fields %}
+      {{ field.name }},{% endfor %}{% endif %}
+    );
   }
 
   accept<R>(visitor: {{type.name}}Visitor<R>): R {

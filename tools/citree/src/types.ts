@@ -5,15 +5,20 @@ import { NodeDefinition, Spec } from './ast';
 type TypeName = string;
 type Path = string;
 
+export interface Field {
+  name: string;
+  type: string;
+}
+
 export interface Node {
   name: string;
-  fields: string;
+  fields: Field[];
 }
 
 export interface Type {
   name: string;
   path: string;
-  fields: string | null;
+  fields: Field[];
   nodes: Node[];
 }
 
@@ -26,16 +31,19 @@ export type Types = Record<Path, TypeDefs>;
  * @param nodes: Parsed node definitions.
  * @returns Resolved nodes.
  */
-export function resolveNodes(typeName: string, nodes: NodeDefinition[]): [string | null, Node[]] {
+export function resolveNodes(
+  typeName: string,
+  nodes: NodeDefinition[],
+): [Field[], Node[]] {
   let resolved: Node[] = [];
-  let commonFields: string | null = null;
+  let commonFields: Field[] = [];
   for (let node of nodes) {
     if (node.name === typeName) {
       commonFields = node.fields;
     } else {
       resolved.push({
         name: node.name,
-        fields: node.fields
+        fields: node.fields,
       });
     }
   }

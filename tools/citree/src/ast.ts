@@ -4,10 +4,15 @@ export type ImportStatement = {
   path: string;
 };
 
+export type FieldDefinition = {
+  name: string;
+  type: string;
+};
+
 export type NodeDefinition = {
   type: 'node';
   name: string;
-  fields: string;
+  fields: FieldDefinition[];
 };
 
 export type TypeDefinition = {

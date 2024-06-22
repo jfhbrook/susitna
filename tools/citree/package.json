@@ -1,6 +1,6 @@
 {
   "name": "@jfhbrook/citree",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A DSL for generating ASTs in TypeScript",
   "main": "dist/index.js",
   "bin": {

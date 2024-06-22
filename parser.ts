@@ -223,14 +223,17 @@ class Parser {
       tracer.trace('previous', this.previous);
       tracer.trace('current', this.current);
 
+      const rowNo = this.peek().row;
+
       let lineNo: number | null;
-      let cmds: CommandGroup;
+      let cmds: Cmd[];
+      let source: string;
       try {
         lineNo = this.lineNumber();
 
         cmds = this.commands();
 
-        this.rowEnding();
+        source = this.rowEnding();
       } catch (err) {
         if (err instanceof Synchronize) {
           this.syncNextRow();
@@ -239,10 +242,12 @@ class Parser {
         throw err;
       }
 
+      // XXX: Attach rowNo and source to Line and CommandGroup
+
       if (lineNo !== null) {
-        return new Line(this.lineNo, cmds.commands);
+        return new Line(this.lineNo, cmds);
       }
-      return cmds;
+      return new CommandGroup(cmds);
     });
   }
 
@@ -264,12 +269,13 @@ class Parser {
     });
   }
 
-  private rowEnding(): void {
+  private rowEnding(): string {
     return tracer.spanSync('rowEnding', () => {
       let line = this.line;
       if (line.endsWith('\n')) {
         line = line.slice(0, -1);
       }
+
       for (const error of this.lineErrors) {
         tracer.trace('set source to line', line);
         error.source = line;
@@ -286,11 +292,13 @@ class Parser {
         }
       }
 
-      line = this.current.text;
+      const nextLine = this.current.text;
 
-      tracer.trace('reset line', line);
-      this.line = line;
+      tracer.trace('reset line', nextLine);
+      this.line = nextLine;
       this.isLine = false;
+
+      return line;
     });
   }
 
@@ -319,12 +327,12 @@ class Parser {
     });
   }
 
-  private commands(): CommandGroup {
+  private commands(): Cmd[] {
     return tracer.spanSync('commands', () => {
       tracer.trace('previous', this.previous);
       tracer.trace('current', this.current);
       if (this.done || this.peek().kind === TokenKind.LineEnding) {
-        return new CommandGroup([]);
+        return [];
       }
 
       let cmd: Cmd | null = this.command();
@@ -344,20 +352,30 @@ class Parser {
         }
       }
 
-      return new CommandGroup(cmds);
+      return cmds;
     });
   }
 
   private command(): Cmd | null {
     return tracer.spanSync('command', () => {
+      const { offsetStart } = this.peek();
+
+      let cmd: Cmd | null;
+
       if (this.match(TokenKind.Print)) {
-        return this.print();
+        cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
-        return this.exit();
+        cmd = this.exit();
       } else {
-        return this.expressionStatement();
+        cmd = this.expressionStatement();
       }
+
+      const { offsetEnd } = this.peekPrev();
+
+      // XXX: Attach offsetStart and offsetEnd to cmd
+
+      return cmd;
     });
   }
 

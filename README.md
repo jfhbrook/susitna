@@ -31,19 +31,16 @@ expressions. But it's brittle, and has a lot of gaps.
 
 - Robust locations
   - [X] Add line numbers to disassembler (easy)
-  - [ ] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
+  - [X] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
     constructors
   - [ ] AST nodes need to include enough fields to populate a Location in the
     compiler
-    - [X] `filename` not needed, can be passed to the compiler
-    - [X] `isLine` not needed, since compiler knows whether or not it's handling a
-      line
-    - [ ] the relevent Token objects will give us `row` and `offset`, can either
-      attach them directly or grab just those fields
-    - [ ] `source` would need to be attached to `Lines` and `CommandGroups`
-    - [X] compiler already knows `lineNo` for Programs
-    - [ ] command compiling can be refactored to take a `lineNo` and generate a
-      "fake line" - this can be `100` for now and plumbed into history later
+    - [ ] Add `offsetStart` and `offsetEnd` to `Cmd`
+    - [ ] Add `row` and `source` to `Line` and `CommandGroup`
+    - [ ] Plumb this up in the parser
+    - [ ] Whack at tests/typing until tests pass and interpreter starts
+  - [ ] refactor compiler to take a `lineNo` and generate a "fake line" - this
+    can be `100` for now and plumbed into history later
   - [ ] Use location fields on AST nodes to populate SyntaxErrors and SyntaxWarnings
     in the compiler
   - [ ] Refactor Chunk to include a filename

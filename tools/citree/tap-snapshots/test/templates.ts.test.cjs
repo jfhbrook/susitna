@@ -20,8 +20,8 @@ export abstract class Expr {
 
 export class Assign extends Expr {
   constructor(
-    public readonly name: Token,
-    public readonly value: Expr | null,
+    public name: Token,
+    public value: Expr | null,
   ) {
     super(
     );

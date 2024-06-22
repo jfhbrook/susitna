@@ -16,8 +16,8 @@ export interface CmdVisitor<R> {
 
 export abstract class Cmd {
   constructor(
-    public readonly offsetStart: number,
-    public readonly offsetEnd: number,
+    public offsetStart: number,
+    public offsetEnd: number,
   ) {}
 
   abstract accept<R>(visitor: CmdVisitor<R>): R;
@@ -25,7 +25,7 @@ export abstract class Cmd {
 
 export class Expression extends Cmd {
   constructor(
-    public readonly expression: Expr,
+    public expression: Expr,
     offsetStart: number,
     offsetEnd: number,
   ) {
@@ -39,7 +39,7 @@ export class Expression extends Cmd {
 
 export class Print extends Cmd {
   constructor(
-    public readonly expression: Expr,
+    public expression: Expr,
     offsetStart: number,
     offsetEnd: number,
   ) {
@@ -53,7 +53,7 @@ export class Print extends Cmd {
 
 export class Exit extends Cmd {
   constructor(
-    public readonly expression: Expr | null,
+    public expression: Expr | null,
     offsetStart: number,
     offsetEnd: number,
   ) {
@@ -89,8 +89,8 @@ export abstract class Expr {
 
 export class Unary extends Expr {
   constructor(
-    public readonly op: TokenKind,
-    public readonly expr: Expr,
+    public op: TokenKind,
+    public expr: Expr,
   ) {
     super();
   }
@@ -102,9 +102,9 @@ export class Unary extends Expr {
 
 export class Binary extends Expr {
   constructor(
-    public readonly left: Expr,
-    public readonly op: TokenKind,
-    public readonly right: Expr,
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
   ) {
     super();
   }
@@ -116,9 +116,9 @@ export class Binary extends Expr {
 
 export class Logical extends Expr {
   constructor(
-    public readonly left: Expr,
-    public readonly op: TokenKind,
-    public readonly right: Expr,
+    public left: Expr,
+    public op: TokenKind,
+    public right: Expr,
   ) {
     super();
   }
@@ -129,7 +129,7 @@ export class Logical extends Expr {
 }
 
 export class Group extends Expr {
-  constructor(public readonly expr: Expr) {
+  constructor(public expr: Expr) {
     super();
   }
 
@@ -139,7 +139,7 @@ export class Group extends Expr {
 }
 
 export class IntLiteral extends Expr {
-  constructor(public readonly value: number) {
+  constructor(public value: number) {
     super();
   }
 
@@ -149,7 +149,7 @@ export class IntLiteral extends Expr {
 }
 
 export class RealLiteral extends Expr {
-  constructor(public readonly value: number) {
+  constructor(public value: number) {
     super();
   }
 
@@ -159,7 +159,7 @@ export class RealLiteral extends Expr {
 }
 
 export class BoolLiteral extends Expr {
-  constructor(public readonly value: boolean) {
+  constructor(public value: boolean) {
     super();
   }
 
@@ -169,7 +169,7 @@ export class BoolLiteral extends Expr {
 }
 
 export class StringLiteral extends Expr {
-  constructor(public readonly value: string) {
+  constructor(public value: string) {
     super();
   }
 
@@ -179,7 +179,7 @@ export class StringLiteral extends Expr {
 }
 
 export class PromptLiteral extends Expr {
-  constructor(public readonly value: string) {
+  constructor(public value: string) {
     super();
   }
 
@@ -216,9 +216,9 @@ export abstract class Tree {
 
 export class CommandGroup extends Tree {
   constructor(
-    public readonly row: number,
-    public readonly source: string,
-    public readonly commands: Cmd[],
+    public row: number,
+    public source: string,
+    public commands: Cmd[],
   ) {
     super();
   }
@@ -230,10 +230,10 @@ export class CommandGroup extends Tree {
 
 export class Line extends Tree {
   constructor(
-    public readonly lineNo: number,
-    public readonly row: number,
-    public readonly source: string,
-    public readonly commands: Cmd[],
+    public lineNo: number,
+    public row: number,
+    public source: string,
+    public commands: Cmd[],
   ) {
     super();
   }
@@ -244,7 +244,7 @@ export class Line extends Tree {
 }
 
 export class Input extends Tree {
-  constructor(public readonly input: Array<CommandGroup | Line>) {
+  constructor(public input: Array<CommandGroup | Line>) {
     super();
   }
 
@@ -254,7 +254,7 @@ export class Input extends Tree {
 }
 
 export class Program extends Tree {
-  constructor(public readonly lines: Line[]) {
+  constructor(public lines: Line[]) {
     super();
   }
 

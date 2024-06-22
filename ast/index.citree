@@ -1,4 +1,3 @@
-
 type Expr in './expr' {
   import { TokenKind } from '../tokens'
 
@@ -17,7 +16,7 @@ type Expr in './expr' {
 type Cmd in './cmd' {
   import { Expr } from './expr'
 
-  Cmd => offsetStart: number, offsetEnd: number
+  Cmd => offsetStart: number = -1, offsetEnd: number = -1
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null

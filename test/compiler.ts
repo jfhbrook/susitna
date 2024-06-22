@@ -236,7 +236,7 @@ const PROGRAMS: TestCase[] = [
     ([source, ast, { constants, code, lines }]): TestCase => {
       return [
         `100 ${source}`,
-        new Program([new Line(-1, [ast as Cmd])]),
+        new Program([new Line(-1, 1, `100 ${source}`, [ast as Cmd])]),
         chunk({
           constants,
           code: code.concat([OpCode.Pop, OpCode.Nil, OpCode.Return]),
@@ -248,7 +248,7 @@ const PROGRAMS: TestCase[] = [
   ...COMMANDS.map(([source, ast, { constants, code, lines }]): TestCase => {
     return [
       `100 ${source}`,
-      new Program([new Line(-1, [ast as Cmd])]),
+      new Program([new Line(-1, 1, `100 ${source}`, [ast as Cmd])]),
       chunk({
         constants,
         code,
@@ -259,7 +259,7 @@ const PROGRAMS: TestCase[] = [
   [
     '100 1 : 1',
     new Program([
-      new Line(-1, [
+      new Line(-1, 1, '100 1 : 1', [
         new Expression(new IntLiteral(1)),
         new Expression(new IntLiteral(255)),
       ]),

@@ -323,7 +323,9 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a Line', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
-          new Line(100, [new Print(new StringLiteral('hello world'))]),
+          new Line(100, 1, '100 "hello world"', [
+            new Print(new StringLiteral('hello world')),
+          ]),
         ),
       );
     });
@@ -332,7 +334,9 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(
         formatter.format(
           new Program([
-            new Line(100, [new Print(new StringLiteral('hello world'))]),
+            new Line(100, 1, '100 "hello world"', [
+              new Print(new StringLiteral('hello world')),
+            ]),
           ]),
         ),
       );

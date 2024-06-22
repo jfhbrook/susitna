@@ -242,8 +242,6 @@ class Parser {
         throw err;
       }
 
-      // XXX: Attach rowNo and source to Line and CommandGroup
-
       if (lineNo !== null) {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
@@ -373,7 +371,8 @@ class Parser {
 
       const { offsetEnd } = this.peekPrev();
 
-      // XXX: Attach offsetStart and offsetEnd to cmd
+      cmd.offsetStart = offsetStart;
+      cmd.offsetEnd = offsetEnd;
 
       return cmd;
     });

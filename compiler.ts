@@ -224,20 +224,19 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private syntaxError(_cmd: Cmd, message: string): void {
     return tracer.spanSync('syntaxError', () => {
-      const exc = new SyntaxError(
-        message,
-        this.filename,
-        -1,
-        this.isLine,
-        this.lineNo,
+      const exc = new SyntaxError(message, {
+        filename: this.filename,
+        // TODO: Plumb through from CommandGroup
+        row: -1,
+        isLine: this.isLine,
+        // TODO: Plumb through from CommandGroup
+        lineNo: this.lineNo,
         // TODO: Plug in offsets and source. The obvious way to do this is to
-        // pass it along from the tokens into the AST. A memory-efficient
-        // compromise might be to recreate the line and generate the offsets
-        // from there.
-        0,
-        0,
-        '<unknown>',
-      );
+        // pass it along from the tokens into the AST.
+        offsetStart: 0,
+        offsetEnd: 0,
+        source: '<unknown>',
+      });
       this.isError = true;
       this.errors.push(exc);
       throw new Synchronize();

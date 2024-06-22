@@ -31,6 +31,8 @@ expressions. But it's brittle, and has a lot of gaps.
 
 - Robust locations
   - [X] Add line numbers to disassembler (easy)
+  - [ ] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
+    constructors
   - [ ] AST nodes need to include enough fields to populate a Location in the
     compiler
     - [X] `filename` not needed, can be passed to the compiler
@@ -42,8 +44,6 @@ expressions. But it's brittle, and has a lot of gaps.
     - [X] compiler already knows `lineNo` for Programs
     - [ ] command compiling can be refactored to take a `lineNo` and generate a
       "fake line" - this can be `100` for now and plumbed into history later
-  - [ ] Take the opportunity to pass options object to SyntaxError/SyntaxWarning
-    constructors
   - [ ] Use location fields on AST nodes to populate SyntaxErrors and SyntaxWarnings
     in the compiler
   - [ ] Refactor Chunk to include a filename

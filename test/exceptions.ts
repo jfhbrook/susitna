@@ -224,17 +224,24 @@ t.test('ParseError', async (t: Test) => {
     const line = '100 print someFn(ident';
 
     const exc = new ParseError([
-      new SyntaxError('expected )', FILENAME, 0, false, 100, 22, 23, line),
-      new SyntaxWarning(
-        'identifier has no sigil',
-        FILENAME,
-        0,
-        false,
-        100,
-        17,
-        18,
-        line,
-      ),
+      new SyntaxError('expected )', {
+        filename: FILENAME,
+        row: 0,
+        isLine: false,
+        lineNo: 100,
+        offsetStart: 22,
+        offsetEnd: 23,
+        source: line,
+      }),
+      new SyntaxWarning('identifier has no sigil', {
+        filename: FILENAME,
+        row: 0,
+        isLine: false,
+        lineNo: 100,
+        offsetStart: 17,
+        offsetEnd: 18,
+        source: line,
+      }),
     ]);
 
     t.ok(exc);
@@ -262,16 +269,15 @@ t.test('ParseWarning', async (t: Test) => {
     const line = '100 print someFn(ident)';
 
     const exc = new ParseWarning([
-      new SyntaxWarning(
-        'identifier has no sigil',
-        FILENAME,
-        0,
-        false,
-        100,
-        17,
-        18,
-        line,
-      ),
+      new SyntaxWarning('identifier has no sigil', {
+        filename: FILENAME,
+        row: 0,
+        isLine: false,
+        lineNo: 100,
+        offsetStart: 17,
+        offsetEnd: 18,
+        source: line,
+      }),
     ]);
 
     t.ok(exc);

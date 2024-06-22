@@ -189,16 +189,15 @@ class Parser {
     return tracer.spanSync('syntaxError', () => {
       tracer.trace('kind', token.kind);
       tracer.trace('message', message);
-      const exc = new SyntaxError(
-        message,
-        this.filename,
-        token.row,
-        this.isLine,
-        this.lineNo,
-        token.offsetStart,
-        token.offsetEnd,
-        '<unknown>',
-      );
+      const exc = new SyntaxError(message, {
+        filename: this.filename,
+        row: token.row,
+        isLine: this.isLine,
+        lineNo: this.lineNo,
+        offsetStart: token.offsetStart,
+        offsetEnd: token.offsetEnd,
+        source: '<unknown>',
+      });
       this.isError = true;
       this.lineErrors.push(exc);
       throw new Synchronize();
@@ -598,16 +597,15 @@ class Parser {
             // We advanced twice, for the \\ and the character respectively
             const offset = this.previous.offsetStart + i - 2;
             warnings.push(
-              new SyntaxWarning(
-                `Invalid escape sequence \`\\${e}\``,
-                this.filename,
-                this.current.row,
-                this.isLine,
-                this.lineNo,
-                offset,
-                offset + 2,
-                '',
-              ),
+              new SyntaxWarning(`Invalid escape sequence \`\\${e}\``, {
+                filename: this.filename,
+                row: this.current.row,
+                isLine: this.isLine,
+                lineNo: this.lineNo,
+                offsetStart: offset,
+                offsetEnd: offset + 2,
+                source: '<unknown>',
+              }),
             );
             this.isWarning = true;
             value += '\\';

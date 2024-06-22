@@ -351,12 +351,12 @@ export interface SourceLocation {
   /**
    * The column offset at which the location starts.
    */
-  readonly offsetStart: number;
+  offsetStart: number;
 
   /**
    * The column offset at which the location ends.
    */
-  readonly offsetEnd: number;
+  offsetEnd: number;
 
   /**
    * The referenced source code. Will typically be a line or interactive
@@ -365,7 +365,6 @@ export interface SourceLocation {
   source: string;
 
   // endLineNo: number | null,
-  // endOffset: number | null
 }
 
 /**
@@ -375,25 +374,21 @@ export interface SourceLocation {
  */
 @errorType('SyntaxError')
 export class SyntaxError extends BaseException implements SourceLocation {
+  public filename: string;
+  public row: number;
+  public isLine: boolean;
+  public lineNo: number;
+  public offsetStart: number;
+  public offsetEnd: number;
+  public source: string;
+
   /**
    * @param message The message for the exception.
-   * @param filename The filename for the source code.
-   * @param lineNo The line number in the source code.
-   * @param offset The column offset in the source code.
-   * @param source The referenced source code.
-   * @param traceback The traceback for the exception.
+   * @param location The location for the syntax error.
    */
-  constructor(
-    message: any,
-    public filename: string,
-    public row: number,
-    public isLine: boolean,
-    public lineNo: number,
-    public offsetStart: number,
-    public offsetEnd: number,
-    public source: string,
-  ) {
+  constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.assign(this, location);
   }
 
   format(formatter: Formatter): string {
@@ -429,25 +424,21 @@ export class ParseError extends Exception implements ExitCoded {
  */
 @errorType('SyntaxWarning')
 export class SyntaxWarning extends BaseWarning implements SourceLocation {
+  public filename: string;
+  public row: number;
+  public isLine: boolean;
+  public lineNo: number;
+  public offsetStart: number;
+  public offsetEnd: number;
+  public source: string;
+
   /**
    * @param message The message for the exception.
-   * @param filename The filename for the source code.
-   * @param lineNo The line number in the source code.
-   * @param offset The column offset in the source code.
-   * @param source The referenced source code.
-   * @param traceback The traceback for the exception.
+   * @param location The location for the syntax error.
    */
-  constructor(
-    message: any,
-    public filename: string,
-    public row: number,
-    public isLine: boolean,
-    public lineNo: number,
-    public offsetStart: number,
-    public offsetEnd: number,
-    public source: string,
-  ) {
+  constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.assign(this, location);
   }
 
   format(formatter: Formatter): string {

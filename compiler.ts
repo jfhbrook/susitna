@@ -200,7 +200,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       const exc = new SyntaxError(message, {
         filename: this.filename,
         row: this.rowNo,
-        isLine: this.isLine,
+        isLine: true,
         lineNo: this.lineNo,
         offsetStart: cmd.offsetStart,
         offsetEnd: cmd.offsetEnd,
@@ -217,10 +217,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       this.currentLine++;
       this.currentCmdNo = 0;
     });
-  }
-
-  private get isLine(): boolean {
-    return true;
   }
 
   private get lineNo(): number {

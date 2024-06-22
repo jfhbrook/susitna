@@ -5,8 +5,9 @@ import { stdin, stdout, stderr } from 'node:process';
 
 import { Readable, Writable } from 'stream';
 
-import { Exit } from './exit';
-import { BaseException } from './exceptions';
+import { ErrorCode } from './errors';
+import { BaseException, FileError } from './exceptions';
+import { Exit, ExitCode } from './exit';
 import { DefaultFormatter } from './format';
 
 /**
@@ -282,9 +283,13 @@ export class ConsoleHost implements Host {
         this.writeDebug(value);
         break;
       default:
-        // TODO: Custom channels + file descriptors
-        // TODO: IOError for unknown channel
-        this.writeException(`Unknown channel: ${channel}`);
+        throw new FileError(
+          `Unknown channel: ${channel}`,
+          ErrorCode.NoEntity,
+          ExitCode.IoError,
+          [`#${channel}`],
+          null,
+        );
     }
   }
 

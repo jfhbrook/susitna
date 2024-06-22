@@ -47,10 +47,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
 
   private currentChunk: Chunk;
-  // TODO: Interactive commands are tracked by currentCmd, but programs are
-  // tracked by currentCmdNo and currentLine. The two mechanisms feels a
-  // little dirty. Would I rather create a "ghost line"?
-  private currentCmd: Cmd | null = null;
   private lines: Line[] = [];
   private currentCmdNo: number = -1;
   private currentLine: number = 0;
@@ -92,20 +88,20 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   @runtimeMethod
   compile(): Chunk {
     return tracer.spanSync('compile', () => {
-      let result: Chunk;
       if (this.routineType === RoutineType.Program) {
-        result = this.compileProgram(this.ast as Program);
+        this.lines = (this.ast as Program).lines;
       } else {
-        result = this.compileCommand(this.ast as Cmd);
+        const cmd = this.ast as Cmd;
+        this.lines = [new Line(100, 1, '<unknown>', [cmd])];
       }
+      const result = this._compile();
       showChunk(result);
       return result;
     });
   }
 
-  private compileProgram(program: Program): Chunk {
-    return tracer.spanSync('compileProgram', () => {
-      this.lines = program.lines;
+  private _compile(): Chunk {
+    return tracer.spanSync('_compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
         try {
@@ -115,6 +111,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
           if (err instanceof Synchronize) {
             this.synchronize();
             cmd = this.peek();
+            continue;
           }
           throw err;
         }
@@ -125,26 +122,6 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       }
 
       this.emitReturn();
-
-      return this.chunk;
-    });
-  }
-
-  private compileCommand(cmd: Cmd) {
-    return tracer.spanSync('compileCommand', () => {
-      try {
-        this.command(cmd);
-        this.emitReturn();
-      } catch (err) {
-        // There's nothing to synchronize...
-        if (!(err instanceof Synchronize)) {
-          throw err;
-        }
-      }
-
-      if (this.isError) {
-        throw new ParseError(this.errors);
-      }
 
       return this.chunk;
     });
@@ -212,13 +189,12 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private peek(): Cmd {
+  private peek(): Cmd | null {
     return tracer.spanSync('peek', () => {
-      if (this.lines.length) {
-        return this.lines[this.currentLine].commands[this.currentCmdNo];
+      if (this.done) {
+        return null;
       }
-
-      return this.currentCmd as Cmd;
+      return this.lines[this.currentLine].commands[this.currentCmdNo];
     });
   }
 
@@ -314,9 +290,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private command(cmd: Cmd) {
     tracer.spanSync('command', () => {
       tracer.trace('cmd', cmd);
-      this.currentCmd = cmd;
       cmd.accept(this);
-      this.currentCmd = null;
     });
   }
 

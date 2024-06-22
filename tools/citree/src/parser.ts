@@ -92,12 +92,39 @@ const typeAnnotation: Parser<TokenKind, string> = apply(
   (tokens) => tokens.map((t) => t.text).join(' '),
 );
 
-function applyFieldDefinition([ident, _ofType, type]) {
-  return { name: ident.text, type };
+// TODO: This is NOT a good definition of an expression LOL
+const expression: Parser<TokenKind, string> = apply(
+  rep(
+    alt(
+      tok(TokenKind.LBracket),
+      tok(TokenKind.RBracket),
+      tok(TokenKind.Asterisk),
+      tok(TokenKind.Path),
+      tok(TokenKind.Bang),
+      tok(TokenKind.OfType),
+      tok(TokenKind.Ident),
+      tok(TokenKind.Union),
+    ),
+  ),
+  (tokens) => tokens.map((t) => t.text).join(' '),
+);
+
+const defaultValue: Parser<TokenKind, string> = apply(
+  seq(tok(TokenKind.Eq), expression),
+  ([_eq, value]) => value,
+);
+
+function applyFieldDefinition([ident, _ofType, type, default_]) {
+  return { name: ident.text, type, default: default_ || null };
 }
 
 const fieldDefinition: Parser<TokenKind, FieldDefinition> = apply(
-  seq(tok(TokenKind.Ident), tok(TokenKind.OfType), typeAnnotation),
+  seq(
+    tok(TokenKind.Ident),
+    tok(TokenKind.OfType),
+    typeAnnotation,
+    opt(defaultValue),
+  ),
   applyFieldDefinition,
 );
 

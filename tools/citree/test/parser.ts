@@ -41,14 +41,14 @@ const EXPECT = {
           type: 'node',
           name: 'Assign',
           fields: [
-            { name: 'name', type: 'Token' },
-            { name: 'value', type: 'Expr | null' },
+            { name: 'name', type: 'Token', default: null },
+            { name: 'value', type: 'Expr | null', default: null },
           ],
         },
         {
           type: 'node',
           name: 'Call',
-          fields: [{ name: 'args', type: 'Expr[]' }],
+          fields: [{ name: 'args', type: 'Expr[]', default: null }],
         },
       ],
     },

@@ -10,7 +10,7 @@ type Expr in "./expr" {
   import { Token } from './token'
   import * from "./value"
 
-  Assign   => name: Token, value: Expr | null
+  Assign   => name: Token, value: Expr | null = null
   Call     => args: Expr[]
 }`;
 
@@ -43,6 +43,8 @@ const EXPECTED_EXAMPLE = [
   [TokenKind.OfType, ':'],
   [TokenKind.Ident, 'Expr'],
   [TokenKind.Union, '|'],
+  [TokenKind.Ident, 'null'],
+  [TokenKind.Eq, '='],
   [TokenKind.Ident, 'null'],
 
   [TokenKind.Ident, 'Call'],

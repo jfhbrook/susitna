@@ -7,6 +7,7 @@ export type ImportStatement = {
 export type FieldDefinition = {
   name: string;
   type: string;
+  default: string | null;
 };
 
 export type NodeDefinition = {

@@ -193,6 +193,12 @@ export const parser: Parser<TokenKind, Spec> = apply(
   applySpec,
 );
 
+/**
+ * Parse a spec.
+ *
+ * @param contents The string contents of a spec.
+ * @returns The parsed spec.
+ */
 export function parseSpec(contents: string): Spec {
   return expectSingleResult(expectEOF(parser.parse(scanner.parse(contents))));
 }

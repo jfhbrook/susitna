@@ -17,7 +17,7 @@ type Expr in './expr' {
 type Cmd in './cmd' {
   import { Expr } from './expr'
 
-  // TODO: How to attach offsets to every Cmd?
+  Cmd => offsetStart: number, offsetEnd: number
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null

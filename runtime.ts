@@ -60,132 +60,137 @@ export class Runtime {
 
       startTraceExec();
 
-      while (true) {
-        traceExec(this);
-        const instruction = this.readByte();
+      try {
+        while (true) {
+          traceExec(this);
+          const instruction = this.readByte();
 
-        switch (instruction) {
-          case OpCode.Constant:
-            this.stack.push(this.readConstant());
-            break;
-          case OpCode.Nil:
-            this.stack.push(nil);
-            break;
-          case OpCode.True:
-            this.stack.push(true);
-            break;
-          case OpCode.False:
-            this.stack.push(false);
-            break;
-          case OpCode.Pop:
-            this.stack.pop();
-            break;
-          //
-          // TODO: These operators don't do any type checking right now. At a
-          // minimum I need to check what the types of a/b are and switch
-          // accordingly. But I may also want separate instructions for
-          // different types. I may also want to have particular instructions
-          // for type conversions.
-          //
-          // TODO: Define my own semantics for equality.
-          //
-          case OpCode.Eq:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a === b);
-            break;
-          case OpCode.Gt:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a > b);
-            break;
-          case OpCode.Ge:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a >= b);
-            break;
-          case OpCode.Lt:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a < b);
-            break;
-          case OpCode.Le:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a <= b);
-            break;
-          case OpCode.Ne:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a !== b);
-            break;
-          case OpCode.Not:
-            a = this.stack.pop();
-            this.stack.push(!a);
-            break;
-          case OpCode.Add:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a + b);
-            break;
-          case OpCode.Sub:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a - b);
-            break;
-          case OpCode.Mul:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a * b);
-            break;
-          case OpCode.Div:
-            b = this.stack.pop();
-            a = this.stack.pop();
-            this.stack.push(a / b);
-            break;
-          case OpCode.Neg:
-            a = this.stack.pop();
-            this.stack.push(-a);
-            break;
-          case OpCode.Print:
-            this.host.writeLine(this.stack.pop());
-            break;
-          case OpCode.Exit:
-            const value = this.stack.pop();
-            let exitCode: number;
-            if (typeof value === 'number') {
-              exitCode = Math.floor(value);
-            } else if (value instanceof Nil) {
-              exitCode = 0;
-            } else if (value) {
-              exitCode = 1;
-            } else {
-              exitCode = 0;
-            }
-            this.host.exit(exitCode);
-            return;
-          case OpCode.Jump:
-            this.notImplemented('Jump');
-            break;
-          case OpCode.JumpIfFalse:
-            this.notImplemented('JumpIfFalse');
-            break;
-          case OpCode.Loop:
-            this.notImplemented('Loop');
-            break;
-          case OpCode.Return:
-            rv = this.stack.pop();
-            // TODO: Clean up the current frame, and only return if we're
-            // done with the main program.
-            return rv;
-          default:
-            this.notImplemented(`Unknown opcode: ${instruction}`);
+          switch (instruction) {
+            case OpCode.Constant:
+              this.stack.push(this.readConstant());
+              break;
+            case OpCode.Nil:
+              this.stack.push(nil);
+              break;
+            case OpCode.True:
+              this.stack.push(true);
+              break;
+            case OpCode.False:
+              this.stack.push(false);
+              break;
+            case OpCode.Pop:
+              this.stack.pop();
+              break;
+            //
+            // TODO: These operators don't do any type checking right now. At a
+            // minimum I need to check what the types of a/b are and switch
+            // accordingly. But I may also want separate instructions for
+            // different types. I may also want to have particular instructions
+            // for type conversions.
+            //
+            // TODO: Define my own semantics for equality.
+            //
+            case OpCode.Eq:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a === b);
+              break;
+            case OpCode.Gt:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a > b);
+              break;
+            case OpCode.Ge:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a >= b);
+              break;
+            case OpCode.Lt:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a < b);
+              break;
+            case OpCode.Le:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a <= b);
+              break;
+            case OpCode.Ne:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a !== b);
+              break;
+            case OpCode.Not:
+              a = this.stack.pop();
+              this.stack.push(!a);
+              break;
+            case OpCode.Add:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a + b);
+              break;
+            case OpCode.Sub:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a - b);
+              break;
+            case OpCode.Mul:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a * b);
+              break;
+            case OpCode.Div:
+              b = this.stack.pop();
+              a = this.stack.pop();
+              this.stack.push(a / b);
+              break;
+            case OpCode.Neg:
+              a = this.stack.pop();
+              this.stack.push(-a);
+              break;
+            case OpCode.Print:
+              this.host.writeLine(this.stack.pop());
+              break;
+            case OpCode.Exit:
+              const value = this.stack.pop();
+              let exitCode: number;
+              if (typeof value === 'number') {
+                exitCode = Math.floor(value);
+              } else if (value instanceof Nil) {
+                exitCode = 0;
+              } else if (value) {
+                exitCode = 1;
+              } else {
+                exitCode = 0;
+              }
+              this.host.exit(exitCode);
+              return;
+            case OpCode.Jump:
+              this.notImplemented('Jump');
+              break;
+            case OpCode.JumpIfFalse:
+              this.notImplemented('JumpIfFalse');
+              break;
+            case OpCode.Loop:
+              this.notImplemented('Loop');
+              break;
+            case OpCode.Return:
+              rv = this.stack.pop();
+              // TODO: Clean up the current frame, and only return if we're
+              // done with the main program.
+              return rv;
+            default:
+              this.notImplemented(`Unknown opcode: ${instruction}`);
+          }
         }
+      } catch (err) {
+        err.traceback = this.createTraceback();
+        throw err;
       }
     });
   }
 
   private notImplemented(message: string): Value {
-    throw new NotImplementedError(message, this.createTraceback());
+    throw new NotImplementedError(message, null);
   }
 }

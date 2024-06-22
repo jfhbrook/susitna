@@ -15,7 +15,7 @@ export class BaseFault extends Error implements Traceable, Formattable {
    */
   constructor(
     message: any,
-    public readonly traceback: Traceback | null,
+    public traceback: Traceback | null,
   ) {
     super(formatter.format(message));
     Object.setPrototypeOf(this, new.target.prototype);

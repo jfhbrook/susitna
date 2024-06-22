@@ -29,13 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Revisit citree
-  - Break parsing up into smaller recursive components
-  - Type parameters for nodes, so that I can have narrower types on
-    Binary/Unary expressions?
-  - "super" properties that all nodes of a type have - useful for Robust Locations
-  - Document "real example" in citree
-  - Potentially publish citree
 - Robust locations
   - [X] Add line numbers to disassembler (easy)
   - [X] Take the opportunity to pass options object to SyntaxError/SyntaxWarning

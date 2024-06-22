@@ -30,13 +30,44 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Robust locations
-  - Figure out exactly what location information is needed for a traceback
-  - Plumb location information through the AST to the compiler
-  - Replace Chunk#lines with required location information
-  - Ensure location information is in decompiler output
-  - Update tests as best I can
-- Make compiler type-aware
-  - An ADR for having a type-unaware bytecode
+  - [ ] Add line numbers to disassembler (easy)
+  - [ ] AST nodes need to include enough fields to populate a Location in the
+    compiler
+    - [X] `filename` not needed, can be passed to the compiler
+    - [X] `isLine` not needed, since compiler knows whether or not it's handling a
+      line
+    - [ ] the relevent Token objects will give us `row` and `offset`, can either
+      attach them directly or grab just those fields
+    - [ ] `source` would need to be attached to `Lines` and `CommandGroups`
+    - [X] compiler already knows `lineNo` for Programs
+    - [ ] command compiling can be refactored to take a `lineNo` and generate a
+      "fake line" - this can be `100` for now and plumbed into history later
+  - [ ] Use location fields on AST nodes to populate SyntaxErrors and SyntaxWarnings
+    in the compiler
+  - [ ] Refactor Chunk to include a filename
+    - [ ] Make sure this is reflected in the disassembler!
+  - [ ] Refactor Traceback to include just a filename and a lineNo
+    - The shape of Python tracebacks is an artifact of its implementation,
+      we don't need to follow it. If we eventually recreate its structure
+      later, so be it
+    - But some semantics will need to be considered - Python tracebacks are
+      linked lists, but in my case they're Arrays. Is `Traceback[]` really
+      appropriate? Or should it be `type Traceback = TracebackLocation[]`?
+  - [ ] Add `createTraceback` method to `Runtime`
+    - lineNo can be gotten with the `pc`, just like the instruction
+    - we don't have a call stack right now, so we can just grab the one on
+      top and call it a day
+  - [ ] Populate `NotImplementedError` with the results of `createTraceback`
+  - [ ] Attempt adding a test for something that currently throws a
+        `NotImplementedError`
+  - **BONUS:** Add offsetEnd to Locations, it's already on the Token
+  - Note, the reason traceback output feels lacking is because we don't have
+    named functions yet
+- Handle types
+  - An ADR to specify semantics
+  - An ADR settling on type annotations
+  - An ADR on type-aware bytecode
+  - Potentially make compiler type-aware
 - IOError for unknown channel in Host
 - Narrower types for AST nodes
   - Will require improvements to citree

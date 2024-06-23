@@ -7,6 +7,7 @@ import { Value } from './value';
 import { Line, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Exit, Expression } from './ast/cmd';
 import {
+  Expr,
   ExprVisitor,
   Unary,
   Binary,
@@ -426,10 +427,59 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 }
 
+// Note, the CompilerResult[] will include unmerged warnings...
+type CompiledCmd = [Cmd | null, CompilerResult[]];
+
+export class CommandCompiler implements CmdVisitor<CompiledCmd> {
+  constructor(private options: CompilerOptions) {}
+
+  private compiled(cmd: Cmd): CompiledCmd {
+    return [null, [compile(cmd, this.options)]];
+  }
+
+  private interactive(cmd: Cmd, exprs: Expr[]): CompiledCmd {
+    return [
+      cmd,
+      exprs.map((exp) => compile(new Expression(exp), this.options)),
+    ];
+  }
+
+  visitPrintCmd(print: Print): CompiledCmd {
+    return this.compiled(print);
+  }
+
+  visitExitCmd(exit: Exit): CompiledCmd {
+    return this.compiled(exit);
+  }
+
+  visitExpressionCmd(expr: Expression): CompiledCmd {
+    return this.compiled(expr);
+  }
+
+  visitRunCmd(run: any): CompiledCmd {
+    return this.interactive(run, [run.expression]);
+  }
+}
+
 export function compile(
   ast: Program | Cmd,
   options: CompilerOptions = {},
 ): CompilerResult {
   const compiler = new Compiler(ast, options);
   return compiler.compile();
+}
+
+export function compileProgram(
+  program: Program,
+  options: CompilerOptions = {},
+): CompilerResult {
+  return compile(program, options);
+}
+
+export function compileCommands(
+  cmds: Cmd[],
+  options: CompilerOptions = {},
+): CompiledCmd[] {
+  const compiler = new CommandCompiler(options);
+  return cmds.map((cmd) => cmd.accept(compiler));
 }

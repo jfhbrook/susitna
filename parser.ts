@@ -473,41 +473,40 @@ class Parser {
     });
   }
 
-  private binaryOperator(kinds: TokenKind[], operand: () => Expr): Binary {
+  private operator<E extends Expr>(
+    kinds: TokenKind[],
+    operand: () => Expr,
+    factory: (l: Expr, o: TokenKind, r: Expr) => E,
+  ): Expr {
     let expr: Expr = operand();
 
     while (this.match(...kinds)) {
       const op = this.previous.kind;
       const right = operand();
 
-      expr = new Binary(expr, op, right);
+      expr = factory(expr, op, right);
     }
 
-    return expr as Binary;
+    return expr;
   }
 
-  private logicalOperator(kinds: TokenKind[], operand: () => Expr): Logical {
-    let expr = operand();
-
-    while (this.match(...kinds)) {
-      const op = this.previous.kind;
-      const right = operand();
-
-      expr = new Logical(expr, op, right);
-    }
-
-    return expr as Binary;
+  private or(): Expr {
+    return this.operator(
+      [TokenKind.Or],
+      this.and.bind(this),
+      (l, o, r) => new Logical(l, o, r),
+    );
   }
 
-  private or(): Logical {
-    return this.logicalOperator([TokenKind.Or], this.and.bind(this));
+  private and(): Expr {
+    return this.operator(
+      [TokenKind.And],
+      this.equality.bind(this),
+      (l, o, r) => new Logical(l, o, r),
+    );
   }
 
-  private and(): Logical {
-    return this.logicalOperator([TokenKind.And], this.equality.bind(this));
-  }
-
-  private equality(): Binary {
+  private equality(): Expr {
     let expr: Expr = this.comparison();
 
     while (
@@ -533,27 +532,30 @@ class Parser {
       expr = new Binary(expr, op, right);
     }
 
-    return expr as Binary;
+    return expr;
   }
 
-  private comparison(): Binary {
-    return this.binaryOperator(
+  private comparison(): Expr {
+    return this.operator(
       [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
       this.term.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 
-  private term(): Binary {
-    return this.binaryOperator(
+  private term(): Expr {
+    return this.operator(
       [TokenKind.Minus, TokenKind.Plus],
       this.factor.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 
-  private factor(): Binary {
-    return this.binaryOperator(
+  private factor(): Expr {
+    return this.operator(
       [TokenKind.Slash, TokenKind.Star],
       this.unary.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 

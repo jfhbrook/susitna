@@ -6,6 +6,9 @@
  */
 'use strict'
 exports[`test/parser.ts > TAP > bare expression starting with an integer > must match snapshot 1`] = `
+<input>:1:0: warning: Line numbers should be in factors of 10
+  1 + 1
+  ^
 <input>:1:2: error: Unexpected token +
   1 + 1
     ^
@@ -95,6 +98,24 @@ exports[`test/parser.ts > TAP > numbered invalid string escape > must match snap
 <input>:100:5: warning: Invalid escape sequence \`\\q\` in string '\\q'
   100 '\\q'
        ^
+`
+
+exports[`test/parser.ts > TAP > out of order program > must match snapshot 1`] = `
+ParseWarning {
+  "traceback": null,
+  "warnings": Array [
+    SyntaxWarning: Line numbers should be in order {
+      "filename": "/home/josh/script.bas",
+      "isLine": true,
+      "lineNo": 100,
+      "offsetEnd": 3,
+      "offsetStart": 0,
+      "row": 2,
+      "source": "100 print \\"goodbye\\"",
+      "traceback": null,
+    },
+  ],
+}
 `
 
 exports[`test/parser.ts > TAP > print command > non-numbered, without arguments > must match snapshot 1`] = `

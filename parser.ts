@@ -243,11 +243,10 @@ class Parser {
 
       const rowNo = this.peek().row;
 
-      let lineNo: number | null;
       let cmds: Cmd[];
       let source: string;
       try {
-        lineNo = this.lineNumber();
+        this.lineNumber();
 
         cmds = this.commands();
 
@@ -260,15 +259,16 @@ class Parser {
         throw err;
       }
 
-      if (lineNo !== null) {
+      if (this.lineNo !== null) {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
       return new CommandGroup(rowNo, source, cmds);
     });
   }
 
-  private lineNumber(): number | null {
+  private lineNumber(): void {
     return tracer.spanSync('lineNumber', () => {
+      const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
         this.isLine = true;
@@ -279,9 +279,24 @@ class Parser {
         this.isLine = false;
       }
 
-      tracer.trace('lineNo', this.lineNo);
+      if (this.lineNo !== null) {
+        if (this.lineNo % 10) {
+          this.syntaxWarning(
+            this.previous,
+            'Line numbers should be in factors of 10',
+          );
+        }
+        if (this.isProgram && prevLineNo !== null) {
+          if (this.lineNo <= prevLineNo) {
+            this.syntaxWarning(
+              this.previous,
+              'Line numbers should be in order',
+            );
+          }
+        }
+      }
 
-      return this.lineNo;
+      tracer.trace('lineNo', this.lineNo);
     });
   }
 

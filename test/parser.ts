@@ -413,7 +413,7 @@ t.test('out of order program', async (t: Test) => {
   const source = ['200 print "hello world"', '100 print "goodbye"'];
   const result = parseProgram(source.join('\n'), FILENAME);
 
-  t.equal(result[1], null);
+  t.matchSnapshot(result[1]);
 
   t.same(
     result[0],

@@ -163,7 +163,12 @@ export class Commander implements CmdVisitor<Value | null> {
       this.cmdSource = cmds.source;
       try {
         const commands = Array.from(cmds.commands);
-        const lastCmd = commands.pop();
+        let lastCmd = commands.pop();
+
+        while (lastCmd && lastCmd instanceof Rem) {
+          lastCmd = commands.pop();
+        }
+
         for (const cmd of commands) {
           cmd.accept(this);
         }

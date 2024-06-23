@@ -357,7 +357,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         case TokenKind.Slash:
           this.emitByte(OpCode.Div);
           break;
-        case TokenKind.Eq:
+        case TokenKind.EqEq:
           this.emitByte(OpCode.Eq);
           break;
         case TokenKind.Gt:

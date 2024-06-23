@@ -29,9 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Comparisons syntax polish
-  - Support `=` and `==` but warn on the former
-  - Support `!=` and `<>` but warn on the former
 - Remark support
 - Logical operators
   - Settle on tokens - probably `and`, `or` and `not`

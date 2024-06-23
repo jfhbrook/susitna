@@ -204,6 +204,24 @@ class Parser {
     });
   }
 
+  private syntaxWarning(token: Token, message: string): void {
+    return tracer.spanSync('syntaxWarning', () => {
+      tracer.trace('kind', token.kind);
+      tracer.trace('message', message);
+      const exc = new SyntaxWarning(message, {
+        filename: this.filename,
+        row: token.row,
+        isLine: this.isLine,
+        lineNo: this.lineNo,
+        offsetStart: token.offsetStart,
+        offsetEnd: token.offsetEnd,
+        source: '<unknown>',
+      });
+      this.isWarning = true;
+      this.lineErrors.push(exc);
+    });
+  }
+
   private rows(): Row[] {
     return tracer.spanSync('rows', () => {
       const rows: Row[] = [];
@@ -455,10 +473,32 @@ class Parser {
   }
 
   private equality(): Binary {
-    return this.binaryOperator(
-      [TokenKind.Ne, TokenKind.Eq],
-      this.comparison.bind(this),
-    );
+    let expr: Expr = this.comparison();
+
+    while (
+      this.match(TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne)
+    ) {
+      let op = this.previous.kind;
+      if (op == TokenKind.Eq) {
+        this.syntaxWarning(
+          this.peek(),
+          'Use `==` instead of `==` for equality',
+        );
+        op = TokenKind.EqEq;
+      } else if (op == TokenKind.BangEq) {
+        this.syntaxWarning(
+          this.peek(),
+          'Use `<>` instead of `!=` for equality',
+        );
+        op = TokenKind.Ne;
+      }
+
+      const right = this.comparison();
+
+      expr = new Binary(expr, op, right);
+    }
+
+    return expr as Binary;
   }
 
   private comparison(): Binary {

@@ -211,13 +211,18 @@ export class Scanner {
       case '$':
         return this.emitToken(TokenKind.Dollar);
       case '!':
+        if (this.match('=')) {
+          return this.emitToken(TokenKind.BangEq);
+        }
         return this.emitToken(TokenKind.Bang);
       case '/':
         return this.emitToken(TokenKind.Slash);
       case '\\':
         return this.emitToken(TokenKind.BSlash);
       case '=':
-        // TODO: How does equality work?
+        if (this.match('=')) {
+          return this.emitToken(TokenKind.EqEq);
+        }
         return this.emitToken(TokenKind.Eq);
       case '>':
         if (this.match('=')) {

@@ -254,7 +254,7 @@ class Parser {
         source = this.rowEnding();
       } catch (err) {
         if (err instanceof Synchronize) {
-          cmds = this.syncNextRow();
+          this.syncNextRow();
           return null;
         }
         throw err;
@@ -335,10 +335,8 @@ class Parser {
     });
   }
 
-  private syncNextRow(): Cmd[] {
+  private syncNextRow(): void {
     return tracer.spanSync('syncNextRow', () => {
-      const cmds: Cmd[] = [];
-
       while (
         ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
           this.peek().kind,
@@ -348,13 +346,7 @@ class Parser {
         this.advance();
       }
 
-      // If we come across a remark, we should handle it and *then* the
-      // row ending
-      if (this.peek().kind === TokenKind.Rem) {
-        cmds.push(new Rem(this.previous.text));
-      }
       this.rowEnding();
-      return cmds;
     });
   }
 

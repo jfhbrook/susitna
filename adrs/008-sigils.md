@@ -1,5 +1,5 @@
-# ADR 002 - Sigils
-### Status: Draft
+# ADR 008 - Sigils
+### Status: Accepted
 ### Josh Holbrook
 
 ## Context

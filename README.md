@@ -29,7 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Throw those RuntimeFaults in the scanner
 - Logical operators
   - Settle on tokens - probably `and`, `or` and `not`
 - Warn if lines in program aren't in increments of 10

@@ -50,12 +50,12 @@ export class RuntimeFault extends Fault implements ExitCoded {
   constructor(
     message: any,
     public error: Error,
-    traceback: Traceback | null,
+    traceback: Traceback | null = null,
   ) {
     super(message, traceback);
   }
 
-  static fromError(err: any, traceback: Traceback | null): RuntimeFault {
+  static fromError(err: any, traceback: Traceback | null = null): RuntimeFault {
     let message = 'Unspecified error';
     if (typeof err.message === 'undefined') {
       if (err.format) {

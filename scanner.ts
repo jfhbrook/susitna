@@ -1,5 +1,6 @@
-import { Value } from './value';
+import { RuntimeFault } from './faults';
 import { Token, TokenKind } from './tokens';
+import { Value } from './value';
 
 export const KEYWORDS: Record<string, TokenKind> = {
   true: TokenKind.TrueLiteral,
@@ -333,8 +334,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 16);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid hex literal', err);
     }
     return this.emitToken(TokenKind.HexLiteral, value);
   }
@@ -347,8 +347,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 8);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid octal literal', err);
     }
     return this.emitToken(TokenKind.OctalLiteral, value);
   }
@@ -361,8 +360,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 16);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid binary literal', err);
     }
     return this.emitToken(TokenKind.BinaryLiteral, value);
   }
@@ -406,8 +404,7 @@ export class Scanner {
       value = parseInt(this.source.slice(this.start, this.current), 10);
       return this.emitToken(TokenKind.DecimalLiteral, value);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid decimal literal', err);
     }
   }
 

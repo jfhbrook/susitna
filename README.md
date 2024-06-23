@@ -30,6 +30,10 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Remark support
+  - [X] Scanner supports remarks
+  - [ ] Add remark support to AST (it would be a Cmd, probably)
+  - [ ] Add remark support to parser (with tests)
+  - [ ] Make compiler and commander ignore remarks
 - Logical operators
   - Settle on tokens - probably `and`, `or` and `not`
 - Improved error handling in Parser

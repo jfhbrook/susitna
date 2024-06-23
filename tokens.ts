@@ -30,6 +30,10 @@ export enum TokenKind {
   Ne = '<>',
   BangEq = '!=',
 
+  And = 'and',
+  Or = 'or',
+  Not = 'not',
+
   DecimalLiteral = '<decimal>',
   HexLiteral = '<hex>',
   OctalLiteral = '<octal>',

@@ -7,6 +7,10 @@ export const KEYWORDS: Record<string, TokenKind> = {
   false: TokenKind.FalseLiteral,
   nil: TokenKind.NilLiteral,
 
+  and: TokenKind.And,
+  or: TokenKind.Or,
+  not: TokenKind.Not,
+
   exit: TokenKind.Exit,
 
   // loading, saving, running etc

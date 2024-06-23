@@ -31,7 +31,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 - Logical operators
   - Settle on tokens - probably `and`, `or` and `not`
-- Warn if lines in program aren't in increments of 10
 - Add Inspector class to format
 - Handle types
   - An ADR to specify semantics

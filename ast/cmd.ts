@@ -4,6 +4,7 @@ export interface CmdVisitor<R> {
   visitExpressionCmd(node: Expression): R;
   visitPrintCmd(node: Print): R;
   visitExitCmd(node: Exit): R;
+  visitRemCmd(node: Rem): R;
 }
 
 export abstract class Cmd {
@@ -54,5 +55,19 @@ export class Exit extends Cmd {
 
   accept<R>(visitor: CmdVisitor<R>): R {
     return visitor.visitExitCmd(this);
+  }
+}
+
+export class Rem extends Cmd {
+  constructor(
+    public remark: string,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitRemCmd(this);
   }
 }

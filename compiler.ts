@@ -5,7 +5,7 @@ import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
 import { Line, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Exit, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
 import {
   ExprVisitor,
   Unary,
@@ -324,6 +324,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       }
     });
   }
+
+  visitRemCmd(_rem: Rem): void {}
 
   // Expressions
 

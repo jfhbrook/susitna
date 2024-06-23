@@ -11,7 +11,7 @@ import { renderPrompt } from './shell';
 import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Exit, Print, Expression, Rem } from './ast/cmd';
 
 const tracer = getTracer('main');
 
@@ -218,6 +218,10 @@ export class Commander implements CmdVisitor<Value | null> {
 
   visitExpressionCmd(expression: Expression): Value | null {
     return this.runCommand(expression);
+  }
+
+  visitRemCmd(_rem: Rem): Value | null {
+    return null;
   }
 
   //

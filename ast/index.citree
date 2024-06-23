@@ -16,10 +16,11 @@ type Expr in './expr' {
 type Cmd in './cmd' {
   import { Expr } from './expr'
 
-  Cmd => offsetStart: number = -1, offsetEnd: number = -1
+  Cmd        => offsetStart: number = -1, offsetEnd: number = -1
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null
+  Rem        => remark: string
 }
 
 type Tree in './index' {

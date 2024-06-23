@@ -9,10 +9,10 @@
 compile time.
 
 BASIC has manifest data types, insofar as the language distinguishes between
-numbers and strings. Syntactically, it does this by *postfixing* identifiers
-with a [sigil](https://www.perl.com/article/on-sigils/). By doing this, and
-by using distinct syntax for defining other types, the compiler is able to
-track and enforce the type of a variable throughout execution.
+numbers and string variables. Syntactically, it does this by *postfixing*
+identifiers with a [sigil](https://www.perl.com/article/on-sigils/). By doing
+this, and by using distinct syntax for defining other types, the compiler is
+able to track and enforce the type of a variable throughout execution.
 
 From a compiler perspective, this allows for the interpreter to use opcodes
 which can *assume* the type of a value. For instance, suppose you want to add
@@ -41,7 +41,8 @@ at runtime.
 ### The Decisions of MSX BASIC
 
 Between `Modern MSX Game Development` and the
-[MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html), we can discover these rules:
+[MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html),
+we can discover these rules:
 
 1. Integers in MSX BASIC have a `%` sigil.
 2. Singles in MSX BASIC have a `!` sigil.
@@ -54,34 +55,52 @@ Between `Modern MSX Game Development` and the
 6. Arrays and functions *by convention* have the same postfix sigils as their
    *return values* - but not always! While the syntax doesn't show their type
    in context, they are defined within the program using unambiguous syntax.
-7. Channels aren't variables, but are *prefixed* with `#` when specified.
-8. MSX BASIC doesn't have a dedicated boolean type. Instead, the integer `0`
+7. Arrays and functions in call signatures, however, *are* ambiguous, since
+   the relevant definition doesn't exist in the function. Within functions,
+   types are *not* completely manifest.
+8. Channels aren't variables, but are *prefixed* with `#` when specified.
+9. MSX BASIC doesn't have a dedicated boolean type. Instead, the integer `0`
    is treated as `false` and the integer `-1` is treated as `true`.
-9. Variables of different types can reuse the same names. The correct variable
+10. Variables of different types can reuse the same names. The correct variable
    is fetched based on the compiler's knowledge of the type.
 
-## Decision
+A few aspects of this are worth diving into in more detail.
 
-**This decision is incomplete. It's close, but I'm learning new things about
-this problem over time.**
+### Types in Call Signatures
 
-Matanuska BASIC will begin by broadly implementing the same decisions as
-MSX BASIC, with the following differences:
+In the context of a program, the type of an array or function is unambiguous.
+However, in the context of a call signature, they typically are. Arrays and
+functions don't have sigils, aside from a convention of including a sigil
+for the inner type. In effect, call signatures appear to be untyped in many
+implementations of BASIC.
 
-1. Since we only support Reals, use the `!` sigil exclusively.
-2. Do not implement default default types for identifiers without a sigil.
-3. Booleans will use a `?` sigil.
+In addition, a callable may return a void type. There is, of course, no
+sigil for identifying a void type.
 
-## Deferred Decisions
+Were we to stick to the syntax of a typical BASIC, we would also need to
+support untyped call signatures and return values. This is the most
+straightforward to implement, as it doesn't require inventing new syntax -
+simply check the types of values where used.
+
+There are, however, a few options for syntax extensions:
+
+1. Implement prefix sigils for functions and arrays. There is already an
+   example of prefix sigils for channels, and this would allow reuse of sigils
+   already used in a postfix context.
+2. Use sigils within a call syntax: `foo$(%)`. Combined with a prefix sigil,
+   this may look like `@foo$(%)` or `&foo!($)`.
+3. Require that functions without a sigil return `void`
 
 ### Untyped and Union Identifiers
 
-There are cases where untyped or union identifiers would be useful. For
-instance, many native functions in BASIC can accept union or any types.
+Variables and function arguments in MSX BASIC don't support unions. In other
+words, a variable can't be either an integer *or* a string. However, as
+mentioned, function arguments are effectively dynamically typed - and many
+*native* functions in BASIC *can* accept union or `any` types as arguments.
 
-One option is to list multiple sigils for union types. For instance, `ident%!`
-could be a union of integers and reals. In this case, ordering may be a
-linting rule.
+One option for a syntax extension to support these use cases is to list
+multiple sigils for union types. For instance, `ident%!` could be a union of
+integers and reals. In this case, ordering may be a linting rule.
 
 Another option is to allow completely untyped identifiers. These are two major
 options:
@@ -93,25 +112,33 @@ options:
    auto-assigning a type, this may be a natural choice. However, it's less
    explicit, and may discourage users from using types.
 
-This decision will be deferred until functions are implemented, or there is
-otherwise a use case for untyped or union identifiers.
+## Decision
 
-### Types in Call Signatures
+For primary types, Matanuska BASIC will begin by broadly implementing the same
+decisions as MSX BASIC, with the following differences:
 
-In the context of a program, the type of an array or function is unambiguous.
-However, in the context of a call signature, they may be. There are a few
-options:
+1. Since we only support Reals, use the `!` sigil exclusively.
+2. Do not implement default default types for identifiers without a sigil.
+3. Booleans will use a `?` sigil.
+4. In call signatures, no sigil will mean the value is untyped.
 
-1. Allow call signatures to be untyped. This appears to be the case with at
-   least a few implementations of BASIC. While this is likely straightforward
-   to implement, it may cause performance issues.
-2. Implement prefix sigils for functions and arrays. There is already an
-   example of prefix sigils for channels, and this would allow reuse of sigils
-   already used in a postfix context.
-3. Use sigils within a call syntax: `foo$(%)`. Combined with a prefix sigil,
-   this may look like `@foo$(%)` or `&foo!($)`.
+For now, we will assume that sigils in dims reflect their inner type, and
+that sigils in functions reflect their return type. When functions have no
+sigil, they will be expected to only use bare or implicit returns - ie, have
+a `void` return type.
 
-In addition, a callable may return a void type. One solution is to use no
-return sigil in those cases.
+However, we will also assume that call signatures of functions are untyped.
+While functions are likely going to remain unimplemented for some time, further
+decisions in the compiler and runtime will be made under this assumption.
+When functions are to be implemented, these decisions *may* be revisited.
 
-This decision will be deferred until functions are implemented.
+All syntax extensions aside from those already mentioned will be deferred
+until a later date. For instance, identifiers - for now - will only be allowed
+to support one type.
+
+These decisions are being made with the following goals:
+
+1. Avoiding novel syntax extensions. Syntax is really hard to get right, and
+   BASIC's syntax limits our ability to extend it in a comfortable manner.
+2. Keep implementation scope sensible. If we don't commit to building full
+   typing, we're not committed to building the features in the interpreter.

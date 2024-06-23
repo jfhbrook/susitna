@@ -31,10 +31,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 - Logical operators
   - Settle on tokens - probably `and`, `or` and `not`
-- Improved error handling in Parser
-  - Illegal or unexpected tokens
-  - Unterminated strings
-  - If I don't know how to test, throw a RuntimeFault
 - Improved error handling in Scanner
   - Many TODOs for places to throw RuntimeFaults
 - Use regular expressions in scanner

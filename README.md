@@ -29,11 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Handle types
-  - An ADR to specify semantics
-  - Finalized sigils ADR
-  - An ADR on type-aware bytecode
-  - Potentially make compiler type-aware
 - Comparisons syntax polish
   - Support `=` and `==` but warn on the former
   - Support `!=` and `<>` but warn on the former
@@ -47,13 +42,20 @@ expressions. But it's brittle, and has a lot of gaps.
 - Improved error handling in Scanner
   - Many TODOs for places to throw RuntimeFaults
 - Use regular expressions in scanner
-- Escaped newlines
 - Warn if lines in program loaded out of order
 - Warn if lines not in increments of 10
 - Add Inspector class to format
+- Handle types
+  - An ADR to specify semantics
+  - Finalized sigils ADR
+  - An ADR on type-aware bytecode
+  - Potentially make compiler type-aware
+- Interpreted/compiled mixed commands support in the compiler
 - Merge errors from parser and compiler when running files
+  - Depends on interpreted/compiled mixed commands support
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
+- Escaped newlines
 
 ### New Features
 

@@ -1,0 +1,46 @@
+{
+  "name": "@matanuska/test-generator",
+  "version": "0.0.1",
+  "description": "Test generator for Matanuska",
+  "main": "dist/index.js",
+  "bin": {
+    "test-generator": "dist/main.js"
+  },
+  "scripts": {
+    "build": "npm run build:typescript",
+    "build:typescript": "tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.ts\"",
+    "start": "npm run build && node ./dist/main.js",
+    "lint": "npm run build && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
+    "test": "tests-of-the-sierra-madre",
+    "console": "npm run build && ts-node",
+    "clean": "rm -rf ./dist"
+  },
+  "keywords": [
+    "basic",
+    "shell",
+    "language",
+    "interpreter"
+  ],
+  "author": "Josh Holbrook",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "source-map-support": "^0.5.21",
+    "tests-of-the-sierra-madre": "^1.0.0",
+    "ts-loader": "^9.4.3",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.1.3"
+  }
+}

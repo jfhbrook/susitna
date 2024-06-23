@@ -23,7 +23,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Exit, Expression } from './ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
@@ -254,7 +254,7 @@ class Parser {
         source = this.rowEnding();
       } catch (err) {
         if (err instanceof Synchronize) {
-          this.syncNextRow();
+          cmds = this.syncNextRow();
           return null;
         }
         throw err;
@@ -320,10 +320,14 @@ class Parser {
 
   private syncNextCommand() {
     return tracer.spanSync('syncNextCommand', () => {
+      // Remarks can be handled in the next attempt at parsing a command
       while (
-        ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
-          this.peek().kind,
-        )
+        ![
+          TokenKind.Colon,
+          TokenKind.LineEnding,
+          TokenKind.Eof,
+          TokenKind.Rem,
+        ].includes(this.peek().kind)
       ) {
         // TODO: Illegal, UnterminatedString
         this.advance();
@@ -331,15 +335,26 @@ class Parser {
     });
   }
 
-  private syncNextRow() {
+  private syncNextRow(): Cmd[] {
     return tracer.spanSync('syncNextRow', () => {
+      const cmds: Cmd[] = [];
+
       while (
-        ![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)
+        ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
+          this.peek().kind,
+        )
       ) {
         // TODO: Illegal, UnterminatedString
         this.advance();
       }
+
+      // If we come across a remark, we should handle it and *then* the
+      // row ending
+      if (this.peek().kind === TokenKind.Rem) {
+        cmds.push(new Rem(this.previous.text));
+      }
       this.rowEnding();
+      return cmds;
     });
   }
 
@@ -354,7 +369,9 @@ class Parser {
       let cmd: Cmd | null = this.command();
       const cmds: Cmd[] = cmd ? [cmd] : [];
 
-      while (this.match(TokenKind.Colon)) {
+      // A remark doesn't need to be separated from a prior command by a
+      // colon
+      while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
         try {
           cmd = this.command();
           if (cmd) {
@@ -378,7 +395,11 @@ class Parser {
 
       let cmd: Cmd | null;
 
-      if (this.match(TokenKind.Print)) {
+      // Remarks are treated like commands - the scanner handles the fact
+      // that they include all text to the end of the line
+      if (this.match(TokenKind.Rem)) {
+        return new Rem(this.previous.text);
+      } else if (this.match(TokenKind.Print)) {
         cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {

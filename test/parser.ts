@@ -410,3 +410,8 @@ t.test('program with a negative line number', async (t: Test) => {
 
 // TODO: tests with illegal tokens (what is an illegal token?)
 // TODO: a test involving both errors and warnings
+
+// TODO: test bare remark
+// TODO: test remark following a command
+// TODO: test remark following a colon
+// TODO: test remark following a syntax error

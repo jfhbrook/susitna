@@ -507,32 +507,27 @@ class Parser {
   }
 
   private equality(): Expr {
-    let expr: Expr = this.comparison();
+    return this.operator(
+      [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
+      this.comparison.bind(this),
+      (left, op, right) => {
+        if (op == TokenKind.Eq) {
+          this.syntaxWarning(
+            this.previous,
+            'Use `==` instead of `==` for equality',
+          );
+          op = TokenKind.EqEq;
+        } else if (op == TokenKind.BangEq) {
+          this.syntaxWarning(
+            this.previous,
+            'Use `<>` instead of `!=` for equality',
+          );
+          op = TokenKind.Ne;
+        }
 
-    while (
-      this.match(TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne)
-    ) {
-      let op = this.previous.kind;
-      if (op == TokenKind.Eq) {
-        this.syntaxWarning(
-          this.peek(),
-          'Use `==` instead of `==` for equality',
-        );
-        op = TokenKind.EqEq;
-      } else if (op == TokenKind.BangEq) {
-        this.syntaxWarning(
-          this.peek(),
-          'Use `<>` instead of `!=` for equality',
-        );
-        op = TokenKind.Ne;
-      }
-
-      const right = this.comparison();
-
-      expr = new Binary(expr, op, right);
-    }
-
-    return expr;
+        return new Binary(left, op, right);
+      },
+    );
   }
 
   private comparison(): Expr {

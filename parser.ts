@@ -469,8 +469,7 @@ class Parser {
   private expression(): Expr {
     return tracer.spanSync('expression', () => {
       // TODO: assignment
-      // TODO: logical expressions (and, or)
-      return this.equality();
+      return this.or();
     });
   }
 
@@ -498,6 +497,14 @@ class Parser {
     }
 
     return expr as Binary;
+  }
+
+  private or(): Logical {
+    return this.logicalOperator([TokenKind.Or], this.and.bind(this));
+  }
+
+  private and(): Logical {
+    return this.logicalOperator([TokenKind.And], this.equality.bind(this));
   }
 
   private equality(): Binary {
@@ -551,7 +558,7 @@ class Parser {
   }
 
   private unary(): Expr {
-    if (this.match(TokenKind.Minus)) {
+    if (this.match(TokenKind.Not, TokenKind.Minus)) {
       const op = this.previous.kind;
       const right = this.unary();
 

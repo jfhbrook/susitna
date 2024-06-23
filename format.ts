@@ -1,5 +1,7 @@
 import { inspect } from 'util';
 
+import c from 'ansi-colors';
+
 import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './constants';
 import {
   BaseException,
@@ -104,7 +106,7 @@ export abstract class Formatter
       return this.formatArray(value);
     }
 
-    return inspect(value);
+    return this.formatAny(value);
   }
 
   //
@@ -163,19 +165,65 @@ export abstract class Formatter
   abstract formatStack(stack: Stack): string;
 
   abstract formatArray(array: any[]): string;
+
+  abstract formatAny(value: any): string;
+}
+
+interface InspectOptions {
+  colors?: boolean;
 }
 
 /**
  * Inspect a string. Includes the quotes and does escaping appropriately.
  */
-export function inspectString(str: string): string {
+export function inspectString(
+  str: string,
+  options: InspectOptions = { colors: false },
+): string {
+  // TODO: Node splits multi line strings. That would be a cool feature to
+  // add.
+  let fmt: string;
+
   if (str.includes("'")) {
     if (str.includes('"')) {
-      return `'${str.replace(/'/g, "\\'")}'`;
+      fmt = `'${str.replace(/'/g, "\\'")}'`;
+    } else {
+      fmt = `"${str}"`;
     }
-    return `"${str}"`;
+  } else {
+    fmt = `'${str}'`;
   }
-  return `'${str}'`;
+
+  if (options.colors) {
+    fmt = c.green(fmt);
+  }
+
+  return fmt;
+}
+
+/**
+ * Inspect an array with the supplied formatter.
+ */
+function inspectArray(
+  array: any[],
+  formatter: Formatter,
+  options: InspectOptions = { colors: false },
+): string {
+  // NOTE: I can't cheese this with Node's inspector because Node will render
+  // formatted entities as inspected strings.
+  //
+  // TODO: Format arrays on a single line when they're short.
+  let formatted = '[\n';
+  for (let i = 0; i < array.length; i++) {
+    if (typeof array[i] === 'string') {
+      formatted += indent(1, inspectString(array[i], options));
+    } else {
+      formatted += indent(1, formatter.format(array[i]));
+    }
+    formatted += ',\n';
+  }
+  formatted += ']';
+  return formatted;
 }
 
 /**
@@ -504,17 +552,11 @@ export class DefaultFormatter extends Formatter {
   }
 
   formatArray(array: any[]): string {
-    let formatted = '[\n';
-    for (let i = 0; i < array.length; i++) {
-      if (typeof array[i] === 'string') {
-        formatted += indent(1, inspectString(array[i]));
-      } else {
-        formatted += indent(1, this.format(array[i]));
-      }
-      formatted += ',\n';
-    }
-    formatted += ']';
-    return formatted;
+    return inspectArray(array, this);
+  }
+
+  formatAny(value: any): string {
+    return inspect(value);
   }
 }
 
@@ -522,3 +564,103 @@ export class DefaultFormatter extends Formatter {
  * The default formatter, initialized for your convenience.
  */
 export const formatter = new DefaultFormatter();
+
+export class Inspector extends DefaultFormatter {
+  public colors: boolean = true;
+
+  // TODO: I'm using the Node.js inspector here. That's fine for now, but
+  // ideally I'd write my own inspector that encodes my personal opinions.
+  formatString(str: string): string {
+    return inspectString(str, this);
+  }
+
+  formatNumber(num: number): string {
+    return inspect(num, this);
+  }
+
+  formatBoolean(bool: boolean): string {
+    return inspect(bool, this);
+  }
+
+  // TODO: Node colors errors by greying out all tracebacks but the
+  // nearest frame (which is at the top in JavaScript)
+  formatTraceback(traceback: Traceback | null): string {
+    return formatter.format(traceback);
+  }
+
+  private inspectException(exc: BaseException): string {
+    return formatter.format(exc);
+  }
+
+  private inspectFault(fault: BaseFault): string {
+    return formatter.format(fault);
+  }
+
+  formatBaseException(exc: BaseException): string {
+    return this.inspectException(exc);
+  }
+
+  formatBaseWarning(warn: BaseWarning): string {
+    return this.inspectException(warn);
+  }
+
+  formatOsError(exc: OsError): string {
+    return this.inspectException(exc);
+  }
+
+  formatFileError(exc: FileError): string {
+    return this.inspectException(exc);
+  }
+
+  formatSyntaxError(exc: SyntaxError): string {
+    return this.inspectException(exc);
+  }
+
+  formatParseError(exc: ParseError): string {
+    return this.inspectException(exc);
+  }
+
+  formatSyntaxWarning(warn: SyntaxWarning): string {
+    return this.inspectException(warn);
+  }
+
+  formatParseWarning(warn: ParseWarning): string {
+    return this.inspectException(warn);
+  }
+
+  formatBaseFault(fault: BaseFault): string {
+    return this.inspectFault(fault);
+  }
+
+  formatRuntimeFault(fault: RuntimeFault): string {
+    return this.inspectFault(fault);
+  }
+
+  formatUsageFault(fault: UsageFault): string {
+    return this.inspectFault(fault);
+  }
+
+  formatExit(exit: Exit): string {
+    let exitCode: string = String(exit.exitCode);
+
+    if (exit.exitCode) {
+      exitCode = c.red(exitCode);
+    } else {
+      exitCode = c.green(exitCode);
+    }
+    return `Exit ${exitCode}${exit.message.length ? ': ' + exit.message : ''}`;
+  }
+
+  // TODO: I'm currently formatting AST nodes and stacks identically in the
+  // inspector as I am the formatter. Do I want to do anything different?
+
+  formatArray(array: any[]): string {
+    return inspectArray(array, this, this);
+  }
+
+  formatAny(value: any): string {
+    return inspect(value, this);
+  }
+}
+
+export const inspector = new Inspector();

@@ -3,7 +3,12 @@ import * as assert from 'assert';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Formatter, DefaultFormatter, inspectString } from '../format';
+import {
+  Formatter,
+  DefaultFormatter,
+  Inspector,
+  inspectString,
+} from '../format';
 
 import { ErrorCode } from '../errors';
 import {
@@ -352,6 +357,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
   });
 }
 
-for (const ctor of [DefaultFormatter]) {
+for (const ctor of [DefaultFormatter, Inspector]) {
   formatTestSuite(new ctor());
 }

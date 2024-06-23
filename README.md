@@ -29,7 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Add Inspector class to format
 - Handle types
   - An ADR to specify semantics
   - Finalized sigils ADR

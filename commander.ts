@@ -5,6 +5,7 @@ import { Chunk } from './bytecode/chunk';
 import { compile } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
+import { inspector } from './format';
 import { Host } from './host';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
@@ -176,7 +177,7 @@ export class Commander implements CmdVisitor<Value | null> {
         if (lastCmd) {
           const rv = lastCmd.accept(this);
           if (rv !== null) {
-            this.host.writeLine(rv);
+            this.host.writeLine(inspector.format(rv));
           }
         }
       } catch (err) {

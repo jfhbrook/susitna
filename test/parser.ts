@@ -12,7 +12,7 @@ import {
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Exit, Expression } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
 import { TokenKind } from '../tokens';
@@ -276,6 +276,56 @@ t.test('exit command', async (t: Test) => {
   });
 });
 
+t.test('remarks', async (t: Test) => {
+  await t.test('bare remark', async (t: Test) => {
+    const source = 'rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [new Rem('this is a comment', 0, 21)]),
+      ]),
+    );
+  });
+
+  await t.test('remark following a command', async (t: Test) => {
+    const source = 'print 1 rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [
+          new Print(new IntLiteral(1), 0, 7),
+          new Rem('this is a comment', 8, 29),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('remark as a second command', async (t: Test) => {
+    const source = 'print 1 : rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [
+          new Print(new IntLiteral(1), 0, 7),
+          new Rem('this is a comment', 10, 31),
+        ]),
+      ]),
+    );
+  });
+});
+
 t.test('empty input', async (t: Test) => {
   const result = parseInput('');
 
@@ -410,8 +460,3 @@ t.test('program with a negative line number', async (t: Test) => {
 
 // TODO: tests with illegal tokens (what is an illegal token?)
 // TODO: a test involving both errors and warnings
-
-// TODO: test bare remark
-// TODO: test remark following a command
-// TODO: test remark following a colon
-// TODO: test remark following a syntax error

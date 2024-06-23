@@ -416,3 +416,76 @@ t.test('line endings with whitespace', async (t: Test) => {
     text: '',
   });
 });
+
+t.test('remarks', async (t: Test) => {
+  await t.test('bare remark', async (t: Test) => {
+    const source = 'rem this is a comment';
+    const tokens = scanTokens(source);
+
+    t.equal(tokens.length, 2);
+
+    t.has(tokens[0], {
+      kind: TokenKind.Rem,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: 21,
+      text: 'rem this is a comment',
+      value: 'this is a comment',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.Eof,
+      index: 21,
+      row: 1,
+      offsetStart: 21,
+      offsetEnd: 21,
+      text: '',
+    });
+  });
+
+  await t.test('remark following a command', async (t: Test) => {
+    const source = 'print 1 rem this is a comment';
+    const tokens = scanTokens(source);
+
+    t.equal(tokens.length, 4);
+
+    t.has(tokens[0], {
+      kind: TokenKind.Print,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: 5,
+      text: 'print',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.DecimalLiteral,
+      index: 6,
+      row: 1,
+      offsetStart: 6,
+      offsetEnd: 7,
+      text: '1',
+      value: 1,
+    });
+
+    t.has(tokens[2], {
+      kind: TokenKind.Rem,
+      index: 8,
+      row: 1,
+      offsetStart: 8,
+      offsetEnd: 29,
+      text: 'rem this is a comment',
+      value: 'this is a comment',
+    });
+
+    t.has(tokens[3], {
+      kind: TokenKind.Eof,
+      index: 29,
+      row: 1,
+      offsetStart: 29,
+      offsetEnd: 29,
+      text: '',
+    });
+  });
+});

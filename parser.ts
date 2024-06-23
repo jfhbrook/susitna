@@ -390,7 +390,7 @@ class Parser {
       // Remarks are treated like commands - the scanner handles the fact
       // that they include all text to the end of the line
       if (this.match(TokenKind.Rem)) {
-        return new Rem(this.previous.text);
+        cmd = new Rem(this.previous.value as string);
       } else if (this.match(TokenKind.Print)) {
         cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)

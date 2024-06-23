@@ -548,7 +548,6 @@ class Parser {
 
   private primary(): Expr | null {
     return tracer.spanSync('primary', () => {
-      // TODO: Illegal, UnterminatedString
       if (
         this.match(
           TokenKind.DecimalLiteral,
@@ -572,10 +571,13 @@ class Parser {
         return this.group();
       } else {
         const token = this.peek();
-        this.syntaxError(
-          token,
-          `Unexpected token ${token.text.length ? token.text : token.kind}`,
-        );
+        let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
+
+        if (token.kind == TokenKind.UnterminatedStringLiteral) {
+          msg = `Unterminated string ${token.text}`;
+        }
+
+        this.syntaxError(token, msg);
         this.syncNextCommand();
         return null;
       }

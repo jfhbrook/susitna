@@ -159,7 +159,7 @@ export class Commander implements CmdVisitor<Value | null> {
    */
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return tracer.span('evalCommands', async () => {
-      this.cmdNo += 100;
+      this.cmdNo += 10;
       this.cmdSource = cmds.source;
       try {
         const commands = Array.from(cmds.commands);

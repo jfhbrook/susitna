@@ -29,7 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Logical operators
 - Test for operator precedence
 - Add Inspector class to format
 - Handle types
@@ -75,6 +74,9 @@ expressions. But it's brittle, and has a lot of gaps.
 - If/else
 - For and while
 - Gotos
+- Logical operators
+  - [X] Support through the parser
+  - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
 
 ### Up Next

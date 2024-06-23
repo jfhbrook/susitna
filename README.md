@@ -29,7 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Test for operator precedence
 - Add Inspector class to format
 - Handle types
   - An ADR to specify semantics
@@ -37,8 +36,7 @@ expressions. But it's brittle, and has a lot of gaps.
   - An ADR on type-aware bytecode
   - Potentially make compiler type-aware
 - Interpreted/compiled mixed commands support in the compiler
-- Merge errors from parser and compiler when running files
-  - Depends on interpreted/compiled mixed commands support
+  - Merge errors from parser and compiler when running files
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
 - Escaped newlines

@@ -104,7 +104,7 @@ export class RuntimeFault extends Fault implements ExitCoded {
  */
 @errorType('NotImplementedFault')
 export class NotImplementedFault extends RuntimeFault {
-  constructor(message: any, traceback: Traceback | null) {
+  constructor(message: any, traceback: Traceback | null = null) {
     super(message, new Error(), traceback);
     this.error = this;
   }

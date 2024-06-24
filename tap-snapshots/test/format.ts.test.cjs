@@ -19,13 +19,13 @@ BaseFault: message
     at Test.<anonymous> ({CWD}/test/format.ts:239:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1161:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
-    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
-    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:880:29)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:613:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:79:19)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1230:9)
+    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:881:29)
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseWarning > must match snapshot 1`] = `
@@ -135,12 +135,12 @@ AssertionError [ERR_ASSERTION]: underlying assertion
     at Test.<anonymous> ({CWD}/test/format.ts:243:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1161:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
-    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:613:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:79:19)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1230:9)
 
 --- Traceback ---
 Traceback:
@@ -148,7 +148,7 @@ Traceback:
 
 --- Versions ---
 Matanuska BASIC: v0.0.1
-TypeScript: v5.3.3
+TypeScript: v5.5.2
 Node.js: v21.6.1
 
 This is a bug in Matanuska BASIC. If you copy this entire message and post it
@@ -309,13 +309,13 @@ BaseFault: message
     at Test.<anonymous> ({CWD}/test/format.ts:239:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1161:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
-    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
-    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:880:29)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:613:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:79:19)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1230:9)
+    at Test.#process ({CWD}/node_modules/@tapjs/core/src/test-base.ts:881:29)
 `
 
 exports[`test/format.ts > TAP > given a Inspector > it formats a BaseWarning > must match snapshot 1`] = `
@@ -425,12 +425,12 @@ AssertionError [ERR_ASSERTION]: underlying assertion
     at Test.<anonymous> ({CWD}/test/format.ts:243:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
-    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
-    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1160:7)
+    at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
+    at Test.main ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1161:7)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
-    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:609:15)
-    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:78:19)
-    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1229:9)
+    at Test.runMain ({CWD}/node_modules/@tapjs/core/src/base.ts:613:15)
+    at Test.runMain ({CWD}/node_modules/@tapjs/test/test-built/src/index.ts:79:19)
+    at Test.#processSubtest ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1230:9)
 
 --- Traceback ---
 Traceback:
@@ -438,7 +438,7 @@ Traceback:
 
 --- Versions ---
 Matanuska BASIC: v0.0.1
-TypeScript: v5.3.3
+TypeScript: v5.5.2
 Node.js: v21.6.1
 
 This is a bug in Matanuska BASIC. If you copy this entire message and post it

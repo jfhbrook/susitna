@@ -84,7 +84,7 @@ function castReal(value: number, to_: Type): Value {
 function castBoolean(value: boolean, to_: Type.Integer): number;
 function castBoolean(value: boolean, to_: Type.Real): number;
 function castBoolean(value: boolean, to_: Type.Boolean): boolean;
-function castBoolean(value: boolean, to_: Type.String): string;
+function castBoolean(value: boolean, to_: Type.String): never;
 function castBoolean(value: boolean, to_: Type.Exception): never;
 function castBoolean(value: boolean, to_: Type.Nil): never;
 function castBoolean(value: boolean, to_: Type): never;

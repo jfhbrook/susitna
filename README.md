@@ -35,7 +35,12 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] An ADR on type-aware bytecode
   - [X] Implement typed sigils in the scanner
     - Remember, the parser doesn't touch idents yet
-  - [ ] Types, type guards and typecasting functionality
+  - [X] Type enum
+  - [ ] Casting
+    - With tests
+  - [ ] TypeError
+    - Including value and type properties
+  - [ ] Type checker for values
   - [ ] Simulated stack in the compiler
   - [ ] Type checks (but not typed instructions) in the compiler
   - [ ] Type checks and casting in the runtime

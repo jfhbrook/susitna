@@ -60,6 +60,12 @@ export class AssertionError extends Exception {
 export class RuntimeError extends Exception {}
 
 /**
+ * An exception raised when casting is not supported.
+ */
+@errorType('TypeError')
+export class TypeError extends RuntimeError {}
+
+/**
  * An exception raised when functionality is not implemented. Extends
  * RuntimeError.
  */

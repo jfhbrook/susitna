@@ -13,6 +13,10 @@ import {
 import { ErrorCode } from '../errors';
 import {
   BaseException,
+  Exception,
+  RuntimeError,
+  TypeError,
+  NotImplementedError,
   AssertionError,
   BaseWarning,
   OsError,
@@ -80,11 +84,17 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(formatter.format(TRACEBACK));
     });
 
-    t.test('it formats a BaseException', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(new BaseException('message', TRACEBACK)),
-      );
-    });
+    for (const ctor of [
+      BaseException,
+      Exception,
+      RuntimeError,
+      TypeError,
+      NotImplementedError,
+    ]) {
+      t.test(`it formats a ${ctor.prototype.name}`, async (t: Test) => {
+        t.matchSnapshot(formatter.format(new ctor('message', TRACEBACK)));
+      });
+    }
 
     t.test('it formats a BaseWarning', async (t: Test) => {
       t.matchSnapshot(formatter.format(new BaseWarning('message', TRACEBACK)));

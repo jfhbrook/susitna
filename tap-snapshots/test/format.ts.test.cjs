@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:222:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:232:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -55,6 +55,12 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Cmd > mu
 Print('hello')
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Exception > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+Exception: message
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a FileError with one file > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
@@ -84,6 +90,12 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a NilLiter
 nil
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a NotImplementedError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+NotImplementedError: message
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a null value > must match snapshot 1`] = `
 null
 `
@@ -108,13 +120,19 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RealLite
 123.456
 `
 
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+RuntimeError: message
+`
+
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeFault > must match snapshot 1`] = `
 === RUNTIME FAULT ===
 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:226:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:236:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -166,6 +184,12 @@ Token(<string>) {
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Traceback > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a TypeError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+TypeError: message
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Unary expression > must match snapshot 1`] = `
@@ -279,7 +303,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a BaseFault > mus
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:222:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:232:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -318,6 +342,12 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a Cmd > must matc
 Print('hello')
 `
 
+exports[`test/format.ts > TAP > given a Inspector > it formats a Exception > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+Exception: message
+`
+
 exports[`test/format.ts > TAP > given a Inspector > it formats a FileError with one file > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
@@ -347,6 +377,12 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a NilLiteral > mu
 nil
 `
 
+exports[`test/format.ts > TAP > given a Inspector > it formats a NotImplementedError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+NotImplementedError: message
+`
+
 exports[`test/format.ts > TAP > given a Inspector > it formats a null value > must match snapshot 1`] = `
 [1mnull[22m
 `
@@ -371,13 +407,19 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a RealLiteral > m
 123.456
 `
 
+exports[`test/format.ts > TAP > given a Inspector > it formats a RuntimeError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+RuntimeError: message
+`
+
 exports[`test/format.ts > TAP > given a Inspector > it formats a RuntimeFault > must match snapshot 1`] = `
 === RUNTIME FAULT ===
 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:226:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:236:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1152:21)
@@ -429,6 +471,12 @@ Token(<string>) {
 exports[`test/format.ts > TAP > given a Inspector > it formats a Traceback > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
+`
+
+exports[`test/format.ts > TAP > given a Inspector > it formats a TypeError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+TypeError: message
 `
 
 exports[`test/format.ts > TAP > given a Inspector > it formats a Unary expression > must match snapshot 1`] = `

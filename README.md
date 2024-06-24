@@ -36,7 +36,7 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Implement typed sigils in the scanner
     - Remember, the parser doesn't touch idents yet
   - [X] Type enum
-  - [ ] Casting
+  - [X] Casting
     - With tests
   - [ ] TypeError
     - Including value and type properties

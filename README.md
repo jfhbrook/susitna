@@ -38,7 +38,7 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Type enum
   - [X] Casting
     - With tests
-  - [ ] TypeError
+  - [X] TypeError
     - Including value and type properties
   - [ ] Type checker for values
   - [ ] Simulated stack in the compiler

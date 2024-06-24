@@ -1,12 +1,10 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { BaseException, TypeError } from '../exceptions';
-import { BaseFault, RuntimeFault } from '../faults';
-import { formatter } from '../format';
-import { cast } from '../cast';
-import { Type } from '../type';
-import { nil, Value } from '../value';
+import { BaseException, TypeError } from '../../exceptions';
+import { BaseFault, RuntimeFault } from '../../faults';
+import { formatter } from '../../format';
+import { nil, Value, Type, cast } from '../../value';
 
 const EXCEPTION = new BaseException('test exception');
 

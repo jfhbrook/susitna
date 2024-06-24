@@ -1,7 +1,7 @@
 import { Nil, Value } from './value';
-import { Type, UNKNOWN } from './type';
-import { BaseException, TypeError } from './exceptions';
-import { RuntimeFault } from './faults';
+import { Type, UNKNOWN } from './types';
+import { BaseException, TypeError } from '../exceptions';
+import { RuntimeFault } from '../faults';
 
 //
 // Type casting. Be prepared for massive function signature overloads!
@@ -301,4 +301,5 @@ function cast(value: Value, from_: Type, to_: Type): Value {
       return castFault(value, UNKNOWN, UNKNOWN);
   }
 }
+
 export { cast };

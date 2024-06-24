@@ -2,6 +2,7 @@ import { ExitCode, ExitCoded } from './exit';
 import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
+import { Value } from './value';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
@@ -63,7 +64,32 @@ export class RuntimeError extends Exception {}
  * An exception raised when casting is not supported.
  */
 @errorType('TypeError')
-export class TypeError extends RuntimeError {}
+export class TypeError extends RuntimeError {
+  public from: string;
+  public to: string;
+  /**
+   * @param message The message for the exception.
+   * @param value The value attempted to cast
+   * @param from_ The type attempted to cast from
+   * @param to_ The type attempted to cast to
+   * @param traceback The traceback for the exception.
+   */
+  constructor(
+    public readonly message: any,
+    public readonly value: Value,
+    from_: string,
+    to_: string,
+    public readonly traceback: Traceback | null = null,
+  ) {
+    super(message, traceback);
+    this.from = from_;
+    this.to = to_;
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatTypeError(this);
+  }
+}
 
 /**
  * An exception raised when functionality is not implemented. Extends

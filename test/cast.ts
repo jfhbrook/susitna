@@ -10,12 +10,7 @@ import { nil, Value } from '../value';
 
 const EXCEPTION = new BaseException('test exception');
 
-type TestCase = [
-  Value,
-  Type,
-  Type,
-  Value | typeof BaseException | typeof RuntimeFault,
-];
+type TestCase = [Value, Type, Type, any];
 
 const CASES: TestCase[] = [
   [123, Type.Integer, Type.Integer, 123],

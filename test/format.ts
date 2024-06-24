@@ -88,7 +88,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       BaseException,
       Exception,
       RuntimeError,
-      TypeError,
       NotImplementedError,
     ]) {
       t.test(`it formats a ${ctor.prototype.name}`, async (t: Test) => {
@@ -107,6 +106,14 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats an AssertionError', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(new AssertionError('message', TRACEBACK)),
+      );
+    });
+
+    t.test('it formats a TypeError', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new TypeError('message', 123, 'integer', 'nil', TRACEBACK),
+        ),
       );
     });
 

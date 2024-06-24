@@ -7,6 +7,7 @@ import {
   BaseException,
   AssertionError,
   BaseWarning,
+  TypeError,
   OsError,
   FileError,
   SourceLocation,
@@ -123,6 +124,7 @@ export abstract class Formatter
   abstract formatBaseException(exc: BaseException): string;
   abstract formatBaseWarning(warn: BaseWarning): string;
   abstract formatAssertionError(exc: AssertionError): string;
+  abstract formatTypeError(exc: TypeError): string;
   abstract formatOsError(exc: OsError): string;
   abstract formatFileError(exc: FileError): string;
   abstract formatSyntaxError(exc: SyntaxError): string;
@@ -291,6 +293,22 @@ export class DefaultFormatter extends Formatter {
 
   formatAssertionError(exc: AssertionError): string {
     return this.formatBaseException(exc);
+  }
+
+  formatTypeError(exc: TypeError): string {
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report += `${exc.constructor.name}: ${exc.message}\n`;
+    report += `  Value: ${this.format(exc.value)}\n`;
+    report += `  From: ${exc.from}\n`;
+    report += `  To: ${exc.to}`;
+
+    return report;
   }
 
   formatOsError(exc: OsError): string {

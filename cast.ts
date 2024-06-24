@@ -17,8 +17,8 @@ import { RuntimeFault } from './faults';
 // runtime check I can technically avoid.
 //
 
-function castError(_value: Value, from_: string, to_: string): never {
-  throw new TypeError(`Cannot cast ${from_} to ${to_}`);
+function castError(value: Value, from_: string, to_: string): never {
+  throw new TypeError(`Cannot cast ${from_} to ${to_}`, value, from_, to_);
 }
 
 function castFault(value: Value, from_: string, to_: string): never {

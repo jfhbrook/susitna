@@ -164,7 +164,7 @@ export abstract class Formatter
   abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
 
-  abstract formatStack(stack: Stack): string;
+  abstract formatStack<V>(stack: Stack<V>): string;
 
   abstract formatArray(array: any[]): string;
 
@@ -560,7 +560,7 @@ export class DefaultFormatter extends Formatter {
     return `Rem(${rem.remark})`;
   }
 
-  formatStack(stack: Stack): string {
+  formatStack<V>(stack: Stack<V>): string {
     let formatted = '{ ';
     for (const v of stack.stack) {
       formatted += this.format(v);

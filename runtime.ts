@@ -12,7 +12,7 @@ import { OpCode } from './bytecode/opcodes';
 const tracer = getTracer('main');
 
 export class Runtime {
-  public stack: Stack;
+  public stack: Stack<Value>;
   public pc: number = -1;
   public chunk: Chunk = new Chunk();
 

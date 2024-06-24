@@ -30,10 +30,15 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Handle types
-  - An ADR to specify semantics
-  - Finalized sigils ADR
-  - An ADR on type-aware bytecode
-  - Potentially make compiler type-aware
+  - [X] An ADR to specify semantics
+  - [X] Finalized sigils ADR
+  - [X] An ADR on type-aware bytecode
+  - [ ] Implement typed sigils in the scanner
+    - Remember, the parser doesn't touch idents yet
+  - [ ] Types, type guards and typecasting functionality
+  - [ ] Simulated stack in the compiler
+  - [ ] Type checks (but not typed instructions) in the compiler
+  - [ ] Type checks and casting in the runtime
 - Interpreted/compiled mixed commands support in the compiler
   - Merge errors from parser and compiler when running files
 - Test programs with asserted output

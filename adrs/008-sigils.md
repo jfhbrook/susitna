@@ -122,6 +122,16 @@ decisions as MSX BASIC, with the following differences:
 3. Booleans will use a `?` sigil.
 4. In call signatures, no sigil will mean the value is untyped.
 
+That is:
+
+| sigil    | type |
+|----------|------|
+| `%`      | int  |
+| `!`      | real |
+| `?`      | bool |
+| `$`      | str  |
+| `<none>` | any  |
+
 For now, we will assume that sigils in dims reflect their inner type, and
 that sigils in functions reflect their return type. When functions have no
 sigil, they will be expected to only use bare or implicit returns - ie, have

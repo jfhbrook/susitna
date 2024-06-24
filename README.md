@@ -33,7 +33,7 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] An ADR to specify semantics
   - [X] Finalized sigils ADR
   - [X] An ADR on type-aware bytecode
-  - [ ] Implement typed sigils in the scanner
+  - [X] Implement typed sigils in the scanner
     - Remember, the parser doesn't touch idents yet
   - [ ] Types, type guards and typecasting functionality
   - [ ] Simulated stack in the compiler

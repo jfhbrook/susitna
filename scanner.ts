@@ -427,12 +427,32 @@ export class Scanner {
       }
     }
 
-    const value = this.source.slice(this.start, this.current);
     let kind: TokenKind;
-    if (KEYWORDS[value]) {
-      kind = KEYWORDS[value];
-    } else {
-      kind = TokenKind.Ident;
+    let value = this.source.slice(this.start, this.current);
+    switch (this.peek()) {
+      case '%':
+        kind = TokenKind.IntIdent;
+        value += this.advance();
+        break;
+      case '!':
+        kind = TokenKind.RealIdent;
+        value += this.advance();
+        break;
+      case '?':
+        kind = TokenKind.BoolIdent;
+        value += this.advance();
+        break;
+      case '$':
+        kind = TokenKind.StringIdent;
+        value += this.advance();
+        break;
+      default:
+        if (KEYWORDS[value]) {
+          kind = KEYWORDS[value];
+        } else {
+          kind = TokenKind.Ident;
+        }
+        break;
     }
 
     return this.emitToken(kind, value);

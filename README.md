@@ -31,7 +31,7 @@ expressions. But it's brittle, and has a lot of gaps.
 
 - Handle types
   - [X] Implement basic runtime operations
-  - [ ] Tests for typeof
+  - [X] Tests for typeof
   - [ ] Tests for operations
   - [ ] Unary operations
   - [ ] Comparison operations

@@ -7,7 +7,6 @@
     "matbas": "bin/matbas"
   },
   "scripts": {
-    "install": "npm run install:citree && npm run install:test-generator",
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
     "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:typescript",

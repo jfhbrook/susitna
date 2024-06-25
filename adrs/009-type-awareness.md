@@ -57,7 +57,10 @@ later.
 First, we will implement type checks in the compiler by simulating a stack.
 These types will initially support primary types and an `Any` type. This will
 allow the compiler to detect and throw type errors, giving an improved user
-experience.
+experience. However, this work may be deferred until an unspecified date.
+It's more important that runtime behavior is correct than it is that type
+errors are caught in the compiler, and implementing it is relatively
+challenging - and low priority.
 
 Second, we will *not* initially support typed operations in the runtime. This
 will likely manifest in a slower runtime as compared to one that *can* assume

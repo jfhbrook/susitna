@@ -30,20 +30,10 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Handle types
-  - [X] An ADR to specify semantics
-  - [X] Finalized sigils ADR
-  - [X] An ADR on type-aware bytecode
-  - [X] Implement typed sigils in the scanner
-    - Remember, the parser doesn't touch idents yet
-  - [X] Type enum
-  - [X] Casting
-    - With tests
-  - [X] TypeError
-    - Including value and type properties
-  - [ ] Type checker for values
-  - [ ] Simulated stack in the compiler
-  - [ ] Type checks (but not typed instructions) in the compiler
-  - [ ] Type checks and casting in the runtime
+  - [ ] Refactor `wouldCast` to `castType` that can return `Invalid`
+  - [ ] Implement runtime operations
+  - [ ] Implement type analogs to operations
+  - [ ] BONUS: Simulated stack in the compiler
 - Interpreted/compiled mixed commands support in the compiler
   - Merge errors from parser and compiler when running files
 - Test programs with asserted output
@@ -85,6 +75,7 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Support through the parser
   - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
+- Type checking in the compiler
 
 ### Up Next
 

@@ -34,8 +34,8 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Tests for typeof
   - [X] Unary operations
   - [X] Comparison operations
-  - [ ] Divide by zero error
-  - [ ] Tests for truthiness
+  - [X] Divide by zero error
+  - [X] Tests for truthiness
   - [ ] Tests for operations
   - [ ] Runtime tests for operations
   - [ ] Update ADRs based on implementation

@@ -29,23 +29,6 @@ function castFault(value: Value, from_: string, to_: string): never {
   }
 }
 
-function checkError(from_: string, to_: string): never {
-  throw new TypeError(
-    `Cannot predict cast of ${from_} to ${to_}`,
-    null,
-    from_,
-    to_,
-  );
-}
-
-function checkFault(from_: string, to_: string): never {
-  try {
-    checkError(from_, to_);
-  } catch (err) {
-    throw new RuntimeFault(`Cannot predict cast of ${from_} to ${to_}`, err);
-  }
-}
-
 function castInteger(value: number, to_: Type.Integer): number;
 function castInteger(value: number, to_: Type.Real): number;
 function castInteger(value: number, to_: Type.Boolean): boolean;
@@ -72,16 +55,18 @@ function castInteger(value: number, to_: Type): Value {
   return castFault(value, Type.Integer, Type.Unknown);
 }
 
-function wouldCastInteger(to_: Type): boolean {
+function castIntegerType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Integer, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
-      return true;
+      return Type.Boolean;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -111,16 +96,18 @@ function castReal(value: number, to_: Type): Value {
   return castFault(value, Type.Real, Type.Unknown);
 }
 
-function wouldCastReal(to_: Type): boolean {
+function castRealType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Real, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
-      return true;
+      return Type.Boolean;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -150,16 +137,18 @@ function castBoolean(value: boolean, to_: Type): Value {
   return castFault(value, Type.Boolean, Type.Unknown);
 }
 
-function wouldCastBoolean(to_: Type): boolean {
+function castBooleanType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Boolean, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
-      return true;
+      return Type.Boolean;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -189,15 +178,16 @@ function castString(value: string, to_: Type): Value {
   return castFault(value, Type.String, Type.Unknown);
 }
 
-function wouldCastString(to_: Type): boolean {
+function castStringType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.String, to_);
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
-      return true;
+      return Type.String;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -230,15 +220,16 @@ function castException(value: BaseException, to_: Type): Value {
   return castFault(value, Type.Exception, Type.Unknown);
 }
 
-function wouldCastException(to_: Type): boolean {
+function castExceptionType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Exception, to_);
     case Type.Boolean:
+      return Type.Boolean;
     case Type.Exception:
-      return true;
+      return Type.Exception;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -268,15 +259,16 @@ function castNil(value: Nil, to_: Type): Value {
   return castFault(value, Type.Nil, Type.Unknown);
 }
 
-function wouldCastNil(to_: Type): boolean {
+function castNilType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Nil, to_);
     case Type.Boolean:
+      return Type.Boolean;
     case Type.Nil:
-      return true;
+      return Type.Nil;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -307,6 +299,10 @@ function castAny(value: Value, to_: Type): Value {
     return castNil(value, to_);
   }
   return castFault(value, Type.Any, Type.Unknown);
+}
+
+function castAnyType(_to: Type): Type {
+  return Type.Any;
 }
 
 function cast(value: Value, from_: Type.Integer, to_: Type.Integer): number;
@@ -394,23 +390,25 @@ function cast(value: Value, from_: Type, to_: Type): Value {
   }
 }
 
-function wouldCast(from_: Type, to_: Type): boolean {
+function castType(from_: Type, to_: Type): Type {
   switch (from_) {
     case Type.Integer:
-      return wouldCastInteger(to_);
+      return castIntegerType(to_);
     case Type.Real:
-      return wouldCastReal(to_);
+      return castRealType(to_);
     case Type.Boolean:
-      return wouldCastBoolean(to_);
+      return castBooleanType(to_);
     case Type.String:
-      return wouldCastString(to_);
+      return castStringType(to_);
     case Type.Exception:
-      return wouldCastException(to_);
+      return castExceptionType(to_);
     case Type.Nil:
-      return wouldCastNil(to_);
+      return castNilType(to_);
+    case Type.Any:
+      return castAnyType(to_);
     default:
-      checkFault(from_, to_);
+      return Type.Invalid;
   }
 }
 
-export { cast, wouldCast };
+export { cast, castType };

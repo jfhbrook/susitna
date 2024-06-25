@@ -30,7 +30,6 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Handle types
-  - [ ] Refactor `wouldCast` to `castType` that can return `Invalid`
   - [ ] Implement runtime operations
   - [ ] Implement type analogs to operations
   - [ ] BONUS: Simulated stack in the compiler

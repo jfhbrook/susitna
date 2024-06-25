@@ -4,7 +4,7 @@ import { Test } from 'tap';
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from '../../faults';
 import { formatter } from '../../format';
-import { nil, Value, Type, into, wouldConvert } from '../../value';
+import { nil, Value, Type, into, intoType } from '../../value';
 
 const EXCEPTION = new BaseException('test exception');
 
@@ -67,9 +67,12 @@ const CASES: TestCase[] = [
 
 function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
   const proto = (expected as any).prototype;
+  const isError = proto instanceof BaseException || proto instanceof BaseFault;
+  const isUnimplemented = isError
+    ? proto.name === 'NotImplementedFault'
+    : false;
 
-  if (proto instanceof BaseException || proto instanceof BaseFault) {
-    const isUnimplemented = proto.name === 'NotImplementedFault';
+  if (isError) {
     t.test(
       `into(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`,
       async (t: Test) => {
@@ -79,22 +82,6 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
         );
       },
     );
-
-    if (from_ !== Type.Any && to_ !== Type.Any) {
-      if (isUnimplemented) {
-        t.test(`wouldConvert(${from_}, ${to_}) -> true`, async (t: Test) => {
-          t.ok(wouldConvert(from_, to_));
-        });
-      } else {
-        t.test(`wouldConvert(${from_}, ${to_}) -> false`, async (t: Test) => {
-          t.notOk(wouldConvert(from_, to_));
-        });
-      }
-    } else {
-      t.test(`wouldConvert(${from_}, ${to_}) throws`, async (t: Test) => {
-        t.throws(() => wouldConvert(from_, to_));
-      });
-    }
   } else {
     t.test(
       `into(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`,
@@ -102,16 +89,20 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
         t.same(into(value, from_, to_), expected);
       },
     );
+  }
 
-    if (from_ !== Type.Any && to_ !== Type.Any) {
-      t.test(`wouldConvert(${from_}, ${to_}) -> true`, async (t: Test) => {
-        t.ok(wouldConvert(from_, to_));
-      });
-    } else {
-      t.test(`wouldConvert(${from_}, ${to_}) throws`, async (t: Test) => {
-        t.throws(() => wouldConvert(from_, to_));
-      });
-    }
+  if (from_ === Type.Any || to_ === Type.Any) {
+    t.test(`intoType(${from_}, ${to_}) -> any`, async (t: Test) => {
+      t.equal(intoType(from_, to_), Type.Any);
+    });
+  } else if (isError && !isUnimplemented) {
+    t.test(`intoType(${from_}, ${to_}) -> invalid`, async (t: Test) => {
+      t.equal(intoType(from_, to_), Type.Invalid);
+    });
+  } else {
+    t.test(`intoType(${from_}, ${to_}) -> ${to_}`, async (t: Test) => {
+      t.equal(intoType(from_, to_), to_);
+    });
   }
 }
 

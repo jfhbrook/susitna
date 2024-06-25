@@ -28,26 +28,6 @@ function conversionFault(value: Value, from_: string, to_: string): never {
   }
 }
 
-function checkError(from_: string, to_: string): never {
-  throw new TypeError(
-    `Cannot predict conversion of ${from_} to ${to_}`,
-    null,
-    from_,
-    to_,
-  );
-}
-
-function checkFault(from_: string, to_: string): never {
-  try {
-    checkError(from_, to_);
-  } catch (err) {
-    throw new RuntimeFault(
-      `Cannot predict conversion of ${from_} to ${to_}`,
-      err,
-    );
-  }
-}
-
 function fromInteger(value: number, to_: Type.Integer): number;
 function fromInteger(value: number, to_: Type.Real): number;
 function fromInteger(value: number, to_: Type.Boolean): boolean;
@@ -74,17 +54,20 @@ function fromInteger(value: number, to_: Type): Value {
   return conversionFault(value, Type.Integer, Type.Unknown);
 }
 
-function wouldConvertInteger(to_: Type): boolean {
+function fromIntegerType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Integer, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
-      return true;
+      return Type.String;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -114,17 +97,20 @@ function fromReal(value: number, to_: Type): Value {
   return conversionFault(value, Type.Real, Type.Unknown);
 }
 
-function wouldConvertReal(to_: Type): boolean {
+function fromRealType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Real, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
-      return true;
+      return Type.String;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -154,17 +140,20 @@ function fromBoolean(value: boolean, to_: Type): Value {
   return conversionFault(value, Type.Boolean, Type.Unknown);
 }
 
-function wouldConvertBoolean(to_: Type): boolean {
+function fromBooleanType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Boolean, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
-      return true;
+      return Type.String;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -195,17 +184,20 @@ function fromString(value: string, to_: Type): Value {
   return conversionFault(value, Type.String, Type.Unknown);
 }
 
-function wouldConvertString(to_: Type): boolean {
+function fromStringType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.String, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
-      return true;
+      return Type.String;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -238,16 +230,18 @@ function fromException(value: BaseException, to_: Type): Value {
   return conversionFault(value, Type.Exception, Type.Unknown);
 }
 
-function wouldConvertException(to_: Type): boolean {
+function fromExceptionType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Exception, to_);
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
+      return Type.String;
     case Type.Exception:
-      return true;
+      return Type.Exception;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -277,18 +271,22 @@ function fromNil(value: Nil, to_: Type): Value {
   return conversionFault(value, Type.Nil, Type.Unknown);
 }
 
-function wouldConvertNil(to_: Type): boolean {
+function fromNilType(to_: Type): Type {
   switch (to_) {
-    case Type.Any:
-      return checkFault(Type.Nil, to_);
     case Type.Integer:
+      return Type.Integer;
     case Type.Real:
+      return Type.Real;
     case Type.Boolean:
+      return Type.Boolean;
     case Type.String:
+      return Type.String;
     case Type.Nil:
-      return true;
+      return Type.Nil;
+    case Type.Any:
+      return Type.Any;
     default:
-      return false;
+      return Type.Invalid;
   }
 }
 
@@ -319,6 +317,10 @@ function fromAny(value: Value, to_: Type): Value {
     return fromNil(value, to_);
   }
   return conversionFault(value, Type.Any, Type.Unknown);
+}
+
+function fromAnyType(_to: Type): Type {
+  return Type.Any;
 }
 
 function into(value: Value, from_: Type.Integer, to_: Type.Integer): number;
@@ -406,23 +408,25 @@ function into(value: Value, from_: Type, to_: Type): Value {
   }
 }
 
-function wouldConvert(from_: Type, to_: Type): boolean {
+function intoType(from_: Type, to_: Type): Type {
   switch (from_) {
     case Type.Integer:
-      return wouldConvertInteger(to_);
+      return fromIntegerType(to_);
     case Type.Real:
-      return wouldConvertReal(to_);
+      return fromRealType(to_);
     case Type.Boolean:
-      return wouldConvertBoolean(to_);
+      return fromBooleanType(to_);
     case Type.String:
-      return wouldConvertString(to_);
+      return fromStringType(to_);
     case Type.Exception:
-      return wouldConvertException(to_);
+      return fromExceptionType(to_);
     case Type.Nil:
-      return wouldConvertNil(to_);
+      return fromNilType(to_);
+    case Type.Any:
+      return fromAnyType(to_);
     default:
-      checkFault(from_, to_);
+      return Type.Invalid;
   }
 }
 
-export { into, wouldConvert };
+export { into, intoType };

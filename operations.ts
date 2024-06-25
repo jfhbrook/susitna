@@ -1,6 +1,5 @@
 import { errorType } from './errors';
 import { TypeError, ZeroDivisionError } from './exceptions';
-import { formatter } from './format';
 import { Value } from './value';
 import { Type } from './value/types';
 import { typeOf } from './value/typeof';
@@ -254,14 +253,7 @@ export const div = binaryOperation({
     // because JavaScript will do the right thing for any numbers, and strings
     // are invalid anyway.
     if (!bCast) {
-      throw new ZeroDivisionError(
-        `Cannot divide ${formatter.format(aOriginal)} by ` +
-          formatter.format(bOriginal),
-        aOriginal,
-        aType,
-        bOriginal,
-        bType,
-      );
+      throw new ZeroDivisionError(aOriginal, aType, bOriginal, bType);
     }
   },
   boolean: (a, _b) => (a ? 1 : 0),

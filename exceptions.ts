@@ -3,7 +3,6 @@ import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 import { Value } from './value';
-import { Type } from './value/types';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
@@ -105,15 +104,19 @@ export class ArithmeticError extends RuntimeError {}
 @errorType('ZeroDivisionError')
 export class ZeroDivisionError extends ArithmeticError {
   constructor(
-    public readonly message: any,
     public readonly a: Value,
-    public readonly typeA: Type,
+    public readonly typeA: string,
     public readonly b: Value,
-    public readonly typeB: Type,
+    public readonly typeB: string,
     public traceback: Traceback | null = null,
   ) {
+    const message = 'Cannot divide by zero';
     super(message, traceback);
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatZeroDivisionError(this);
   }
 }
 

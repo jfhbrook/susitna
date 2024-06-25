@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:239:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:248:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -132,7 +132,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeF
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:243:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:252:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -203,6 +203,12 @@ Unary(-) {
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a UsageFault > must match snapshot 1`] = `
 Usage: lol
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a ZeroDivisionError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+ZeroDivisionError: Cannot divide 1 by 0
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats an array of values > must match snapshot 1`] = `
@@ -306,7 +312,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a BaseFault > mus
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:239:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:248:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -422,7 +428,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a RuntimeFault > 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:243:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:252:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -493,6 +499,12 @@ Unary(-) {
 
 exports[`test/format.ts > TAP > given a Inspector > it formats a UsageFault > must match snapshot 1`] = `
 Usage: lol
+`
+
+exports[`test/format.ts > TAP > given a Inspector > it formats a ZeroDivisionError > must match snapshot 1`] = `
+Traceback:
+  File '/home/josh/script.bas', line 100
+ZeroDivisionError: Cannot divide 1 by 0
 `
 
 exports[`test/format.ts > TAP > given a Inspector > it formats an array of values > must match snapshot 1`] = `

@@ -19,6 +19,7 @@ import {
   NotImplementedError,
   AssertionError,
   BaseWarning,
+  ZeroDivisionError,
   OsError,
   FileError,
   SyntaxError,
@@ -113,6 +114,14 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(
         formatter.format(
           new TypeError('message', 123, 'integer', 'nil', TRACEBACK),
+        ),
+      );
+    });
+
+    t.test('it formats a ZeroDivisionError', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new ZeroDivisionError(1, 'integer', 0, 'integer', TRACEBACK),
         ),
       );
     });

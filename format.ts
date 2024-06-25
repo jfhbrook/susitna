@@ -8,6 +8,7 @@ import {
   AssertionError,
   BaseWarning,
   TypeError,
+  ZeroDivisionError,
   OsError,
   FileError,
   SourceLocation,
@@ -125,6 +126,7 @@ export abstract class Formatter
   abstract formatBaseWarning(warn: BaseWarning): string;
   abstract formatAssertionError(exc: AssertionError): string;
   abstract formatTypeError(exc: TypeError): string;
+  abstract formatZeroDivisionError(exc: ZeroDivisionError): string;
   abstract formatOsError(exc: OsError): string;
   abstract formatFileError(exc: FileError): string;
   abstract formatSyntaxError(exc: SyntaxError): string;
@@ -307,6 +309,23 @@ export class DefaultFormatter extends Formatter {
     report += `  Value: ${this.format(exc.value)}\n`;
     report += `  From: ${exc.from}\n`;
     report += `  To: ${exc.to}`;
+
+    return report;
+  }
+
+  formatZeroDivisionError(exc: ZeroDivisionError): string {
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report +=
+      `${exc.constructor.name}: Cannot divide ` +
+      formatter.format(exc.a) +
+      ' by ' +
+      formatter.format(exc.b);
 
     return report;
   }

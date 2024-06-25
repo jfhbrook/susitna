@@ -25,26 +25,32 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 ## Current Status and Next Steps
 
 The interpreter can run "hello world" in a REPL and evaluate simple
-expressions. But it's brittle, and has a lot of gaps.
+expressions. Now is time to add some basic features and button up a few
+gaps.
 
-### Near Term Polish
-
-- Interpreted/compiled mixed commands support in the compiler
-  - Merge errors from parser and compiler when running files
-- Test programs with asserted output
-  - Including generated "exceedingly large" tests
-- Escaped newlines
-
-### New Features
+### Prioritized Backlog
 
 - Editing
   - Editor class
   - Editor commands
   - Syntax for blank (not removed) line
+- RUN command
+  - interpreted/compiled mixed commands support in the compiler
+- BONUS: Merge errors from parser and compiler
+- LIST command
+  - working recreator
+- Global variables
+- If/else
+- For and while
+- Logical operators
+  - [X] Support through the parser
+  - [ ] Requires Jump and JumpIfFalse operators
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
-- Code formatting
+- REPL history support
+  - Support \# and \! in prompt rendering
+- Gotos
 - Shell commands
   - Will need to research jobs in Bash
   - Scanner and parser support for shell commands and "shell tokens"
@@ -58,21 +64,14 @@ expressions. But it's brittle, and has a lot of gaps.
   - Core library
   - Host support
   - (Language support can come later)
-- REPL history support
-  - Support \# and \! in prompt rendering
-- Global variables
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
-- If/else
-- For and while
-- Gotos
-- Logical operators
-  - [X] Support through the parser
-  - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
+  - Including generated "exceedingly large" tests
 - Type-checking compiler
-  - [ ] Implement type analogs to operations
-  - [ ] Simulated stack in the compiler
+  - Implement type analogues to operations
+  - Simulated stack in the compiler
+- Escaped newlines
 
 ### Up Next
 

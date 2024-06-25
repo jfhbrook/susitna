@@ -56,7 +56,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private filename: string;
   private routineType: RoutineType = RoutineType.Command;
 
-  private stack: Stack<Type> = new Stack();
+  // private stack: Stack<Type> = new Stack();
 
   // Set to true whenever an expression command is compiled. In the case of
   // Cmds, this will signal that the result of the single expression

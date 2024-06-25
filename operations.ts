@@ -1,142 +1,118 @@
-import { Type } from './value';
+import { TypeError } from './exceptions';
+import { RuntimeFault } from './faults';
+import { Value, cast, Type, typeOf_ } from './value';
 
-/**
- * The expected return type of a typical binary math expression, given
- * its input types.
- *
- * @param a The type of the first argument.
- * @param b The type of the second argument.
- *
- * @returns The expected type of the operation.
- */
-export function binaryMathReturnType(a: Type, b: Type): Type {
-  // TODO: This is an extremely error-prone approach to this problem. Can
-  // I simplify this logic to use wouldCast ?
-  // - will cast from boolean to integer and from integer to real
-  // - if any arguments are Any, the return type is Any
-  // - if any arguments are other values, it fails - how to encode that?
-  switch (a) {
-    case Type.Integer:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Integer;
-        case Type.String:
-          return Type.Unknown;
-        case Type.Exception:
-          return Type.Unknown;
-        case Type.Nil:
-          return Type.Unknown;
-        case Type.Any:
-          return Type.Any;
-      }
-    case Type.Real:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
+function typePrecedence(type: Type): number {
+  switch (type) {
     case Type.Boolean:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
+      return 0;
+    case Type.Integer:
+      return 1;
+    case Type.Real:
+      return 2;
     case Type.String:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
-
-    case Type.Exception:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
-
-    case Type.Nil:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
-
-    case Type.Any:
-      switch (b) {
-        case Type.Integer:
-          return Type.Integer;
-        case Type.Real:
-          return Type.Real;
-        case Type.Boolean:
-          return Type.Boolean;
-        case Type.String:
-          return Type.String;
-        case Type.Exception:
-          return Type.Exception;
-        case Type.Nil:
-          return Type.Nil;
-        case Type.Any:
-          return Type.Any;
-      }
+      return 3;
+    default:
+      return 4;
   }
 }
+
+export function highestTypePrecedence(a: Type, b: Type): Type {
+  if (typePrecedence(a) > typePrecedence(b)) {
+    return a;
+  }
+  return b;
+}
+
+type Operator = {
+  name: string;
+  boolean: (a: boolean, b: boolean) => Value;
+  integer: (a: number, b: number) => Value;
+  real: (a: number, b: number) => Value;
+  string: (a: string, b: string) => Value;
+};
+
+type Operation = (a: Value, b: Value) => Value;
+
+function unreachable(name: string): never {
+  throw new RuntimeFault(
+    `Unreachable: ${name}`,
+    new Error(`Unreachable: ${name}`),
+  );
+}
+
+export function binaryMathOperation(op: Operator): Operation {
+  return function operation(a: Value, b: Value): Value {
+    console.log(typeOf_);
+    const castTo = highestTypePrecedence(typeOf_(a), typeOf_(b));
+
+    switch (castTo) {
+      case Type.Boolean:
+        return op.boolean(
+          cast(a, Type.Any, Type.Boolean),
+          cast(b, Type.Any, Type.Boolean),
+        );
+      case Type.Integer:
+        return op.integer(
+          cast(a, Type.Any, Type.Integer),
+          cast(b, Type.Any, Type.Integer),
+        );
+      case Type.Real:
+        return op.real(
+          cast(a, Type.Any, Type.Real),
+          cast(b, Type.Any, Type.Real),
+        );
+      case Type.String:
+        return op.string(
+          cast(a, Type.Any, Type.String),
+          cast(b, Type.Any, Type.String),
+        );
+      default:
+        throw new TypeError(
+          `Invalid operand for ${op.name}: ${typeof b}`,
+          b,
+          typeOf_(b),
+          Type.Invalid,
+        );
+    }
+  };
+}
+
+export const add = binaryMathOperation({
+  name: '+',
+  boolean: (a, b) => a && b,
+  integer: (a, b) => a + b,
+  real: (a, b) => a + b,
+  string: (a, b) => a + b,
+});
+
+export const sub = binaryMathOperation({
+  name: '-',
+  boolean: (a, b) => {
+    if (a) {
+      return b ? 0 : 1;
+    } else {
+      return b ? -1 : 0;
+    }
+  },
+  integer: (a, b) => a - b,
+  real: (a, b) => a - b,
+  string: (_a, _b) => unreachable('<str> - <str>'),
+});
+
+export const mul = binaryMathOperation({
+  name: '*',
+  boolean: (a, b) => a && b,
+  integer: (a, b) => a * b,
+  real: (a, b) => a * b,
+  string: (_a, _b) => unreachable('<str> * <str>'),
+});
+
+// TODO: Error for divide by zero
+export const div = binaryMathOperation({
+  name: '/',
+  boolean: (a, b) => (a ? 1 : 0) / (b ? 1 : 0),
+  integer: (a, b) => a / b,
+  real: (a, b) => a / b,
+  string: (_a, _b) => unreachable('<str> / <str>'),
+});

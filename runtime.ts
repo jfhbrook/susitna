@@ -9,6 +9,8 @@ import { Value, nil, Nil } from './value';
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
 
+import * as op from './operations';
+
 const tracer = getTracer('main');
 
 export class Runtime {
@@ -127,22 +129,22 @@ export class Runtime {
             case OpCode.Add:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a + b);
+              this.stack.push(op.add(a, b));
               break;
             case OpCode.Sub:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a - b);
+              this.stack.push(op.sub(a, b));
               break;
             case OpCode.Mul:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a * b);
+              this.stack.push(op.mul(a, b));
               break;
             case OpCode.Div:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a / b);
+              this.stack.push(op.div(a, b));
               break;
             case OpCode.Neg:
               a = this.stack.pop();

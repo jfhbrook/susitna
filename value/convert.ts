@@ -12,6 +12,11 @@ import { formatter } from '../format';
 // flexible and forgiving. For example, the number `123` can't be cast to
 // a string, but *can* be converted into `"123"`.
 //
+// NOTE: Conversions to booleans are exactly equivalent to checking
+// truthiness. We could use the truthy function, but we already know all the
+// types so we just do it in-place. The tests assert that the results are
+// the same as a call to truthy.
+//
 // TODO: Should I simply implement separate functions for each conversion
 // instead of switching on a Type enum each time? I like this API but it's
 // doing a runtime check I can technically avoid.

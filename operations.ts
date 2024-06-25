@@ -1,10 +1,10 @@
 import { errorType } from './errors';
 import { TypeError } from './exceptions';
-import { RuntimeFault } from './faults';
 import { Value } from './value';
 import { Type } from './value/types';
 import { typeOf } from './value/typeof';
 import { cast } from './value/cast';
+import { falsey } from './value/truthiness';
 
 // TODO: I stumbled on a really nasty circular import bug. I was originally
 // importing and re-exporting everything I'm importing here in value's index.
@@ -34,13 +34,6 @@ export function highestTypePrecedence(a: Type, b: Type): Type {
     return a;
   }
   return b;
-}
-
-function unreachable(name: string): never {
-  throw new RuntimeFault(
-    `Unreachable: ${name}`,
-    new Error(`Unreachable: ${name}`),
-  );
 }
 
 @errorType('Invalid')
@@ -148,6 +141,52 @@ export function unaryOperation(op: UnaryOperator): UnaryOperation {
   };
 }
 
+type ComparisonOperator = {
+  name: string;
+  any: (a: Value, aT: Type, b: Value, bT: Type) => boolean;
+  boolean: (a: boolean, b: boolean) => boolean;
+  integer: (a: number, b: number) => boolean;
+  real: (a: number, b: number) => boolean;
+  string: (a: string, b: string) => boolean;
+};
+
+type ComparisonOperation = (a: Value, b: Value) => boolean;
+
+export function comparisonOperation(
+  op: ComparisonOperator,
+): ComparisonOperation {
+  return function operation(a: Value, b: Value): boolean {
+    const typeA = typeOf(a);
+    const typeB = typeOf(b);
+
+    if (typeA != typeB) {
+      return op.any(a, typeA, b, typeB);
+    }
+
+    switch (typeA) {
+      case Type.Boolean:
+        return op.boolean(a as boolean, b as boolean);
+      case Type.Integer:
+        return op.integer(a as number, b as number);
+      case Type.Real:
+        return op.real(a as number, b as number);
+      case Type.String:
+        return op.string(a as string, b as string);
+      default:
+        throw new TypeError(
+          `Invalid operand for ${op.name} on ${typeA}: ${typeB}`,
+          b,
+          typeB,
+          Type.Invalid,
+        );
+    }
+  };
+}
+
+//
+// Math operators
+//
+
 export const add = binaryOperation({
   name: '+',
   boolean: (a, b) => a && b,
@@ -188,9 +227,90 @@ export const div = binaryOperation({
 });
 
 export const neg = unaryOperation({
-  name: '/',
+  name: '-',
   boolean: (a) => (a ? -1 : 0),
   integer: (a) => -a,
   real: (a) => -a,
   string: (_a) => invalid(),
 });
+
+//
+// Comparison operators
+//
+
+export const eq = comparisonOperation({
+  name: '==',
+  any: (_a, _aT, _b, _bT) => false,
+  boolean: (a, b) => a === b,
+  integer: (a, b) => a === b,
+  real: (a, b) => a === b,
+  string: (a, b) => a === b,
+});
+
+export const ne = comparisonOperation({
+  name: '<>',
+  any: (_a, _aT, _b, _bT) => true,
+  boolean: (a, b) => a !== b,
+  integer: (a, b) => a !== b,
+  real: (a, b) => a !== b,
+  string: (a, b) => a !== b,
+});
+
+export const gt = comparisonOperation({
+  name: '>',
+  any: (_a, _aT, _b, _bT) => invalid(),
+  boolean: (a, b) => a > b,
+  integer: (a, b) => a > b,
+  real: (a, b) => a > b,
+  string: (a, b) => a > b,
+});
+
+export const ge = comparisonOperation({
+  name: '>=',
+  any: (_a, _aT, _b, _bT) => invalid(),
+  boolean: (a, b) => a >= b,
+  integer: (a, b) => a >= b,
+  real: (a, b) => a >= b,
+  string: (a, b) => a >= b,
+});
+
+export const lt = comparisonOperation({
+  name: '<',
+  any: (_a, _aT, _b, _bT) => invalid(),
+  boolean: (a, b) => a < b,
+  integer: (a, b) => a < b,
+  real: (a, b) => a < b,
+  string: (a, b) => a < b,
+});
+
+export const le = comparisonOperation({
+  name: '<=',
+  any: (_a, _aT, _b, _bT) => invalid(),
+  boolean: (a, b) => a <= b,
+  integer: (a, b) => a <= b,
+  real: (a, b) => a <= b,
+  string: (a, b) => a <= b,
+});
+
+//
+// Logic operations. And and Or are implemented in bytecode using a combination
+// of Jump and JumpIfFalse. That leaves Not. Not is equivalent to falsey,
+// but is wrapped to provide a better error.
+//
+
+export function not(a: Value): boolean {
+  const type = typeOf(a);
+  try {
+    return falsey(a, type);
+  } catch (err) {
+    if (err instanceof TypeError) {
+      throw new TypeError(
+        `Invalid operand for not: ${type}`,
+        a,
+        type,
+        Type.Invalid,
+      );
+    }
+    throw err;
+  }
+}

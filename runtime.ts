@@ -83,48 +83,39 @@ export class Runtime {
             case OpCode.Pop:
               this.stack.pop();
               break;
-            //
-            // TODO: These operators don't do any type checking right now. At a
-            // minimum I need to check what the types of a/b are and switch
-            // accordingly. But I may also want separate instructions for
-            // different types. I may also want to have particular instructions
-            // for type conversions.
-            //
-            // TODO: Define my own semantics for equality.
-            //
             case OpCode.Eq:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a === b);
+              this.stack.push(op.eq(a, b));
               break;
             case OpCode.Gt:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a > b);
+              this.stack.push(op.gt(a, b));
               break;
             case OpCode.Ge:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a >= b);
+              this.stack.push(op.ge(a, b));
               break;
             case OpCode.Lt:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a < b);
+              this.stack.push(op.lt(a, b));
               break;
             case OpCode.Le:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a <= b);
+              this.stack.push(op.le(a, b));
               break;
             case OpCode.Ne:
               b = this.stack.pop();
               a = this.stack.pop();
-              this.stack.push(a !== b);
+              this.stack.push(op.ne(a, b));
               break;
             case OpCode.Not:
               a = this.stack.pop();
-              this.stack.push(!a);
+              this.stack.push(op.not(a));
               break;
             case OpCode.Add:
               b = this.stack.pop();

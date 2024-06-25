@@ -39,10 +39,12 @@ cast before an operation so they're the same type.
 
 In theory, these casting rules could be bespoke to every combination of
 types. However, in practice, one type is cast to the other type, based on what
-I'm calling **casting precedence** or **type precedence**. Consider the
-previous example - the boolean was converted to a real, because the type of
-real has a "higher precedence" than the boolean. I unfortunately do not know
-if there's accepted formal language for this concept.
+I'm calling **type precedence**. Consider the previous example - the boolean
+was converted to a real, because the type of real has a "higher precedence"
+than the boolean. I'm not sure if this concept is widely accepted. However, at
+least one language,
+[T-SQL](https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-type-precedence-transact-sql?view=sql-server-ver16),
+implements something similar.
 
 **Conversion** is similar to casting, but is always explicit and more relaxed.
 Conversion is not used in operators, but will come into play in the future

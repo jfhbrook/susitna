@@ -3,7 +3,7 @@ import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
 
 `{% if matbas_build == 'debug' %}`;
-import * as c from 'ansi-colors';
+import c from 'ansi-colors';
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
 `{% if show_chunk %}`;

@@ -29,31 +29,11 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Handle types
-  - An ADR to specify semantics
-  - Finalized sigils ADR
-  - An ADR on type-aware bytecode
-  - Potentially make compiler type-aware
-- Comparisons syntax polish
-  - Support `=` and `==` but warn on the former
-  - Support `!=` and `<>` but warn on the former
-- Remark support
-- Logical operators
-  - Settle on tokens - probably `and`, `or` and `not`
-- Improved error handling in Parser
-  - Illegal or unexpected tokens
-  - Unterminated strings
-  - If I don't know how to test, throw a RuntimeFault
-- Improved error handling in Scanner
-  - Many TODOs for places to throw RuntimeFaults
-- Use regular expressions in scanner
-- Escaped newlines
-- Warn if lines in program loaded out of order
-- Warn if lines not in increments of 10
-- Add Inspector class to format
-- Merge errors from parser and compiler when running files
+- Interpreted/compiled mixed commands support in the compiler
+  - Merge errors from parser and compiler when running files
 - Test programs with asserted output
   - Including generated "exceedingly large" tests
+- Escaped newlines
 
 ### New Features
 
@@ -86,7 +66,13 @@ expressions. But it's brittle, and has a lot of gaps.
 - If/else
 - For and while
 - Gotos
+- Logical operators
+  - [X] Support through the parser
+  - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
+- Type-checking compiler
+  - [ ] Implement type analogs to operations
+  - [ ] Simulated stack in the compiler
 
 ### Up Next
 
@@ -157,5 +143,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - [cpython internals](https://devguide.python.org/internals/)
   - [Python disassembler](https://docs.python.org/3/library/dis.html)
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)
+- [MSX-BASIC Instructions - MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions)
 - [An Introduction to Programming BBC BASIC](https://www.bbcbasic.co.uk/bbcwin/tutorial/index.html)
 - [BASIC Computer Games Microcomputer Edition](https://annarchive.com/files/Basic_Computer_Games_Microcomputer_Edition.pdf)

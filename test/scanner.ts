@@ -28,11 +28,13 @@ const PUNCTUATION = [
   ['/', TokenKind.Slash],
   ['\\', TokenKind.BSlash],
   ['=', TokenKind.Eq],
+  ['==', TokenKind.EqEq],
   ['>', TokenKind.Gt],
   ['>=', TokenKind.Ge],
   ['<', TokenKind.Lt],
   ['<=', TokenKind.Le],
   ['<>', TokenKind.Ne],
+  ['!=', TokenKind.BangEq],
   ['+', TokenKind.Plus],
   ['-', TokenKind.Minus],
   ['*', TokenKind.Star],
@@ -196,6 +198,10 @@ t.test('numbers', async (t: Test) => {
 const IDENT = [
   ['pony', TokenKind.Ident],
   ['_abc123', TokenKind.Ident],
+  ['pony%', TokenKind.IntIdent],
+  ['pony!', TokenKind.RealIdent],
+  ['pony?', TokenKind.BoolIdent],
+  ['pony$', TokenKind.StringIdent],
 ];
 
 t.test('identifiers', async (t: Test) => {
@@ -303,7 +309,7 @@ t.test('hello world', async (t: Test) => {
 t.test('function call', async (t: Test) => {
   const text = 'pony(u$, v$)';
   const tokens = scanTokens(text);
-  t.equal(tokens.length, 9);
+  t.equal(tokens.length, 7);
 
   t.has(tokens[0], {
     kind: TokenKind.Ident,
@@ -316,36 +322,26 @@ t.test('function call', async (t: Test) => {
   });
 
   t.has(tokens[2], {
-    kind: TokenKind.Ident,
-    text: 'u',
+    kind: TokenKind.StringIdent,
+    text: 'u$',
   });
 
   t.has(tokens[3], {
-    kind: TokenKind.Dollar,
-    text: '$',
-  });
-
-  t.has(tokens[4], {
     kind: TokenKind.Comma,
     text: ',',
   });
 
+  t.has(tokens[4], {
+    kind: TokenKind.StringIdent,
+    text: 'v$',
+  });
+
   t.has(tokens[5], {
-    kind: TokenKind.Ident,
-    text: 'v',
-  });
-
-  t.has(tokens[6], {
-    kind: TokenKind.Dollar,
-    text: '$',
-  });
-
-  t.has(tokens[7], {
     kind: TokenKind.RParen,
     text: ')',
   });
 
-  t.has(tokens[8], {
+  t.has(tokens[6], {
     kind: TokenKind.Eof,
     text: '',
   });
@@ -412,5 +408,78 @@ t.test('line endings with whitespace', async (t: Test) => {
     offsetStart: 4,
     offsetEnd: 4,
     text: '',
+  });
+});
+
+t.test('remarks', async (t: Test) => {
+  await t.test('bare remark', async (t: Test) => {
+    const source = 'rem this is a comment';
+    const tokens = scanTokens(source);
+
+    t.equal(tokens.length, 2);
+
+    t.has(tokens[0], {
+      kind: TokenKind.Rem,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: 21,
+      text: 'rem this is a comment',
+      value: 'this is a comment',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.Eof,
+      index: 21,
+      row: 1,
+      offsetStart: 21,
+      offsetEnd: 21,
+      text: '',
+    });
+  });
+
+  await t.test('remark following a command', async (t: Test) => {
+    const source = 'print 1 rem this is a comment';
+    const tokens = scanTokens(source);
+
+    t.equal(tokens.length, 4);
+
+    t.has(tokens[0], {
+      kind: TokenKind.Print,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: 5,
+      text: 'print',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.DecimalLiteral,
+      index: 6,
+      row: 1,
+      offsetStart: 6,
+      offsetEnd: 7,
+      text: '1',
+      value: 1,
+    });
+
+    t.has(tokens[2], {
+      kind: TokenKind.Rem,
+      index: 8,
+      row: 1,
+      offsetStart: 8,
+      offsetEnd: 29,
+      text: 'rem this is a comment',
+      value: 'this is a comment',
+    });
+
+    t.has(tokens[3], {
+      kind: TokenKind.Eof,
+      index: 29,
+      row: 1,
+      offsetStart: 29,
+      offsetEnd: 29,
+      text: '',
+    });
   });
 });

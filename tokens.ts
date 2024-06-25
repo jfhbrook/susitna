@@ -21,15 +21,18 @@ export enum TokenKind {
   Slash = '/',
   BSlash = '\\',
 
-  // TODO: Traditional BASIC treats = as both assignment and equality,
-  // depending on context. But maybe we should have an == for consistency
-  // with modern languages?
   Eq = '=',
+  EqEq = '==',
   Gt = '>',
   Lt = '<',
   Ge = '>=',
   Le = '<=',
   Ne = '<>',
+  BangEq = '!=',
+
+  And = 'and',
+  Or = 'or',
+  Not = 'not',
 
   DecimalLiteral = '<decimal>',
   HexLiteral = '<hex>',
@@ -45,9 +48,14 @@ export enum TokenKind {
 
   NilLiteral = 'nil',
 
-  Ident = '<ident>',
+  Ident = '<ident[any]>',
 
-  ShellToken = '<shell-token>',
+  IntIdent = '<ident[int]>',
+  RealIdent = '<ident[real]>',
+  BoolIdent = '<ident[bool]>',
+  StringIdent = '<ident[str]>',
+
+  ShellToken = '<shell>',
 
   Exit = 'exit',
 

@@ -4,6 +4,7 @@ import { Test } from 'tap';
 import { ParseWarning } from '../exceptions';
 import { formatter } from '../format';
 import {
+  Binary,
   Group,
   IntLiteral,
   RealLiteral,
@@ -11,9 +12,10 @@ import {
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Exit, Expression } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { parseInput, parseProgram } from '../parser';
+import { TokenKind } from '../tokens';
 import { FILENAME } from './helpers/traceback';
 
 const EXPRESSIONS: Array<[string, Cmd]> = [
@@ -33,6 +35,45 @@ const EXPRESSIONS: Array<[string, Cmd]> = [
   ],
   ["'don\\'t'", new Expression(new StringLiteral("don't"), 0, 8)],
   ['(1)', new Expression(new Group(new IntLiteral(1)), 0, 3)],
+  [
+    '(1 == 1)',
+    new Expression(
+      new Group(
+        new Binary(new IntLiteral(1), TokenKind.EqEq, new IntLiteral(1)),
+      ),
+      0,
+      8,
+    ),
+  ],
+  [
+    '(1 <> 1)',
+    new Expression(
+      new Group(new Binary(new IntLiteral(1), TokenKind.Ne, new IntLiteral(1))),
+      0,
+      8,
+    ),
+  ],
+];
+
+const WARNED_EXPRESSIONS: Array<[string, Cmd]> = [
+  [
+    '(1 = 1)',
+    new Expression(
+      new Group(
+        new Binary(new IntLiteral(1), TokenKind.EqEq, new IntLiteral(1)),
+      ),
+      0,
+      7,
+    ),
+  ],
+  [
+    '(1 != 1)',
+    new Expression(
+      new Group(new Binary(new IntLiteral(1), TokenKind.Ne, new IntLiteral(1))),
+      0,
+      8,
+    ),
+  ],
 ];
 
 for (const [source, cmd] of EXPRESSIONS) {
@@ -48,6 +89,32 @@ for (const [source, cmd] of EXPRESSIONS) {
     const result = parseInput(`100 ${source}`);
 
     t.equal(result[1], null);
+
+    cmd.offsetStart += 4;
+    cmd.offsetEnd += 4;
+
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+
+    cmd.offsetStart -= 4;
+    cmd.offsetEnd -= 4;
+  });
+}
+
+for (const [source, cmd] of WARNED_EXPRESSIONS) {
+  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(source);
+
+    t.ok(result[1]);
+    t.matchSnapshot(result[1]);
+
+    t.same(result[0], new Input([new CommandGroup(1, source, [cmd])]));
+  });
+
+  t.test(`numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(`100 ${source}`);
+
+    t.ok(result[1]);
+    t.matchSnapshot(result[1]);
 
     cmd.offsetStart += 4;
     cmd.offsetEnd += 4;
@@ -209,6 +276,56 @@ t.test('exit command', async (t: Test) => {
   });
 });
 
+t.test('remarks', async (t: Test) => {
+  await t.test('bare remark', async (t: Test) => {
+    const source = 'rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [new Rem('this is a comment', 0, 21)]),
+      ]),
+    );
+  });
+
+  await t.test('remark following a command', async (t: Test) => {
+    const source = 'print 1 rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [
+          new Print(new IntLiteral(1), 0, 7),
+          new Rem('this is a comment', 8, 29),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('remark as a second command', async (t: Test) => {
+    const source = 'print 1 : rem this is a comment';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(1, source, [
+          new Print(new IntLiteral(1), 0, 7),
+          new Rem('this is a comment', 10, 31),
+        ]),
+      ]),
+    );
+  });
+});
+
 t.test('empty input', async (t: Test) => {
   const result = parseInput('');
 
@@ -296,7 +413,7 @@ t.test('out of order program', async (t: Test) => {
   const source = ['200 print "hello world"', '100 print "goodbye"'];
   const result = parseProgram(source.join('\n'), FILENAME);
 
-  t.equal(result[1], null);
+  t.matchSnapshot(result[1]);
 
   t.same(
     result[0],

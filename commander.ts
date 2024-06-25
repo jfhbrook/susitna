@@ -5,6 +5,7 @@ import { Chunk } from './bytecode/chunk';
 import { compile } from './compiler';
 import { Config } from './config';
 import { Exception, ParseWarning } from './exceptions';
+import { inspector } from './format';
 import { Host } from './host';
 import { ParseResult } from './parser';
 import { Runtime } from './runtime';
@@ -12,7 +13,7 @@ import { renderPrompt } from './shell';
 import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Exit, Print, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Exit, Print, Expression, Rem } from './ast/cmd';
 
 const tracer = getTracer('main');
 
@@ -188,11 +189,16 @@ export class Commander implements CmdVisitor<Value | null> {
    */
   async evalCommands(cmds: CommandGroup): Promise<void> {
     return tracer.span('evalCommands', async () => {
-      this.cmdNo += 100;
+      this.cmdNo += 10;
       this.cmdSource = cmds.source;
       try {
         const commands = Array.from(cmds.commands);
-        const lastCmd = commands.pop();
+        let lastCmd = commands.pop();
+
+        while (lastCmd && lastCmd instanceof Rem) {
+          lastCmd = commands.pop();
+        }
+
         for (const cmd of commands) {
           cmd.accept(this);
         }
@@ -200,7 +206,7 @@ export class Commander implements CmdVisitor<Value | null> {
         if (lastCmd) {
           const rv = lastCmd.accept(this);
           if (rv !== null) {
-            this.host.writeLine(rv);
+            this.host.writeLine(inspector.format(rv));
           }
         }
       } catch (err) {
@@ -259,6 +265,10 @@ export class Commander implements CmdVisitor<Value | null> {
 
   visitExpressionCmd(expression: Expression): Value | null {
     return this.runCommand(expression);
+  }
+
+  visitRemCmd(_rem: Rem): Value | null {
+    return null;
   }
 
   //

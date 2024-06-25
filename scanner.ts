@@ -1,10 +1,15 @@
-import { Value } from './value';
+import { RuntimeFault } from './faults';
 import { Token, TokenKind } from './tokens';
+import { Value } from './value';
 
 export const KEYWORDS: Record<string, TokenKind> = {
   true: TokenKind.TrueLiteral,
   false: TokenKind.FalseLiteral,
   nil: TokenKind.NilLiteral,
+
+  and: TokenKind.And,
+  or: TokenKind.Or,
+  not: TokenKind.Not,
 
   exit: TokenKind.Exit,
 
@@ -211,13 +216,18 @@ export class Scanner {
       case '$':
         return this.emitToken(TokenKind.Dollar);
       case '!':
+        if (this.match('=')) {
+          return this.emitToken(TokenKind.BangEq);
+        }
         return this.emitToken(TokenKind.Bang);
       case '/':
         return this.emitToken(TokenKind.Slash);
       case '\\':
         return this.emitToken(TokenKind.BSlash);
       case '=':
-        // TODO: How does equality work?
+        if (this.match('=')) {
+          return this.emitToken(TokenKind.EqEq);
+        }
         return this.emitToken(TokenKind.Eq);
       case '>':
         if (this.match('=')) {
@@ -328,8 +338,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 16);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid hex literal', err);
     }
     return this.emitToken(TokenKind.HexLiteral, value);
   }
@@ -342,8 +351,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 8);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid octal literal', err);
     }
     return this.emitToken(TokenKind.OctalLiteral, value);
   }
@@ -356,8 +364,7 @@ export class Scanner {
     try {
       value = parseInt(this.source.slice(this.start + 2, this.current), 16);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid binary literal', err);
     }
     return this.emitToken(TokenKind.BinaryLiteral, value);
   }
@@ -401,8 +408,7 @@ export class Scanner {
       value = parseInt(this.source.slice(this.start, this.current), 10);
       return this.emitToken(TokenKind.DecimalLiteral, value);
     } catch (err) {
-      // TODO: This should be a RuntimeFault
-      throw err;
+      throw new RuntimeFault('Invalid decimal literal', err);
     }
   }
 
@@ -421,12 +427,32 @@ export class Scanner {
       }
     }
 
-    const value = this.source.slice(this.start, this.current);
     let kind: TokenKind;
-    if (KEYWORDS[value]) {
-      kind = KEYWORDS[value];
-    } else {
-      kind = TokenKind.Ident;
+    let value = this.source.slice(this.start, this.current);
+    switch (this.peek()) {
+      case '%':
+        kind = TokenKind.IntIdent;
+        value += this.advance();
+        break;
+      case '!':
+        kind = TokenKind.RealIdent;
+        value += this.advance();
+        break;
+      case '?':
+        kind = TokenKind.BoolIdent;
+        value += this.advance();
+        break;
+      case '$':
+        kind = TokenKind.StringIdent;
+        value += this.advance();
+        break;
+      default:
+        if (KEYWORDS[value]) {
+          kind = KEYWORDS[value];
+        } else {
+          kind = TokenKind.Ident;
+        }
+        break;
     }
 
     return this.emitToken(kind, value);

@@ -3,13 +3,23 @@ import * as assert from 'assert';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Formatter, DefaultFormatter, inspectString } from '../format';
+import {
+  Formatter,
+  DefaultFormatter,
+  Inspector,
+  inspectString,
+} from '../format';
 
 import { ErrorCode } from '../errors';
 import {
   BaseException,
+  Exception,
+  RuntimeError,
+  TypeError,
+  NotImplementedError,
   AssertionError,
   BaseWarning,
+  ZeroDivisionError,
   OsError,
   FileError,
   SyntaxError,
@@ -75,11 +85,16 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(formatter.format(TRACEBACK));
     });
 
-    t.test('it formats a BaseException', async (t: Test) => {
-      t.matchSnapshot(
-        formatter.format(new BaseException('message', TRACEBACK)),
-      );
-    });
+    for (const ctor of [
+      BaseException,
+      Exception,
+      RuntimeError,
+      NotImplementedError,
+    ]) {
+      t.test(`it formats a ${ctor.prototype.name}`, async (t: Test) => {
+        t.matchSnapshot(formatter.format(new ctor('message', TRACEBACK)));
+      });
+    }
 
     t.test('it formats a BaseWarning', async (t: Test) => {
       t.matchSnapshot(formatter.format(new BaseWarning('message', TRACEBACK)));
@@ -92,6 +107,22 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats an AssertionError', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(new AssertionError('message', TRACEBACK)),
+      );
+    });
+
+    t.test('it formats a TypeError', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new TypeError('message', 123, 'integer', 'nil', TRACEBACK),
+        ),
+      );
+    });
+
+    t.test('it formats a ZeroDivisionError', async (t: Test) => {
+      t.matchSnapshot(
+        formatter.format(
+          new ZeroDivisionError(1, 'integer', 0, 'integer', TRACEBACK),
+        ),
       );
     });
 
@@ -352,6 +383,6 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
   });
 }
 
-for (const ctor of [DefaultFormatter]) {
+for (const ctor of [DefaultFormatter, Inspector]) {
   formatTestSuite(new ctor());
 }

@@ -4,8 +4,10 @@ import { SyntaxError, ParseError, ParseWarning } from './exceptions';
 import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
+// import { Type } from './value/types';
+// import { Stack } from './stack';
 import { Line, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Exit, Expression } from './ast/cmd';
+import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
 import {
   Expr,
   ExprVisitor,
@@ -57,6 +59,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private filename: string;
   private routineType: RoutineType = RoutineType.Command;
+
+  // private stack: Stack<Type> = new Stack();
 
   // Set to true whenever an expression command is compiled. In the case of
   // Cmds, this will signal that the result of the single expression
@@ -328,6 +332,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
+  visitRemCmd(_rem: Rem): void {}
+
   // Expressions
 
   visitUnaryExpr(unary: Unary): void {
@@ -360,7 +366,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
         case TokenKind.Slash:
           this.emitByte(OpCode.Div);
           break;
-        case TokenKind.Eq:
+        case TokenKind.EqEq:
           this.emitByte(OpCode.Eq);
           break;
         case TokenKind.Gt:
@@ -454,6 +460,10 @@ export class CommandCompiler implements CmdVisitor<CompiledCmd> {
 
   visitExpressionCmd(expr: Expression): CompiledCmd {
     return this.compiled(expr);
+  }
+
+  visitRemCmd(rem: Rem): CompiledCmd {
+    return this.interactive(rem, []);
   }
 
   visitRunCmd(run: any): CompiledCmd {

@@ -23,7 +23,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Exit, Expression } from './ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
@@ -204,6 +204,24 @@ class Parser {
     });
   }
 
+  private syntaxWarning(token: Token, message: string): void {
+    return tracer.spanSync('syntaxWarning', () => {
+      tracer.trace('kind', token.kind);
+      tracer.trace('message', message);
+      const exc = new SyntaxWarning(message, {
+        filename: this.filename,
+        row: token.row,
+        isLine: this.isLine,
+        lineNo: this.lineNo,
+        offsetStart: token.offsetStart,
+        offsetEnd: token.offsetEnd,
+        source: '<unknown>',
+      });
+      this.isWarning = true;
+      this.lineErrors.push(exc);
+    });
+  }
+
   private rows(): Row[] {
     return tracer.spanSync('rows', () => {
       const rows: Row[] = [];
@@ -225,11 +243,10 @@ class Parser {
 
       const rowNo = this.peek().row;
 
-      let lineNo: number | null;
       let cmds: Cmd[];
       let source: string;
       try {
-        lineNo = this.lineNumber();
+        this.lineNumber();
 
         cmds = this.commands();
 
@@ -242,15 +259,16 @@ class Parser {
         throw err;
       }
 
-      if (lineNo !== null) {
+      if (this.lineNo !== null) {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
       return new CommandGroup(rowNo, source, cmds);
     });
   }
 
-  private lineNumber(): number | null {
+  private lineNumber(): void {
     return tracer.spanSync('lineNumber', () => {
+      const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
         this.isLine = true;
@@ -261,9 +279,24 @@ class Parser {
         this.isLine = false;
       }
 
-      tracer.trace('lineNo', this.lineNo);
+      if (this.lineNo !== null) {
+        if (this.lineNo % 10) {
+          this.syntaxWarning(
+            this.previous,
+            'Line numbers should be in factors of 10',
+          );
+        }
+        if (this.isProgram && prevLineNo !== null) {
+          if (this.lineNo <= prevLineNo) {
+            this.syntaxWarning(
+              this.previous,
+              'Line numbers should be in order',
+            );
+          }
+        }
+      }
 
-      return this.lineNo;
+      tracer.trace('lineNo', this.lineNo);
     });
   }
 
@@ -302,10 +335,14 @@ class Parser {
 
   private syncNextCommand() {
     return tracer.spanSync('syncNextCommand', () => {
+      // Remarks can be handled in the next attempt at parsing a command
       while (
-        ![TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof].includes(
-          this.peek().kind,
-        )
+        ![
+          TokenKind.Colon,
+          TokenKind.LineEnding,
+          TokenKind.Eof,
+          TokenKind.Rem,
+        ].includes(this.peek().kind)
       ) {
         // TODO: Illegal, UnterminatedString
         this.advance();
@@ -313,14 +350,17 @@ class Parser {
     });
   }
 
-  private syncNextRow() {
+  private syncNextRow(): void {
     return tracer.spanSync('syncNextRow', () => {
       while (
-        ![TokenKind.LineEnding, TokenKind.Eof].includes(this.peek().kind)
+        ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
+          this.peek().kind,
+        )
       ) {
         // TODO: Illegal, UnterminatedString
         this.advance();
       }
+
       this.rowEnding();
     });
   }
@@ -336,7 +376,9 @@ class Parser {
       let cmd: Cmd | null = this.command();
       const cmds: Cmd[] = cmd ? [cmd] : [];
 
-      while (this.match(TokenKind.Colon)) {
+      // A remark doesn't need to be separated from a prior command by a
+      // colon
+      while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
         try {
           cmd = this.command();
           if (cmd) {
@@ -360,7 +402,11 @@ class Parser {
 
       let cmd: Cmd | null;
 
-      if (this.match(TokenKind.Print)) {
+      // Remarks are treated like commands - the scanner handles the fact
+      // that they include all text to the end of the line
+      if (this.match(TokenKind.Rem)) {
+        cmd = new Rem(this.previous.value as string);
+      } else if (this.match(TokenKind.Print)) {
         cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
@@ -423,67 +469,93 @@ class Parser {
   private expression(): Expr {
     return tracer.spanSync('expression', () => {
       // TODO: assignment
-      // TODO: logical expressions (and, or)
-      return this.equality();
+      return this.or();
     });
   }
 
-  private binaryOperator(kinds: TokenKind[], operand: () => Expr): Binary {
+  private operator<E extends Expr>(
+    kinds: TokenKind[],
+    operand: () => Expr,
+    factory: (l: Expr, o: TokenKind, r: Expr) => E,
+  ): Expr {
     let expr: Expr = operand();
 
     while (this.match(...kinds)) {
       const op = this.previous.kind;
       const right = operand();
 
-      expr = new Binary(expr, op, right);
+      expr = factory(expr, op, right);
     }
 
-    return expr as Binary;
+    return expr;
   }
 
-  private logicalOperator(kinds: TokenKind[], operand: () => Expr): Logical {
-    let expr = operand();
-
-    while (this.match(...kinds)) {
-      const op = this.previous.kind;
-      const right = operand();
-
-      expr = new Logical(expr, op, right);
-    }
-
-    return expr as Binary;
-  }
-
-  private equality(): Binary {
-    return this.binaryOperator(
-      [TokenKind.Ne, TokenKind.Eq],
-      this.comparison.bind(this),
+  private or(): Expr {
+    return this.operator(
+      [TokenKind.Or],
+      this.and.bind(this),
+      (l, o, r) => new Logical(l, o, r),
     );
   }
 
-  private comparison(): Binary {
-    return this.binaryOperator(
+  private and(): Expr {
+    return this.operator(
+      [TokenKind.And],
+      this.equality.bind(this),
+      (l, o, r) => new Logical(l, o, r),
+    );
+  }
+
+  private equality(): Expr {
+    return this.operator(
+      [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
+      this.comparison.bind(this),
+      (left, op, right) => {
+        if (op == TokenKind.Eq) {
+          this.syntaxWarning(
+            this.previous,
+            'Use `==` instead of `==` for equality',
+          );
+          op = TokenKind.EqEq;
+        } else if (op == TokenKind.BangEq) {
+          this.syntaxWarning(
+            this.previous,
+            'Use `<>` instead of `!=` for equality',
+          );
+          op = TokenKind.Ne;
+        }
+
+        return new Binary(left, op, right);
+      },
+    );
+  }
+
+  private comparison(): Expr {
+    return this.operator(
       [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
       this.term.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 
-  private term(): Binary {
-    return this.binaryOperator(
+  private term(): Expr {
+    return this.operator(
       [TokenKind.Minus, TokenKind.Plus],
       this.factor.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 
-  private factor(): Binary {
-    return this.binaryOperator(
+  private factor(): Expr {
+    return this.operator(
       [TokenKind.Slash, TokenKind.Star],
       this.unary.bind(this),
+      (l, o, r) => new Binary(l, o, r),
     );
   }
 
   private unary(): Expr {
-    if (this.match(TokenKind.Minus)) {
+    if (this.match(TokenKind.Not, TokenKind.Minus)) {
       const op = this.previous.kind;
       const right = this.unary();
 
@@ -495,7 +567,6 @@ class Parser {
 
   private primary(): Expr | null {
     return tracer.spanSync('primary', () => {
-      // TODO: Illegal, UnterminatedString
       if (
         this.match(
           TokenKind.DecimalLiteral,
@@ -519,10 +590,13 @@ class Parser {
         return this.group();
       } else {
         const token = this.peek();
-        this.syntaxError(
-          token,
-          `Unexpected token ${token.text.length ? token.text : token.kind}`,
-        );
+        let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
+
+        if (token.kind == TokenKind.UnterminatedStringLiteral) {
+          msg = `Unterminated string ${token.text}`;
+        }
+
+        this.syntaxError(token, msg);
         this.syncNextCommand();
         return null;
       }

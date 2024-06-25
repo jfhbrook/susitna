@@ -32,10 +32,12 @@ expressions. But it's brittle, and has a lot of gaps.
 - Handle types
   - [X] Implement basic runtime operations
   - [X] Tests for typeof
-  - [ ] Tests for operations
   - [X] Unary operations
-  - [ ] Comparison operations
+  - [X] Comparison operations
   - [ ] Divide by zero error
+  - [ ] Tests for truthiness
+  - [ ] Tests for operations
+  - [ ] Runtime tests for operations
   - [ ] Update ADRs based on implementation
   - [ ] BONUS: Implement type analogs to operations
   - [ ] BONUS: Simulated stack in the compiler

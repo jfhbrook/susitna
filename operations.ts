@@ -50,6 +50,7 @@ function invalid(): never {
 
 type BinaryOperator = {
   name: string;
+  check?: (a: Value, b: Value, t: Type) => void;
   boolean: (a: boolean, b: boolean) => Value;
   integer: (a: number, b: number) => Value;
   real: (a: number, b: number) => Value;
@@ -64,28 +65,41 @@ export function binaryOperation(op: BinaryOperator): BinaryOperation {
     const typeB = typeOf(b);
     const castTo = highestTypePrecedence(typeA, typeB);
 
+    let castA: any;
+    let castB: any;
+    let method: string;
+
     try {
       switch (castTo) {
         case Type.Boolean:
-          return op.boolean(
-            cast(a, typeA, Type.Boolean),
-            cast(b, typeB, Type.Boolean),
-          );
+          (castA = cast(a, typeA, Type.Boolean)),
+            (castB = cast(b, typeB, Type.Boolean)),
+            (method = 'boolean');
+          break;
         case Type.Integer:
-          return op.integer(
-            cast(a, typeA, Type.Integer),
-            cast(b, typeB, Type.Integer),
-          );
+          (castA = cast(a, typeA, Type.Integer)),
+            (castB = cast(b, typeB, Type.Integer)),
+            (method = 'integer');
+          break;
         case Type.Real:
-          return op.real(cast(a, typeA, Type.Real), cast(b, typeB, Type.Real));
+          castA = cast(a, typeA, Type.Real);
+          castB = cast(b, typeB, Type.Real);
+          method = 'real';
+          break;
         case Type.String:
-          return op.string(
-            cast(a, typeA, Type.String),
-            cast(b, typeB, Type.String),
-          );
+          (castA = cast(a, typeA, Type.String)),
+            (castB = cast(b, typeB, Type.String)),
+            (method = 'string');
+          break;
         default:
           invalid();
       }
+
+      if (op.check) {
+        op.check(castA, castB, castTo);
+      }
+
+      return op[method](castA, castB);
     } catch (err) {
       if (err instanceof Invalid) {
         throw new TypeError(
@@ -217,10 +231,17 @@ export const mul = binaryOperation({
   string: (_a, _b) => invalid(),
 });
 
-// TODO: Error for divide by zero
 export const div = binaryOperation({
   name: '/',
-  boolean: (a, b) => (a ? 1 : 0) / (b ? 1 : 0),
+  check: (_a, b, _t) => {
+    // Divide by zero check. In this case we don't need the type, because
+    // JavaScript will do the right thing for any numbers, and strings are
+    // invalid anyway.
+    if (!b) {
+      invalid();
+    }
+  },
+  boolean: (a, _b) => (a ? 1 : 0),
   integer: (a, b) => a / b,
   real: (a, b) => a / b,
   string: (_a, _b) => invalid(),

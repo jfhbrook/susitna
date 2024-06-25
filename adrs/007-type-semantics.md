@@ -27,7 +27,35 @@ significantly between languages.
 
 This ADR attempts to iron out the expected semantics.
 
-### Python Behavior
+### Concepts
+
+This ADR invokes a number of concepts - it's worth going over them now.
+
+**Casting** is, for the purposes of this ADR, the action of implicitly
+converting a value into a value of another type, in order to facilitate an
+operation. For example, when adding a boolean and a real, the boolean will be
+cast to a real and then added to the other argument. In general, values are
+cast before an operation so they're the same type.
+
+In theory, these casting rules could be bespoke to every combination of
+types. However, in practice, one type is cast to the other type, based on what
+I'm calling **casting precedence** or **type precedence**. Consider the
+previous example - the boolean was converted to a real, because the type of
+real has a "higher precedence" than the boolean. I unfortunately do not know
+if there's accepted formal language for this concept.
+
+**Conversion** is similar to casting, but is always explicit and more relaxed.
+Conversion is not used in operators, but will come into play in the future
+if and when Matanuska BASIC implements keywords for doing explicit conversions.
+
+**Truthiness** and **Falsiness** have to do with whether a value "counts"
+as true or false, respectively, when executing logic operations. This is
+similar to the result of converting a value into a boolean, but is distinct
+from a definition standpoint.
+
+### Behavior of Other Languages
+
+#### Python
 
 Python generally allows implicitly converting booleans to integers and integers
 to floats. Its booleans cast to `0` for False and `1` for True. However, it
@@ -44,7 +72,7 @@ be concatenated with the `+` operator. It also seems to allow comparisons
 through element-wise comparison similar to lexicographical sorts, and similarly
 treats non-empty lists as truthy.
 
-### JavaScript Behavior
+#### JavaScript
 
 JavaScript's behavior is subtly different from Python. The biggest difference
 is that it will gleefully cast values to strings in order to make an operation
@@ -61,7 +89,7 @@ an `if value:` check, but requires `if value is not None` when definition is
 important - JavaScript flips this, with `if (value.length) {` and
 `if (value) {` respectively.
 
-### MSX Behavior
+#### MSX BASIC
 
 Experimenting in an MSX emulator, MSX BASIC appears to cast ints to floats,
 but does not cast values to string. Given its rudimentary capabilities, it's
@@ -76,20 +104,63 @@ behavior in signed values.
 
 ## Decision
 
-Matanuska BASIC will implement behavior very similar to Python:
+Matanuska BASIC will implement behavior very similar to Python.
 
-1. Casts between booleans, integers and floats will behave the same way as
-   Python. This behavior is consistent across all three languages discussed,
-   and is non-controversial.
-2. Numerical values will not be implicitly cast to strings. This behavior
-   causes a lot of confusion in JavaScript, and not allowing it is also
-   consistent with MSX BASIC.
-3. Strings will support concatenation with the `+` operator, and comparison
-   by lexicographical sort order. There's no particularly good reason *not* to
-   support this operator, and JavaScript already implements the right sort
-   order for strings.
-4. Non-zero number-like values and non-empty strings will be treated as truthy.
-   Zero number-like values, empty strings and `nil` will be treated as falsey.
+Note that array behavior is considered out of scope for this ADR, though their
+behavior will likely be consistent with strings.
 
-Array behavior is considered out of scope for this ADR, though their behavior
-will likely be consistent with strings.
+### Casting
+
+Casts between booleans, integers and floats will behave the same way as
+Python. This behavior is consistent across all three languages discussed,
+and is non-controversial.
+
+Numerical values will not be implicitly cast to strings. This behavior causes
+a lot of confusion in JavaScript, and not allowing it is also consistent with
+MSX BASIC.
+
+### Conversion
+
+Conversions will implement the same internal API as casts, but the specific
+rules are out of scope for this ADR.
+
+### Truthiness and Falsiness
+
+Non-zero number-like values and non-empty strings will be treated as truthy.
+Zero number-like values, empty strings and `nil` will be treated as falsey.
+In other words, truthiness and falsiness will follow rules similar to Python.
+
+### Casting Rules in Binary Operations
+
+Binary arithmetic operations will implement type precedence in the following
+order, from least to greatest:
+
+1. Booleans
+2. Integers
+3. Reals
+4. Strings
+5. All other types
+
+Binary operations will find the type with the highest precedence, cast the
+lower precedence operand to that type, and then execute the operation against
+similar types.
+
+This has less flexibility than a full matrix between types and casts, but it
+should be much easier to reason about without causing too many edge cases.
+
+### Allowed Binary Operations
+
+Most binary arithmetic operations are allowed for booleans, integers and
+reals. Addition (`+`) is allowed for string as a concatenation operator, but
+other operations are (for now) invalid.
+
+### Dissimmilar Types in Comparison Operations
+
+For `==` and `<>`, dissimilar types will be considered unequal. For all
+other comparison operators, comparisons between dissimilar types will be
+considered invalid.
+
+### Comparison Sort Order
+
+Strings will support lexicographical sorting. This is consistent with Python
+and JavaScript.

@@ -1,3 +1,4 @@
+import { errorType } from './errors';
 import { TypeError } from './exceptions';
 import { RuntimeFault } from './faults';
 import { Value } from './value';
@@ -35,6 +36,25 @@ export function highestTypePrecedence(a: Type, b: Type): Type {
   return b;
 }
 
+function unreachable(name: string): never {
+  throw new RuntimeFault(
+    `Unreachable: ${name}`,
+    new Error(`Unreachable: ${name}`),
+  );
+}
+
+@errorType('Invalid')
+class Invalid extends Error {
+  constructor() {
+    super('Invalid');
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+function invalid(): never {
+  throw new Invalid();
+}
+
 type BinaryOperator = {
   name: string;
   boolean: (a: boolean, b: boolean) => Value;
@@ -45,44 +65,85 @@ type BinaryOperator = {
 
 type BinaryOperation = (a: Value, b: Value) => Value;
 
-function unreachable(name: string): never {
-  throw new RuntimeFault(
-    `Unreachable: ${name}`,
-    new Error(`Unreachable: ${name}`),
-  );
-}
-
 export function binaryOperation(op: BinaryOperator): BinaryOperation {
   return function operation(a: Value, b: Value): Value {
     const typeA = typeOf(a);
     const typeB = typeOf(b);
     const castTo = highestTypePrecedence(typeA, typeB);
 
-    switch (castTo) {
-      case Type.Boolean:
-        return op.boolean(
-          cast(a, typeA, Type.Boolean),
-          cast(b, typeB, Type.Boolean),
-        );
-      case Type.Integer:
-        return op.integer(
-          cast(a, typeA, Type.Integer),
-          cast(b, typeB, Type.Integer),
-        );
-      case Type.Real:
-        return op.real(cast(a, typeA, Type.Real), cast(b, typeB, Type.Real));
-      case Type.String:
-        return op.string(
-          cast(a, typeA, Type.String),
-          cast(b, typeB, Type.String),
-        );
-      default:
+    try {
+      switch (castTo) {
+        case Type.Boolean:
+          return op.boolean(
+            cast(a, typeA, Type.Boolean),
+            cast(b, typeB, Type.Boolean),
+          );
+        case Type.Integer:
+          return op.integer(
+            cast(a, typeA, Type.Integer),
+            cast(b, typeB, Type.Integer),
+          );
+        case Type.Real:
+          return op.real(cast(a, typeA, Type.Real), cast(b, typeB, Type.Real));
+        case Type.String:
+          return op.string(
+            cast(a, typeA, Type.String),
+            cast(b, typeB, Type.String),
+          );
+        default:
+          invalid();
+      }
+    } catch (err) {
+      if (err instanceof Invalid) {
         throw new TypeError(
           `Invalid operand for ${op.name} on ${typeA}: ${typeB}`,
           b,
           typeB,
           Type.Invalid,
         );
+      }
+      throw err;
+    }
+  };
+}
+
+type UnaryOperator = {
+  name: string;
+  boolean: (a: boolean) => Value;
+  integer: (a: number) => Value;
+  real: (a: number) => Value;
+  string: (a: string) => Value;
+};
+
+type UnaryOperation = (a: Value) => Value;
+
+export function unaryOperation(op: UnaryOperator): UnaryOperation {
+  return function operation(a: Value): Value {
+    const type = typeOf(a);
+
+    try {
+      switch (type) {
+        case Type.Boolean:
+          return op.boolean(a as boolean);
+        case Type.Integer:
+          return op.integer(a as number);
+        case Type.Real:
+          return op.real(a as number);
+        case Type.String:
+          return op.string(a as string);
+        default:
+          invalid();
+      }
+    } catch (err) {
+      if (err instanceof Invalid) {
+        throw new TypeError(
+          `Invalid operand for ${op.name}: ${type}`,
+          a,
+          type,
+          Type.Invalid,
+        );
+      }
+      throw err;
     }
   };
 }
@@ -95,9 +156,6 @@ export const add = binaryOperation({
   string: (a, b) => a + b,
 });
 
-// TODO: These expressions aren't actually unreachable - rather, they're
-// invalid operations. The move is probably to throw an internal error
-// and handle that behavior as an exception.
 export const sub = binaryOperation({
   name: '-',
   boolean: (a, b) => {
@@ -109,7 +167,7 @@ export const sub = binaryOperation({
   },
   integer: (a, b) => a - b,
   real: (a, b) => a - b,
-  string: (_a, _b) => unreachable('<str> - <str>'),
+  string: (_a, _b) => invalid(),
 });
 
 export const mul = binaryOperation({
@@ -117,7 +175,7 @@ export const mul = binaryOperation({
   boolean: (a, b) => a && b,
   integer: (a, b) => a * b,
   real: (a, b) => a * b,
-  string: (_a, _b) => unreachable('<str> * <str>'),
+  string: (_a, _b) => invalid(),
 });
 
 // TODO: Error for divide by zero
@@ -126,5 +184,13 @@ export const div = binaryOperation({
   boolean: (a, b) => (a ? 1 : 0) / (b ? 1 : 0),
   integer: (a, b) => a / b,
   real: (a, b) => a / b,
-  string: (_a, _b) => unreachable('<str> / <str>'),
+  string: (_a, _b) => invalid(),
+});
+
+export const neg = unaryOperation({
+  name: '/',
+  boolean: (a) => (a ? -1 : 0),
+  integer: (a) => -a,
+  real: (a) => -a,
+  string: (_a) => invalid(),
 });

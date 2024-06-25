@@ -33,9 +33,10 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Implement basic runtime operations
   - [X] Tests for typeof
   - [ ] Tests for operations
-  - [ ] Unary operations
+  - [X] Unary operations
   - [ ] Comparison operations
   - [ ] Divide by zero error
+  - [ ] Update ADRs based on implementation
   - [ ] BONUS: Implement type analogs to operations
   - [ ] BONUS: Simulated stack in the compiler
 - Interpreted/compiled mixed commands support in the compiler

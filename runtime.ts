@@ -148,7 +148,7 @@ export class Runtime {
               break;
             case OpCode.Neg:
               a = this.stack.pop();
-              this.stack.push(-a);
+              this.stack.push(op.neg(a));
               break;
             case OpCode.Print:
               this.host.writeLine(this.stack.pop());

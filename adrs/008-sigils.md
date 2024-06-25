@@ -48,10 +48,9 @@ we can discover these rules:
 2. Singles in MSX BASIC have a `!` sigil.
 3. Doubles in MSX BASIC have a `#` sigil.
 4. Strings in MSX BASIC have a `$` sigil.
-5. In MSX BASIC, variables defined without a sigil have a *configurable*
-   default type. For MSX this is initially configured to doubles, though it's
-   common practice to change it to integers. This is widely considered to
-   be a footgun.
+5. Variables defined without a sigil have a *configurable* default type. For
+   MSX this is initially configured to doubles, though it's common practice to
+   change it to integers. This is widely considered to be a footgun.
 6. Arrays and functions *by convention* have the same postfix sigils as their
    *return values* - but not always! While the syntax doesn't show their type
    in context, they are defined within the program using unambiguous syntax.
@@ -60,7 +59,8 @@ we can discover these rules:
    types are *not* completely manifest.
 8. Channels aren't variables, but are *prefixed* with `#` when specified.
 9. MSX BASIC doesn't have a dedicated boolean type. Instead, the integer `0`
-   is treated as `false` and the integer `-1` is treated as `true`.
+   is treated as `false` and the integer `-1` is treated as `true`. This is
+   most apparent in the return values of comparison operators.
 10. Variables of different types can reuse the same names. The correct variable
    is fetched based on the compiler's knowledge of the type.
 
@@ -69,15 +69,15 @@ A few aspects of this are worth diving into in more detail.
 ### Types in Call Signatures
 
 In the context of a program, the type of an array or function is unambiguous.
-However, in the context of a call signature, they typically are. Arrays and
-functions don't have sigils, aside from a convention of including a sigil
-for the inner type. In effect, call signatures appear to be untyped in many
-implementations of BASIC.
+However, in the context of a call signature, they typically *are* ambiguous.
+Arrays and functions don't have sigils, aside from a convention of including a
+sigil for the inner type. In effect, call signatures appear to be untyped in
+many implementations of BASIC.
 
 In addition, a callable may return a void type. There is, of course, no
 sigil for identifying a void type.
 
-Were we to stick to the syntax of a typical BASIC, we would also need to
+Were we to stick to the syntax of a typical BASIC, we would need to
 support untyped call signatures and return values. This is the most
 straightforward to implement, as it doesn't require inventing new syntax -
 simply check the types of values where used.

@@ -59,7 +59,7 @@ from a definition standpoint.
 
 #### Python
 
-Python generally allows implicitly converting booleans to integers and integers
+Python generally allows implicitly casting booleans to integers and integers
 to floats. Its booleans cast to `0` for False and `1` for True. However, it
 will not cast non-string values to strings.
 

@@ -14,7 +14,7 @@ model for manifest data types. To review, primary variables are typed using a
 postfix sigil, but those sigils don't distinguish them from arrays and
 functions. That means that we *sometimes* have compile time type information.
 
-The advantages of manifest data types are two-fold.
+When available, the advantages of manifest data types are two-fold.
 
 First, the compiler can implement type checks - in other words, this introduces
 type safety. This can be accomplished by maintaining a stack of types in the
@@ -24,13 +24,12 @@ prior to runtime execution. This is generally considered a better user
 experience.
 
 Second, the runtime can assume data types and use type-specific bytecode
-instructions. In a fully typed language like Java, the compiler can implement
-comprehensive type checks, and the runtime can implement type-specific
-instructions. For example, suppose we are executing `1 + true` and that our
-language casts boolean arguments to integers. In a dynamic typing regime, we
-would implement a generic `ADD` instruction that checks the types of the two
-values and casts `true` to `1` on the spot. But if we know a priori that `1` is
-an integer and `true` is a boolean, we could instead execute
+instructions. In a fully typed language like Java, the runtime can implement
+type-specific instructions. For example, suppose we are executing `1 + true`
+and that our language casts boolean arguments to integers. In a dynamic typing
+regime, we would implement a generic `ADD` instruction that checks the types of
+the two values and casts `true` to `1` on the spot. But if we know a priori that
+`1` is an integer and `true` is a boolean, we could instead execute
 `CAST_INT_TO_BOOL, ADD_INTS`, and these instructions can assume that their
 arguments are a bool and two ints respectively. In contrast, a dynamically
 typed language *must* use a generic `ADD` instruction.
@@ -39,7 +38,7 @@ The trade-off here is that typed instructions require *more* instructions,
 but each instruction requires less work. Unfortunately, a partially typed
 runtime would mean that we'd need to implement *both* typed and dynamic
 instructions - in other words, we would need to implement `CAST_BOOL_TO_INT`
-and `ADD_INTS` for when types are known, and generic `ADD` for when types
+and `ADD_INT` for when types are known, and generic `ADD` for when types
 are unknown. This may still allow for optimized execution in cases where
 types are known, assuming that switch statements are cheap, but the runtime
 becomes undenably more complex.
@@ -57,10 +56,12 @@ later.
 First, we will implement type checks in the compiler by simulating a stack.
 These types will initially support primary types and an `Any` type. This will
 allow the compiler to detect and throw type errors, giving an improved user
-experience. However, this work may be deferred until an unspecified date.
-It's more important that runtime behavior is correct than it is that type
-errors are caught in the compiler, and implementing it is relatively
-challenging - and low priority.
+experience.
+
+However, this work may be deferred until an unspecified date. It's more
+important that runtime behavior is correct than it is that type errors are
+caught in the compiler, and implementing it is relatively challenging - and
+low priority.
 
 Second, we will *not* initially support typed operations in the runtime. This
 will likely manifest in a slower runtime as compared to one that *can* assume

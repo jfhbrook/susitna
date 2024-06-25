@@ -7,6 +7,7 @@ import { formatter } from '../../format';
 import { nil, Value } from '../../value';
 import { Type } from '../../value/types';
 import { into, intoType } from '../../value/convert';
+import { truthy } from '../../value/truthiness';
 
 const EXCEPTION = new BaseException('test exception');
 
@@ -91,6 +92,16 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
         t.same(into(value, from_, to_), expected);
       },
     );
+
+    if (expected === true || expected === false) {
+      t.test(
+        `into(${formatter.format(value)}, ${from_}, ${to_}) == ` +
+          `truthy(${formatter.format(value)}, ${from_})`,
+        async (t: Test) => {
+          t.same(into(value, from_, to_), truthy(value, from_));
+        },
+      );
+    }
   }
 
   if (from_ === Type.Any || to_ === Type.Any) {

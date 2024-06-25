@@ -1,5 +1,6 @@
 import { Nil, Value } from './index';
 import { Type } from './types';
+import { typeOf } from './typeof';
 import { BaseException, TypeError } from '../exceptions';
 import { NotImplementedFault, RuntimeFault } from '../faults';
 import { formatter } from '../format';
@@ -290,39 +291,6 @@ function fromNilType(to_: Type): Type {
   }
 }
 
-function fromAny(value: Value, to_: Type.Integer): number;
-function fromAny(value: Value, to_: Type.Real): number;
-function fromAny(value: Value, to_: Type.Boolean): boolean;
-function fromAny(value: Value, to_: Type.String): string;
-function fromAny(value: Value, to_: Type.Exception): BaseException;
-function fromAny(value: Value, to_: Type.Nil): Nil;
-function fromAny(value: Value, to_: Type): never;
-function fromAny(value: Value, to_: Type): Value {
-  if (typeof value === 'number') {
-    if (Number.isInteger(value)) {
-      return fromInteger(value, to_);
-    }
-    return fromReal(value, to_);
-  }
-  if (typeof value === 'boolean') {
-    return fromBoolean(value, to_);
-  }
-  if (typeof value === 'string') {
-    return fromString(value, to_);
-  }
-  if (value instanceof BaseException) {
-    return fromException(value, to_);
-  }
-  if (value instanceof Nil) {
-    return fromNil(value, to_);
-  }
-  return conversionFault(value, Type.Any, Type.Unknown);
-}
-
-function fromAnyType(_to: Type): Type {
-  return Type.Any;
-}
-
 function into(value: Value, from_: Type.Integer, to_: Type.Integer): number;
 function into(value: Value, from_: Type.Integer, to_: Type.Real): number;
 function into(value: Value, from_: Type.Integer, to_: Type.Boolean): boolean;
@@ -388,6 +356,9 @@ function into(
 ): BaseException;
 function into(value: Value, from_: Type, to_: Type): never;
 function into(value: Value, from_: Type, to_: Type): Value {
+  if (from_ === Type.Any) {
+    from_ = typeOf(value);
+  }
   switch (from_) {
     case Type.Integer:
       return fromInteger(value as number, to_);
@@ -401,8 +372,6 @@ function into(value: Value, from_: Type, to_: Type): Value {
       return fromException(value as BaseException, to_);
     case Type.Nil:
       return fromNil(value as Nil, to_);
-    case Type.Any:
-      return fromAny(value as Value, to_);
     default:
       return conversionFault(value, Type.Unknown, Type.Unknown);
   }
@@ -423,7 +392,7 @@ function intoType(from_: Type, to_: Type): Type {
     case Type.Nil:
       return fromNilType(to_);
     case Type.Any:
-      return fromAnyType(to_);
+      return Type.Any;
     default:
       return Type.Invalid;
   }

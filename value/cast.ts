@@ -1,5 +1,6 @@
 import { Nil, Value } from './';
 import { Type } from './types';
+import { typeOf } from './typeof';
 import { BaseException, TypeError } from '../exceptions';
 import { RuntimeFault } from '../faults';
 
@@ -272,39 +273,6 @@ function castNilType(to_: Type): Type {
   }
 }
 
-function castAny(value: Value, to_: Type.Integer): number;
-function castAny(value: Value, to_: Type.Real): number;
-function castAny(value: Value, to_: Type.Boolean): boolean;
-function castAny(value: Value, to_: Type.String): string;
-function castAny(value: Value, to_: Type.Exception): BaseException;
-function castAny(value: Value, to_: Type.Nil): Nil;
-function castAny(value: Value, to_: Type): never;
-function castAny(value: Value, to_: Type): Value {
-  if (typeof value === 'number') {
-    if (Number.isInteger(value)) {
-      return castInteger(value, to_);
-    }
-    return castReal(value, to_);
-  }
-  if (typeof value === 'boolean') {
-    return castBoolean(value, to_);
-  }
-  if (typeof value === 'string') {
-    return castString(value, to_);
-  }
-  if (value instanceof BaseException) {
-    return castException(value, to_);
-  }
-  if (value instanceof Nil) {
-    return castNil(value, to_);
-  }
-  return castFault(value, Type.Any, Type.Unknown);
-}
-
-function castAnyType(_to: Type): Type {
-  return Type.Any;
-}
-
 function cast(value: Value, from_: Type.Integer, to_: Type.Integer): number;
 function cast(value: Value, from_: Type.Integer, to_: Type.Real): number;
 function cast(value: Value, from_: Type.Integer, to_: Type.Boolean): boolean;
@@ -370,6 +338,10 @@ function cast(
 ): BaseException;
 function cast(value: Value, from_: Type, to_: Type): never;
 function cast(value: Value, from_: Type, to_: Type): Value {
+  if (from_ === Type.Any) {
+    from_ = typeOf(value);
+  }
+
   switch (from_) {
     case Type.Integer:
       return castInteger(value as number, to_);
@@ -383,8 +355,6 @@ function cast(value: Value, from_: Type, to_: Type): Value {
       return castException(value as BaseException, to_);
     case Type.Nil:
       return castNil(value as Nil, to_);
-    case Type.Any:
-      return castAny(value as Value, to_);
     default:
       return castFault(value, Type.Unknown, Type.Unknown);
   }
@@ -405,7 +375,7 @@ function castType(from_: Type, to_: Type): Type {
     case Type.Nil:
       return castNilType(to_);
     case Type.Any:
-      return castAnyType(to_);
+      return Type.Any;
     default:
       return Type.Invalid;
   }

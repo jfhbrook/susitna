@@ -29,8 +29,6 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### Near Term Polish
 
-- Handle types
-  - [ ] Update ADRs based on implementation
 - Interpreted/compiled mixed commands support in the compiler
   - Merge errors from parser and compiler when running files
 - Test programs with asserted output

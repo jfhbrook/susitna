@@ -3,8 +3,9 @@ import { errorType } from './errors';
 import { SyntaxError, ParseError } from './exceptions';
 import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
-import { Value, Type } from './value';
-import { Stack } from './stack';
+import { Value } from './value';
+// import { Type } from './value/types';
+// import { Stack } from './stack';
 import { Line, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
 import {

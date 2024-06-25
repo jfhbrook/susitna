@@ -4,7 +4,9 @@ import { Test } from 'tap';
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, RuntimeFault } from '../../faults';
 import { formatter } from '../../format';
-import { nil, Value, Type, cast, castType } from '../../value';
+import { nil, Value } from '../../value';
+import { Type } from '../../value/types';
+import { cast, castType } from '../../value/cast';
 
 const EXCEPTION = new BaseException('test exception');
 

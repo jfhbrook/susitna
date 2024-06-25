@@ -1,4 +1,4 @@
-import { Nil, Value } from './value';
+import { Nil, Value } from './';
 import { Type } from './types';
 import { BaseException, TypeError } from '../exceptions';
 import { RuntimeFault } from '../faults';

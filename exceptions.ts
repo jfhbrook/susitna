@@ -2,7 +2,7 @@ import { ExitCode, ExitCoded } from './exit';
 import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
-import { Value } from './value';
+import { Value } from './value/value';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.

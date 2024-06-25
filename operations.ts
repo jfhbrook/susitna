@@ -1,6 +1,31 @@
-import { TypeError } from './exceptions';
+import { BaseException, TypeError } from './exceptions';
 import { RuntimeFault } from './faults';
-import { Value, cast, Type, typeOf_ } from './value';
+import { Type } from './value/types';
+import { Value, Nil } from './value/value';
+import { cast } from './value/cast';
+
+export function typeOf(value: Value): Type {
+  const type = typeof value;
+  if (type === 'boolean') {
+    return Type.Boolean;
+  }
+  if (type === 'number') {
+    if (Number.isInteger(value)) {
+      return Type.Integer;
+    }
+    return Type.Real;
+  }
+  if (type === 'string') {
+    return Type.String;
+  }
+  if (value instanceof Nil) {
+    return Type.Nil;
+  }
+  if (value instanceof BaseException) {
+    return Type.Exception;
+  }
+  return Type.Unknown;
+}
 
 function typePrecedence(type: Type): number {
   switch (type) {
@@ -43,8 +68,7 @@ function unreachable(name: string): never {
 
 export function binaryMathOperation(op: Operator): Operation {
   return function operation(a: Value, b: Value): Value {
-    console.log(typeOf_);
-    const castTo = highestTypePrecedence(typeOf_(a), typeOf_(b));
+    const castTo = highestTypePrecedence(typeOf(a), typeOf(b));
 
     switch (castTo) {
       case Type.Boolean:
@@ -71,7 +95,7 @@ export function binaryMathOperation(op: Operator): Operation {
         throw new TypeError(
           `Invalid operand for ${op.name}: ${typeof b}`,
           b,
-          typeOf_(b),
+          typeOf(b),
           Type.Invalid,
         );
     }

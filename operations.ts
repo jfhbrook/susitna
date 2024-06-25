@@ -54,34 +54,33 @@ function unreachable(name: string): never {
 
 export function binaryOperation(op: BinaryOperator): BinaryOperation {
   return function operation(a: Value, b: Value): Value {
-    const castTo = highestTypePrecedence(typeOf(a), typeOf(b));
+    const typeA = typeOf(a);
+    const typeB = typeOf(b);
+    const castTo = highestTypePrecedence(typeA, typeB);
 
     switch (castTo) {
       case Type.Boolean:
         return op.boolean(
-          cast(a, Type.Any, Type.Boolean),
-          cast(b, Type.Any, Type.Boolean),
+          cast(a, typeA, Type.Boolean),
+          cast(b, typeB, Type.Boolean),
         );
       case Type.Integer:
         return op.integer(
-          cast(a, Type.Any, Type.Integer),
-          cast(b, Type.Any, Type.Integer),
+          cast(a, typeA, Type.Integer),
+          cast(b, typeB, Type.Integer),
         );
       case Type.Real:
-        return op.real(
-          cast(a, Type.Any, Type.Real),
-          cast(b, Type.Any, Type.Real),
-        );
+        return op.real(cast(a, typeA, Type.Real), cast(b, typeB, Type.Real));
       case Type.String:
         return op.string(
-          cast(a, Type.Any, Type.String),
-          cast(b, Type.Any, Type.String),
+          cast(a, typeA, Type.String),
+          cast(b, typeB, Type.String),
         );
       default:
         throw new TypeError(
-          `Invalid operand for ${op.name}: ${typeof b}`,
+          `Invalid operand for ${op.name} on ${typeA}: ${typeB}`,
           b,
-          typeOf(b),
+          typeB,
           Type.Invalid,
         );
     }
@@ -96,6 +95,9 @@ export const add = binaryOperation({
   string: (a, b) => a + b,
 });
 
+// TODO: These expressions aren't actually unreachable - rather, they're
+// invalid operations. The move is probably to throw an internal error
+// and handle that behavior as an exception.
 export const sub = binaryOperation({
   name: '-',
   boolean: (a, b) => {

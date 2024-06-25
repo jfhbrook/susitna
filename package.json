@@ -33,6 +33,7 @@
     "console": "npm run build && ts-node",
     "prepare": "husky",
     "linecount": "./scripts/linecount.sh",
+    "wordcount": "./scripts/wordcount.sh",
     "clean": "rm -rf ./dist"
   },
   "keywords": [

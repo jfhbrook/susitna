@@ -102,7 +102,7 @@ export class ArithmeticError extends RuntimeError {}
  * An exception raised when attempting to divide by zero. Extends
  * ArithmeticError.
  */
-@errorType('ArithmeticError')
+@errorType('ZeroDivisionError')
 export class ZeroDivisionError extends ArithmeticError {
   constructor(
     public readonly message: any,
@@ -113,6 +113,7 @@ export class ZeroDivisionError extends ArithmeticError {
     public traceback: Traceback | null = null,
   ) {
     super(message, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
@@ -175,6 +176,7 @@ export class OsError extends Exception implements ExitCoded {
     public readonly traceback: Traceback | null,
   ) {
     super(message, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
 
     if (exitCode) {
       this.exitCode = exitCode;
@@ -267,6 +269,7 @@ export class FileError extends OsError {
     public traceback: Traceback | null,
   ) {
     super(message, code, exitCode, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   /**
@@ -446,6 +449,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
    */
   constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.setPrototypeOf(this, new.target.prototype);
     Object.assign(this, location);
   }
 
@@ -467,6 +471,7 @@ export class ParseError extends Exception implements ExitCoded {
    */
   constructor(public errors: Array<SyntaxError | SyntaxWarning>) {
     super('', null);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   format(formatter: Formatter): string {
@@ -496,6 +501,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
    */
   constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.setPrototypeOf(this, new.target.prototype);
     Object.assign(this, location);
   }
 
@@ -517,6 +523,7 @@ export class ParseWarning extends Exception {
    */
   constructor(public warnings: Array<SyntaxWarning>) {
     super('', null);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   format(formatter: Formatter): string {

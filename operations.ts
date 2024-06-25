@@ -66,7 +66,7 @@ type BinaryOperator = {
   string: (a: string, b: string) => Value;
 };
 
-type BinaryOperation = (a: Value, b: Value) => Value;
+export type BinaryOperation = (a: Value, b: Value) => Value;
 
 export function binaryOperation(op: BinaryOperator): BinaryOperation {
   return function operation(a: Value, b: Value): Value {
@@ -131,7 +131,7 @@ type UnaryOperator = {
   string: (a: string) => Value;
 };
 
-type UnaryOperation = (a: Value) => Value;
+export type UnaryOperation = (a: Value) => Value;
 
 export function unaryOperation(op: UnaryOperator): UnaryOperation {
   return function operation(a: Value): Value {
@@ -173,7 +173,7 @@ type ComparisonOperator = {
   string: (a: string, b: string) => boolean;
 };
 
-type ComparisonOperation = (a: Value, b: Value) => boolean;
+export type ComparisonOperation = (a: Value, b: Value) => boolean;
 
 export function comparisonOperation(
   op: ComparisonOperator,
@@ -182,26 +182,33 @@ export function comparisonOperation(
     const typeA = typeOf(a);
     const typeB = typeOf(b);
 
-    if (typeA != typeB) {
-      return op.any(a, typeA, b, typeB);
-    }
+    try {
+      if (typeA != typeB) {
+        return op.any(a, typeA, b, typeB);
+      }
 
-    switch (typeA) {
-      case Type.Boolean:
-        return op.boolean(a as boolean, b as boolean);
-      case Type.Integer:
-        return op.integer(a as number, b as number);
-      case Type.Real:
-        return op.real(a as number, b as number);
-      case Type.String:
-        return op.string(a as string, b as string);
-      default:
+      switch (typeA) {
+        case Type.Boolean:
+          return op.boolean(a as boolean, b as boolean);
+        case Type.Integer:
+          return op.integer(a as number, b as number);
+        case Type.Real:
+          return op.real(a as number, b as number);
+        case Type.String:
+          return op.string(a as string, b as string);
+        default:
+          invalid();
+      }
+    } catch (err) {
+      if (err instanceof Invalid) {
         throw new TypeError(
           `Invalid operand for ${op.name} on ${typeA}: ${typeB}`,
           b,
           typeB,
           Type.Invalid,
         );
+      }
+      throw err;
     }
   };
 }
@@ -212,7 +219,7 @@ export function comparisonOperation(
 
 export const add = binaryOperation({
   name: '+',
-  boolean: (a, b) => a && b,
+  boolean: (a, b) => (a ? (b ? 2 : 1) : b ? 1 : 0),
   integer: (a, b) => a + b,
   real: (a, b) => a + b,
   string: (a, b) => a + b,

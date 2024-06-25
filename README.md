@@ -143,5 +143,6 @@ expressions. But it's brittle, and has a lot of gaps.
 - [cpython internals](https://devguide.python.org/internals/)
   - [Python disassembler](https://docs.python.org/3/library/dis.html)
 - [MSX2 Technical Handbook](https://github.com/Konamiman/MSX2-Technical-Handbook/blob/master/md/Chapter2.md/)
+- [MSX-BASIC Instructions - MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions)
 - [An Introduction to Programming BBC BASIC](https://www.bbcbasic.co.uk/bbcwin/tutorial/index.html)
 - [BASIC Computer Games Microcomputer Edition](https://annarchive.com/files/Basic_Computer_Games_Microcomputer_Edition.pdf)

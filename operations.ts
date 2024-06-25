@@ -52,7 +52,7 @@ function unreachable(name: string): never {
   );
 }
 
-export function binaryBinaryOperation(op: BinaryOperator): BinaryOperation {
+export function binaryOperation(op: BinaryOperator): BinaryOperation {
   return function operation(a: Value, b: Value): Value {
     const castTo = highestTypePrecedence(typeOf(a), typeOf(b));
 
@@ -88,7 +88,7 @@ export function binaryBinaryOperation(op: BinaryOperator): BinaryOperation {
   };
 }
 
-export const add = binaryBinaryOperation({
+export const add = binaryOperation({
   name: '+',
   boolean: (a, b) => a && b,
   integer: (a, b) => a + b,
@@ -96,7 +96,7 @@ export const add = binaryBinaryOperation({
   string: (a, b) => a + b,
 });
 
-export const sub = binaryBinaryOperation({
+export const sub = binaryOperation({
   name: '-',
   boolean: (a, b) => {
     if (a) {
@@ -110,7 +110,7 @@ export const sub = binaryBinaryOperation({
   string: (_a, _b) => unreachable('<str> - <str>'),
 });
 
-export const mul = binaryBinaryOperation({
+export const mul = binaryOperation({
   name: '*',
   boolean: (a, b) => a && b,
   integer: (a, b) => a * b,
@@ -119,7 +119,7 @@ export const mul = binaryBinaryOperation({
 });
 
 // TODO: Error for divide by zero
-export const div = binaryBinaryOperation({
+export const div = binaryOperation({
   name: '/',
   boolean: (a, b) => (a ? 1 : 0) / (b ? 1 : 0),
   integer: (a, b) => a / b,

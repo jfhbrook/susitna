@@ -27,7 +27,7 @@ export function highestTypePrecedence(a: Type, b: Type): Type {
   return b;
 }
 
-type Operator = {
+type BinaryOperator = {
   name: string;
   boolean: (a: boolean, b: boolean) => Value;
   integer: (a: number, b: number) => Value;
@@ -35,7 +35,7 @@ type Operator = {
   string: (a: string, b: string) => Value;
 };
 
-type Operation = (a: Value, b: Value) => Value;
+type BinaryOperation = (a: Value, b: Value) => Value;
 
 function unreachable(name: string): never {
   throw new RuntimeFault(
@@ -44,7 +44,7 @@ function unreachable(name: string): never {
   );
 }
 
-export function binaryMathOperation(op: Operator): Operation {
+export function binaryBinaryOperation(op: BinaryOperator): BinaryOperation {
   return function operation(a: Value, b: Value): Value {
     const castTo = highestTypePrecedence(typeOf(a), typeOf(b));
 
@@ -80,7 +80,7 @@ export function binaryMathOperation(op: Operator): Operation {
   };
 }
 
-export const add = binaryMathOperation({
+export const add = binaryBinaryOperation({
   name: '+',
   boolean: (a, b) => a && b,
   integer: (a, b) => a + b,
@@ -88,7 +88,7 @@ export const add = binaryMathOperation({
   string: (a, b) => a + b,
 });
 
-export const sub = binaryMathOperation({
+export const sub = binaryBinaryOperation({
   name: '-',
   boolean: (a, b) => {
     if (a) {
@@ -102,7 +102,7 @@ export const sub = binaryMathOperation({
   string: (_a, _b) => unreachable('<str> - <str>'),
 });
 
-export const mul = binaryMathOperation({
+export const mul = binaryBinaryOperation({
   name: '*',
   boolean: (a, b) => a && b,
   integer: (a, b) => a * b,
@@ -111,7 +111,7 @@ export const mul = binaryMathOperation({
 });
 
 // TODO: Error for divide by zero
-export const div = binaryMathOperation({
+export const div = binaryBinaryOperation({
   name: '/',
   boolean: (a, b) => (a ? 1 : 0) / (b ? 1 : 0),
   integer: (a, b) => a / b,

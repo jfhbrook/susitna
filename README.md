@@ -30,8 +30,13 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Handle types
-  - [ ] Implement runtime operations
-  - [ ] Implement type analogs to operations
+  - [X] Implement basic runtime operations
+  - [ ] Tests for typeof
+  - [ ] Tests for operations
+  - [ ] Unary operations
+  - [ ] Comparison operations
+  - [ ] Divide by zero error
+  - [ ] BONUS: Implement type analogs to operations
   - [ ] BONUS: Simulated stack in the compiler
 - Interpreted/compiled mixed commands support in the compiler
   - Merge errors from parser and compiler when running files

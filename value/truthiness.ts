@@ -2,6 +2,7 @@ import { Value } from './';
 import { Type } from './types';
 import { typeOf } from './typeof';
 import { TypeError } from '../exceptions';
+import { formatter } from '../format';
 
 //
 // Truthiness and falsiness. Falsiness can also be thought of as the "not"
@@ -27,7 +28,7 @@ export function truthy(value: Value, type: Type): boolean {
       return false;
     default:
       throw new TypeError(
-        `Cannot determine of ${value} is truthy`,
+        `Cannot determine if ${formatter.format(value)} is truthy`,
         value,
         type,
         Type.Boolean,
@@ -54,7 +55,7 @@ export function falsey(value: Value, type: Type): boolean {
       return true;
     default:
       throw new TypeError(
-        `Cannot determine of ${value} is truthy`,
+        `Cannot determine if ${formatter.format(value)} is truthy`,
         value,
         type,
         Type.Boolean,

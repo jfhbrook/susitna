@@ -1,31 +1,9 @@
-import { BaseException, TypeError } from './exceptions';
+import { TypeError } from './exceptions';
 import { RuntimeFault } from './faults';
 import { Type } from './value/types';
-import { Value, Nil } from './value/value';
+import { typeOf } from './value/typeof';
+import { Value } from './value/value';
 import { cast } from './value/cast';
-
-export function typeOf(value: Value): Type {
-  const type = typeof value;
-  if (type === 'boolean') {
-    return Type.Boolean;
-  }
-  if (type === 'number') {
-    if (Number.isInteger(value)) {
-      return Type.Integer;
-    }
-    return Type.Real;
-  }
-  if (type === 'string') {
-    return Type.String;
-  }
-  if (value instanceof Nil) {
-    return Type.Nil;
-  }
-  if (value instanceof BaseException) {
-    return Type.Exception;
-  }
-  return Type.Unknown;
-}
 
 function typePrecedence(type: Type): number {
   switch (type) {

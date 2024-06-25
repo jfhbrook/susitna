@@ -13,8 +13,6 @@ CITREE_LC="$(cat ./tools/citree/src/*.ts \
 
 TESTGEN_LC="$(cat ./tools/test-generator/*.ts | wc -l)"
 
-echo "=== line counts: ==="
-echo ''
 echo "project                 count"
 echo "--------               ------"
 echo "main                 ${MATBAS_LC}"

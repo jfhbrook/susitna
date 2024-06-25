@@ -30,15 +30,27 @@ gaps.
 
 ### Prioritized Backlog
 
-- Editing
-  - Editor class
-  - Editor commands
+- Run tests with GitHub Actions
+- Refactor compiler to support mixed interpreted/compiled commands
+  - See [this draft PR here](https://github.com/jfhbrook/matanuska/pull/9/files)
+  - BONUS: Merge errors from parser and compiler
+- Editing and running
+  - Working Editor class
+  - Commands
+    - new
+      - clear the program
+      - clear runtime state
+      - close open files
+    - load
+      - load a program into the Editor
+      - optionally run the program
+    - save - save the current program to a file
+    - list
+      - print the AST in the Editor for now
+    - run
   - Syntax for blank (not removed) line
-- RUN command
-  - interpreted/compiled mixed commands support in the compiler
-- BONUS: Merge errors from parser and compiler
-- LIST command
-  - working recreator
+- recreator
+  - make list use recreator
 - Global variables
 - If/else
 - For and while
@@ -48,6 +60,11 @@ gaps.
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
+- Support `end`
+  - In MSX BASIC, `end` closes open files and ends program execution. It's
+    distinct from a bare `exit`, insofar as `end` will hand control back to the
+    commander in the context of a `run`.
+  - In MSX BASIC, `stop` 
 - REPL history support
   - Support \# and \! in prompt rendering
 - Gotos
@@ -104,8 +121,9 @@ gaps.
 - Starship support
 - Stream/pipe support
 - Break-in
-  - Will need to intercept and handle ctrl-c from readline
-  - Will likely need lock/unlock opcodes
+  - MSX BASIC uses the `stop` and `cont` commands to control break-in behavior
+  - Will need to intercept and handle ctrl-c from readline (ctrl-stop in
+    MSX BASIC)
 - Symbol dump
 - Profiling
   - Line-based for users
@@ -117,13 +135,15 @@ gaps.
 
 ### The Future
 
-- Run tests with GitHub Actions
 - String templates
 - Module system
 - Package manager
 - Partial rewrite in Rust and/or C/C++
 - Implement entry point in Rust or C/C++
-- Rollup "release build"
+- Rollup "release build"?
+- Port to bun?
+  - Nice FFI
+  - Support for bundled executable
 - Object support
 - Vector/matrix support for 1D/2D integer/float arrays
 - Assembler mini-language

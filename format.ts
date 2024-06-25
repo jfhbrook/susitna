@@ -7,6 +7,8 @@ import {
   BaseException,
   AssertionError,
   BaseWarning,
+  TypeError,
+  ZeroDivisionError,
   OsError,
   FileError,
   SourceLocation,
@@ -123,6 +125,8 @@ export abstract class Formatter
   abstract formatBaseException(exc: BaseException): string;
   abstract formatBaseWarning(warn: BaseWarning): string;
   abstract formatAssertionError(exc: AssertionError): string;
+  abstract formatTypeError(exc: TypeError): string;
+  abstract formatZeroDivisionError(exc: ZeroDivisionError): string;
   abstract formatOsError(exc: OsError): string;
   abstract formatFileError(exc: FileError): string;
   abstract formatSyntaxError(exc: SyntaxError): string;
@@ -162,7 +166,7 @@ export abstract class Formatter
   abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
 
-  abstract formatStack(stack: Stack): string;
+  abstract formatStack<V>(stack: Stack<V>): string;
 
   abstract formatArray(array: any[]): string;
 
@@ -291,6 +295,39 @@ export class DefaultFormatter extends Formatter {
 
   formatAssertionError(exc: AssertionError): string {
     return this.formatBaseException(exc);
+  }
+
+  formatTypeError(exc: TypeError): string {
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report += `${exc.constructor.name}: ${exc.message}\n`;
+    report += `  Value: ${this.format(exc.value)}\n`;
+    report += `  From: ${exc.from}\n`;
+    report += `  To: ${exc.to}`;
+
+    return report;
+  }
+
+  formatZeroDivisionError(exc: ZeroDivisionError): string {
+    let report = '';
+
+    if (exc.traceback) {
+      report += this.format(exc.traceback);
+      report += '\n';
+    }
+
+    report +=
+      `${exc.constructor.name}: Cannot divide ` +
+      formatter.format(exc.a) +
+      ' by ' +
+      formatter.format(exc.b);
+
+    return report;
   }
 
   formatOsError(exc: OsError): string {
@@ -542,7 +579,7 @@ export class DefaultFormatter extends Formatter {
     return `Rem(${rem.remark})`;
   }
 
-  formatStack(stack: Stack): string {
+  formatStack<V>(stack: Stack<V>): string {
     let formatted = '{ ';
     for (const v of stack.stack) {
       formatted += this.format(v);

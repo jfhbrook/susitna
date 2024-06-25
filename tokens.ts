@@ -48,9 +48,14 @@ export enum TokenKind {
 
   NilLiteral = 'nil',
 
-  Ident = '<ident>',
+  Ident = '<ident[any]>',
 
-  ShellToken = '<shell-token>',
+  IntIdent = '<ident[int]>',
+  RealIdent = '<ident[real]>',
+  BoolIdent = '<ident[bool]>',
+  StringIdent = '<ident[str]>',
+
+  ShellToken = '<shell>',
 
   Exit = 'exit',
 

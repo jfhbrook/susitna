@@ -53,6 +53,7 @@ export class RuntimeFault extends Fault implements ExitCoded {
     traceback: Traceback | null = null,
   ) {
     super(message, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   static fromError(err: any, traceback: Traceback | null = null): RuntimeFault {
@@ -104,8 +105,9 @@ export class RuntimeFault extends Fault implements ExitCoded {
  */
 @errorType('NotImplementedFault')
 export class NotImplementedFault extends RuntimeFault {
-  constructor(message: any, traceback: Traceback | null) {
+  constructor(message: any, traceback: Traceback | null = null) {
     super(message, new Error(), traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
     this.error = this;
   }
 }
@@ -119,6 +121,7 @@ export class UsageFault extends Fault implements ExitCoded {
 
   constructor(message: string) {
     super(message, null);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   format(formatter: Formatter): string {

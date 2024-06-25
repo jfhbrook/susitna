@@ -2,6 +2,7 @@ import { ExitCode, ExitCoded } from './exit';
 import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
+import { Value } from './value';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
@@ -58,6 +59,66 @@ export class AssertionError extends Exception {
  */
 @errorType('RuntimeError')
 export class RuntimeError extends Exception {}
+
+/**
+ * An exception raised when casting is not supported.
+ */
+@errorType('TypeError')
+export class TypeError extends RuntimeError {
+  public from: string;
+  public to: string;
+  /**
+   * @param message The message for the exception.
+   * @param value The value attempted to cast
+   * @param from_ The type attempted to cast from
+   * @param to_ The type attempted to cast to
+   * @param traceback The traceback for the exception.
+   */
+  constructor(
+    public readonly message: any,
+    public readonly value: Value,
+    from_: string,
+    to_: string,
+    public traceback: Traceback | null = null,
+  ) {
+    super(message, traceback);
+    this.from = from_;
+    this.to = to_;
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatTypeError(this);
+  }
+}
+
+/**
+ * An exception raised for various arithmetic errors. Extends RuntimeError.
+ */
+@errorType('ArithmeticError')
+export class ArithmeticError extends RuntimeError {}
+
+/**
+ * An exception raised when attempting to divide by zero. Extends
+ * ArithmeticError.
+ */
+@errorType('ZeroDivisionError')
+export class ZeroDivisionError extends ArithmeticError {
+  constructor(
+    public readonly a: Value,
+    public readonly typeA: string,
+    public readonly b: Value,
+    public readonly typeB: string,
+    public traceback: Traceback | null = null,
+  ) {
+    const message = 'Cannot divide by zero';
+    super(message, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  format(formatter: Formatter): string {
+    return formatter.formatZeroDivisionError(this);
+  }
+}
 
 /**
  * An exception raised when functionality is not implemented. Extends
@@ -118,6 +179,7 @@ export class OsError extends Exception implements ExitCoded {
     public readonly traceback: Traceback | null,
   ) {
     super(message, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
 
     if (exitCode) {
       this.exitCode = exitCode;
@@ -210,6 +272,7 @@ export class FileError extends OsError {
     public traceback: Traceback | null,
   ) {
     super(message, code, exitCode, traceback);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   /**
@@ -389,6 +452,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
    */
   constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.setPrototypeOf(this, new.target.prototype);
     Object.assign(this, location);
   }
 
@@ -410,6 +474,7 @@ export class ParseError extends Exception implements ExitCoded {
    */
   constructor(public errors: Array<SyntaxError | SyntaxWarning>) {
     super('', null);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   format(formatter: Formatter): string {
@@ -439,6 +504,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
    */
   constructor(message: any, location: SourceLocation) {
     super(message, null);
+    Object.setPrototypeOf(this, new.target.prototype);
     Object.assign(this, location);
   }
 
@@ -460,6 +526,7 @@ export class ParseWarning extends Exception {
    */
   constructor(public warnings: Array<SyntaxWarning>) {
     super('', null);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   format(formatter: Formatter): string {

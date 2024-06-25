@@ -1,14 +1,13 @@
 import { Formattable, Formatter } from './format';
-import { Value } from './value';
 
-export class Stack implements Formattable {
-  public stack: Value[] = [];
+export class Stack<V> implements Formattable {
+  public stack: V[] = [];
 
-  push(value: Value): void {
+  push(value: V): void {
     this.stack.push(value);
   }
 
-  pop(): Value | null {
+  pop(): V | null {
     const val = this.stack.pop();
     if (val === undefined) {
       return null;
@@ -16,7 +15,7 @@ export class Stack implements Formattable {
     return val;
   }
 
-  peek(): Value | null {
+  peek(): V | null {
     if (this.empty) {
       return null;
     }

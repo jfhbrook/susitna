@@ -1,5 +1,6 @@
 import { errorType } from './errors';
-import { TypeError } from './exceptions';
+import { TypeError, ZeroDivisionError } from './exceptions';
+import { formatter } from './format';
 import { Value } from './value';
 import { Type } from './value/types';
 import { typeOf } from './value/typeof';
@@ -50,7 +51,15 @@ function invalid(): never {
 
 type BinaryOperator = {
   name: string;
-  check?: (a: Value, b: Value, t: Type) => void;
+  check?: (
+    aOriginal: Value,
+    aType: Type,
+    aCast: Value,
+    bOriginal: Value,
+    bType: Type,
+    bCast: Value,
+    tCast: Type,
+  ) => void;
   boolean: (a: boolean, b: boolean) => Value;
   integer: (a: number, b: number) => Value;
   real: (a: number, b: number) => Value;
@@ -96,7 +105,7 @@ export function binaryOperation(op: BinaryOperator): BinaryOperation {
       }
 
       if (op.check) {
-        op.check(castA, castB, castTo);
+        op.check(a, typeA, castA, b, typeB, castB, castTo);
       }
 
       return op[method](castA, castB);
@@ -233,12 +242,19 @@ export const mul = binaryOperation({
 
 export const div = binaryOperation({
   name: '/',
-  check: (_a, b, _t) => {
-    // Divide by zero check. In this case we don't need the type, because
-    // JavaScript will do the right thing for any numbers, and strings are
-    // invalid anyway.
-    if (!b) {
-      invalid();
+  check: (aOriginal, aType, _aCast, bOriginal, bType, bCast, _castTo) => {
+    // Divide by zero check. In this case we don't need to switch on type,
+    // because JavaScript will do the right thing for any numbers, and strings
+    // are invalid anyway.
+    if (!bCast) {
+      throw new ZeroDivisionError(
+        `Cannot divide ${formatter.format(aOriginal)} by ` +
+          formatter.format(bOriginal),
+        aOriginal,
+        aType,
+        bOriginal,
+        bType,
+      );
     }
   },
   boolean: (a, _b) => (a ? 1 : 0),

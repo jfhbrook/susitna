@@ -3,6 +3,7 @@ import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 import { Value } from './value';
+import { Type } from './value/types';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
@@ -79,7 +80,7 @@ export class TypeError extends RuntimeError {
     public readonly value: Value,
     from_: string,
     to_: string,
-    public readonly traceback: Traceback | null = null,
+    public traceback: Traceback | null = null,
   ) {
     super(message, traceback);
     this.from = from_;
@@ -88,6 +89,30 @@ export class TypeError extends RuntimeError {
 
   format(formatter: Formatter): string {
     return formatter.formatTypeError(this);
+  }
+}
+
+/**
+ * An exception raised for various arithmetic errors. Extends RuntimeError.
+ */
+@errorType('ArithmeticError')
+export class ArithmeticError extends RuntimeError {}
+
+/**
+ * An exception raised when attempting to divide by zero. Extends
+ * ArithmeticError.
+ */
+@errorType('ArithmeticError')
+export class ZeroDivisionError extends ArithmeticError {
+  constructor(
+    public readonly message: any,
+    public readonly a: Value,
+    public readonly typeA: Type,
+    public readonly b: Value,
+    public readonly typeB: Type,
+    public traceback: Traceback | null = null,
+  ) {
+    super(message, traceback);
   }
 }
 

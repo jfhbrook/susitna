@@ -1,5 +1,3 @@
-export const UNKNOWN = 'unknown';
-
 export enum Type {
   Integer = 'integer',
   Real = 'real',
@@ -8,4 +6,6 @@ export enum Type {
   Exception = 'Exception',
   Nil = 'nil',
   Any = 'any',
+  Unknown = 'unknown',
+  Invalid = 'invalid',
 }

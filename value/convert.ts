@@ -1,5 +1,5 @@
 import { Nil, Value } from './value';
-import { Type, UNKNOWN } from './types';
+import { Type } from './types';
 import { BaseException, TypeError } from '../exceptions';
 import { NotImplementedFault, RuntimeFault } from '../faults';
 import { formatter } from '../format';
@@ -71,7 +71,7 @@ function fromInteger(value: number, to_: Type): Value {
       return conversionError(value, Type.Integer, Type.Nil);
   }
 
-  return conversionFault(value, Type.Integer, UNKNOWN);
+  return conversionFault(value, Type.Integer, Type.Unknown);
 }
 
 function wouldConvertInteger(to_: Type): boolean {
@@ -111,7 +111,7 @@ function fromReal(value: number, to_: Type): Value {
       return conversionError(value, Type.Real, Type.Nil);
   }
 
-  return conversionFault(value, Type.Real, UNKNOWN);
+  return conversionFault(value, Type.Real, Type.Unknown);
 }
 
 function wouldConvertReal(to_: Type): boolean {
@@ -151,7 +151,7 @@ function fromBoolean(value: boolean, to_: Type): Value {
       return conversionError(value, Type.Boolean, Type.Nil);
   }
 
-  return conversionFault(value, Type.Boolean, UNKNOWN);
+  return conversionFault(value, Type.Boolean, Type.Unknown);
 }
 
 function wouldConvertBoolean(to_: Type): boolean {
@@ -192,7 +192,7 @@ function fromString(value: string, to_: Type): Value {
       return conversionError(value, Type.String, Type.Nil);
   }
 
-  return conversionFault(value, Type.String, UNKNOWN);
+  return conversionFault(value, Type.String, Type.Unknown);
 }
 
 function wouldConvertString(to_: Type): boolean {
@@ -235,7 +235,7 @@ function fromException(value: BaseException, to_: Type): Value {
       return conversionError(value, Type.Exception, Type.Nil);
   }
 
-  return conversionFault(value, Type.Exception, UNKNOWN);
+  return conversionFault(value, Type.Exception, Type.Unknown);
 }
 
 function wouldConvertException(to_: Type): boolean {
@@ -274,7 +274,7 @@ function fromNil(value: Nil, to_: Type): Value {
       return value;
   }
 
-  return conversionFault(value, Type.Nil, UNKNOWN);
+  return conversionFault(value, Type.Nil, Type.Unknown);
 }
 
 function wouldConvertNil(to_: Type): boolean {
@@ -318,7 +318,7 @@ function fromAny(value: Value, to_: Type): Value {
   if (value instanceof Nil) {
     return fromNil(value, to_);
   }
-  return conversionFault(value, Type.Any, UNKNOWN);
+  return conversionFault(value, Type.Any, Type.Unknown);
 }
 
 function into(value: Value, from_: Type.Integer, to_: Type.Integer): number;
@@ -402,7 +402,7 @@ function into(value: Value, from_: Type, to_: Type): Value {
     case Type.Any:
       return fromAny(value as Value, to_);
     default:
-      return conversionFault(value, UNKNOWN, UNKNOWN);
+      return conversionFault(value, Type.Unknown, Type.Unknown);
   }
 }
 

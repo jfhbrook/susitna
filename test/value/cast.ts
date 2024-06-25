@@ -4,7 +4,7 @@ import { Test } from 'tap';
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, RuntimeFault } from '../../faults';
 import { formatter } from '../../format';
-import { nil, Value, Type, cast } from '../../value';
+import { nil, Value, Type, cast, wouldCast } from '../../value';
 
 const EXCEPTION = new BaseException('test exception');
 
@@ -75,6 +75,16 @@ function testCast(t: Test, [value, from_, to_, expected]: TestCase): void {
         );
       },
     );
+
+    if (from_ !== Type.Any && to_ !== Type.Any) {
+      t.test(`wouldCast(${from_}, ${to_}) -> false`, async (t: Test) => {
+        t.notOk(wouldCast(from_, to_));
+      });
+    } else {
+      t.test(`wouldCast(${from_}, ${to_}) throws`, async (t: Test) => {
+        t.throws(() => wouldCast(from_, to_));
+      });
+    }
   } else {
     t.test(
       `cast(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`,
@@ -82,6 +92,16 @@ function testCast(t: Test, [value, from_, to_, expected]: TestCase): void {
         t.same(cast(value, from_, to_), expected);
       },
     );
+
+    if (from_ !== Type.Any && to_ !== Type.Any) {
+      t.test(`wouldCast(${from_}, ${to_}) -> true`, async (t: Test) => {
+        t.ok(wouldCast(from_, to_));
+      });
+    } else {
+      t.test(`wouldCast(${from_}, ${to_}) throws`, async (t: Test) => {
+        t.throws(() => wouldCast(from_, to_));
+      });
+    }
   }
 }
 

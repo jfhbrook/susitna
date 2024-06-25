@@ -4,7 +4,7 @@ import { Test } from 'tap';
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from '../../faults';
 import { formatter } from '../../format';
-import { nil, Value, Type, into } from '../../value';
+import { nil, Value, Type, into, wouldConvert } from '../../value';
 
 const EXCEPTION = new BaseException('test exception');
 
@@ -67,11 +67,9 @@ const CASES: TestCase[] = [
 
 function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
   const proto = (expected as any).prototype;
-  if (
-    proto instanceof BaseException ||
-    proto instanceof BaseFault ||
-    proto instanceof NotImplementedFault
-  ) {
+
+  if (proto instanceof BaseException || proto instanceof BaseFault) {
+    const isUnimplemented = proto.name === 'NotImplementedFault';
     t.test(
       `into(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`,
       async (t: Test) => {
@@ -81,6 +79,22 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
         );
       },
     );
+
+    if (from_ !== Type.Any && to_ !== Type.Any) {
+      if (isUnimplemented) {
+        t.test(`wouldConvert(${from_}, ${to_}) -> true`, async (t: Test) => {
+          t.ok(wouldConvert(from_, to_));
+        });
+      } else {
+        t.test(`wouldConvert(${from_}, ${to_}) -> false`, async (t: Test) => {
+          t.notOk(wouldConvert(from_, to_));
+        });
+      }
+    } else {
+      t.test(`wouldConvert(${from_}, ${to_}) throws`, async (t: Test) => {
+        t.throws(() => wouldConvert(from_, to_));
+      });
+    }
   } else {
     t.test(
       `into(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`,
@@ -88,6 +102,16 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
         t.same(into(value, from_, to_), expected);
       },
     );
+
+    if (from_ !== Type.Any && to_ !== Type.Any) {
+      t.test(`wouldConvert(${from_}, ${to_}) -> true`, async (t: Test) => {
+        t.ok(wouldConvert(from_, to_));
+      });
+    } else {
+      t.test(`wouldConvert(${from_}, ${to_}) throws`, async (t: Test) => {
+        t.throws(() => wouldConvert(from_, to_));
+      });
+    }
   }
 }
 

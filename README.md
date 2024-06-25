@@ -30,17 +30,7 @@ expressions. But it's brittle, and has a lot of gaps.
 ### Near Term Polish
 
 - Handle types
-  - [X] Implement basic runtime operations
-  - [X] Tests for typeof
-  - [X] Unary operations
-  - [X] Comparison operations
-  - [X] Divide by zero error
-  - [X] Tests for truthiness
-  - [ ] Tests for operations
-  - [ ] Runtime tests for operations
   - [ ] Update ADRs based on implementation
-  - [ ] BONUS: Implement type analogs to operations
-  - [ ] BONUS: Simulated stack in the compiler
 - Interpreted/compiled mixed commands support in the compiler
   - Merge errors from parser and compiler when running files
 - Test programs with asserted output
@@ -82,7 +72,9 @@ expressions. But it's brittle, and has a lot of gaps.
   - [X] Support through the parser
   - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
-- Type checking in the compiler
+- Type-checking compiler
+  - [ ] Implement type analogs to operations
+  - [ ] Simulated stack in the compiler
 
 ### Up Next
 

@@ -196,6 +196,7 @@ t.test('numbers', async (t: Test) => {
 });
 
 const IDENT = [
+  ['_', TokenKind.Ident],
   ['pony', TokenKind.Ident],
   ['_abc123', TokenKind.Ident],
   ['pony%', TokenKind.IntIdent],

@@ -411,7 +411,12 @@ class Parser {
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
         cmd = this.exit();
-        // 10 _ is special syntax for "delete line 10"
+        // 10 _ is special syntax for "delete line 10". Traditional BASIC
+        // usually makes `10` alone delete a line, but I want to be able to
+        // insert blank lines as well - this gives a distinct syntax between
+        // the two use cases.
+        //
+        // TODO: Push this into an ident() parser
       } else if (
         !this.isProgram &&
         this.isLine &&
@@ -420,9 +425,6 @@ class Parser {
       ) {
         cmd = new DeleteLine();
         this.advance();
-        console.log(this.current);
-        // TODO: Implement peekNext, and allow interpreting this as an
-        // expression statement
         if (!this.check(TokenKind.LineEnding) && !this.check(TokenKind.Eof)) {
           this.syntaxError(
             this.current,

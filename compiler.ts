@@ -524,7 +524,7 @@ export function compileCommands(
   const results = cmds.map((cmd) => cmd.accept(compiler));
   const commands = results
     .map(([cmd, _]) => cmd)
-    .filter((c) => !(c instanceof Rem));
+    .filter(([c, _]) => !(c instanceof Rem));
   const warnings = results.reduce(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
     [],

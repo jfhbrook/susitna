@@ -33,10 +33,12 @@ gaps.
 - Refactor compiler to support mixed interpreted/compiled commands
   - [X] Refactor Compiler into LineCompiler
   - [X] Flesh out CommandCompiler and compileCommands interface
-  - [ ] Implement a merge function for syntax warnings and issues
-  - [ ] Merge warnings in CommandCompiler and compileCommands
+  - [X] Implement a merge function for syntax warnings and issues
+  - [X] Merge warnings in CommandCompiler and compileCommands
   - [ ] Call compileCommands from Commander
   - [ ] Merge warnings/errors in Commander
+  - [ ] Tests for mergeParseErrors
+  - [ ] Tests for compileCommands
 - Editing and running
   - Working Editor class
   - Commands

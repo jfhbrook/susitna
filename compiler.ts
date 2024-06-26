@@ -49,6 +49,10 @@ export type CompilerOptions = {
 
 export type CompileResult<T> = [T, ParseWarning | null];
 
+//
+// Compile a series of lines. These lines may be from an entire program,
+// or a single line in the context of a compiled command.
+//
 export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk;
   private lines: Line[] = [];
@@ -421,26 +425,48 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 }
 
+/**
+ * Compile an individual runtime command.
+ *
+ * @param cmd An individual runtime command to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling the command, plus warnings.
+ */
 export function compileCommand(
-  ast: Cmd,
+  cmd: Cmd,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
-  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [ast])];
+  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [cmd])];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();
 }
 
+/**
+ * Compile an entire program.
+ *
+ * @param program An entire program to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling the program, plus warnings.
+ */
 export function compileProgram(
-  ast: Program,
+  program: Program,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
-  const compiler = new LineCompiler(ast.lines, RoutineType.Program, options);
+  const compiler = new LineCompiler(
+    program.lines,
+    RoutineType.Program,
+    options,
+  );
   return compiler.compile();
 }
 
 type CompiledCmd = [Cmd | null, Chunk[]];
 
+//
+// Compiler for both interactive and runtime commands. For more information,
+// see the jsdoc for compileCommands.
+//
 export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
   constructor(private options: CompilerOptions) {}
 
@@ -475,7 +501,7 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
   }
 
   visitRemCmd(rem: Rem): CompileResult<CompiledCmd> {
-    return this.interactive(rem, []);
+    return [[rem, []], null];
   }
 
   visitRunCmd(run: any): CompileResult<CompiledCmd> {
@@ -483,13 +509,22 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
   }
 }
 
+/**
+ * Compile a mixture of runtime and interactive commands.
+ *
+ * @param cmds The commands to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling each line, plus warnings.
+ */
 export function compileCommands(
   cmds: Cmd[],
   options: CompilerOptions = {},
 ): CompileResult<CompiledCmd[]> {
   const compiler = new CommandCompiler(options);
   const results = cmds.map((cmd) => cmd.accept(compiler));
-  const commands = results.map(([cmd, _]) => cmd);
+  const commands = results
+    .map(([cmd, _]) => cmd)
+    .filter((c) => !(c instanceof Rem));
   const warnings = results.reduce(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
     [],

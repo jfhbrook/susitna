@@ -1,7 +1,7 @@
 {
   "name": "matanuska",
   "version": "0.0.1",
-  "description": "a shell-friendly dialect of BASIC",
+  "description": "A chill BASIC to shell to",
   "main": "dist/index.js",
   "bin": {
     "matbas": "bin/matbas"

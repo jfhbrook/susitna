@@ -5,6 +5,12 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
+exports[`test/parser.ts > TAP > accidentally an entire semicolon > must match snapshot 1`] = `
+<input>:<R1>:11 (at the beginning): error: Unexpected token ;
+  print 1 + 1;
+             ^
+`
+
 exports[`test/parser.ts > TAP > bare expression starting with an integer > must match snapshot 1`] = `
 <input>:1:0: warning: Line numbers should be in factors of 10
   1 + 1

@@ -30,7 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class
   - An InteractiveCommand visitor pattern? I'm doing an if instanceof block now and

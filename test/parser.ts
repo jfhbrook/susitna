@@ -458,5 +458,18 @@ t.test('program with a negative line number', async (t: Test) => {
   });
 });
 
-// TODO: tests with illegal tokens (what is an illegal token?)
-// TODO: a test involving both errors and warnings
+t.test('accidentally an entire semicolon', async (t: Test) => {
+  t.plan(2);
+  t.throws(() => {
+    try {
+      parseInput('print 1 + 1;');
+    } catch (err) {
+      try {
+        t.matchSnapshot(formatter.format(err));
+      } catch (e) {
+        console.log(e);
+      }
+      throw err;
+    }
+  });
+});

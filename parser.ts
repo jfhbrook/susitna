@@ -6,7 +6,7 @@ import {
   SyntaxWarning,
   ParseWarning,
 } from './exceptions';
-import { runtimeMethod, RuntimeFault } from './faults';
+import { runtimeMethod } from './faults';
 import { Scanner } from './scanner';
 import { Token, TokenKind } from './tokens';
 
@@ -160,18 +160,18 @@ class Parser {
   }
 
   private get done(): boolean {
-    return tracer.spanSync('done', () => {
+    return tracer.spanSync('done?', () => {
       return this.peek().kind == TokenKind.Eof;
     });
   }
 
   private peek(): Token {
-    tracer.trace(`peek (${this.current.kind})`);
+    // tracer.trace(`peek (${this.current.kind})`);
     return this.current;
   }
 
   private peekPrev(): Token {
-    tracer.trace(`prev (${this.previous.kind})`);
+    // tracer.trace(`prev (${this.previous.kind})`);
     return this.previous;
   }
 
@@ -316,11 +316,11 @@ class Parser {
       this.lineErrors = [];
 
       if (!this.match(TokenKind.LineEnding)) {
-        try {
-          this.consume(TokenKind.Eof, 'Expected end of file');
-        } catch (err) {
-          throw RuntimeFault.fromException(err);
-        }
+        const token = this.peek();
+        this.consume(
+          TokenKind.Eof,
+          `Unexpected token ${token.text.length ? token.text : token.kind}`,
+        );
       }
 
       const nextLine = this.current.text;

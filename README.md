@@ -48,7 +48,8 @@ gaps.
     - load
       - load a program into the Editor
       - optionally run the program
-    - save - save the current program to a file
+    - save
+      - stub it out for now
     - list
       - print the AST in the Editor for now
     - run
@@ -58,6 +59,7 @@ gaps.
 - Allow 10 _ : print "hey" to parse to an expression statement
 - recreator
   - make list use recreator
+  - make save work
 - Global variables
 - If/else
 - For and while

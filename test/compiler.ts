@@ -281,7 +281,7 @@ COMMANDS = COMMANDS.concat(EXPRESSION_COMMANDS);
 
 function runTest([source, ast, ch]: TestCase): void {
   t.test(source, async (t: Test) => {
-    t.same(compile(ast), ch);
+    t.same(compile(ast)[0], ch);
   });
 }
 

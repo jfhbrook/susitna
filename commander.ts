@@ -195,7 +195,8 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.span('evalProgram', async () => {
       let chunk: Chunk;
       try {
-        chunk = compile(program, { filename });
+        const result = compile(program, { filename });
+        chunk = result[0];
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
@@ -238,11 +239,12 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        chunk = compile(cmd, {
+        const result = compile(cmd, {
           filename: '<input>',
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,
         });
+        chunk = result[0];
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);

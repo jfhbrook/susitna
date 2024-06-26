@@ -49,9 +49,7 @@ export type CompilerOptions = {
 
 export type CompileResult = [Chunk, ParseWarning | null];
 
-export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
-  private ast: Cmd | Program | null;
-
+export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk;
   private lines: Line[] = [];
   private currentCmdNo: number = -1;
@@ -71,22 +69,12 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private errors: SyntaxError[] = [];
 
   constructor(
-    ast: Program | Cmd,
-    { filename, cmdNo, cmdSource }: CompilerOptions,
+    lines: Line[],
+    routineType: RoutineType,
+    { filename }: CompilerOptions,
   ) {
-    this.ast = ast;
-
-    let routineType: RoutineType;
-    if (ast instanceof Program) {
-      routineType = RoutineType.Program;
-      this.lines = (this.ast as Program).lines;
-    } else {
-      routineType = RoutineType.Command;
-      this.lines = [
-        new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [this.ast as Cmd]),
-      ];
-    }
-
+    this.lines = lines;
+    this.routineType = routineType;
     this.currentChunk = new Chunk();
     this.filename = filename || '<unknown>';
     this.currentChunk.filename = this.filename;
@@ -475,7 +463,18 @@ export function compile(
   ast: Program | Cmd,
   options: CompilerOptions = {},
 ): CompileResult {
-  const compiler = new Compiler(ast, options);
+  const { cmdNo, cmdSource } = options;
+  let routineType: RoutineType;
+  let lines: Line[];
+  if (ast instanceof Program) {
+    routineType = RoutineType.Program;
+    lines = (ast as Program).lines;
+  } else {
+    routineType = RoutineType.Command;
+    lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [ast as Cmd])];
+  }
+
+  const compiler = new LineCompiler(lines, routineType, options);
   return compiler.compile();
 }
 

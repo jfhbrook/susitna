@@ -25,26 +25,48 @@ decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 ## Current Status and Next Steps
 
 The interpreter can run "hello world" in a REPL and evaluate simple
-expressions. But it's brittle, and has a lot of gaps.
+expressions. Now is time to add some basic features and button up a few
+gaps.
 
-### Near Term Polish
+### Prioritized Backlog
 
-- Interpreted/compiled mixed commands support in the compiler
-  - Merge errors from parser and compiler when running files
-- Test programs with asserted output
-  - Including generated "exceedingly large" tests
-- Escaped newlines
-
-### New Features
-
-- Editing
-  - Editor class
-  - Editor commands
+- Refactor compiler to support mixed interpreted/compiled commands
+  - See [this draft PR here](https://github.com/jfhbrook/matanuska/pull/9/files)
+  - BONUS: Merge errors from parser and compiler
+- Editing and running
+  - Working Editor class
+  - Commands
+    - new
+      - clear the program
+      - clear runtime state
+      - close open files
+    - load
+      - load a program into the Editor
+      - optionally run the program
+    - save - save the current program to a file
+    - list
+      - print the AST in the Editor for now
+    - run
   - Syntax for blank (not removed) line
+- recreator
+  - make list use recreator
+- Global variables
+- If/else
+- For and while
+- Logical operators
+  - [X] Support through the parser
+  - [ ] Requires Jump and JumpIfFalse operators
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
-- Code formatting
+- Support `end`
+  - In MSX BASIC, `end` closes open files and ends program execution. It's
+    distinct from a bare `exit`, insofar as `end` will hand control back to the
+    commander in the context of a `run`.
+  - In MSX BASIC, `stop` 
+- REPL history support
+  - Support \# and \! in prompt rendering
+- Gotos
 - Shell commands
   - Will need to research jobs in Bash
   - Scanner and parser support for shell commands and "shell tokens"
@@ -58,21 +80,14 @@ expressions. But it's brittle, and has a lot of gaps.
   - Core library
   - Host support
   - (Language support can come later)
-- REPL history support
-  - Support \# and \! in prompt rendering
-- Global variables
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
-- If/else
-- For and while
-- Gotos
-- Logical operators
-  - [X] Support through the parser
-  - [ ] Requires Jump and JumpIfFalse operators
 - "Expect" tests for the REPL and script input
+  - Including generated "exceedingly large" tests
 - Type-checking compiler
-  - [ ] Implement type analogs to operations
-  - [ ] Simulated stack in the compiler
+  - Implement type analogues to operations
+  - Simulated stack in the compiler
+- Escaped newlines
 
 ### Up Next
 
@@ -105,8 +120,9 @@ expressions. But it's brittle, and has a lot of gaps.
 - Starship support
 - Stream/pipe support
 - Break-in
-  - Will need to intercept and handle ctrl-c from readline
-  - Will likely need lock/unlock opcodes
+  - MSX BASIC uses the `stop` and `cont` commands to control break-in behavior
+  - Will need to intercept and handle ctrl-c from readline (ctrl-stop in
+    MSX BASIC)
 - Symbol dump
 - Profiling
   - Line-based for users
@@ -118,13 +134,15 @@ expressions. But it's brittle, and has a lot of gaps.
 
 ### The Future
 
-- Run tests with GitHub Actions
 - String templates
 - Module system
 - Package manager
 - Partial rewrite in Rust and/or C/C++
 - Implement entry point in Rust or C/C++
-- Rollup "release build"
+- Rollup "release build"?
+- Port to bun?
+  - Nice FFI
+  - Support for bundled executable
 - Object support
 - Vector/matrix support for 1D/2D integer/float arrays
 - Assembler mini-language

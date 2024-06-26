@@ -105,7 +105,7 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
     const result = parseInput(source);
 
     t.ok(result[1]);
-    t.matchSnapshot(result[1]);
+    t.matchSnapshot(formatter.format(result[1]));
 
     t.same(result[0], new Input([new CommandGroup(1, source, [cmd])]));
   });
@@ -114,7 +114,7 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
     const result = parseInput(`100 ${source}`);
 
     t.ok(result[1]);
-    t.matchSnapshot(result[1]);
+    t.matchSnapshot(formatter.format(result[1]));
 
     cmd.offsetStart += 4;
     cmd.offsetEnd += 4;
@@ -413,7 +413,7 @@ t.test('out of order program', async (t: Test) => {
   const source = ['200 print "hello world"', '100 print "goodbye"'];
   const result = parseProgram(source.join('\n'), FILENAME);
 
-  t.matchSnapshot(result[1]);
+  t.matchSnapshot(formatter.format(result[1]));
 
   t.same(
     result[0],

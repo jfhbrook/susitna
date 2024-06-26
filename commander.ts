@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
-import { compile } from './compiler';
+import { compileCommand, compileProgram } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
 import { inspector } from './format';
@@ -195,7 +195,7 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.span('evalProgram', async () => {
       let chunk: Chunk;
       try {
-        const result = compile(program, { filename });
+        const result = compileProgram(program, { filename });
         chunk = result[0];
       } catch (err) {
         if (err instanceof Exception) {
@@ -239,7 +239,7 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.spanSync('runCommand', () => {
       let chunk: Chunk;
       try {
-        const result = compile(cmd, {
+        const result = compileCommand(cmd, {
           filename: '<input>',
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,

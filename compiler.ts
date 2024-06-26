@@ -421,6 +421,24 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 }
 
+export function compileCommand(
+  ast: Cmd,
+  options: CompilerOptions = {},
+): CompileResult {
+  const { cmdNo, cmdSource } = options;
+  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [ast])];
+  const compiler = new LineCompiler(lines, RoutineType.Command, options);
+  return compiler.compile();
+}
+
+export function compileProgram(
+  ast: Program,
+  options: CompilerOptions = {},
+): CompileResult {
+  const compiler = new LineCompiler(ast.lines, RoutineType.Program, options);
+  return compiler.compile();
+}
+
 // Note, the CompileResult[] will include unmerged warnings...
 type CompiledCmd = [Cmd | null, CompileResult[]];
 
@@ -428,13 +446,13 @@ export class CommandCompiler implements CmdVisitor<CompiledCmd> {
   constructor(private options: CompilerOptions) {}
 
   private compiled(cmd: Cmd): CompiledCmd {
-    return [null, [compile(cmd, this.options)]];
+    return [null, [compileCommand(cmd, this.options)]];
   }
 
   private interactive(cmd: Cmd, exprs: Expr[]): CompiledCmd {
     return [
       cmd,
-      exprs.map((exp) => compile(new Expression(exp), this.options)),
+      exprs.map((exp) => compileCommand(new Expression(exp), this.options)),
     ];
   }
 
@@ -457,32 +475,6 @@ export class CommandCompiler implements CmdVisitor<CompiledCmd> {
   visitRunCmd(run: any): CompiledCmd {
     return this.interactive(run, [run.expression]);
   }
-}
-
-export function compile(
-  ast: Program | Cmd,
-  options: CompilerOptions = {},
-): CompileResult {
-  const { cmdNo, cmdSource } = options;
-  let routineType: RoutineType;
-  let lines: Line[];
-  if (ast instanceof Program) {
-    routineType = RoutineType.Program;
-    lines = (ast as Program).lines;
-  } else {
-    routineType = RoutineType.Command;
-    lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [ast as Cmd])];
-  }
-
-  const compiler = new LineCompiler(lines, routineType, options);
-  return compiler.compile();
-}
-
-export function compileProgram(
-  program: Program,
-  options: CompilerOptions = {},
-): CompileResult {
-  return compile(program, options);
 }
 
 export function compileCommands(

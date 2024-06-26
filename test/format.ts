@@ -42,6 +42,7 @@ import {
 } from '../ast/expr';
 import { Print } from '../ast/cmd';
 import { Line, Program } from '../ast';
+import { scrubNodeVersion } from './helpers/format';
 import { FILENAME, TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
@@ -257,8 +258,10 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       });
 
       t.matchSnapshot(
-        formatter.format(
-          new RuntimeFault('Some runtime fault', underlying, TRACEBACK),
+        scrubNodeVersion(
+          formatter.format(
+            new RuntimeFault('Some runtime fault', underlying, TRACEBACK),
+          ),
         ),
       );
     });

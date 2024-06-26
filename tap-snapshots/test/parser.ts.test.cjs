@@ -15,41 +15,15 @@ exports[`test/parser.ts > TAP > bare expression starting with an integer > must 
 `
 
 exports[`test/parser.ts > TAP > non-numbered expression (1 != 1) > must match snapshot 1`] = `
-ParseWarning {
-  "traceback": null,
-  "warnings": Array [
-    SyntaxWarning: Use \`<>\` instead of \`!=\` for equality {
-      "filename": "<input>",
-      "isLine": false,
-      "lineNo": null,
-      "offsetEnd": 7,
-      "offsetStart": 6,
-      "row": 1,
-      "source": "(1 != 1)",
-      "traceback": null,
-    },
-  ],
-}
+<input>:<R1>:6 (at the beginning): warning: Use \`<>\` instead of \`!=\` for equality
+  (1 != 1)
+        ^
 `
 
 exports[`test/parser.ts > TAP > non-numbered expression (1 = 1) > must match snapshot 1`] = `
-ParseWarning {
-  "message": "",
-  "traceback": null,
-  "warnings": Array [
-    SyntaxWarning: Use \`==\` instead of \`==\` for equality {
-      "filename": "<input>",
-      "isLine": false,
-      "lineNo": null,
-      "message": "Use \`==\` instead of \`==\` for equality",
-      "offsetEnd": 6,
-      "offsetStart": 5,
-      "row": 1,
-      "source": "(1 = 1)",
-      "traceback": null,
-    },
-  ],
-}
+<input>:<R1>:5 (at the beginning): warning: Use \`==\` instead of \`==\` for equality
+  (1 = 1)
+       ^
 `
 
 exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match snapshot 1`] = `
@@ -59,39 +33,15 @@ exports[`test/parser.ts > TAP > non-numbered invalid string escape > must match 
 `
 
 exports[`test/parser.ts > TAP > numbered expression (1 != 1) > must match snapshot 1`] = `
-ParseWarning {
-  "traceback": null,
-  "warnings": Array [
-    SyntaxWarning: Use \`<>\` instead of \`!=\` for equality {
-      "filename": "<input>",
-      "isLine": true,
-      "lineNo": 100,
-      "offsetEnd": 11,
-      "offsetStart": 10,
-      "row": 1,
-      "source": "100 (1 != 1)",
-      "traceback": null,
-    },
-  ],
-}
+<input>:100:10: warning: Use \`<>\` instead of \`!=\` for equality
+  100 (1 != 1)
+            ^
 `
 
 exports[`test/parser.ts > TAP > numbered expression (1 = 1) > must match snapshot 1`] = `
-ParseWarning {
-  "traceback": null,
-  "warnings": Array [
-    SyntaxWarning: Use \`==\` instead of \`==\` for equality {
-      "filename": "<input>",
-      "isLine": true,
-      "lineNo": 100,
-      "offsetEnd": 10,
-      "offsetStart": 9,
-      "row": 1,
-      "source": "100 (1 = 1)",
-      "traceback": null,
-    },
-  ],
-}
+<input>:100:9: warning: Use \`==\` instead of \`==\` for equality
+  100 (1 = 1)
+           ^
 `
 
 exports[`test/parser.ts > TAP > numbered invalid string escape > must match snapshot 1`] = `
@@ -101,21 +51,9 @@ exports[`test/parser.ts > TAP > numbered invalid string escape > must match snap
 `
 
 exports[`test/parser.ts > TAP > out of order program > must match snapshot 1`] = `
-ParseWarning {
-  "traceback": null,
-  "warnings": Array [
-    SyntaxWarning: Line numbers should be in order {
-      "filename": "/home/josh/script.bas",
-      "isLine": true,
-      "lineNo": 100,
-      "offsetEnd": 3,
-      "offsetStart": 0,
-      "row": 2,
-      "source": "100 print \\"goodbye\\"",
-      "traceback": null,
-    },
-  ],
-}
+/home/josh/script.bas:100:0: warning: Line numbers should be in order
+  100 print "goodbye"
+  ^
 `
 
 exports[`test/parser.ts > TAP > print command > non-numbered, without arguments > must match snapshot 1`] = `

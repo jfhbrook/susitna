@@ -5,6 +5,7 @@ import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
 import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
+import { Editor } from './editor';
 import {
   Exception,
   ParseError,
@@ -32,6 +33,7 @@ export class Commander {
 
   constructor(
     private _config: Config,
+    private _editor: Editor,
     private host: Host,
   ) {
     this.runtime = new Runtime(host);

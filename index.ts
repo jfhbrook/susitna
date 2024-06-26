@@ -8,11 +8,10 @@ if (MATBAS_BUILD === 'debug') {
 
 import { getTracer } from './debug';
 
+import { container } from './container';
 import { Argv, cli, Env } from './cli';
 import { Config } from './config';
 import { Host } from './host';
-import { Commander } from './commander';
-import { Translator } from './translator';
 
 const tracer = getTracer('main');
 
@@ -22,8 +21,7 @@ function parseArgs(argv: Argv, env: Env): Config {
 
 async function run(config: Config, host: Host): Promise<void> {
   await tracer.span('main', async () => {
-    const commander = new Commander(config, host);
-    const translator = new Translator(config, commander, host);
+    const { translator } = container(config, host);
 
     if (config.script) {
       await translator.script(config.script);

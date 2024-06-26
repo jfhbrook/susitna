@@ -1,19 +1,17 @@
 import { discuss } from '@jfhbrook/swears';
 
-import { Config } from '../../config';
-import { Commander } from '../../commander';
-import { Level } from '../../host';
+import { container } from '../../container';
+import { CONFIG } from './config';
 import { MockConsoleHost } from './host';
 
 export const commanderTopic = discuss(
   async () => {
-    const config = new Config(null, null, null, Level.Info, ['matbas'], {});
     const host = new MockConsoleHost();
-    const commander = new Commander(config, host);
+    const deps = container(CONFIG, host);
 
-    await commander.init();
+    await deps.commander.init();
 
-    return { commander, host };
+    return deps;
   },
   async ({ commander }) => {
     await commander.close();

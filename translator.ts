@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { getTracer } from './debug';
 import { Config } from './config';
 import { Commander } from './commander';
+import { Editor } from './editor';
 import { Exit } from './exit';
 import { Host } from './host';
 import { BaseException, Exception, Warning } from './exceptions';
@@ -14,7 +15,8 @@ const tracer = getTracer('main');
 
 export class Translator {
   constructor(
-    private config: Config,
+    private _config: Config,
+    private _editor: Editor,
     private commander: Commander,
     private host: Host,
   ) {}

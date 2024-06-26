@@ -1,7 +1,5 @@
 import { Line, Program } from './ast';
 
-//
-//
 export class Editor {
   public program: Program;
 

@@ -35,10 +35,11 @@ gaps.
   - [X] Flesh out CommandCompiler and compileCommands interface
   - [X] Implement a merge function for syntax warnings and issues
   - [X] Merge warnings in CommandCompiler and compileCommands
-  - [ ] Call compileCommands from Commander
-  - [ ] Merge warnings/errors in Commander
+  - [X] Call compileCommands from Commander
+  - [X] Merge warnings/errors in Commander
   - [ ] Tests for mergeParseErrors
   - [ ] Tests for compileCommands
+- `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class
   - Commands

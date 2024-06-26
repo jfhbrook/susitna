@@ -4,9 +4,15 @@ import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
-import { Exception } from './exceptions';
+import {
+  Exception,
+  ParseError,
+  ParseWarning,
+  mergeParseErrors,
+} from './exceptions';
 import { inspector } from './format';
 import { Host } from './host';
+import { ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 import { Value } from './value';
@@ -153,22 +159,64 @@ export class Commander {
     });
   }
 
+  async evalProgram(
+    [program, parseWarning]: ParseResult<Program>,
+    filename: string,
+  ): Promise<void> {
+    return tracer.span('evalProgram', async () => {
+      let chunk: Chunk;
+      let warning: ParseWarning | null;
+
+      try {
+        const result = compileProgram(program, { filename });
+        chunk = result[0];
+        warning = result[1];
+      } catch (err) {
+        if (err instanceof ParseError) {
+          err = mergeParseErrors(parseWarning, err);
+        }
+
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return;
+        }
+        throw err;
+      }
+
+      warning = mergeParseErrors(parseWarning, warning);
+
+      if (warning) {
+        this.host.writeWarn(warning);
+      }
+
+      this.runtime.interpret(chunk);
+    });
+  }
+
   /**
    * Evaluate a command group.
    *
    * @param cmds A group of commands to evaluate.
    */
-  async evalCommands(cmds: CommandGroup): Promise<void> {
+  async evalCommands([
+    cmds,
+    parseWarning,
+  ]: ParseResult<CommandGroup>): Promise<void> {
     return tracer.span('evalCommands', async () => {
       this.cmdNo += 10;
       this.cmdSource = cmds.source;
 
+      let warning: ParseWarning | null = null;
       try {
-        const [commands, warning] = compileCommands(cmds.commands, {
+        const result = compileCommands(cmds.commands, {
           filename: '<input>',
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,
         });
+        const commands = result[0];
+        warning = result[1];
+
+        warning = mergeParseErrors(parseWarning, warning);
 
         if (warning) {
           this.host.writeWarn(warning);
@@ -187,6 +235,10 @@ export class Commander {
           }
         }
       } catch (err) {
+        if (err instanceof ParseError) {
+          err = mergeParseErrors(parseWarning, err);
+        }
+
         if (err instanceof Exception) {
           this.host.writeException(err);
           return;
@@ -195,24 +247,6 @@ export class Commander {
       }
 
       this.cmdSource = '';
-    });
-  }
-
-  async evalProgram(program: Program, filename: string): Promise<void> {
-    return tracer.span('evalProgram', async () => {
-      let chunk: Chunk;
-      try {
-        const result = compileProgram(program, { filename });
-        chunk = result[0];
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-        throw err;
-      }
-
-      this.runtime.interpret(chunk);
     });
   }
 

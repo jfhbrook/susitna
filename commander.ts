@@ -2,6 +2,7 @@ import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
+import { commandRunner, ReturnValue } from './commands';
 import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
 import {
@@ -15,10 +16,8 @@ import { Host } from './host';
 import { ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
-import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
@@ -251,27 +250,20 @@ export class Commander {
   }
 
   //
-  // Run an interactive command.
-  //
-  private runInteractiveCommand(cmd: Cmd, args: Value[]): Value | null {
-    if (cmd instanceof Expression) {
-      return args[0];
-    }
-
-    throw new Error('Unreachable.');
-  }
-
-  //
   // Run a compiled command.
   //
-  private runCommand([cmd, chunks]: CompiledCmd): Value | null {
+  private runCommand([cmd, chunks]: CompiledCmd): ReturnValue {
     return tracer.spanSync('runCommand', () => {
       try {
+        // Interpret any chunks.
         const args = chunks.map((c) => this.runtime.interpret(c));
 
         if (cmd) {
-          return this.runInteractiveCommand(cmd, args);
+          // Run an interactive command.
+          return cmd.accept(commandRunner(args));
         } else {
+          // The args really contained the body of the non-interactive
+          // command, which we just interpreted.
           return null;
         }
       } catch (err) {

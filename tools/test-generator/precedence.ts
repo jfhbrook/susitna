@@ -46,13 +46,13 @@ import { parseProgram } from '../parser';
 import { FILENAME } from './helpers/traceback';
 
 t.test('operator precedence', async (t: Test) => {
-`
+`;
 
   for (let _ = 0; _ < precedenceCount; _++) {
     shuffle(ops);
 
     let expr = '1';
-    let i = 2;;
+    let i = 2;
     for (const op of ops) {
       if (isPrefix(op)) {
         expr = op.prefix + expr;
@@ -75,8 +75,8 @@ t.test('operator precedence', async (t: Test) => {
     t.matchSnapshot(''); // warning);
   });
 
-`
-   }
+`;
+  }
 
   script += '});';
 

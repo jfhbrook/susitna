@@ -6,13 +6,13 @@ import { formatFile } from './format';
 import { generatePrecedenceTest } from './precedence';
 import { activate } from './activate';
 
-export const GENERATORS: Array<[string, (c: Config) => string ]> = [
-  ['precedence.ts', generatePrecedenceTest]
+export const GENERATORS: Array<[string, (c: Config) => string]> = [
+  ['precedence.ts', generatePrecedenceTest],
 ];
 
 export async function main(
   argv: typeof process.argv = process.argv.slice(2),
-  env: typeof process.env = process.env
+  env: typeof process.env = process.env,
 ): Promise<void> {
   const config = loadConfig(argv, env);
 

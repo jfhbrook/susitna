@@ -16,7 +16,7 @@ const tracer = getTracer('main');
 export class Translator {
   constructor(
     private _config: Config,
-    private _editor: Editor,
+    private editor: Editor,
     private commander: Commander,
     private host: Host,
   ) {}
@@ -91,7 +91,8 @@ export class Translator {
 
       for (const row of result.input) {
         if (row instanceof Line) {
-          console.log('TODO: insert into editor', row);
+          this.editor.setLine(row);
+          console.log(this.editor.program.lines);
         } else {
           // The API still supports it, though
           await this.commander.evalCommands([row, null]);

@@ -1,6 +1,11 @@
 import { getTracer, showChunk } from './debug';
 import { errorType } from './errors';
-import { SyntaxError, ParseError, ParseWarning } from './exceptions';
+import {
+  SyntaxError,
+  ParseError,
+  ParseWarning,
+  mergeParseErrors,
+} from './exceptions';
 import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
@@ -480,12 +485,8 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
       compileCommand(new Expression(exp), this.options),
     );
     const chunks = results.map(([c, _]) => c);
-    const warnings = results.map(([_, w]) => w);
-    return [
-      [cmd, chunks],
-      // TODO: Merge warnings
-      warnings[0],
-    ];
+    const warnings: ParseWarning[] = results.map(([_, w]) => w);
+    return [[cmd, chunks], mergeParseErrors(...warnings)];
   }
 
   visitPrintCmd(print: Print): CompileResult<CompiledCmd> {
@@ -529,6 +530,5 @@ export function compileCommands(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
     [],
   );
-  // TODO: Merge warnings
-  return [commands, warnings[0]];
+  return [commands, mergeParseErrors(...warnings)];
 }

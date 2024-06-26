@@ -533,3 +533,69 @@ export class ParseWarning extends Exception {
     return formatter.formatParseWarning(this);
   }
 }
+
+// The assumption is that errors are already sorted. This may not
+// be technically true, but it may be true *enough* that the result is
+// sensible.
+function merge<T extends SourceLocation>(xs: T[], ys: T[]): T[] {
+  let i = 0;
+  let j = 0;
+  const merged: T[] = [];
+  while (i < xs.length || j < ys.length) {
+    if (i >= xs.length) {
+      return merged.concat(ys.slice(j));
+    }
+    if (j >= ys.length) {
+      return merged.concat(xs.slice(i));
+    }
+    if (xs[0].row < ys[0].row) {
+      merged.push(xs[i++]);
+    } else if (xs[0].row > ys[0].row) {
+      merged.push(ys[j++]);
+    } else if (xs[0].offsetStart <= ys[0].offsetStart) {
+      merged.push(xs[i++]);
+    } else {
+      merged.push(ys[j++]);
+    }
+  }
+}
+
+/**
+ * Merge a collection of ParseErrors and/or ParseWarnings. Returns a
+ * ParseError if any of its arguments are errors. If all arguments are null,
+ * returns null. Otherwise, returns a ParseWarning.
+ *
+ * @param ...errors A list of ParseErrors and ParseWarnings
+ * @returns A ParseError or ParseWarning
+ */
+function mergeParseErrors(...errors: Array<null>): null;
+function mergeParseErrors(...errors: Array<ParseWarning | null>): ParseWarning;
+function mergeParseErrors(
+  ...errors: Array<ParseError | ParseWarning | null>
+): ParseError;
+function mergeParseErrors(
+  ...errors: Array<ParseError | ParseWarning | null>
+): ParseError | ParseWarning | null {
+  let isError = false;
+  let isWarning = false;
+  let syntaxErrors: Array<SyntaxError | SyntaxWarning> = [];
+  for (const err of errors) {
+    if (err instanceof ParseError) {
+      isError = true;
+      syntaxErrors = merge(syntaxErrors, err.errors);
+    } else if (err instanceof ParseWarning) {
+      isWarning = true;
+      syntaxErrors = merge(syntaxErrors, err.warnings);
+    }
+  }
+
+  if (isError) {
+    return new ParseError(syntaxErrors as Array<SyntaxError | SyntaxWarning>);
+  }
+  if (isWarning) {
+    return new ParseWarning(syntaxErrors as SyntaxWarning[]);
+  }
+  return null;
+}
+
+export { mergeParseErrors };

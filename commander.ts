@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
-import { compileCommand, compileProgram } from './compiler';
+import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
 import { Exception } from './exceptions';
 import { inspector } from './format';
@@ -12,11 +12,11 @@ import { renderPrompt } from './shell';
 import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Exit, Print, Expression, Rem } from './ast/cmd';
+import { Cmd, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
-export class Commander implements CmdVisitor<Value | null> {
+export class Commander {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -162,20 +162,27 @@ export class Commander implements CmdVisitor<Value | null> {
     return tracer.span('evalCommands', async () => {
       this.cmdNo += 10;
       this.cmdSource = cmds.source;
-      try {
-        const commands = Array.from(cmds.commands);
-        let lastCmd = commands.pop();
 
-        while (lastCmd && lastCmd instanceof Rem) {
-          lastCmd = commands.pop();
+      try {
+        const [commands, warning] = compileCommands(cmds.commands, {
+          filename: '<input>',
+          // TODO: Refactor this
+          cmdNo: this.cmdNo,
+          cmdSource: this.cmdSource,
+        });
+
+        if (warning) {
+          this.host.writeWarn(warning);
         }
 
+        const lastCmd = commands.pop();
+
         for (const cmd of commands) {
-          cmd.accept(this);
+          this.runCommand(cmd);
         }
 
         if (lastCmd) {
-          const rv = lastCmd.accept(this);
+          const rv = this.runCommand(lastCmd);
           if (rv !== null) {
             this.host.writeLine(inspector.format(rv));
           }
@@ -187,6 +194,7 @@ export class Commander implements CmdVisitor<Value | null> {
         }
         throw err;
       }
+
       this.cmdSource = '';
     });
   }
@@ -210,49 +218,37 @@ export class Commander implements CmdVisitor<Value | null> {
   }
 
   //
-  // Non-program commands.
+  // Run an interactive command.
   //
+  private runInteractiveCommand(cmd: Cmd, args: Value[]): Value | null {
+    if (cmd instanceof Expression) {
+      return args[0];
+    }
 
-  visitPrintCmd(print: Print): Value | null {
-    this.runCommand(print);
-    return null;
-  }
-
-  visitExitCmd(exit: Exit): Value | null {
-    this.runCommand(exit);
-    return null;
-  }
-
-  visitExpressionCmd(expression: Expression): Value | null {
-    return this.runCommand(expression);
-  }
-
-  visitRemCmd(_rem: Rem): Value | null {
-    return null;
+    throw new Error('unreachable.');
   }
 
   //
   // Run a compiled command.
   //
-
-  private runCommand(cmd: Cmd): Value {
+  private runCommand([cmd, chunks]: CompiledCmd): Value | null {
     return tracer.spanSync('runCommand', () => {
-      let chunk: Chunk;
+      console.log(cmd, chunks);
       try {
-        const result = compileCommand(cmd, {
-          filename: '<input>',
-          cmdNo: this.cmdNo,
-          cmdSource: this.cmdSource,
-        });
-        chunk = result[0];
+        const args = chunks.map((c) => this.runtime.interpret(c));
+
+        if (cmd) {
+          return this.runInteractiveCommand(cmd, args);
+        } else {
+          return null;
+        }
       } catch (err) {
         if (err instanceof Exception) {
           this.host.writeException(err);
-          return;
+          return null;
         }
         throw err;
       }
-      return this.runtime.interpret(chunk);
     });
   }
 }

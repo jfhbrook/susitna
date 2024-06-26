@@ -466,7 +466,7 @@ export function compileProgram(
   return compiler.compile();
 }
 
-type CompiledCmd = [Cmd | null, Chunk[]];
+export type CompiledCmd = [Cmd | null, Chunk[]];
 
 //
 // Compiler for both interactive and runtime commands. For more information,
@@ -498,7 +498,7 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
   }
 
   visitExpressionCmd(expr: Expression): CompileResult<CompiledCmd> {
-    return this.compiled(expr);
+    return this.interactive(expr, [expr.expression]);
   }
 
   visitRemCmd(rem: Rem): CompileResult<CompiledCmd> {

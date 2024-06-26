@@ -80,14 +80,14 @@ export function binaryOperation(op: BinaryOperator): BinaryOperation {
     try {
       switch (castTo) {
         case Type.Boolean:
-          (castA = cast(a, typeA, Type.Boolean)),
-            (castB = cast(b, typeB, Type.Boolean)),
-            (method = 'boolean');
+          castA = cast(a, typeA, Type.Boolean);
+          castB = cast(b, typeB, Type.Boolean);
+          method = 'boolean';
           break;
         case Type.Integer:
-          (castA = cast(a, typeA, Type.Integer)),
-            (castB = cast(b, typeB, Type.Integer)),
-            (method = 'integer');
+          castA = cast(a, typeA, Type.Integer);
+          castB = cast(b, typeB, Type.Integer);
+          method = 'integer';
           break;
         case Type.Real:
           castA = cast(a, typeA, Type.Real);
@@ -95,9 +95,9 @@ export function binaryOperation(op: BinaryOperator): BinaryOperation {
           method = 'real';
           break;
         case Type.String:
-          (castA = cast(a, typeA, Type.String)),
-            (castB = cast(b, typeB, Type.String)),
-            (method = 'string');
+          castA = cast(a, typeA, Type.String);
+          castB = cast(b, typeB, Type.String);
+          method = 'string';
           break;
         default:
           invalid();

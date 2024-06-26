@@ -15,7 +15,7 @@
     "start": "npm run build && node --enable-source-maps ./dist/main.js",
     "test": "npm run build && tap ./test/*.ts",
     "snap": "npm run build && tap ./test/*.ts --snapshot",
-    "lint": "eslint \"**.ts\" --fix",
+    "lint": "eslint \"src/**.ts\" --fix",
     "lint:shell": "shellcheck ./scripts/*",
     "check": "tsc --noEmit",
     "console": "npm run build && ts-node",

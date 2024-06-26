@@ -16,6 +16,7 @@
     "test": "npm run build && tap ./test/*.ts",
     "snap": "npm run build && tap ./test/*.ts --snapshot",
     "lint": "eslint \"**.ts\" --fix",
+    "lint:shell": "shellcheck ./scripts/*",
     "check": "tsc --noEmit",
     "console": "npm run build && ts-node",
     "prepublishOnly": "npm run build && npm run build:readme"

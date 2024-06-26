@@ -1,4 +1,5 @@
 import { Line, Program } from './ast';
+import { DeleteLine } from './ast/cmd';
 
 interface Index {
   i: number;
@@ -94,6 +95,13 @@ export class Editor {
   setLine(line: Line): void {
     const { i, match } = this.findLineIndex(line.lineNo);
 
+    if (line.commands[0] instanceof DeleteLine) {
+      if (match) {
+        this.program.lines.splice(i, 1);
+      }
+      return;
+    }
+
     if (match) {
       this.program.lines[i] = line;
       return;
@@ -101,8 +109,6 @@ export class Editor {
 
     this.program.lines.splice(i + 1, 0, line);
   }
-
-  deleteLine(_lineNo: number): void {}
 
   // a program may be loaded entirely from scratch. this would involve
   // completely replacing lines within the program, as well as re-initializing

@@ -21,6 +21,7 @@ type Cmd in './cmd' {
   Print      => expression: Expr
   Exit       => expression: Expr | null
   Rem        => remark: string
+  DeleteLine!
 }
 
 type Tree in './index' {

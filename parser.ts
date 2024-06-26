@@ -23,7 +23,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem, DeleteLine } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
@@ -411,6 +411,24 @@ class Parser {
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
         cmd = this.exit();
+        // 10 _ is special syntax for "delete line 10"
+      } else if (
+        !this.isProgram &&
+        this.isLine &&
+        this.check(TokenKind.Ident) &&
+        this.current.value === '_'
+      ) {
+        cmd = new DeleteLine();
+        this.advance();
+        console.log(this.current);
+        // TODO: Implement peekNext, and allow interpreting this as an
+        // expression statement
+        if (!this.check(TokenKind.LineEnding) && !this.check(TokenKind.Eof)) {
+          this.syntaxError(
+            this.current,
+            'Cannot delete a line within multiple commands',
+          );
+        }
       } else {
         cmd = this.expressionStatement();
       }

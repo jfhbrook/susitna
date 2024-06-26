@@ -12,7 +12,15 @@ import { Value } from './value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
 import { Line, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
+import {
+  Cmd,
+  CmdVisitor,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  DeleteLine,
+} from './ast/cmd';
 import {
   Expr,
   ExprVisitor,
@@ -330,6 +338,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitRemCmd(_rem: Rem): void {}
+  visitDeleteLineCmd(_del: DeleteLine): void {}
 
   // Expressions
 
@@ -505,6 +514,10 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
     return [[rem, []], null];
   }
 
+  visitDeleteLineCmd(del: DeleteLine): CompileResult<CompiledCmd> {
+    return [[del, []], null];
+  }
+
   visitRunCmd(run: any): CompileResult<CompiledCmd> {
     return this.interactive(run, [run.expression]);
   }
@@ -525,7 +538,7 @@ export function compileCommands(
   const results = cmds.map((cmd) => cmd.accept(compiler));
   const commands = results
     .map(([cmd, _]) => cmd)
-    .filter(([c, _]) => !(c instanceof Rem));
+    .filter(([c, _]) => !(c instanceof Rem || c instanceof DeleteLine));
   const warnings = results.reduce(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
     [],

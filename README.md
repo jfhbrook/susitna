@@ -31,9 +31,11 @@ gaps.
 ### Prioritized Backlog
 
 - Editing and running
-  - Working Editor class
-  - An InteractiveCommand visitor pattern? I'm doing an if instanceof block now and
-    it's mid
+  - [X] upsert lines
+  - [X] delete lines
+  - [ ] load entire program
+  - [ ] reset entire program
+  - [ ] editor tests
   - Commands
     - new
       - clear the program
@@ -47,6 +49,9 @@ gaps.
       - print the AST in the Editor for now
     - run
   - Syntax for blank (not removed) line
+- citree parser has problems with Thing! in the middle
+- Remove 'peek' from parser (use this.current)
+- Allow 10 _ : print "hey" to parse to an expression statement
 - recreator
   - make list use recreator
 - Global variables

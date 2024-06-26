@@ -42,6 +42,7 @@ import {
   Exit as ExitCmd,
   Expression,
   Rem,
+  DeleteLine,
 } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -160,6 +161,7 @@ export abstract class Formatter
   abstract visitExitCmd(node: ExitCmd): string;
   abstract visitExpressionCmd(node: Expression): string;
   abstract visitRemCmd(rem: Rem): string;
+  abstract visitDeleteLineCmd(del: DeleteLine): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
@@ -577,6 +579,10 @@ export class DefaultFormatter extends Formatter {
 
   visitRemCmd(rem: Rem): string {
     return `Rem(${rem.remark})`;
+  }
+
+  visitDeleteLineCmd(_del: DeleteLine): string {
+    return 'DeleteLine';
   }
 
   formatStack<V>(stack: Stack<V>): string {

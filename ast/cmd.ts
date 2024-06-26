@@ -5,6 +5,7 @@ export interface CmdVisitor<R> {
   visitPrintCmd(node: Print): R;
   visitExitCmd(node: Exit): R;
   visitRemCmd(node: Rem): R;
+  visitDeleteLineCmd(node: DeleteLine): R;
 }
 
 export abstract class Cmd {
@@ -69,5 +70,15 @@ export class Rem extends Cmd {
 
   accept<R>(visitor: CmdVisitor<R>): R {
     return visitor.visitRemCmd(this);
+  }
+}
+
+export class DeleteLine extends Cmd {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitDeleteLineCmd(this);
   }
 }

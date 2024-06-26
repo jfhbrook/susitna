@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Cmd, Print, Exit, Expression } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
 import {
   Expr,
   Binary,
@@ -18,6 +18,8 @@ import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 import {
   compileCommand,
+  compileCommands,
+  CompiledCmd,
   compileProgram,
   CompilerOptions,
   CompileResult,
@@ -343,4 +345,45 @@ t.test('syntax errors', async (t: Test) => {
       }
     });
   });
+});
+
+async function isCompiled(
+  t: Test,
+  name: string,
+  [cmd, chunks]: CompiledCmd,
+): Promise<void> {
+  await t.test(name, async (t: Test) => {
+    t.equal(cmd, null, 'is a compiled command');
+    t.equal(chunks.length, 1, 'chunk is compiled');
+  });
+}
+
+async function isInteractive(
+  t: Test,
+  name: string,
+  cmd: CompiledCmd,
+): Promise<void> {
+  await t.test(name, async (t: Test) => {
+    t.ok(cmd, 'is an interactive command');
+    t.matchSnapshot(cmd, 'has the expected arguments');
+  });
+}
+
+t.test('interactive compiler', async (t: Test) => {
+  const [cmds, warning] = compileCommands([
+    new Print(new StringLiteral('Hello')),
+    new Exit(null),
+    new Rem('A witty remark.'),
+    new Expression(new StringLiteral('Hello')),
+  ]);
+
+  t.equal(cmds.length, 3, 'rem is filtered out');
+
+  const [print, exit, expr] = cmds;
+
+  t.equal(warning, null, 'has no warnings');
+
+  await isCompiled(t, 'print', print);
+  await isCompiled(t, 'exit', exit);
+  await isInteractive(t, 'expression', expr);
 });

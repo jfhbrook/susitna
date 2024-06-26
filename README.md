@@ -30,7 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- Tests for interactive compiler
 - `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class

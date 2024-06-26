@@ -166,7 +166,6 @@ export class Commander {
       try {
         const [commands, warning] = compileCommands(cmds.commands, {
           filename: '<input>',
-          // TODO: Refactor this
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,
         });
@@ -225,7 +224,7 @@ export class Commander {
       return args[0];
     }
 
-    throw new Error('unreachable.');
+    throw new Error('Unreachable.');
   }
 
   //
@@ -233,7 +232,6 @@ export class Commander {
   //
   private runCommand([cmd, chunks]: CompiledCmd): Value | null {
     return tracer.spanSync('runCommand', () => {
-      console.log(cmd, chunks);
       try {
         const args = chunks.map((c) => this.runtime.interpret(c));
 

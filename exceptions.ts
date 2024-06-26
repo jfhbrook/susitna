@@ -548,11 +548,11 @@ function merge<T extends SourceLocation>(xs: T[], ys: T[]): T[] {
     if (j >= ys.length) {
       return merged.concat(xs.slice(i));
     }
-    if (xs[0].row < ys[0].row) {
+    if (xs[i].row < ys[j].row) {
       merged.push(xs[i++]);
-    } else if (xs[0].row > ys[0].row) {
+    } else if (xs[i].row > ys[j].row) {
       merged.push(ys[j++]);
-    } else if (xs[0].offsetStart <= ys[0].offsetStart) {
+    } else if (xs[i].offsetStart <= ys[j].offsetStart) {
       merged.push(xs[i++]);
     } else {
       merged.push(ys[j++]);

@@ -12,4 +12,4 @@ export function commandRunner(args: Value[]): CommandRunner {
   };
 }
 
-export { ReturnValue };
+export { CommandRunner, ReturnValue };

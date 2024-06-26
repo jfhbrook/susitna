@@ -6,7 +6,7 @@ on:
       - main
 jobs:
   qa-matanuska:
-    name: Run Matanuska QA checks
+    name: Matanuska
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         with:
           scandir: './scripts'
   qa-citree:
-    name: Run citree QA checks
+    name: citree
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,3 +53,23 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './tools/citree/scripts'
+  qa-test-generator:
+    name: test-generator
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["lts/Iron", "latest"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: cd ./tools/test-generator && npm install
+      - name: Build
+        run: cd ./tools/test-generator && npm run build
+      - name: Test
+        run: cd ./tools/test-generator && FORCE_COLOR=1 npm test
+      - name: Lint
+        run: cd ./tools/test-generator && npm run lint

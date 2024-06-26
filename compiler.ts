@@ -47,7 +47,7 @@ export type CompilerOptions = {
   cmdSource?: string;
 };
 
-export type CompilerResult = [Chunk, ParseWarning | null];
+export type CompileResult = [Chunk, ParseWarning | null];
 
 export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private ast: Cmd | Program | null;
@@ -102,7 +102,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param filename The source filename.
    */
   @runtimeMethod
-  compile(): CompilerResult {
+  compile(): CompileResult {
     return tracer.spanSync('compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
@@ -433,8 +433,8 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 }
 
-// Note, the CompilerResult[] will include unmerged warnings...
-type CompiledCmd = [Cmd | null, CompilerResult[]];
+// Note, the CompileResult[] will include unmerged warnings...
+type CompiledCmd = [Cmd | null, CompileResult[]];
 
 export class CommandCompiler implements CmdVisitor<CompiledCmd> {
   constructor(private options: CompilerOptions) {}
@@ -474,7 +474,7 @@ export class CommandCompiler implements CmdVisitor<CompiledCmd> {
 export function compile(
   ast: Program | Cmd,
   options: CompilerOptions = {},
-): CompilerResult {
+): CompileResult {
   const compiler = new Compiler(ast, options);
   return compiler.compile();
 }
@@ -482,7 +482,7 @@ export function compile(
 export function compileProgram(
   program: Program,
   options: CompilerOptions = {},
-): CompilerResult {
+): CompileResult {
   return compile(program, options);
 }
 

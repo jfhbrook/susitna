@@ -260,7 +260,7 @@ export class Commander {
 
         if (cmd) {
           // Run an interactive command.
-          return cmd.accept(commandRunner(args));
+          return cmd.accept(commandRunner(this, args));
         } else {
           // The args really contained the body of the non-interactive
           // command, which we just interpreted.

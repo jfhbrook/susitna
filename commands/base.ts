@@ -1,4 +1,5 @@
 import { getTracer } from '../debug';
+import { Commander } from '../commander';
 import { errorType } from '../errors';
 import { RuntimeFault } from '../faults';
 import { Value } from '../value';
@@ -21,6 +22,7 @@ export type InteractiveCommand<C extends Cmd> = (
 ) => ReturnValue;
 
 export interface CommandRunner extends CmdVisitor<ReturnValue> {
+  commander: Commander;
   args: Value[];
 }
 

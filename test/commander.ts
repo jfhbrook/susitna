@@ -1,26 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
-import { discuss } from '@jfhbrook/swears';
 
-import { Config } from '../config';
-import { Commander } from '../commander';
-import { Level } from '../host';
-import { MockConsoleHost } from './helpers/host';
-
-const topic = discuss(
-  async () => {
-    const config = new Config(null, null, null, Level.Info, ['matbas'], {});
-    const host = new MockConsoleHost();
-    const commander = new Commander(config, host);
-
-    await commander.init();
-
-    return { commander, host };
-  },
-  async ({ commander }) => {
-    await commander.close();
-  },
-);
+import { commanderTopic as topic } from './helpers/commander';
 
 t.test('when prompted for a command', async (t: Test) => {
   t.test('it gets a command', async (t: Test) => {

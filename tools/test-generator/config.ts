@@ -10,19 +10,15 @@ export interface Config {
 
 export function loadConfig(
   argv: typeof process.argv = process.argv.slice(2),
-  env: typeof process.env = process.env
+  env: typeof process.env = process.env,
 ): Config {
   const args = parseArgs(argv, {
-    string: [
-      'precedence-count'
-    ],
-    boolean: [
-      'activate'
-    ],
+    string: ['precedence-count'],
+    boolean: ['activate'],
     default: {
       'precedence-count': env.TEST_GENERATOR_PRECEDENCE_COUNT || '1',
-      activate: false
-    }
+      activate: false,
+    },
   });
 
   const [directory] = args._;
@@ -30,6 +26,6 @@ export function loadConfig(
   return {
     directory: path.resolve(directory || './test'),
     precedenceCount: parseInt(args['precedence-count'], 10),
-    activate: args.activate
+    activate: args.activate,
   };
 }

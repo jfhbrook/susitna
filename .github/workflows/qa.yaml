@@ -5,8 +5,8 @@ on:
     branches:
       - main
 jobs:
-  qa:
-    name: Run QA checks
+  qa-matanuska:
+    name: Matanuska
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,15 +17,59 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install Matanuska
+      - name: Install
         run: npm install
-      - name: Build Matanuska
+      - name: Build
         run: dotenv -f ./test.env -- npm run 'build:templates' && tsc -p tsconfig.build.json
       - name: Test
         run: dotenv -f ./test.env -- ./node_modules/.bin/tap --reporter=base --allow-incomplete-coverage ./test
       - name: Lint
         run: './node_modules/.bin/prettier --list-different "**.ts" && ./node_modules/.bin/eslint --fix "**.ts"'
-      - name: Shell check
+      - name: Shellcheck
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './scripts'
+  qa-citree:
+    name: citree
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["lts/Iron", "latest"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: cd ./tools/citree && npm install
+      - name: Build
+        run: cd ./tools/citree && npm run build
+      - name: Test
+        run: cd ./tools/citree && FORCE_COLOR=1 TAP_REPORTER=base TAP_ALLOW_INCOMPLETE_COVERAGE=1 npm test
+      - name: Lint
+        run: cd ./tools/citree && npm run lint
+      - name: Shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './tools/citree/scripts'
+  qa-test-generator:
+    name: test-generator
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["lts/Iron", "latest"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: cd ./tools/test-generator && npm install
+      - name: Build
+        run: cd ./tools/test-generator && npm run build
+      - name: Test
+        run: cd ./tools/test-generator && FORCE_COLOR=1 npm test
+      - name: Lint
+        run: cd ./tools/test-generator && npm run lint

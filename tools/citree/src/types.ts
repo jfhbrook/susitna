@@ -36,9 +36,9 @@ export function resolveNodes(
   typeName: string,
   nodes: NodeDefinition[],
 ): [Field[], Node[]] {
-  let resolved: Node[] = [];
+  const resolved: Node[] = [];
   let commonFields: Field[] = [];
-  for (let node of nodes) {
+  for (const node of nodes) {
     if (node.name === typeName) {
       commonFields = node.fields;
     } else {

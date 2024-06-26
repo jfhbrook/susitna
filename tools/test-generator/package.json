@@ -12,7 +12,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write \"**/*.ts\"",
     "start": "npm run build && node ./dist/main.js",
-    "lint": "npm run build && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
+    "lint": "prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
     "test": "tests-of-the-sierra-madre",
     "console": "npm run build && ts-node",
     "clean": "rm -rf ./dist"

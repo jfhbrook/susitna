@@ -16,11 +16,27 @@ import {
 import { Program, Line } from '../ast';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
-import { compile } from '../compiler';
+import {
+  compileCommand,
+  compileProgram,
+  CompilerOptions,
+  CompileResult,
+} from '../compiler';
 import { formatter } from '../format';
 import { TokenKind } from '../tokens';
 
 import { chunk } from './helpers/bytecode';
+
+function compile(
+  ast: Program | Cmd,
+  options: CompilerOptions = {},
+): CompileResult<Chunk> {
+  if (ast instanceof Program) {
+    return compileProgram(ast, options);
+  } else {
+    return compileCommand(ast, options);
+  }
+}
 
 type TestCase = [string, Cmd | Program, Chunk];
 
@@ -281,7 +297,7 @@ COMMANDS = COMMANDS.concat(EXPRESSION_COMMANDS);
 
 function runTest([source, ast, ch]: TestCase): void {
   t.test(source, async (t: Test) => {
-    t.same(compile(ast), ch);
+    t.same(compile(ast)[0], ch);
   });
 }
 

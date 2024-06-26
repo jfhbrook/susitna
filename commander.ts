@@ -2,21 +2,27 @@ import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
-import { compile } from './compiler';
+import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
-import { Exception } from './exceptions';
+import {
+  Exception,
+  ParseError,
+  ParseWarning,
+  mergeParseErrors,
+} from './exceptions';
 import { inspector } from './format';
 import { Host } from './host';
+import { ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 import { Value } from './value';
 
 import { CommandGroup, Program } from './ast';
-import { Cmd, CmdVisitor, Exit, Print, Expression, Rem } from './ast/cmd';
+import { Cmd, Expression } from './ast/cmd';
 
 const tracer = getTracer('main');
 
-export class Commander implements CmdVisitor<Value | null> {
+export class Commander {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -153,104 +159,128 @@ export class Commander implements CmdVisitor<Value | null> {
     });
   }
 
-  /**
-   * Evaluate a command group.
-   *
-   * @param cmds A group of commands to evaluate.
-   */
-  async evalCommands(cmds: CommandGroup): Promise<void> {
-    return tracer.span('evalCommands', async () => {
-      this.cmdNo += 10;
-      this.cmdSource = cmds.source;
+  async evalProgram(
+    [program, parseWarning]: ParseResult<Program>,
+    filename: string,
+  ): Promise<void> {
+    return tracer.span('evalProgram', async () => {
+      let chunk: Chunk;
+      let warning: ParseWarning | null;
+
       try {
-        const commands = Array.from(cmds.commands);
-        let lastCmd = commands.pop();
-
-        while (lastCmd && lastCmd instanceof Rem) {
-          lastCmd = commands.pop();
-        }
-
-        for (const cmd of commands) {
-          cmd.accept(this);
-        }
-
-        if (lastCmd) {
-          const rv = lastCmd.accept(this);
-          if (rv !== null) {
-            this.host.writeLine(inspector.format(rv));
-          }
-        }
+        const result = compileProgram(program, { filename });
+        chunk = result[0];
+        warning = result[1];
       } catch (err) {
+        if (err instanceof ParseError) {
+          err = mergeParseErrors(parseWarning, err);
+        }
+
         if (err instanceof Exception) {
           this.host.writeException(err);
           return;
         }
         throw err;
       }
-      this.cmdSource = '';
-    });
-  }
 
-  async evalProgram(program: Program, filename: string): Promise<void> {
-    return tracer.span('evalProgram', async () => {
-      let chunk: Chunk;
-      try {
-        chunk = compile(program, { filename });
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-        throw err;
+      warning = mergeParseErrors(parseWarning, warning);
+
+      if (warning) {
+        this.host.writeWarn(warning);
       }
 
       this.runtime.interpret(chunk);
     });
   }
 
-  //
-  // Non-program commands.
-  //
+  /**
+   * Evaluate a command group.
+   *
+   * @param cmds A group of commands to evaluate.
+   */
+  async evalCommands([
+    cmds,
+    parseWarning,
+  ]: ParseResult<CommandGroup>): Promise<void> {
+    return tracer.span('evalCommands', async () => {
+      this.cmdNo += 10;
+      this.cmdSource = cmds.source;
 
-  visitPrintCmd(print: Print): Value | null {
-    this.runCommand(print);
-    return null;
-  }
-
-  visitExitCmd(exit: Exit): Value | null {
-    this.runCommand(exit);
-    return null;
-  }
-
-  visitExpressionCmd(expression: Expression): Value | null {
-    return this.runCommand(expression);
-  }
-
-  visitRemCmd(_rem: Rem): Value | null {
-    return null;
-  }
-
-  //
-  // Run a compiled command.
-  //
-
-  private runCommand(cmd: Cmd): Value {
-    return tracer.spanSync('runCommand', () => {
-      let chunk: Chunk;
+      let warning: ParseWarning | null = null;
       try {
-        chunk = compile(cmd, {
+        const result = compileCommands(cmds.commands, {
           filename: '<input>',
           cmdNo: this.cmdNo,
           cmdSource: this.cmdSource,
         });
+        const commands = result[0];
+        warning = result[1];
+
+        warning = mergeParseErrors(parseWarning, warning);
+
+        if (warning) {
+          this.host.writeWarn(warning);
+        }
+
+        const lastCmd = commands.pop();
+
+        for (const cmd of commands) {
+          this.runCommand(cmd);
+        }
+
+        if (lastCmd) {
+          const rv = this.runCommand(lastCmd);
+          if (rv !== null) {
+            this.host.writeLine(inspector.format(rv));
+          }
+        }
       } catch (err) {
+        if (err instanceof ParseError) {
+          err = mergeParseErrors(parseWarning, err);
+        }
+
         if (err instanceof Exception) {
           this.host.writeException(err);
           return;
         }
         throw err;
       }
-      return this.runtime.interpret(chunk);
+
+      this.cmdSource = '';
+    });
+  }
+
+  //
+  // Run an interactive command.
+  //
+  private runInteractiveCommand(cmd: Cmd, args: Value[]): Value | null {
+    if (cmd instanceof Expression) {
+      return args[0];
+    }
+
+    throw new Error('Unreachable.');
+  }
+
+  //
+  // Run a compiled command.
+  //
+  private runCommand([cmd, chunks]: CompiledCmd): Value | null {
+    return tracer.spanSync('runCommand', () => {
+      try {
+        const args = chunks.map((c) => this.runtime.interpret(c));
+
+        if (cmd) {
+          return this.runInteractiveCommand(cmd, args);
+        } else {
+          return null;
+        }
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return null;
+        }
+        throw err;
+      }
     });
   }
 }

@@ -19,6 +19,7 @@ import {
   ParseError,
   SyntaxWarning,
   ParseWarning,
+  mergeParseErrors,
 } from '../exceptions';
 import { FILENAME, TRACEBACK } from './helpers/traceback';
 
@@ -291,4 +292,116 @@ t.test('ParseWarning', async (t: Test) => {
     t.same(exc.warnings[0].offsetStart, 17);
     t.same(exc.warnings[0].offsetEnd, 18);
   });
+});
+
+t.test('mergeParseErrors', async (t: Test) => {
+  const PARSE_WARNING_1 = new ParseWarning([
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 0,
+      isLine: true,
+      lineNo: 100,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '100 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 4,
+      isLine: true,
+      lineNo: 500,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '500 print someFn(ident)',
+    }),
+  ]);
+
+  const PARSE_WARNING_2 = new ParseWarning([
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 1,
+      isLine: true,
+      lineNo: 200,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '200 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 5,
+      isLine: true,
+      lineNo: 600,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '600 print someFn(ident)',
+    }),
+  ]);
+
+  const PARSE_ERROR_1 = new ParseError([
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 2,
+      isLine: false,
+      lineNo: 300,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '300 print someFn(ident',
+    }),
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 6,
+      isLine: false,
+      lineNo: 700,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '700 print someFn(ident',
+    }),
+  ]);
+
+  const PARSE_ERROR_2 = new ParseError([
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 3,
+      isLine: false,
+      lineNo: 400,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '400 print someFn(ident',
+    }),
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 7,
+      isLine: false,
+      lineNo: 800,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '800 print someFn(ident',
+    }),
+  ]);
+
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_WARNING_2, PARSE_WARNING_1),
+    'merge two warnings',
+  );
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_ERROR_2, PARSE_ERROR_1),
+    'merge two errors',
+  );
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_WARNING_1, PARSE_ERROR_1),
+    'merge a warning and an error',
+  );
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_WARNING_1, null),
+    'merge a warning and null',
+  );
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_WARNING_1, null),
+    'merge an error and null',
+  );
+  t.matchSnapshot(
+    mergeParseErrors(PARSE_ERROR_1, PARSE_WARNING_2, null),
+    'merge a warning, an error and null',
+  );
+  t.matchSnapshot(mergeParseErrors(null, null, null), 'merge a few nulls');
 });

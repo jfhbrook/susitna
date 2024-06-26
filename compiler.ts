@@ -1,6 +1,11 @@
 import { getTracer, showChunk } from './debug';
 import { errorType } from './errors';
-import { SyntaxError, ParseError } from './exceptions';
+import {
+  SyntaxError,
+  ParseError,
+  ParseWarning,
+  mergeParseErrors,
+} from './exceptions';
 import { runtimeMethod } from './faults';
 import { TokenKind } from './tokens';
 import { Value } from './value';
@@ -9,6 +14,7 @@ import { Value } from './value';
 import { Line, Program } from './ast';
 import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
 import {
+  Expr,
   ExprVisitor,
   Unary,
   Binary,
@@ -46,9 +52,13 @@ export type CompilerOptions = {
   cmdSource?: string;
 };
 
-export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
-  private ast: Cmd | Program | null;
+export type CompileResult<T> = [T, ParseWarning | null];
 
+//
+// Compile a series of lines. These lines may be from an entire program,
+// or a single line in the context of a compiled command.
+//
+export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk;
   private lines: Line[] = [];
   private currentCmdNo: number = -1;
@@ -68,22 +78,12 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   private errors: SyntaxError[] = [];
 
   constructor(
-    ast: Program | Cmd,
-    { filename, cmdNo, cmdSource }: CompilerOptions,
+    lines: Line[],
+    routineType: RoutineType,
+    { filename }: CompilerOptions,
   ) {
-    this.ast = ast;
-
-    let routineType: RoutineType;
-    if (ast instanceof Program) {
-      routineType = RoutineType.Program;
-      this.lines = (this.ast as Program).lines;
-    } else {
-      routineType = RoutineType.Command;
-      this.lines = [
-        new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [this.ast as Cmd]),
-      ];
-    }
-
+    this.lines = lines;
+    this.routineType = routineType;
     this.currentChunk = new Chunk();
     this.filename = filename || '<unknown>';
     this.currentChunk.filename = this.filename;
@@ -99,7 +99,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param filename The source filename.
    */
   @runtimeMethod
-  compile(): Chunk {
+  compile(): CompileResult<Chunk> {
     return tracer.spanSync('compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
@@ -123,7 +123,7 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
       this.emitReturn();
 
       showChunk(this.chunk);
-      return this.chunk;
+      return [this.chunk, null];
     });
   }
 
@@ -430,10 +430,105 @@ export class Compiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 }
 
-export function compile(
-  ast: Program | Cmd,
+/**
+ * Compile an individual runtime command.
+ *
+ * @param cmd An individual runtime command to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling the command, plus warnings.
+ */
+export function compileCommand(
+  cmd: Cmd,
   options: CompilerOptions = {},
-): Chunk {
-  const compiler = new Compiler(ast, options);
+): CompileResult<Chunk> {
+  const { cmdNo, cmdSource } = options;
+  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [cmd])];
+  const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();
+}
+
+/**
+ * Compile an entire program.
+ *
+ * @param program An entire program to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling the program, plus warnings.
+ */
+export function compileProgram(
+  program: Program,
+  options: CompilerOptions = {},
+): CompileResult<Chunk> {
+  const compiler = new LineCompiler(
+    program.lines,
+    RoutineType.Program,
+    options,
+  );
+  return compiler.compile();
+}
+
+export type CompiledCmd = [Cmd | null, Chunk[]];
+
+//
+// Compiler for both interactive and runtime commands. For more information,
+// see the jsdoc for compileCommands.
+//
+export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
+  constructor(private options: CompilerOptions) {}
+
+  private compiled(cmd: Cmd): CompileResult<CompiledCmd> {
+    const [chunk, warning] = compileCommand(cmd, this.options);
+    return [[null, [chunk]], warning];
+  }
+
+  private interactive(cmd: Cmd, exprs: Expr[]): CompileResult<CompiledCmd> {
+    const results = exprs.map((exp) =>
+      compileCommand(new Expression(exp), this.options),
+    );
+    const chunks = results.map(([c, _]) => c);
+    const warnings: ParseWarning[] = results.map(([_, w]) => w);
+    return [[cmd, chunks], mergeParseErrors(...warnings)];
+  }
+
+  visitPrintCmd(print: Print): CompileResult<CompiledCmd> {
+    return this.compiled(print);
+  }
+
+  visitExitCmd(exit: Exit): CompileResult<CompiledCmd> {
+    return this.compiled(exit);
+  }
+
+  visitExpressionCmd(expr: Expression): CompileResult<CompiledCmd> {
+    return this.interactive(expr, [expr.expression]);
+  }
+
+  visitRemCmd(rem: Rem): CompileResult<CompiledCmd> {
+    return [[rem, []], null];
+  }
+
+  visitRunCmd(run: any): CompileResult<CompiledCmd> {
+    return this.interactive(run, [run.expression]);
+  }
+}
+
+/**
+ * Compile a mixture of runtime and interactive commands.
+ *
+ * @param cmds The commands to compile.
+ * @param options Compiler options.
+ * @returns The result of compiling each line, plus warnings.
+ */
+export function compileCommands(
+  cmds: Cmd[],
+  options: CompilerOptions = {},
+): CompileResult<CompiledCmd[]> {
+  const compiler = new CommandCompiler(options);
+  const results = cmds.map((cmd) => cmd.accept(compiler));
+  const commands = results
+    .map(([cmd, _]) => cmd)
+    .filter(([c, _]) => !(c instanceof Rem));
+  const warnings = results.reduce(
+    (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
+    [],
+  );
+  return [commands, mergeParseErrors(...warnings)];
 }

@@ -30,11 +30,12 @@ gaps.
 
 ### Prioritized Backlog
 
-- Refactor compiler to support mixed interpreted/compiled commands
-  - See [this draft PR here](https://github.com/jfhbrook/matanuska/pull/9/files)
-  - BONUS: Merge errors from parser and compiler
+- Tests for interactive compiler
+- `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class
+  - An InteractiveCommand visitor pattern? I'm doing an if instanceof block now and
+    it's mid
   - Commands
     - new
       - clear the program

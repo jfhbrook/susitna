@@ -31,8 +31,12 @@ gaps.
 ### Prioritized Backlog
 
 - Refactor compiler to support mixed interpreted/compiled commands
-  - See [this draft PR here](https://github.com/jfhbrook/matanuska/pull/9/files)
-  - BONUS: Merge errors from parser and compiler
+  - [X] Refactor Compiler into LineCompiler
+  - [X] Flesh out CommandCompiler and compileCommands interface
+  - [ ] Implement a merge function for syntax warnings and issues
+  - [ ] Merge warnings in CommandCompiler and compileCommands
+  - [ ] Call compileCommands from Commander
+  - [ ] Merge warnings/errors in Commander
 - Editing and running
   - Working Editor class
   - Commands

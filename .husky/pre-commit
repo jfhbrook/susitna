@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
 npm run check
-npm run test:citree
 npm test
 npm run lint:staged

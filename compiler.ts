@@ -47,7 +47,7 @@ export type CompilerOptions = {
   cmdSource?: string;
 };
 
-export type CompileResult = [Chunk, ParseWarning | null];
+export type CompileResult<T> = [T, ParseWarning | null];
 
 export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk;
@@ -90,7 +90,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
    * @param filename The source filename.
    */
   @runtimeMethod
-  compile(): CompileResult {
+  compile(): CompileResult<Chunk> {
     return tracer.spanSync('compile', () => {
       let cmd: Cmd | null = this.advance();
       while (cmd) {
@@ -424,7 +424,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 export function compileCommand(
   ast: Cmd,
   options: CompilerOptions = {},
-): CompileResult {
+): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
   const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [ast])];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
@@ -434,45 +434,51 @@ export function compileCommand(
 export function compileProgram(
   ast: Program,
   options: CompilerOptions = {},
-): CompileResult {
+): CompileResult<Chunk> {
   const compiler = new LineCompiler(ast.lines, RoutineType.Program, options);
   return compiler.compile();
 }
 
-// Note, the CompileResult[] will include unmerged warnings...
-type CompiledCmd = [Cmd | null, CompileResult[]];
+type CompiledCmd = [Cmd | null, Chunk[]];
 
-export class CommandCompiler implements CmdVisitor<CompiledCmd> {
+export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
   constructor(private options: CompilerOptions) {}
 
-  private compiled(cmd: Cmd): CompiledCmd {
-    return [null, [compileCommand(cmd, this.options)]];
+  private compiled(cmd: Cmd): CompileResult<CompiledCmd> {
+    const [chunk, warning] = compileCommand(cmd, this.options);
+    return [[null, [chunk]], warning];
   }
 
-  private interactive(cmd: Cmd, exprs: Expr[]): CompiledCmd {
+  private interactive(cmd: Cmd, exprs: Expr[]): CompileResult<CompiledCmd> {
+    const results = exprs.map((exp) =>
+      compileCommand(new Expression(exp), this.options),
+    );
+    const chunks = results.map(([c, _]) => c);
+    const warnings = results.map(([_, w]) => w);
     return [
-      cmd,
-      exprs.map((exp) => compileCommand(new Expression(exp), this.options)),
+      [cmd, chunks],
+      // TODO: Merge warnings
+      warnings[0],
     ];
   }
 
-  visitPrintCmd(print: Print): CompiledCmd {
+  visitPrintCmd(print: Print): CompileResult<CompiledCmd> {
     return this.compiled(print);
   }
 
-  visitExitCmd(exit: Exit): CompiledCmd {
+  visitExitCmd(exit: Exit): CompileResult<CompiledCmd> {
     return this.compiled(exit);
   }
 
-  visitExpressionCmd(expr: Expression): CompiledCmd {
+  visitExpressionCmd(expr: Expression): CompileResult<CompiledCmd> {
     return this.compiled(expr);
   }
 
-  visitRemCmd(rem: Rem): CompiledCmd {
+  visitRemCmd(rem: Rem): CompileResult<CompiledCmd> {
     return this.interactive(rem, []);
   }
 
-  visitRunCmd(run: any): CompiledCmd {
+  visitRunCmd(run: any): CompileResult<CompiledCmd> {
     return this.interactive(run, [run.expression]);
   }
 }
@@ -480,7 +486,14 @@ export class CommandCompiler implements CmdVisitor<CompiledCmd> {
 export function compileCommands(
   cmds: Cmd[],
   options: CompilerOptions = {},
-): CompiledCmd[] {
+): CompileResult<CompiledCmd[]> {
   const compiler = new CommandCompiler(options);
-  return cmds.map((cmd) => cmd.accept(compiler));
+  const results = cmds.map((cmd) => cmd.accept(compiler));
+  const commands = results.map(([cmd, _]) => cmd);
+  const warnings = results.reduce(
+    (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
+    [],
+  );
+  // TODO: Merge warnings
+  return [commands, warnings[0]];
 }

@@ -30,7 +30,7 @@ import { chunk } from './helpers/bytecode';
 function compile(
   ast: Program | Cmd,
   options: CompilerOptions = {},
-): CompileResult {
+): CompileResult<Chunk> {
   if (ast instanceof Program) {
     return compileProgram(ast, options);
   } else {

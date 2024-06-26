@@ -30,15 +30,7 @@ gaps.
 
 ### Prioritized Backlog
 
-- Refactor compiler to support mixed interpreted/compiled commands
-  - [X] Refactor Compiler into LineCompiler
-  - [X] Flesh out CommandCompiler and compileCommands interface
-  - [X] Implement a merge function for syntax warnings and issues
-  - [X] Merge warnings in CommandCompiler and compileCommands
-  - [X] Call compileCommands from Commander
-  - [X] Merge warnings/errors in Commander
-  - [X] Tests for mergeParseErrors
-  - [ ] Tests for compileCommands
+- Tests for interactive compiler
 - `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class

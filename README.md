@@ -34,6 +34,8 @@ gaps.
 - `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running
   - Working Editor class
+  - An InteractiveCommand visitor pattern? I'm doing an if instanceof block now and
+    it's mid
   - Commands
     - new
       - clear the program

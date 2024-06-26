@@ -35,6 +35,7 @@ gaps.
   - [X] delete lines
   - [ ] decide on syntax between deleting lines and inserting blank lines
     - should `10 _` delete the line or insert a blank line?
+    - write an ADR about this
   - [ ] push delete/blank parse into an ident() parser
   - [ ] load entire program
   - [ ] reset entire program

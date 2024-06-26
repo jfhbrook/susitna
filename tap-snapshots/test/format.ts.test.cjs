@@ -16,7 +16,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:248:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:249:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -132,7 +132,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeF
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:252:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:253:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -149,7 +149,7 @@ Traceback:
 --- Versions ---
 Matanuska BASIC: v0.0.1
 TypeScript: v5.5.2
-Node.js: v21.6.1
+Node.js: NODE_VERSION
 
 This is a bug in Matanuska BASIC. If you copy this entire message and post it
 to the issues tracker:
@@ -312,7 +312,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a BaseFault > mus
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:248:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:249:40)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -428,7 +428,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a RuntimeFault > 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:451:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:252:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:253:26)
     at TapWrap.runInAsyncScope (node:async_hooks:206:9)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -445,7 +445,7 @@ Traceback:
 --- Versions ---
 Matanuska BASIC: v0.0.1
 TypeScript: v5.5.2
-Node.js: v21.6.1
+Node.js: NODE_VERSION
 
 This is a bug in Matanuska BASIC. If you copy this entire message and post it
 to the issues tracker:

@@ -37,7 +37,7 @@ gaps.
   - [X] Merge warnings in CommandCompiler and compileCommands
   - [X] Call compileCommands from Commander
   - [X] Merge warnings/errors in Commander
-  - [ ] Tests for mergeParseErrors
+  - [X] Tests for mergeParseErrors
   - [ ] Tests for compileCommands
 - `print 1 + 1;` causes a RuntimeFault (Synchronize)
 - Editing and running

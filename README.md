@@ -55,8 +55,10 @@ gaps.
       - print the AST in the Editor for now
     - run
 - tracing, again
-  - manual calls to `tracer.open` and `tracer.close` - each span adds a bunch
-    of garbage to the stack trace
+  - manual calls to `tracer.open` and `tracer.close`
+    - each span adds a bunch of garbage to the stack trace
+    - but you need the helpers, practically speaking, to make sure a trace
+      always gets closed
   - "main" tracing actually not useful
 - Remove 'peek' from parser (use this.current)
 - citree issues
@@ -68,16 +70,14 @@ gaps.
   - remember, `10 rem` should serialize to `10`
   - make list use recreator
   - make save work
-- translator/cli refactor and/or commander -> executor refactor
-  - I renamed commander to executor - why?
-  - editing is now in the executor only - that's different from WIC&I, right?
-  - translator could be functions called from main
-  - Cli has little possibility for reuse - can be combined with main/translator
+- Write ADR about architectural changes from 002
+  - Renamed commander to executor
+  - Actual command(s) module executes visitor pattern on interactive commands
+  - editing is now in the executor, not the translator
+  - translator combined with index and Cli, is basically just the `repl`
+    function
   - who should own readline? executor? host? translator?
   - WIC&I didn't have the benefit of OOP, mind you
-  - executor now uses a separate "command module" which visitor patterns actual
-    interactive command execution - that implies two different abstractions,
-    right?
 - Global variables
 - If/else
 - For and while

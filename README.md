@@ -40,8 +40,8 @@ gaps.
   - [X] Attach warnings to the editor
   - [X] Log warnings by entered rows
   - [X] Log warnings before compiling/executing
-  - [ ] reset entire program
-  - [ ] does msx basic log anything when you enter a line?
+  - [X] reset entire program
+  - [X] does msx basic log anything when you enter a line?
   - [ ] editor tests
   - Commands
     - new

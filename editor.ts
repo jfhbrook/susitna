@@ -23,6 +23,33 @@ export class Editor {
     this.warning = null;
   }
 
+  get filename(): string {
+    return this.program.filename;
+  }
+
+  set filename(filename: string) {
+    this.program.filename = filename;
+  }
+
+  /**
+   * Initialize editor state.
+   *
+   * @param program A program.
+   * @param warning An associated warning, if any.
+   */
+  init(program: Program, warning: ParseWarning | null): void {
+    this.program = program;
+    this.warning = warning;
+  }
+
+  /**
+   * Reset the editor.
+   */
+  reset() {
+    this.program = new Program('untitled.bas', []);
+    this.warning = null;
+  }
+
   // A binary search to find the index containing a lineNo. If there's no
   // exact match, return the index just prior.
   private findLineIndex(lineNo: number): Index {
@@ -98,6 +125,12 @@ export class Editor {
     }
   }
 
+  /**
+   * Set a line and its corresponding warnings.
+   *
+   * If a line has no commands, delete the corresponding line. Otherwise,
+   * insert or update the line based on lineNo.
+   */
   setLine(line: Line, warning: ParseWarning | null): void {
     const { i, match } = this.findLineIndex(line.lineNo);
 

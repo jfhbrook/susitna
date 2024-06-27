@@ -21,6 +21,7 @@ import {
   ParseWarning,
   mergeParseErrors,
   splitParseError,
+  removeFromParseError,
 } from '../exceptions';
 import { FILENAME, TRACEBACK } from './helpers/traceback';
 
@@ -523,16 +524,149 @@ t.test('splitParseError', async (t: Test) => {
     }),
   ]);
 
-  function test(error: Record<number, any>) {
-    for (const [row, err] of Object.entries(error)) {
+  function test(error: Record<number, any>, key: string) {
+    for (const [k, err] of Object.entries(error)) {
       const errs = err.errors ? err.errors : err.warnings;
       for (const e of errs) {
-        t.same(row, e.row);
+        t.same(k, e[key]);
       }
     }
   }
 
-  test(splitParseError(ERROR));
-  test(splitParseError(WARN));
-  t.same(splitParseError(null), {});
+  test(splitParseError(ERROR, 'row'), 'row');
+  test(splitParseError(WARN, 'row'), 'row');
+  test(splitParseError(ERROR, 'lineNo'), 'lineNo');
+  test(splitParseError(WARN, 'lineNo'), 'lineNo');
+  t.same(splitParseError(null, 'row'), {});
+});
+
+t.test('removeFromParseError', async (t: Test) => {
+  const ERROR = new ParseError([
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 0,
+      isLine: true,
+      lineNo: 100,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '100 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 1,
+      isLine: true,
+      lineNo: 200,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '200 print someFn(ident)',
+    }),
+
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 2,
+      isLine: false,
+      lineNo: 300,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '300 print someFn(ident',
+    }),
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 3,
+      isLine: false,
+      lineNo: 400,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '400 print someFn(ident',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 4,
+      isLine: true,
+      lineNo: 500,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '500 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 5,
+      isLine: true,
+      lineNo: 600,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '600 print someFn(ident)',
+    }),
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 6,
+      isLine: false,
+      lineNo: 700,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '700 print someFn(ident',
+    }),
+    new SyntaxError('expected )', {
+      filename: FILENAME,
+      row: 7,
+      isLine: false,
+      lineNo: 800,
+      offsetStart: 22,
+      offsetEnd: 23,
+      source: '800 print someFn(ident',
+    }),
+  ]);
+
+  const WARN = new ParseError([
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 0,
+      isLine: true,
+      lineNo: 100,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '100 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 1,
+      isLine: true,
+      lineNo: 200,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '200 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 4,
+      isLine: true,
+      lineNo: 500,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '500 print someFn(ident)',
+    }),
+    new SyntaxWarning('identifier has no sigil', {
+      filename: FILENAME,
+      row: 5,
+      isLine: true,
+      lineNo: 600,
+      offsetStart: 17,
+      offsetEnd: 18,
+      source: '600 print someFn(ident)',
+    }),
+  ]);
+
+  function test(error: any, key: string, value: number) {
+    const errs = error.errors ? error.errors : error.warnings;
+    for (const e of errs) {
+      e[key] !== value;
+    }
+  }
+
+  test(removeFromParseError(ERROR, 'row', 2), 'row', 2);
+  test(removeFromParseError(WARN, 'row', 2), 'row', 2);
+  t.same(removeFromParseError(null, 'row', 2), null);
+  test(removeFromParseError(ERROR, 'lineNo', 400), 'lineNo', 400);
+  test(removeFromParseError(WARN, 'lineNo', 400), 'lineNo', 400);
+  t.same(removeFromParseError(null, 'lineNo', 400), null);
 });

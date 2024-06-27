@@ -601,33 +601,39 @@ function mergeParseErrors(
   return null;
 }
 
+export type LocationKey = 'row' | 'lineNo';
+
 /**
  * Split a ParseError or ParseWarning into a Record of multiple ParseErrors or
- * ParseWarnings, grouped by row number. If passed null, returns an empty
+ * ParseWarnings, grouped by the given key. If passed null, returns an empty
  * record.
  *
  * @returns A record mapping row number to ParseError or ParseWarning.
  */
-function splitParseError(error: ParseError): ParseErrorSplit;
-function splitParseError(error: ParseWarning): ParseWarningSplit;
-function splitParseError(error: null): Record<number, null>;
+function splitParseError(error: ParseError, key: LocationKey): ParseErrorSplit;
+function splitParseError(
+  error: ParseWarning,
+  key: LocationKey,
+): ParseWarningSplit;
+function splitParseError(error: null, key: LocationKey): Record<number, null>;
 function splitParseError(
   error: ParseError | ParseWarning | null,
+  key: LocationKey,
 ): ParseErrorSplit | Record<number, null> {
   const isError: Record<number, boolean> = {};
   const splitted: Record<number, Array<SyntaxError | SyntaxWarning>> = {};
 
   function split(errors: Array<SyntaxError | SyntaxWarning>): void {
     for (const err of errors) {
-      if (!splitted[err.row]) {
-        splitted[err.row] = [];
+      if (!splitted[err[key]]) {
+        splitted[err[key]] = [];
       }
 
       if (err instanceof ParseError) {
-        isError[err.row] = true;
+        isError[err[key]] = true;
       }
 
-      splitted[err.row].push(err);
+      splitted[err[key]].push(err);
     }
   }
 
@@ -653,4 +659,51 @@ function splitParseError(
   );
 }
 
-export { mergeParseErrors, splitParseError };
+function removeFromParseError(
+  err: ParseError,
+  key: LocationKey,
+  value: number,
+): ParseError | ParseWarning | null;
+function removeFromParseError(
+  err: ParseWarning,
+  key: LocationKey,
+  value: number,
+): ParseWarning | null;
+function removeFromParseError(err: null, key: LocationKey, value: number): null;
+function removeFromParseError(
+  err: ParseError | ParseWarning | null,
+  key: LocationKey,
+  value: number,
+): ParseError | ParseWarning | null {
+  let errors: Array<SyntaxError | SyntaxWarning> = [];
+
+  if (err === null) {
+    return null;
+  }
+
+  if (err instanceof ParseError) {
+    errors = err.errors;
+  } else {
+    errors = err.warnings;
+  }
+
+  let isError = false;
+
+  errors = errors.filter((e) => {
+    if (e[key] === value) {
+      return false;
+    }
+    if (e instanceof SyntaxError) {
+      isError = true;
+    }
+    return true;
+  });
+
+  if (isError) {
+    return new ParseError(errors);
+  } else {
+    return new ParseWarning(errors);
+  }
+}
+
+export { mergeParseErrors, splitParseError, removeFromParseError };

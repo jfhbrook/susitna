@@ -33,10 +33,12 @@ gaps.
 - Editing and running
   - [X] upsert lines
   - [X] delete lines
-  - [ ] decide on syntax between deleting lines and inserting blank lines
-    - should `10 _` delete the line or insert a blank line?
+  - [ ] fix line deletes
+    - syntax for delete should be bare `10`
+    - syntax for blank should be `10 rem`
+    - `10 ;` should be sugar for `10 rem`
+    - blank line logic should be implemented in recreator
     - write an ADR about this
-  - [ ] push delete/blank parse into an ident() parser
   - [ ] load entire program
   - [ ] reset entire program
   - [ ] editor tests
@@ -55,9 +57,10 @@ gaps.
     - run
   - Syntax for blank (not removed) line
 - citree parser has problems with Thing! in the middle
+- add `env` support to `exercise-bike`
 - Remove 'peek' from parser (use this.current)
-- Allow 10 _ : print "hey" to parse to an expression statement
 - recreator
+  - remember, `10 rem` should serialize to `10`
   - make list use recreator
   - make save work
 - Global variables

@@ -348,9 +348,9 @@ export class FileError extends OsError {
 
     return new FileError(
       message || err.message,
-      code || '',
+      code || '<unknown>',
       exitCode,
-      [err.path || ''],
+      [err.path || '<unknown>'],
       traceback,
     );
   }

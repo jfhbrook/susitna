@@ -341,7 +341,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
           this.emitByte(OpCode.Neg);
           break;
         default:
-          this.syntaxError(this.peek(), 'Invalid unary operator');
+          this.syntaxError(this.peek() as Cmd, 'Invalid unary operator');
       }
     });
   }
@@ -382,7 +382,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
           this.emitByte(OpCode.Ne);
           break;
         default:
-          this.syntaxError(this.peek(), 'Invalid binary operator');
+          this.syntaxError(this.peek() as Cmd, 'Invalid binary operator');
       }
     });
   }
@@ -485,7 +485,7 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
       compileCommand(new Expression(exp), this.options),
     );
     const chunks = results.map(([c, _]) => c);
-    const warnings: ParseWarning[] = results.map(([_, w]) => w);
+    const warnings: Array<ParseWarning | null> = results.map(([_, w]) => w);
     return [[cmd, chunks], mergeParseErrors(...warnings)];
   }
 
@@ -522,13 +522,15 @@ export function compileCommands(
   options: CompilerOptions = {},
 ): CompileResult<CompiledCmd[]> {
   const compiler = new CommandCompiler(options);
-  const results = cmds.map((cmd) => cmd.accept(compiler));
-  const commands = results
+  const results: CompileResult<CompiledCmd>[] = cmds.map((cmd) =>
+    cmd.accept(compiler),
+  );
+  const commands: CompiledCmd[] = results
     .map(([cmd, _]) => cmd)
     .filter(([c, _]) => !(c instanceof Rem));
-  const warnings = results.reduce(
+  const warnings: Array<ParseWarning | null> = results.reduce(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
-    [],
+    [] as Array<ParseWarning | null>,
   );
   return [commands, mergeParseErrors(...warnings)];
 }

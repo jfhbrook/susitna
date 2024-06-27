@@ -94,8 +94,9 @@ export class Executor {
     let p: Promise<void> = Promise.resolve();
 
     if (this._readline) {
+      const rl = this._readline;
       p = new Promise((resolve, _reject) => {
-        this._readline.once('close', () => {
+        rl.once('close', () => {
           tracer.close();
           resolve();
         });

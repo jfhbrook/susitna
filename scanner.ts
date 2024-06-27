@@ -156,7 +156,7 @@ export class Scanner {
     return this.source[this.current++];
   }
 
-  private emitToken(kind: TokenKind, value: Value = null): Token {
+  private emitToken(kind: TokenKind, value: Value | null = null): Token {
     const text = this.source.slice(this.start, this.current);
     const row = this.row;
     const offsetStart = this.offset;

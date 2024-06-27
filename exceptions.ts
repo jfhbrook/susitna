@@ -290,9 +290,9 @@ export class FileError extends OsError {
   ) {
     return new FileError(
       message || err.message,
-      err.code,
+      err.code || '<unknown>',
       null,
-      [err.path],
+      [err.path || '<unknown>'],
       traceback,
     );
   }
@@ -319,9 +319,9 @@ export class FileError extends OsError {
 
     return new FileError(
       message || err.message,
-      err.code,
+      code || '<unknown>',
       exitCode,
-      [err.path],
+      [err.path || '<unknown>'],
       traceback,
     );
   }
@@ -348,9 +348,9 @@ export class FileError extends OsError {
 
     return new FileError(
       message || err.message,
-      err.code,
+      code || '',
       exitCode,
-      [err.path],
+      [err.path || ''],
       traceback,
     );
   }
@@ -541,7 +541,7 @@ function merge<T extends SourceLocation>(xs: T[], ys: T[]): T[] {
   let i = 0;
   let j = 0;
   const merged: T[] = [];
-  while (i < xs.length || j < ys.length) {
+  while (true) {
     if (i >= xs.length) {
       return merged.concat(ys.slice(j));
     }

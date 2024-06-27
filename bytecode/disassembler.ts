@@ -39,7 +39,7 @@ export function disassembleInstruction(chunk: Chunk, offset: number): string {
 
 function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
   let lineNo = 0;
-  let code: number;
+  let code: number = 0xff;
   let row: Row;
 
   function advance(): number {

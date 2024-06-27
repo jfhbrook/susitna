@@ -23,7 +23,7 @@ export type InteractiveCommand<C extends Cmd> = (
 
 export interface CommandRunner extends CmdVisitor<ReturnValue> {
   executor: Executor;
-  args: Value[];
+  args: Array<Value | null>;
 }
 
 @errorType('Invalid')

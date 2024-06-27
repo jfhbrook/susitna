@@ -24,10 +24,16 @@ export class Translator {
   async script(filename: string) {
     await this.commander.using(async () => {
       await tracer.span('script', async () => {
+        // TODO: This logic should be moved into a `load` function in the
+        // commander.
+
+        // TODO: This readFile call should be moved into the host
         const source: string = await readFile(filename, 'utf8');
 
         let result: ParseResult<Program>;
 
+        // TODO: filename should be a property on the Program
+        // TODO: warnings should be a property on the Program
         try {
           result = parseProgram(source, filename);
         } catch (err) {
@@ -38,6 +44,8 @@ export class Translator {
           throw RuntimeFault.fromException(err);
         }
 
+        // TODO: This should be a call to this.commander.run(), which
+        // pulls the program (and filename and warnings) from the shared Editor
         await this.commander.evalProgram(result, filename);
       });
     });

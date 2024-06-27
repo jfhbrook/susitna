@@ -54,6 +54,8 @@ gaps.
 - citree parser has problems with Thing! in the middle
 - add `env` support to `exercise-bike`
 - Remove 'peek' from parser (use this.current)
+- Manual calls to `tracer.open` and `tracer.close`
+  - (each span adds a bunch of garbage to the stack trace)
 - recreator
   - remember, `10 rem` should serialize to `10`
   - make list use recreator

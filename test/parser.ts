@@ -422,7 +422,7 @@ t.test('simple program', async (t: Test) => {
 
   t.same(
     result[0],
-    new Program([
+    new Program(FILENAME, [
       new Line(100, 1, source[0], [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
@@ -441,7 +441,7 @@ t.test('out of order program', async (t: Test) => {
 
   t.same(
     result[0],
-    new Program([
+    new Program(FILENAME, [
       new Line(100, 2, source[1], [
         new Print(new StringLiteral('goodbye'), 4, 19),
       ]),

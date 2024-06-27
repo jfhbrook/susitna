@@ -29,5 +29,5 @@ type Tree in './index' {
   CommandGroup => row: number, source: string, commands: Cmd[]
   Line         => lineNo: number, row: number, source: string, commands: Cmd[]
   Input        => input: Array<CommandGroup | Line>
-  Program      => lines: Line[]
+  Program      => filename: string, lines: Line[]
 }

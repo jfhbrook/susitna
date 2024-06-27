@@ -359,7 +359,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a Program', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
-          new Program([
+          new Program(FILENAME, [
             new Line(100, 1, '100 "hello world"', [
               new Print(new StringLiteral('hello world')),
             ]),

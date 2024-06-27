@@ -101,7 +101,7 @@ class Parser {
 
       const result = this.rows();
       result.sort(compareLines);
-      const program = new Program(result as Line[]);
+      const program = new Program(this.filename, result as Line[]);
 
       if (this.isError) {
         throw new ParseError(this.errors);

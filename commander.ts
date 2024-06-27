@@ -188,9 +188,9 @@ export class Commander {
 
   async run(): Promise<void> {
     const program = this.editor.program;
-    // TODO: These should be attached to the program
+    // TODO: Warnings should either be attached to the program or the editor
     const parseWarning = null;
-    const filename = '<unknown>';
+    const filename = program.filename;
 
     return tracer.span('run', async () => {
       let chunk: Chunk;

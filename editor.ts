@@ -13,7 +13,7 @@ export class Editor {
   public program: Program;
 
   constructor() {
-    this.program = new Program([]);
+    this.program = new Program('untitled.bas', []);
   }
 
   // A binary search to find the index containing a lineNo. If there's no

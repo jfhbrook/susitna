@@ -34,7 +34,13 @@ gaps.
   - [X] upsert lines
   - [X] delete lines
   - [X] fix line deletes
-  - [ ] load entire program
+  - [X] load entire program
+  - [ ] pass warnings between load and run
+    - Attach to the Editor, probably
+    - May be time to bite off splitting warnings by row number
+  - [ ] solve "cmdNo" issue
+    - should this be in the translator?
+    - should this involve a persistent parser?
   - [ ] reset entire program
   - [ ] editor tests
   - Commands

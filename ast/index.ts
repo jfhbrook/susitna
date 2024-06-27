@@ -51,7 +51,10 @@ export class Input extends Tree {
 }
 
 export class Program extends Tree {
-  constructor(public lines: Line[]) {
+  constructor(
+    public filename: string,
+    public lines: Line[],
+  ) {
     super();
   }
 

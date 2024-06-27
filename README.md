@@ -54,13 +54,16 @@ gaps.
     - list
       - print the AST in the Editor for now
     - run
-  - Syntax for blank (not removed) line
-- citree parser has problems with Thing! in the middle
+- tracing, again
+  - manual calls to `tracer.open` and `tracer.close` - each span adds a bunch
+    of garbage to the stack trace
+  - "main" tracing actually not useful
+- Remove 'peek' from parser (use this.current)
+- citree issues
+  - parser has problems with Thing! in the middle
+  - handle optional semicolons
 - add `env` support to `exercise-bike`
 - attach cmdNo to AST somehow
-- Remove 'peek' from parser (use this.current)
-- Manual calls to `tracer.open` and `tracer.close`
-  - (each span adds a bunch of garbage to the stack trace)
 - recreator
   - remember, `10 rem` should serialize to `10`
   - make list use recreator

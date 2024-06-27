@@ -32,6 +32,8 @@ export class Translator {
             const input = await this.commander.prompt();
             await this.commander.eval(input);
           } catch (err) {
+            // TODO: This sort of logic is duplicated in the commander.
+            // On that note, the logic in the commander is probably buggy.
             if (err instanceof BaseFault || err instanceof Exit) {
               throw err;
             }

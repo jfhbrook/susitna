@@ -7,8 +7,13 @@ let TRACE_USAGE = '';
 
 if (MATBAS_BUILD === 'debug') {
   TRACE_USAGE = `
-TRACE             enable debug tracing
-TRACE_PARSER      enable parser tracing`;
+DEBUG_TRACE           enable main debug tracing
+DEBUG_TRACE_PARSER    enable parser debug tracing
+DEBUG_SHOW_TREE       log resulting parse trees
+DEBUG_TRACE_COMPILER  enable compiler debug tracing
+DEBUG_SHOW_CHUNK      log compiled chunks
+DEBUG_TRACE_RUNTIME   enable runtime execution tracing
+DEBUG_TRACE_GC        enable tracing garbage collection`;
 }
 
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]
@@ -21,7 +26,7 @@ Options:
   --log-level <level>      set log level (debug, info, warn, error)
   
 Environment variables:
-MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)${TRACE_USAGE}
+MATBAS_LOG_LEVEL      set log level (debug, info, warn, error)${TRACE_USAGE}
 `;
 
 function help(): Exit {

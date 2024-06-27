@@ -39,7 +39,6 @@ gaps.
   - [ ] pass warnings between load and run
     - Attach to the Editor
     - Bite off splitting warnings by row number
-  - [ ] solve "cmdNo" issue
   - [ ] ADR for editing in commander only
   - [ ] reset entire program
   - [ ] editor tests
@@ -59,6 +58,7 @@ gaps.
   - Syntax for blank (not removed) line
 - citree parser has problems with Thing! in the middle
 - add `env` support to `exercise-bike`
+- attach cmdNo to AST somehow
 - Remove 'peek' from parser (use this.current)
 - Manual calls to `tracer.open` and `tracer.close`
   - (each span adds a bunch of garbage to the stack trace)

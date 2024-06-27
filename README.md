@@ -37,10 +37,11 @@ gaps.
   - [X] load entire program
   - [X] solve contradiction between running program vs input
     - [X] Bite off splitting warnings by row number
-  - [ ] Attach warnings to the editor
-  - [ ] Log warnings by entered rows
+  - [X] Attach warnings to the editor
+  - [X] Log warnings by entered rows
   - [ ] Log warnings before compiling/executing
   - [ ] reset entire program
+  - [ ] does msx basic log anything when you enter a line?
   - [ ] editor tests
   - Commands
     - new

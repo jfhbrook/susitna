@@ -610,12 +610,14 @@ export type LocationKey = 'row' | 'lineNo';
  *
  * @returns A record mapping row number to ParseError or ParseWarning.
  */
-function splitParseError(error: ParseError, key: LocationKey): ParseErrorSplit;
 function splitParseError(
-  error: ParseWarning,
+  error: ParseError | null,
+  key: LocationKey,
+): ParseErrorSplit;
+function splitParseError(
+  error: ParseWarning | null,
   key: LocationKey,
 ): ParseWarningSplit;
-function splitParseError(error: null, key: LocationKey): Record<number, null>;
 function splitParseError(
   error: ParseError | ParseWarning | null,
   key: LocationKey,
@@ -660,16 +662,15 @@ function splitParseError(
 }
 
 function removeFromParseError(
-  err: ParseError,
+  err: ParseError | null,
   key: LocationKey,
   value: number,
 ): ParseError | ParseWarning | null;
 function removeFromParseError(
-  err: ParseWarning,
+  err: ParseWarning | null,
   key: LocationKey,
   value: number,
 ): ParseWarning | null;
-function removeFromParseError(err: null, key: LocationKey, value: number): null;
 function removeFromParseError(
   err: ParseError | ParseWarning | null,
   key: LocationKey,

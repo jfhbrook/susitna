@@ -1,3 +1,8 @@
+import {
+  ParseWarning,
+  mergeParseErrors,
+  removeFromParseError,
+} from './exceptions';
 import { Line, Program } from './ast';
 
 interface Index {
@@ -11,9 +16,11 @@ const HEAD: number = -1;
 
 export class Editor {
   public program: Program;
+  public warning: ParseWarning | null;
 
   constructor() {
     this.program = new Program('untitled.bas', []);
+    this.warning = null;
   }
 
   // A binary search to find the index containing a lineNo. If there's no
@@ -91,18 +98,26 @@ export class Editor {
     }
   }
 
-  setLine(line: Line): void {
+  setLine(line: Line, warning: ParseWarning | null): void {
     const { i, match } = this.findLineIndex(line.lineNo);
 
     if (!line.commands.length) {
       if (match) {
         this.program.lines.splice(i, 1);
+        this.warning = removeFromParseError(
+          this.warning,
+          'lineNo',
+          line.lineNo,
+        );
       }
       return;
     }
 
     if (match) {
       this.program.lines[i] = line;
+      if (warning) {
+        this.warning = mergeParseErrors(this.warning, warning);
+      }
       return;
     }
 

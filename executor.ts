@@ -14,6 +14,7 @@ import {
   ParseError,
   ParseWarning,
   mergeParseErrors,
+  splitParseError,
 } from './exceptions';
 import { RuntimeFault } from './faults';
 import { inspector } from './format';
@@ -181,17 +182,15 @@ export class Executor {
       throw RuntimeFault.fromException(err);
     }
 
-    if (result[1]) {
-      this.host.writeWarn(result[1]);
-    }
+    const [program, warning] = result;
 
-    this.editor.program = result[0];
+    this.editor.program = program;
+    this.editor.warning = warning;
   }
 
   async run(): Promise<void> {
     const program = this.editor.program;
-    // TODO: Warnings should either be attached to the program or the editor
-    const parseWarning = null;
+    const parseWarning = this.editor.warning;
     const filename = program.filename;
 
     let chunk: Chunk;
@@ -225,19 +224,20 @@ export class Executor {
   async eval(input: string): Promise<void> {
     const [result, warning] = parseInput(input);
 
-    // TODO: If we can split warnings up by the row they're from, then
-    // we can push a subset of those warnings down to evalCommands. But
-    // that's hard and annoying. We'll just log them here for now.
+    const splitWarning = splitParseError(warning, 'row');
+
     if (warning instanceof Warning) {
       this.host.writeWarn(warning);
     }
 
     for (const row of result.input) {
+      const warning = splitWarning[row.row];
       if (row instanceof Line) {
-        this.editor.setLine(row);
+        this.host.writeWarn(warning);
+        this.editor.setLine(row, warning);
       } else {
         // The API still supports it, though
-        await this.evalParsedCommands([row, null]);
+        await this.evalParsedCommands([row, warning]);
       }
     }
   }

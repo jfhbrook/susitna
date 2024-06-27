@@ -39,7 +39,6 @@ gaps.
   - [ ] pass warnings between load and run
     - Attach to the Editor
     - Bite off splitting warnings by row number
-  - [ ] ADR for editing in commander only
   - [ ] reset entire program
   - [ ] editor tests
   - Commands
@@ -66,6 +65,15 @@ gaps.
   - remember, `10 rem` should serialize to `10`
   - make list use recreator
   - make save work
+- translator/cli refactor and/or commander -> executor refactor
+  - editing is now in the commander only - that's different from WIC&I, right?
+  - translator could be functions called from main
+  - Cli has little possibility for reuse - can be combined with main/translator
+  - who should own readline? commander? host? translator?
+  - WIC&I didn't have the benefit of OOP, mind you
+  - commander now uses a separate "command module" which visitor patterns actual
+    interactive command execution - that implies two different abstractions,
+    right?
 - Global variables
 - If/else
 - For and while

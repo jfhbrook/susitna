@@ -249,7 +249,6 @@ export class Commander {
       for (const row of result.input) {
         if (row instanceof Line) {
           this.editor.setLine(row);
-          console.log(this.editor.program.lines);
         } else {
           // The API still supports it, though
           await this.evalParsedCommands([row, null]);

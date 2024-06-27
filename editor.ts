@@ -1,5 +1,4 @@
 import { Line, Program } from './ast';
-import { DeleteLine } from './ast/cmd';
 
 interface Index {
   i: number;
@@ -95,7 +94,7 @@ export class Editor {
   setLine(line: Line): void {
     const { i, match } = this.findLineIndex(line.lineNo);
 
-    if (line.commands[0] instanceof DeleteLine) {
+    if (!line.commands.length) {
       if (match) {
         this.program.lines.splice(i, 1);
       }

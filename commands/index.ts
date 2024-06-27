@@ -14,7 +14,6 @@ export function commandRunner(
     visitPrintCmd: invalid('print'),
     visitExitCmd: invalid('exit'),
     visitRemCmd: noop,
-    visitDeleteLineCmd: noop,
   };
 }
 

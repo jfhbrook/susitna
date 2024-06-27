@@ -269,7 +269,12 @@ export class Scanner {
         if (this.peek() === 'e' && this.peekNext() === 'm') {
           this.advance();
           this.advance();
-          if (this.match(' ') || this.match('\t')) {
+          if (
+            this.match(' ') ||
+            this.match('\t') ||
+            this.peek() === '\n' ||
+            this.peek() === EOF
+          ) {
             while (this.peek() !== '\n' && !this.done) {
               this.advance();
             }

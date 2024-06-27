@@ -23,7 +23,7 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Exit, Expression, Rem, DeleteLine } from './ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { compareLines } from './ast/util';
 
@@ -406,31 +406,13 @@ class Parser {
       // that they include all text to the end of the line
       if (this.match(TokenKind.Rem)) {
         cmd = new Rem(this.previous.value as string);
+      } else if (this.match(TokenKind.Semicolon)) {
+        cmd = new Rem('');
       } else if (this.match(TokenKind.Print)) {
         cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.Exit)) {
         cmd = this.exit();
-        // 10 _ is special syntax for "delete line 10". Traditional BASIC
-        // usually makes `10` alone delete a line, but I want to be able to
-        // insert blank lines as well - this gives a distinct syntax between
-        // the two use cases.
-        //
-        // TODO: Push this into an ident() parser
-      } else if (
-        !this.isProgram &&
-        this.isLine &&
-        this.check(TokenKind.Ident) &&
-        this.current.value === '_'
-      ) {
-        cmd = new DeleteLine();
-        this.advance();
-        if (!this.check(TokenKind.LineEnding) && !this.check(TokenKind.Eof)) {
-          this.syntaxError(
-            this.current,
-            'Cannot delete a line within multiple commands',
-          );
-        }
       } else {
         cmd = this.expressionStatement();
       }

@@ -291,6 +291,30 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
+  await t.test('bare, empty remark', async (t: Test) => {
+    const source = 'rem';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([new CommandGroup(1, source, [new Rem('', 0, 3)])]),
+    );
+  });
+
+  await t.test('bare semicolong', async (t: Test) => {
+    const source = ';';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(
+      result[0],
+      new Input([new CommandGroup(1, source, [new Rem('', 0, 1)])]),
+    );
+  });
+
   await t.test('remark following a command', async (t: Test) => {
     const source = 'print 1 rem this is a comment';
     const result = parseInput(source);

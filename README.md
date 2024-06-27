@@ -33,12 +33,7 @@ gaps.
 - Editing and running
   - [X] upsert lines
   - [X] delete lines
-  - [ ] fix line deletes
-    - syntax for delete should be bare `10`
-    - syntax for blank should be `10 rem`
-    - `10 ;` should be sugar for `10 rem`
-    - blank line logic should be implemented in recreator
-    - write an ADR about this
+  - [X] fix line deletes
   - [ ] load entire program
   - [ ] reset entire program
   - [ ] editor tests

@@ -439,6 +439,32 @@ t.test('remarks', async (t: Test) => {
     });
   });
 
+  await t.test('bare, empty remark', async (t: Test) => {
+    const source = 'rem';
+    const tokens = scanTokens(source);
+
+    t.equal(tokens.length, 2);
+
+    t.has(tokens[0], {
+      kind: TokenKind.Rem,
+      index: 0,
+      row: 1,
+      offsetStart: 0,
+      offsetEnd: 3,
+      text: 'rem',
+      value: '',
+    });
+
+    t.has(tokens[1], {
+      kind: TokenKind.Eof,
+      index: 3,
+      row: 1,
+      offsetStart: 3,
+      offsetEnd: 3,
+      text: '',
+    });
+  });
+
   await t.test('remark following a command', async (t: Test) => {
     const source = 'print 1 rem this is a comment';
     const tokens = scanTokens(source);

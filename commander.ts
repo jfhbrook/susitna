@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
@@ -12,9 +13,10 @@ import {
   ParseWarning,
   mergeParseErrors,
 } from './exceptions';
+import { RuntimeFault } from './faults';
 import { inspector } from './format';
 import { Host } from './host';
-import { ParseResult } from './parser';
+import { parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
@@ -33,7 +35,7 @@ export class Commander {
 
   constructor(
     private _config: Config,
-    private _editor: Editor,
+    private editor: Editor,
     private host: Host,
   ) {
     this.runtime = new Runtime(host);
@@ -160,11 +162,37 @@ export class Commander {
     });
   }
 
-  async evalProgram(
-    [program, parseWarning]: ParseResult<Program>,
-    filename: string,
-  ): Promise<void> {
-    return tracer.span('evalProgram', async () => {
+  async load(filename: string): Promise<void> {
+    // TODO: This readFile call should be moved into the host
+    const source: string = await readFile(filename, 'utf8');
+
+    let result: ParseResult<Program>;
+
+    // TODO: filename and warning should be a property on the Program
+    try {
+      result = parseProgram(source, filename);
+    } catch (err) {
+      if (err instanceof Exception) {
+        throw err;
+      }
+
+      throw RuntimeFault.fromException(err);
+    }
+
+    if (result[1]) {
+      this.host.writeWarn(result[1]);
+    }
+
+    this.editor.program = result[0];
+  }
+
+  async run(): Promise<void> {
+    const program = this.editor.program;
+    // TODO: These should be attached to the program
+    const parseWarning = null;
+    const filename = '<unknown>';
+
+    return tracer.span('run', async () => {
       let chunk: Chunk;
       let warning: ParseWarning | null;
 
@@ -204,6 +232,8 @@ export class Commander {
     parseWarning,
   ]: ParseResult<CommandGroup>): Promise<void> {
     return tracer.span('evalCommands', async () => {
+      // TODO: This should be getting attached in either the parser or
+      // the translator
       this.cmdNo += 10;
       this.cmdSource = cmds.source;
 

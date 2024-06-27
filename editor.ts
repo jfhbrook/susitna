@@ -108,9 +108,4 @@ export class Editor {
 
     this.program.lines.splice(i + 1, 0, line);
   }
-
-  // a program may be loaded entirely from scratch. this would involve
-  // completely replacing lines within the program, as well as re-initializing
-  // the environment and other lookups.
-  load(_program: Program): void {}
 }

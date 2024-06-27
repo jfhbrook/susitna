@@ -1,17 +1,19 @@
-import { getTracer } from './debug';
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
 import { Exit, ExitCode } from './exit';
 
-const tracer = getTracer('main');
-
 let TRACE_USAGE = '';
 
 if (MATBAS_BUILD === 'debug') {
   TRACE_USAGE = `
-TRACE             enable debug tracing
-TRACE_PARSER      enable parser tracing`;
+DEBUG_TRACE           enable main debug tracing
+DEBUG_TRACE_PARSER    enable parser debug tracing
+DEBUG_SHOW_TREE       log resulting parse trees
+DEBUG_TRACE_COMPILER  enable compiler debug tracing
+DEBUG_SHOW_CHUNK      log compiled chunks
+DEBUG_TRACE_RUNTIME   enable runtime execution tracing
+DEBUG_TRACE_GC        enable tracing garbage collection`;
 }
 
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]
@@ -24,7 +26,7 @@ Options:
   --log-level <level>      set log level (debug, info, warn, error)
   
 Environment variables:
-MATBAS_LOG_LEVEL  set log level (debug, info, warn, error)${TRACE_USAGE}
+MATBAS_LOG_LEVEL      set log level (debug, info, warn, error)${TRACE_USAGE}
 `;
 
 function help(): Exit {
@@ -92,61 +94,57 @@ export class Config {
    * @param env Environment variables. In practice, this is `process.env`.
    */
   static load(argv: typeof process.argv, env: typeof process.env) {
-    return tracer.spanSync('Config.load', () => {
-      let command = null;
-      let eval_ = null;
-      let script = null;
-      let level = Level.Info;
-      const scriptArgv: string[] = [
-        process.env.__MATBAS_DOLLAR_ZERO || 'matbas',
-      ];
+    let command = null;
+    let eval_ = null;
+    let script = null;
+    let level = Level.Info;
+    const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
-      if (env.MATBAS_LOG_LEVEL) {
-        level = parseLevel(env.MATBAS_LOG_LEVEL);
+    if (env.MATBAS_LOG_LEVEL) {
+      level = parseLevel(env.MATBAS_LOG_LEVEL);
+    }
+
+    const args = Array.from(argv);
+
+    while (args.length) {
+      switch (args[0]) {
+        case '-h':
+        case '--help':
+          throw help();
+        case '-c':
+        case '--command':
+          args.shift();
+          command = args.shift();
+          break;
+        case '-e':
+        case '--eval':
+          args.shift();
+          eval_ = args.shift();
+          break;
+        case '--log-level':
+          args.shift();
+          level = parseLevel(args.shift());
+          break;
+        case '-v':
+        case '--version':
+          throw version();
+        default:
+          if (!script && !args[0].startsWith('-')) {
+            script = args.shift();
+            scriptArgv.push(script);
+            break;
+          }
+
+          if (script || command || eval_) {
+            scriptArgv.push(args.shift());
+            break;
+          }
+
+          throw usage(`Invalid option: ${args.shift()}`);
       }
+    }
 
-      const args = Array.from(argv);
-
-      while (args.length) {
-        switch (args[0]) {
-          case '-h':
-          case '--help':
-            throw help();
-          case '-c':
-          case '--command':
-            args.shift();
-            command = args.shift();
-            break;
-          case '-e':
-          case '--eval':
-            args.shift();
-            eval_ = args.shift();
-            break;
-          case '--log-level':
-            args.shift();
-            level = parseLevel(args.shift());
-            break;
-          case '-v':
-          case '--version':
-            throw version();
-          default:
-            if (!script && !args[0].startsWith('-')) {
-              script = args.shift();
-              scriptArgv.push(script);
-              break;
-            }
-
-            if (script || command || eval_) {
-              scriptArgv.push(args.shift());
-              break;
-            }
-
-            throw usage(`Invalid option: ${args.shift()}`);
-        }
-      }
-
-      return new Config(command, eval_, script, level, scriptArgv, env);
-    });
+    return new Config(command, eval_, script, level, scriptArgv, env);
   }
 
   /**

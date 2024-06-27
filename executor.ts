@@ -21,7 +21,7 @@ import { parseInput, parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
-import { Input, Line, CommandGroup, Program } from './ast';
+import { Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
@@ -47,62 +47,64 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    return await tracer.span('Executor.init', async () => {
-      // Ensure the commander's state is clean before initializing.
-      await this.close();
+    tracer.open('Executor#init');
+    // Ensure the commander's state is clean before initializing.
+    await this.close();
 
-      // TODO: Support for tab-completion and history. Note:
-      // - Tab complete will only apply for source input.
-      // - History will be different between user and source input.
-      this.readline = this.createInterface();
+    // TODO: Support for tab-completion and history. Note:
+    // - Tab complete will only apply for source input.
+    // - History will be different between user and source input.
+    this.readline = this.createInterface();
 
-      // TODO: Node's behavior on first press is to print:
-      //
-      //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
-      //
-      // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
-      // and otherwise ignores.
-      //
-      // Neither behavior is simple. Node's behavior requires tracking state
-      // in the Translator - count sigints, reset to zero on any new input.
-      // You'd have to expose this event to the Translator. Python's behavior
-      // seems simpler - throw an Error - but any error thrown here is thrown
-      // asynchronously and the context is lost. Again, you would need to emit
-      // an event on the Host and handle it in the Translator.
-      //
-      // If there's no handler at *all*, the default behavior is ostensibly to
-      // call readline.pause() - here, we're calling this.close() which also
-      // calls readline.close(). The latter ostensibly causes readline.question
-      // to throw an error. *Practically speaking* this causes the process to
-      // quietly exit - I believe it *is* throwing an error, but that Node is
-      // checking the type and deciding not to log it. That said, who knows.
-      //
-      // Either way, I should dig into this more.
-      this.readline.on('SIGINT', () => {
-        this.host.writeError('\n');
-        this.host.writeDebug('Received SIGINT (ctrl-c)');
-        this.close();
-      });
+    // TODO: Node's behavior on first press is to print:
+    //
+    //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
+    //
+    // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
+    // and otherwise ignores.
+    //
+    // Neither behavior is simple. Node's behavior requires tracking state
+    // in the Translator - count sigints, reset to zero on any new input.
+    // You'd have to expose this event to the Translator. Python's behavior
+    // seems simpler - throw an Error - but any error thrown here is thrown
+    // asynchronously and the context is lost. Again, you would need to emit
+    // an event on the Host and handle it in the Translator.
+    //
+    // If there's no handler at *all*, the default behavior is ostensibly to
+    // call readline.pause() - here, we're calling this.close() which also
+    // calls readline.close(). The latter ostensibly causes readline.question
+    // to throw an error. *Practically speaking* this causes the process to
+    // quietly exit - I believe it *is* throwing an error, but that Node is
+    // checking the type and deciding not to log it. That said, who knows.
+    //
+    // Either way, I should dig into this more.
+    this.readline.on('SIGINT', () => {
+      this.host.writeError('\n');
+      this.host.writeDebug('Received SIGINT (ctrl-c)');
+      this.close();
     });
+    tracer.close();
   }
 
   /**
    * Close the commander.
    */
   async close(): Promise<void> {
-    return tracer.span('Executor.close', () => {
-      let p: Promise<void> = Promise.resolve();
+    tracer.open('Executor#close');
+    let p: Promise<void> = Promise.resolve();
 
-      if (this._readline) {
-        p = new Promise((resolve, _reject) => {
-          this._readline.once('close', () => resolve());
+    if (this._readline) {
+      p = new Promise((resolve, _reject) => {
+        this._readline.once('close', () => {
+          tracer.close();
+          resolve();
         });
+      });
 
-        this._readline.close();
-      }
+      this._readline.close();
+    }
 
-      return p;
-    });
+    return p;
   }
 
   /**
@@ -146,9 +148,7 @@ export class Executor {
    * @returns A promise that resolves to the user input.
    */
   input(question: string): Promise<string> {
-    return tracer.span('Executor.input', () => {
-      return this.readline.question(`${question} > `);
-    });
+    return this.readline.question(`${question} > `);
   }
 
   /**
@@ -158,9 +158,7 @@ export class Executor {
    * @returns A promise that resolves to the source line.
    */
   prompt(): Promise<string> {
-    return tracer.span('Executor.prompt', () => {
-      return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
-    });
+    return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
   }
 
   async load(filename: string): Promise<void> {
@@ -193,68 +191,52 @@ export class Executor {
     const parseWarning = null;
     const filename = program.filename;
 
-    return tracer.span('run', async () => {
-      let chunk: Chunk;
-      let warning: ParseWarning | null;
+    let chunk: Chunk;
+    let warning: ParseWarning | null;
 
-      try {
-        const result = compileProgram(program, { filename });
-        chunk = result[0];
-        warning = result[1];
-      } catch (err) {
-        if (err instanceof ParseError) {
-          err = mergeParseErrors(parseWarning, err);
-        }
-
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-        throw err;
+    try {
+      const result = compileProgram(program, { filename });
+      chunk = result[0];
+      warning = result[1];
+    } catch (err) {
+      if (err instanceof ParseError) {
+        err = mergeParseErrors(parseWarning, err);
       }
 
-      warning = mergeParseErrors(parseWarning, warning);
-
-      if (warning) {
-        this.host.writeWarn(warning);
+      if (err instanceof Exception) {
+        this.host.writeException(err);
+        return;
       }
+      throw err;
+    }
 
-      this.runtime.interpret(chunk);
-    });
+    warning = mergeParseErrors(parseWarning, warning);
+
+    if (warning) {
+      this.host.writeWarn(warning);
+    }
+
+    this.runtime.interpret(chunk);
   }
 
   async eval(input: string): Promise<void> {
-    await tracer.span('eval', async () => {
-      let result: Input;
-      let warning: Warning | null;
+    const [result, warning] = parseInput(input);
 
-      try {
-        [result, warning] = parseInput(input);
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
+    // TODO: If we can split warnings up by the row they're from, then
+    // we can push a subset of those warnings down to evalCommands. But
+    // that's hard and annoying. We'll just log them here for now.
+    if (warning instanceof Warning) {
+      this.host.writeWarn(warning);
+    }
 
-        throw RuntimeFault.fromException(err);
+    for (const row of result.input) {
+      if (row instanceof Line) {
+        this.editor.setLine(row);
+      } else {
+        // The API still supports it, though
+        await this.evalParsedCommands([row, null]);
       }
-
-      // TODO: If we can split warnings up by the row they're from, then
-      // we can push a subset of those warnings down to evalCommands. But
-      // that's hard and annoying. We'll just log them here for now.
-      if (warning instanceof Warning) {
-        this.host.writeWarn(warning);
-      }
-
-      for (const row of result.input) {
-        if (row instanceof Line) {
-          this.editor.setLine(row);
-        } else {
-          // The API still supports it, though
-          await this.evalParsedCommands([row, null]);
-        }
-      }
-    });
+    }
   }
 
   /**
@@ -262,84 +244,68 @@ export class Executor {
    *
    * @param cmds A group of commands to evaluate.
    */
-  async evalParsedCommands([
+  private async evalParsedCommands([
     cmds,
     parseWarning,
   ]: ParseResult<CommandGroup>): Promise<void> {
-    return tracer.span('evalCommands', async () => {
-      // TODO: This should be getting attached in either the parser or
-      // the translator
-      this.cmdNo += 10;
-      this.cmdSource = cmds.source;
+    // TODO: This should be getting attached in either the parser or
+    // the translator
+    this.cmdNo += 10;
+    this.cmdSource = cmds.source;
 
-      let warning: ParseWarning | null = null;
-      try {
-        const result = compileCommands(cmds.commands, {
-          filename: '<input>',
-          cmdNo: this.cmdNo,
-          cmdSource: this.cmdSource,
-        });
-        const commands = result[0];
-        warning = result[1];
+    let warning: ParseWarning | null = null;
+    try {
+      const result = compileCommands(cmds.commands, {
+        filename: '<input>',
+        cmdNo: this.cmdNo,
+        cmdSource: this.cmdSource,
+      });
+      const commands = result[0];
+      warning = result[1];
 
-        warning = mergeParseErrors(parseWarning, warning);
+      warning = mergeParseErrors(parseWarning, warning);
 
-        if (warning) {
-          this.host.writeWarn(warning);
-        }
-
-        const lastCmd = commands.pop();
-
-        for (const cmd of commands) {
-          this.runCompiledCommand(cmd);
-        }
-
-        if (lastCmd) {
-          const rv = this.runCompiledCommand(lastCmd);
-          if (rv !== null) {
-            this.host.writeLine(inspector.format(rv));
-          }
-        }
-      } catch (err) {
-        if (err instanceof ParseError) {
-          err = mergeParseErrors(parseWarning, err);
-        }
-
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-        throw err;
+      if (warning) {
+        this.host.writeWarn(warning);
       }
 
-      this.cmdSource = '';
-    });
+      const lastCmd = commands.pop();
+
+      for (const cmd of commands) {
+        this.runCompiledCommand(cmd);
+      }
+
+      if (lastCmd) {
+        const rv = this.runCompiledCommand(lastCmd);
+        if (rv !== null) {
+          this.host.writeLine(inspector.format(rv));
+        }
+      }
+    } catch (err) {
+      if (err instanceof ParseError) {
+        err = mergeParseErrors(parseWarning, err);
+      }
+
+      throw err;
+    }
+
+    this.cmdSource = '';
   }
 
   //
   // Run a compiled command.
   //
   private runCompiledCommand([cmd, chunks]: CompiledCmd): ReturnValue {
-    return tracer.spanSync('runCommand', () => {
-      try {
-        // Interpret any chunks.
-        const args = chunks.map((c) => this.runtime.interpret(c));
+    // Interpret any chunks.
+    const args = chunks.map((c) => this.runtime.interpret(c));
 
-        if (cmd) {
-          // Run an interactive command.
-          return cmd.accept(commandRunner(this, args));
-        } else {
-          // The args really contained the body of the non-interactive
-          // command, which we just interpreted.
-          return null;
-        }
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return null;
-        }
-        throw err;
-      }
-    });
+    if (cmd) {
+      // Run an interactive command.
+      return cmd.accept(commandRunner(this, args));
+    } else {
+      // The args really contained the body of the non-interactive
+      // command, which we just interpreted.
+      return null;
+    }
   }
 }

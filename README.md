@@ -36,9 +36,10 @@ gaps.
   - [X] fix line deletes
   - [X] load entire program
   - [X] solve contradiction between running program vs input
-  - [ ] pass warnings between load and run
-    - Attach to the Editor
-    - Bite off splitting warnings by row number
+    - [X] Bite off splitting warnings by row number
+  - [ ] Attach warnings to the editor
+  - [ ] Log warnings by entered rows
+  - [ ] Log warnings before compiling/executing
   - [ ] reset entire program
   - [ ] editor tests
   - Commands

@@ -431,6 +431,9 @@ export interface SourceLocation {
   // endLineNo: number | null,
 }
 
+export type ParseErrorSplit = Record<number, ParseError | ParseWarning>;
+export type ParseWarningSplit = Record<number, ParseWarning>;
+
 /**
  * An individual syntax error. Typically there will be multiple syntax errors
  * or warnings encapsulated in a ParseError. They are not intended to be
@@ -598,4 +601,56 @@ function mergeParseErrors(
   return null;
 }
 
-export { mergeParseErrors };
+/**
+ * Split a ParseError or ParseWarning into a Record of multiple ParseErrors or
+ * ParseWarnings, grouped by row number. If passed null, returns an empty
+ * record.
+ *
+ * @returns A record mapping row number to ParseError or ParseWarning.
+ */
+function splitParseError(error: ParseError): ParseErrorSplit;
+function splitParseError(error: ParseWarning): ParseWarningSplit;
+function splitParseError(error: null): Record<number, null>;
+function splitParseError(
+  error: ParseError | ParseWarning | null,
+): ParseErrorSplit | Record<number, null> {
+  const isError: Record<number, boolean> = {};
+  const splitted: Record<number, Array<SyntaxError | SyntaxWarning>> = {};
+
+  function split(errors: Array<SyntaxError | SyntaxWarning>): void {
+    for (const err of errors) {
+      if (!splitted[err.row]) {
+        splitted[err.row] = [];
+      }
+
+      if (err instanceof ParseError) {
+        isError[err.row] = true;
+      }
+
+      splitted[err.row].push(err);
+    }
+  }
+
+  if (error instanceof ParseError) {
+    split(error.errors);
+  } else if (error instanceof ParseWarning) {
+    split(error.warnings);
+  } else if (error === null) {
+    return {} as Record<number, null>;
+  }
+
+  return Object.fromEntries(
+    Object.entries(splitted).map(([row, errs]) => {
+      let error: ParseError | ParseWarning;
+      if (isError[row]) {
+        error = new ParseError(errs);
+      } else {
+        error = new ParseWarning(errs);
+      }
+
+      return [row, error];
+    }),
+  );
+}
+
+export { mergeParseErrors, splitParseError };

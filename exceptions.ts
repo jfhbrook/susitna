@@ -604,13 +604,23 @@ function merge<T extends SourceLocation>(
  * @param ...errors A list of ParseErrors and ParseWarnings
  * @returns A ParseError or ParseWarning
  */
-function mergeParseErrors(...errors: Array<null>): null;
-function mergeParseErrors(...errors: Array<ParseWarning | null>): ParseWarning;
+function mergeParseErrors(errors: Array<null>): null;
+function mergeParseErrors(errors: Array<null>, keys: LocationKey[]): null;
+function mergeParseErrors(errors: Array<ParseWarning | null>): ParseWarning;
 function mergeParseErrors(
-  ...errors: Array<ParseError | ParseWarning | null>
+  errors: Array<ParseWarning | null>,
+  keys: LocationKey[],
+): ParseWarning;
+function mergeParseErrors(
+  errors: Array<ParseError | ParseWarning | null>,
 ): ParseError;
 function mergeParseErrors(
-  ...errors: Array<ParseError | ParseWarning | null>
+  errors: Array<ParseError | ParseWarning | null>,
+  keys: LocationKey[],
+): ParseError;
+function mergeParseErrors(
+  errors: Array<ParseError | ParseWarning | null>,
+  keys: LocationKey[] = ['lineNo', 'row', 'offsetStart'],
 ): ParseError | ParseWarning | null {
   let isError = false;
   let isWarning = false;
@@ -618,10 +628,10 @@ function mergeParseErrors(
   for (const err of errors) {
     if (err instanceof ParseError) {
       isError = true;
-      syntaxErrors = merge(syntaxErrors, err.errors, ['row']);
+      syntaxErrors = merge(syntaxErrors, err.errors, keys);
     } else if (err instanceof ParseWarning) {
       isWarning = true;
-      syntaxErrors = merge(syntaxErrors, err.warnings, ['row']);
+      syntaxErrors = merge(syntaxErrors, err.warnings, keys);
     }
   }
 

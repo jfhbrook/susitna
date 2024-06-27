@@ -486,7 +486,7 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
     );
     const chunks = results.map(([c, _]) => c);
     const warnings: Array<ParseWarning | null> = results.map(([_, w]) => w);
-    return [[cmd, chunks], mergeParseErrors(...warnings)];
+    return [[cmd, chunks], mergeParseErrors(warnings)];
   }
 
   visitPrintCmd(print: Print): CompileResult<CompiledCmd> {
@@ -532,5 +532,5 @@ export function compileCommands(
     (acc, [_, warns]) => (warns ? acc.concat(warns) : acc),
     [] as Array<ParseWarning | null>,
   );
-  return [commands, mergeParseErrors(...warnings)];
+  return [commands, mergeParseErrors(warnings)];
 }

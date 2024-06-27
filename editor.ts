@@ -149,7 +149,7 @@ export class Editor {
     if (match) {
       this.program.lines[i] = line;
       if (warning) {
-        this.warning = mergeParseErrors(this.warning, warning);
+        this.warning = mergeParseErrors([this.warning, warning]);
       }
       return;
     }

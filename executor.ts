@@ -252,7 +252,7 @@ export class Executor {
       warning = result[1];
     } catch (err) {
       if (err instanceof ParseError) {
-        err = mergeParseErrors(parseWarning, err);
+        err = mergeParseErrors([parseWarning, err]);
       }
 
       if (err instanceof Exception) {
@@ -262,7 +262,7 @@ export class Executor {
       throw err;
     }
 
-    warning = mergeParseErrors(parseWarning, warning);
+    warning = mergeParseErrors([parseWarning, warning]);
 
     if (warning) {
       this.host.writeWarn(warning);
@@ -317,7 +317,7 @@ export class Executor {
       const commands = result[0];
       warning = result[1];
 
-      warning = mergeParseErrors(parseWarning, warning);
+      warning = mergeParseErrors([parseWarning, warning]);
 
       if (warning) {
         this.host.writeWarn(warning);
@@ -340,7 +340,7 @@ export class Executor {
       this.ok();
     } catch (err) {
       if (err instanceof ParseError) {
-        err = mergeParseErrors(parseWarning, err);
+        err = mergeParseErrors([parseWarning, err]);
       }
 
       throw err;

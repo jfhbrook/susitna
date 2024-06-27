@@ -382,30 +382,30 @@ t.test('mergeParseErrors', async (t: Test) => {
   ]);
 
   t.matchSnapshot(
-    mergeParseErrors(PARSE_WARNING_2, PARSE_WARNING_1),
+    mergeParseErrors([PARSE_WARNING_2, PARSE_WARNING_1]),
     'merge two warnings',
   );
   t.matchSnapshot(
-    mergeParseErrors(PARSE_ERROR_2, PARSE_ERROR_1),
+    mergeParseErrors([PARSE_ERROR_2, PARSE_ERROR_1]),
     'merge two errors',
   );
   t.matchSnapshot(
-    mergeParseErrors(PARSE_WARNING_1, PARSE_ERROR_1),
+    mergeParseErrors([PARSE_WARNING_1, PARSE_ERROR_1]),
     'merge a warning and an error',
   );
   t.matchSnapshot(
-    mergeParseErrors(PARSE_WARNING_1, null),
+    mergeParseErrors([PARSE_WARNING_1, null]),
     'merge a warning and null',
   );
   t.matchSnapshot(
-    mergeParseErrors(PARSE_WARNING_1, null),
+    mergeParseErrors([PARSE_WARNING_1, null]),
     'merge an error and null',
   );
   t.matchSnapshot(
-    mergeParseErrors(PARSE_ERROR_1, PARSE_WARNING_2, null),
+    mergeParseErrors([PARSE_ERROR_1, PARSE_WARNING_2, null]),
     'merge a warning, an error and null',
   );
-  t.matchSnapshot(mergeParseErrors(null, null, null), 'merge a few nulls');
+  t.matchSnapshot(mergeParseErrors([null, null, null]), 'merge a few nulls');
 });
 
 t.test('splitParseError', async (t: Test) => {

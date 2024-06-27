@@ -65,14 +65,13 @@ async function repl<H extends Host>({ executor, host }: Container<H>) {
       const input = await executor.prompt();
       await executor.eval(input);
     } catch (err) {
-      // TODO: This sort of logic is duplicated in the executor.
-      // On that note, the logic in the executor is probably buggy.
       if (err instanceof BaseFault || err instanceof Exit) {
         throw err;
       }
 
       if (err instanceof BaseException) {
         host.writeException(err);
+        continue;
       }
 
       throw RuntimeFault.fromError(err, null);

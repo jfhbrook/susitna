@@ -21,7 +21,7 @@ import { parseInput, parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
-import { Input, Line, CommandGroup, Program } from './ast';
+import { Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
@@ -225,19 +225,7 @@ export class Executor {
 
   async eval(input: string): Promise<void> {
     await tracer.span('eval', async () => {
-      let result: Input;
-      let warning: Warning | null;
-
-      try {
-        [result, warning] = parseInput(input);
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-
-        throw RuntimeFault.fromException(err);
-      }
+      const [result, warning] = parseInput(input);
 
       // TODO: If we can split warnings up by the row they're from, then
       // we can push a subset of those warnings down to evalCommands. But
@@ -262,84 +250,68 @@ export class Executor {
    *
    * @param cmds A group of commands to evaluate.
    */
-  async evalParsedCommands([
+  private async evalParsedCommands([
     cmds,
     parseWarning,
   ]: ParseResult<CommandGroup>): Promise<void> {
-    return tracer.span('evalCommands', async () => {
-      // TODO: This should be getting attached in either the parser or
-      // the translator
-      this.cmdNo += 10;
-      this.cmdSource = cmds.source;
+    // TODO: This should be getting attached in either the parser or
+    // the translator
+    this.cmdNo += 10;
+    this.cmdSource = cmds.source;
 
-      let warning: ParseWarning | null = null;
-      try {
-        const result = compileCommands(cmds.commands, {
-          filename: '<input>',
-          cmdNo: this.cmdNo,
-          cmdSource: this.cmdSource,
-        });
-        const commands = result[0];
-        warning = result[1];
+    let warning: ParseWarning | null = null;
+    try {
+      const result = compileCommands(cmds.commands, {
+        filename: '<input>',
+        cmdNo: this.cmdNo,
+        cmdSource: this.cmdSource,
+      });
+      const commands = result[0];
+      warning = result[1];
 
-        warning = mergeParseErrors(parseWarning, warning);
+      warning = mergeParseErrors(parseWarning, warning);
 
-        if (warning) {
-          this.host.writeWarn(warning);
-        }
-
-        const lastCmd = commands.pop();
-
-        for (const cmd of commands) {
-          this.runCompiledCommand(cmd);
-        }
-
-        if (lastCmd) {
-          const rv = this.runCompiledCommand(lastCmd);
-          if (rv !== null) {
-            this.host.writeLine(inspector.format(rv));
-          }
-        }
-      } catch (err) {
-        if (err instanceof ParseError) {
-          err = mergeParseErrors(parseWarning, err);
-        }
-
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return;
-        }
-        throw err;
+      if (warning) {
+        this.host.writeWarn(warning);
       }
 
-      this.cmdSource = '';
-    });
+      const lastCmd = commands.pop();
+
+      for (const cmd of commands) {
+        this.runCompiledCommand(cmd);
+      }
+
+      if (lastCmd) {
+        const rv = this.runCompiledCommand(lastCmd);
+        if (rv !== null) {
+          this.host.writeLine(inspector.format(rv));
+        }
+      }
+    } catch (err) {
+      if (err instanceof ParseError) {
+        err = mergeParseErrors(parseWarning, err);
+      }
+
+      throw err;
+    }
+
+    this.cmdSource = '';
   }
 
   //
   // Run a compiled command.
   //
   private runCompiledCommand([cmd, chunks]: CompiledCmd): ReturnValue {
-    return tracer.spanSync('runCommand', () => {
-      try {
-        // Interpret any chunks.
-        const args = chunks.map((c) => this.runtime.interpret(c));
+    // Interpret any chunks.
+    const args = chunks.map((c) => this.runtime.interpret(c));
 
-        if (cmd) {
-          // Run an interactive command.
-          return cmd.accept(commandRunner(this, args));
-        } else {
-          // The args really contained the body of the non-interactive
-          // command, which we just interpreted.
-          return null;
-        }
-      } catch (err) {
-        if (err instanceof Exception) {
-          this.host.writeException(err);
-          return null;
-        }
-        throw err;
-      }
-    });
+    if (cmd) {
+      // Run an interactive command.
+      return cmd.accept(commandRunner(this, args));
+    } else {
+      // The args really contained the body of the non-interactive
+      // command, which we just interpreted.
+      return null;
+    }
   }
 }

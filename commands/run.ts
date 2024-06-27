@@ -1,4 +1,4 @@
-import { Expression } from '../ast/cmd';
+import { Run } from '../ast/cmd';
 import { CommandRunner, ReturnValue } from './base';
 
 /**
@@ -7,9 +7,11 @@ import { CommandRunner, ReturnValue } from './base';
  * Interactive expressions are evaluated in the runtime, but their value
  * is returned to the Executor so that it can inspect and print it.
  */
-export default async function expression(
+export default async function run(
   this: CommandRunner,
-  _expr: Expression,
+  _run: Run,
 ): Promise<ReturnValue> {
-  return this.args[0];
+  const { executor } = this;
+  await executor.run();
+  return null;
 }

@@ -4,6 +4,10 @@ export interface CmdVisitor<R> {
   visitExpressionCmd(node: Expression): R;
   visitPrintCmd(node: Print): R;
   visitExitCmd(node: Exit): R;
+  visitNewCmd(node: New): R;
+  visitLoadCmd(node: Load): R;
+  visitRunCmd(node: Run): R;
+  visitSaveCmd(node: Save): R;
   visitRemCmd(node: Rem): R;
 }
 
@@ -55,6 +59,59 @@ export class Exit extends Cmd {
 
   accept<R>(visitor: CmdVisitor<R>): R {
     return visitor.visitExitCmd(this);
+  }
+}
+
+export class New extends Cmd {
+  constructor(
+    public filename: Expr,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitNewCmd(this);
+  }
+}
+
+export class Load extends Cmd {
+  constructor(
+    public filename: Expr,
+    public run: boolean,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitLoadCmd(this);
+  }
+}
+
+export class Run extends Cmd {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitRunCmd(this);
+  }
+}
+
+export class Save extends Cmd {
+  constructor(
+    public filename: Expr,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitSaveCmd(this);
   }
 }
 

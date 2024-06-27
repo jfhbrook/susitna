@@ -13,6 +13,8 @@ import {
   BaseWarning,
   Warning,
   DeprecationWarning,
+  ValueError,
+  ArithmeticError,
   OsError,
   FileError,
   SyntaxError,
@@ -31,6 +33,8 @@ const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   AssertionError,
   RuntimeError,
   NotImplementedError,
+  ValueError,
+  ArithmeticError,
 ];
 
 const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [

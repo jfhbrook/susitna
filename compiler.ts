@@ -12,7 +12,18 @@ import { Value } from './value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
 import { Line, Program } from './ast';
-import { Cmd, CmdVisitor, Print, Exit, Expression, Rem } from './ast/cmd';
+import {
+  Cmd,
+  CmdVisitor,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  New,
+  Load,
+  Save,
+  Run,
+} from './ast/cmd';
 import {
   Expr,
   ExprVisitor,
@@ -199,7 +210,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private syntaxError(cmd: Cmd, message: string): void {
+  private syntaxError(cmd: Cmd, message: string): never {
     return tracer.spanSync('syntaxError', () => {
       const exc = new SyntaxError(message, {
         filename: this.filename,
@@ -214,6 +225,10 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
       this.errors.push(exc);
       throw new Synchronize();
     });
+  }
+
+  private interactive(name: string, cmd: Cmd): never {
+    this.syntaxError(cmd, `Cannot run interactive command in scripts: ${name}`);
   }
 
   private synchronize(): void {
@@ -330,6 +345,22 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitRemCmd(_rem: Rem): void {}
+
+  visitNewCmd(new_: New): CompileResult<CompiledCmd> {
+    return this.interactive('new', new_);
+  }
+
+  visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
+    return this.interactive('load', load);
+  }
+
+  visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
+    return this.interactive('save', save);
+  }
+
+  visitRunCmd(run: Run): CompileResult<CompiledCmd> {
+    return this.interactive('run', run);
+  }
 
   // Expressions
 
@@ -505,8 +536,20 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
     return [[rem, []], null];
   }
 
-  visitRunCmd(run: any): CompileResult<CompiledCmd> {
-    return this.interactive(run, [run.expression]);
+  visitNewCmd(new_: New): CompileResult<CompiledCmd> {
+    return this.interactive(new_, [new_.filename]);
+  }
+
+  visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
+    return this.interactive(load, [load.filename]);
+  }
+
+  visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
+    return this.interactive(save, [save.filename]);
+  }
+
+  visitRunCmd(run: Run): CompileResult<CompiledCmd> {
+    return this.interactive(run, []);
   }
 }
 

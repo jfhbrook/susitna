@@ -1,5 +1,15 @@
 import { TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
-import { CmdVisitor, Expression, Exit, Print, Rem } from './ast/cmd';
+import {
+  CmdVisitor,
+  Expression,
+  Exit,
+  Print,
+  Rem,
+  New,
+  Load,
+  Save,
+  Run,
+} from './ast/cmd';
 import {
   ExprVisitor,
   Binary,
@@ -51,6 +61,22 @@ export class Recreator
 
   visitRemCmd(rem: Rem): string {
     return `rem ${rem.remark}`;
+  }
+
+  visitNewCmd(_new: New): string {
+    return '';
+  }
+
+  visitLoadCmd(_load: Load): string {
+    return '';
+  }
+
+  visitSaveCmd(_save: Save): string {
+    return '';
+  }
+
+  visitRunCmd(_run: Run): string {
+    return '';
   }
 
   visitBinaryExpr(_binary: Binary): string {

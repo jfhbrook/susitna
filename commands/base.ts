@@ -1,8 +1,11 @@
 import { getTracer } from '../debug';
+import { Editor } from '../editor';
 import { Executor } from '../executor';
 import { errorType } from '../errors';
 import { RuntimeFault } from '../faults';
+import { Host } from '../host';
 import { Value } from '../value';
+import { Program } from '../ast';
 import { Cmd, CmdVisitor } from '../ast/cmd';
 
 const tracer = getTracer('main');
@@ -19,11 +22,14 @@ export type ReturnValue = Value | null;
 export type InteractiveCommand<C extends Cmd> = (
   this: CommandRunner,
   cmd: C,
-) => ReturnValue;
+) => Promise<ReturnValue>;
 
-export interface CommandRunner extends CmdVisitor<ReturnValue> {
+export interface CommandRunner extends CmdVisitor<Promise<ReturnValue>> {
   executor: Executor;
-  args: Array<Value | null>;
+  editor: Editor;
+  program: Program;
+  host: Host;
+  args: Array<Value>;
 }
 
 @errorType('Invalid')
@@ -42,7 +48,7 @@ export class Invalid extends Error {
  * @returns An interactive command that will immediately throw a RuntimeFault
  */
 export function invalid<C extends Cmd>(name: string): InteractiveCommand<C> {
-  return function invalidCommand(_cmd: C): Value | null {
+  return async function invalidCommand(_cmd: C): Promise<ReturnValue> {
     throw RuntimeFault.fromError(new Invalid(name));
   };
 }
@@ -54,7 +60,7 @@ export function invalid<C extends Cmd>(name: string): InteractiveCommand<C> {
  * @param cmd The no-op command
  * @returns null
  */
-export function noop<C extends Cmd>(_cmd: C): Value | null {
+export async function noop<C extends Cmd>(_cmd: C): Promise<ReturnValue> {
   return null;
 }
 
@@ -62,10 +68,13 @@ export function trace<C extends Cmd>(
   name: string,
   command: InteractiveCommand<C>,
 ): InteractiveCommand<C> {
-  return function traced(this: CommandRunner, cmd: C): ReturnValue {
-    return tracer.spanSync(`Evaluating ${name}`, () => {
+  return async function traced(
+    this: CommandRunner,
+    cmd: C,
+  ): Promise<ReturnValue> {
+    return tracer.span(`Evaluating ${name}`, async () => {
       tracer.trace('with args:', this.args);
-      return command.call(this, cmd);
+      return await command.call(this, cmd);
     });
   };
 }

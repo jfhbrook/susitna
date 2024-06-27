@@ -16,10 +16,10 @@ const INVALID_CMDS: Array<[string, Cmd]> = [
 const NOOP_CMDS: Array<[string, Cmd]> = [['rem', new Rem('A witty remark.')]];
 
 t.test('invalid commands', async (t: Test) => {
-  await topic.swear(async ({ executor }) => {
+  await topic.swear(async ({ executor, editor, host }) => {
     for (const [name, cmd] of INVALID_CMDS) {
-      t.throws(
-        () => cmd.accept(commandRunner(executor, [])),
+      t.rejects(
+        () => cmd.accept(commandRunner(executor, editor, host, [])),
         RuntimeFault,
         `${name} is an invalid command`,
       );
@@ -28,10 +28,10 @@ t.test('invalid commands', async (t: Test) => {
 });
 
 t.test('noop commands', async (t: Test) => {
-  await topic.swear(async ({ executor }) => {
+  await topic.swear(async ({ executor, editor, host }) => {
     for (const [name, cmd] of NOOP_CMDS) {
       t.equal(
-        cmd.accept(commandRunner(executor, [])),
+        await cmd.accept(commandRunner(executor, editor, host, [])),
         null,
         `${name} returns null`,
       );
@@ -40,9 +40,11 @@ t.test('noop commands', async (t: Test) => {
 });
 
 t.test('expression', async (t: Test) => {
-  await topic.swear(async ({ executor }) => {
+  await topic.swear(async ({ executor, editor, host }) => {
     const expr = new Expression(new StringLiteral('hello'));
-    const rv = expr.accept(commandRunner(executor, ['hello']));
+    const rv = await expr.accept(
+      commandRunner(executor, editor, host, ['hello']),
+    );
     t.equal(rv, 'hello');
   });
 });

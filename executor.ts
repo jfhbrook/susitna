@@ -175,9 +175,10 @@ export class Executor {
   /**
    * Start a new program and reset the runtime.
    */
-  new(): void {
+  new(filename: string): void {
     this.runtime.reset();
     this.editor.reset();
+    this.editor.filename = filename;
     // TODO: Close open file handles on this.host
   }
 
@@ -215,7 +216,10 @@ export class Executor {
    *
    * @Returns A promise.
    */
-  async save(): Promise<void> {
+  async save(filename: string | null): Promise<void> {
+    if (filename) {
+      this.editor.filename = filename;
+    }
     console.log('TODO: Save program');
   }
 
@@ -326,11 +330,11 @@ export class Executor {
       const lastCmd = commands.pop();
 
       for (const cmd of commands) {
-        this.runCompiledCommand(cmd);
+        await this.runCompiledCommand(cmd);
       }
 
       if (lastCmd) {
-        const rv = this.runCompiledCommand(lastCmd);
+        const rv = await this.runCompiledCommand(lastCmd);
         if (rv !== null) {
           this.host.writeLine(inspector.format(rv));
         }
@@ -352,7 +356,10 @@ export class Executor {
   //
   // Run a compiled command.
   //
-  private runCompiledCommand([cmd, chunks]: CompiledCmd): ReturnValue {
+  private async runCompiledCommand([
+    cmd,
+    chunks,
+  ]: CompiledCmd): Promise<ReturnValue> {
     // Interpret any chunks.
     const args = chunks.map((c): Value => {
       const rv: Value | null = this.runtime.interpret(c);
@@ -363,7 +370,9 @@ export class Executor {
 
     if (cmd) {
       // Run an interactive command.
-      return cmd.accept(commandRunner(this, args));
+      return await cmd.accept(
+        commandRunner(this, this.editor, this.host, args),
+      );
     } else {
       // The args really contained the body of the non-interactive
       // command, which we just interpreted.

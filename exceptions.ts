@@ -92,6 +92,12 @@ export class TypeError extends RuntimeError {
 }
 
 /**
+ * An exception raised for unexpected values. Extends RuntimeError.
+ */
+@errorType('ValueError')
+export class ValueError extends RuntimeError {}
+
+/**
  * An exception raised for various arithmetic errors. Extends RuntimeError.
  */
 @errorType('ArithmeticError')

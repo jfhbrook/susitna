@@ -42,6 +42,10 @@ import {
   Exit as ExitCmd,
   Expression,
   Rem,
+  New,
+  Load,
+  Save,
+  Run,
 } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -160,6 +164,10 @@ export abstract class Formatter
   abstract visitExitCmd(node: ExitCmd): string;
   abstract visitExpressionCmd(node: Expression): string;
   abstract visitRemCmd(rem: Rem): string;
+  abstract visitNewCmd(new_: New): string;
+  abstract visitLoadCmd(load: Load): string;
+  abstract visitSaveCmd(save: Save): string;
+  abstract visitRunCmd(run: Run): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
@@ -577,6 +585,22 @@ export class DefaultFormatter extends Formatter {
 
   visitRemCmd(rem: Rem): string {
     return `Rem(${rem.remark})`;
+  }
+
+  visitNewCmd(new_: New): string {
+    return `New(${this.format(new_.filename)})`;
+  }
+
+  visitLoadCmd(load: Load): string {
+    return `Load(${this.format(load.filename)}${load.run ? ',R' : ''})`;
+  }
+
+  visitSaveCmd(save: Save): string {
+    return `New(${this.format(save.filename)})`;
+  }
+
+  visitRunCmd(_run: Run): string {
+    return `Run`;
   }
 
   formatStack<V>(stack: Stack<V>): string {

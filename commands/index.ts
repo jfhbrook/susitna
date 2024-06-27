@@ -5,7 +5,7 @@ import visitExpressionCmd from './expression';
 
 export function commandRunner(
   executor: Executor,
-  args: Array<Value | null>,
+  args: Array<Value>,
 ): CommandRunner {
   return {
     executor,

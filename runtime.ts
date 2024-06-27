@@ -20,6 +20,12 @@ export class Runtime {
     this.stack = new Stack();
   }
 
+  public reset(): void {
+    this.stack = new Stack();
+    this.chunk = new Chunk();
+    this.pc = 0;
+  }
+
   public interpret(chunk: Chunk): Value | null {
     this.chunk = chunk;
     this.pc = 0;

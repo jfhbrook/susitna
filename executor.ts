@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { readFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
+import { inspect } from 'util';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
@@ -172,6 +173,15 @@ export class Executor {
   }
 
   /**
+   * Start a new program and reset the runtime.
+   */
+  new(): void {
+    this.runtime.reset();
+    this.editor.reset();
+    // TODO: Close open file handles on this.host
+  }
+
+  /**
    * Load a script into the editor.
    *
    * @param filename The file path to the script.
@@ -198,6 +208,29 @@ export class Executor {
 
     this.editor.program = program;
     this.editor.warning = warning;
+  }
+
+  /**
+   * Save a program.
+   *
+   * @Returns A promise.
+   */
+  async save(): Promise<void> {
+    console.log('TODO: Save program');
+  }
+
+  /**
+   * Retrieve listings from the current program.
+   *
+   * @returns The recreated source of the current program.
+   */
+  list(): void {
+    if (this.editor.warning) {
+      this.host.writeWarn(this.editor.warning);
+    }
+    // TODO: Use recreator.
+    const listings = inspect(this.editor.program.lines);
+    this.host.writeLine(listings);
   }
 
   /**

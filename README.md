@@ -42,8 +42,7 @@ gaps.
   - [X] Log warnings before compiling/executing
   - [X] reset entire program
   - [X] does msx basic log anything when you enter a line?
-  - [ ] editor tests
-  - Commands
+  - [X] executor methods for new commands
     - new
       - clear the program
       - clear runtime state
@@ -56,6 +55,15 @@ gaps.
     - list
       - print the AST in the Editor for now
     - run
+  - [ ] Interactive commands
+    - new
+    - load
+      - load a program into the Editor
+      - optionally run the program
+    - save
+    - list
+    - run
+  - [ ] editor tests
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`
     - each span adds a bunch of garbage to the stack trace

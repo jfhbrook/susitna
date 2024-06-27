@@ -165,6 +165,13 @@ export class Executor {
   }
 
   /**
+   * Log that a command executed successfully.
+   */
+  ok(): void {
+    this.host.writeLine('Ok');
+  }
+
+  /**
    * Load a script into the editor.
    *
    * @param filename The file path to the script.
@@ -248,7 +255,6 @@ export class Executor {
         this.host.writeWarn(warning);
         this.editor.setLine(row, warning);
       } else {
-        // The API still supports it, though
         await this.evalParsedCommands([row, warning]);
       }
     }
@@ -296,6 +302,9 @@ export class Executor {
           this.host.writeLine(inspector.format(rv));
         }
       }
+
+      // Ok!!
+      this.ok();
     } catch (err) {
       if (err instanceof ParseError) {
         err = mergeParseErrors(parseWarning, err);

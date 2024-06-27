@@ -57,42 +57,27 @@ export interface RuntimeOptions {
 }
 
 //
-// Run a script.
-//
-async function script<H extends Host>(
-  { executor }: Container<H>,
-  filename: string,
-) {
-  await executor.using(async () => {
-    await executor.load(filename);
-    await executor.run();
-  });
-}
-
-//
 // Run the REPL.
 //
 async function repl<H extends Host>({ executor, host }: Container<H>) {
-  await executor.using(async () => {
-    while (true) {
-      try {
-        const input = await executor.prompt();
-        await executor.eval(input);
-      } catch (err) {
-        // TODO: This sort of logic is duplicated in the executor.
-        // On that note, the logic in the executor is probably buggy.
-        if (err instanceof BaseFault || err instanceof Exit) {
-          throw err;
-        }
-
-        if (err instanceof BaseException) {
-          host.writeException(err);
-        }
-
-        throw RuntimeFault.fromError(err, null);
+  while (true) {
+    try {
+      const input = await executor.prompt();
+      await executor.eval(input);
+    } catch (err) {
+      // TODO: This sort of logic is duplicated in the executor.
+      // On that note, the logic in the executor is probably buggy.
+      if (err instanceof BaseFault || err instanceof Exit) {
+        throw err;
       }
+
+      if (err instanceof BaseException) {
+        host.writeException(err);
+      }
+
+      throw RuntimeFault.fromError(err, null);
     }
-  });
+  }
 }
 
 /**
@@ -135,12 +120,16 @@ export async function main({
     host.setLevel(config.level);
 
     const deps = container(config, host);
+    const { executor } = deps;
 
-    if (config.script) {
-      await script(deps, config.script);
-    } else {
-      await repl(deps);
-    }
+    await executor.using(async () => {
+      if (config.script) {
+        await executor.load(config.script);
+        await executor.run();
+      } else {
+        await repl(deps);
+      }
+    });
   } catch (err) {
     reportError(err, host);
     error = err;

@@ -23,7 +23,7 @@ export function container<H extends Host>(
   return tracer.spanSync('container', () => {
     const editor = new Editor();
     const commander = new Commander(config, editor, host);
-    const translator = new Translator(config, editor, commander, host);
+    const translator = new Translator(config, commander, host);
 
     return {
       config,

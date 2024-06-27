@@ -9,6 +9,7 @@ import { Config } from './config';
 import { Editor } from './editor';
 import {
   Exception,
+  Warning,
   ParseError,
   ParseWarning,
   mergeParseErrors,
@@ -16,11 +17,11 @@ import {
 import { RuntimeFault } from './faults';
 import { inspector } from './format';
 import { Host } from './host';
-import { parseProgram, ParseResult } from './parser';
+import { parseInput, parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
-import { CommandGroup, Program } from './ast';
+import { Input, Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
@@ -222,12 +223,47 @@ export class Commander {
     });
   }
 
+  async eval(input: string): Promise<void> {
+    await tracer.span('eval', async () => {
+      let result: Input;
+      let warning: Warning | null;
+
+      try {
+        [result, warning] = parseInput(input);
+      } catch (err) {
+        if (err instanceof Exception) {
+          this.host.writeException(err);
+          return;
+        }
+
+        throw RuntimeFault.fromException(err);
+      }
+
+      // TODO: If we can split warnings up by the row they're from, then
+      // we can push a subset of those warnings down to evalCommands. But
+      // that's hard and annoying. We'll just log them here for now.
+      if (warning instanceof Warning) {
+        this.host.writeWarn(warning);
+      }
+
+      for (const row of result.input) {
+        if (row instanceof Line) {
+          this.editor.setLine(row);
+          console.log(this.editor.program.lines);
+        } else {
+          // The API still supports it, though
+          await this.evalParsedCommands([row, null]);
+        }
+      }
+    });
+  }
+
   /**
    * Evaluate a command group.
    *
    * @param cmds A group of commands to evaluate.
    */
-  async evalCommands([
+  async evalParsedCommands([
     cmds,
     parseWarning,
   ]: ParseResult<CommandGroup>): Promise<void> {
@@ -256,11 +292,11 @@ export class Commander {
         const lastCmd = commands.pop();
 
         for (const cmd of commands) {
-          this.runCommand(cmd);
+          this.runCompiledCommand(cmd);
         }
 
         if (lastCmd) {
-          const rv = this.runCommand(lastCmd);
+          const rv = this.runCompiledCommand(lastCmd);
           if (rv !== null) {
             this.host.writeLine(inspector.format(rv));
           }
@@ -284,7 +320,7 @@ export class Commander {
   //
   // Run a compiled command.
   //
-  private runCommand([cmd, chunks]: CompiledCmd): ReturnValue {
+  private runCompiledCommand([cmd, chunks]: CompiledCmd): ReturnValue {
     return tracer.spanSync('runCommand', () => {
       try {
         // Interpret any chunks.

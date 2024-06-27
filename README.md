@@ -35,15 +35,12 @@ gaps.
   - [X] delete lines
   - [X] fix line deletes
   - [X] load entire program
+  - [X] solve contradiction between running program vs input
   - [ ] pass warnings between load and run
-    - Attach to the Editor, probably
-    - May be time to bite off splitting warnings by row number
+    - Attach to the Editor
+    - Bite off splitting warnings by row number
   - [ ] solve "cmdNo" issue
-    - should this be in the translator?
-    - should this involve a persistent parser?
-  - [ ] solve contradiction between running program vs input
-    - editor insertion should probably happen in the commander
-    - this may call for an ADR
+  - [ ] ADR for editing in commander only
   - [ ] reset entire program
   - [ ] editor tests
   - Commands

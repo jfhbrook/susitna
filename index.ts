@@ -90,12 +90,14 @@ export async function main({
   argv,
   env,
 }: RuntimeOptions): Promise<void> {
+  tracer.open('main');
   const host: Host = overriddenHost || new ConsoleHost();
   const exit: ExitFn = overriddenExit || process.exit;
 
   let error: any = null;
 
   function errorExit(error: any): void {
+    tracer.close();
     exit(
       typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
     );

@@ -1,5 +1,9 @@
 import { Line } from './';
 
-export function compareLines(a: Line, b: Line): number {
+function compareLines(a: Line, b: Line): number {
   return a.lineNo - b.lineNo;
+}
+
+export function sortLines(lines: Line[]): void {
+  lines.sort(compareLines);
 }

@@ -25,7 +25,7 @@ import {
 } from './ast/expr';
 import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
-import { compareLines } from './ast/util';
+import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
 
@@ -100,7 +100,7 @@ class Parser {
       this.isProgram = true;
 
       const result = this.rows();
-      result.sort(compareLines);
+      sortLines(result as Line[]);
       const program = new Program(this.filename, result as Line[]);
 
       if (this.isError) {

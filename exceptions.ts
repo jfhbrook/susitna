@@ -431,8 +431,25 @@ export interface SourceLocation {
   // endLineNo: number | null,
 }
 
+export type LocationKey = 'row' | 'lineNo' | 'offsetStart';
 export type ParseErrorSplit = Record<number, ParseError | ParseWarning>;
 export type ParseWarningSplit = Record<number, ParseWarning>;
+
+export interface LocationSortable {
+  sort(keys: LocationKey[]): void;
+}
+
+function compareLocationKeys(keys: LocationKey[]) {
+  return function compare(a: SourceLocation, b: SourceLocation): number {
+    for (const key of keys) {
+      const cmp = a[key] - b[key];
+      if (cmp) {
+        return cmp;
+      }
+    }
+    return 0;
+  };
+}
 
 /**
  * An individual syntax error. Typically there will be multiple syntax errors
@@ -467,7 +484,10 @@ export class SyntaxError extends BaseException implements SourceLocation {
 /**
  * A parse error. May contain one or more syntax errors or warnings.
  */
-export class ParseError extends Exception implements ExitCoded {
+export class ParseError
+  extends Exception
+  implements LocationSortable, ExitCoded
+{
   public exitCode = ExitCode.Software;
 
   /**
@@ -478,6 +498,10 @@ export class ParseError extends Exception implements ExitCoded {
   constructor(public errors: Array<SyntaxError | SyntaxWarning>) {
     super('', null);
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  sort(keys: LocationKey[]): void {
+    this.errors.sort(compareLocationKeys(keys));
   }
 
   format(formatter: Formatter): string {
@@ -521,7 +545,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
  * warnings.
  */
 @errorType('ParseWarning')
-export class ParseWarning extends Exception {
+export class ParseWarning extends Exception implements LocationSortable {
   /**
    * @param message The message for the exception.
    * @param warnings A collection of syntax warnings.
@@ -532,6 +556,10 @@ export class ParseWarning extends Exception {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
+  sort(keys: LocationKey[]): void {
+    this.warnings.sort(compareLocationKeys(keys));
+  }
+
   format(formatter: Formatter): string {
     return formatter.formatParseWarning(this);
   }
@@ -540,7 +568,11 @@ export class ParseWarning extends Exception {
 // The assumption is that errors are already sorted. This may not
 // be technically true, but it may be true *enough* that the result is
 // sensible.
-function merge<T extends SourceLocation>(xs: T[], ys: T[]): T[] {
+function merge<T extends SourceLocation>(
+  xs: T[],
+  ys: T[],
+  keys: LocationKey[],
+): T[] {
   let i = 0;
   let j = 0;
   const merged: T[] = [];
@@ -551,14 +583,15 @@ function merge<T extends SourceLocation>(xs: T[], ys: T[]): T[] {
     if (j >= ys.length) {
       return merged.concat(xs.slice(i));
     }
-    if (xs[i].row < ys[j].row) {
-      merged.push(xs[i++]);
-    } else if (xs[i].row > ys[j].row) {
-      merged.push(ys[j++]);
-    } else if (xs[i].offsetStart <= ys[j].offsetStart) {
-      merged.push(xs[i++]);
-    } else {
-      merged.push(ys[j++]);
+    for (const key of keys) {
+      if (xs[i][key] < ys[j][key]) {
+        merged.push(xs[i++]);
+        break;
+      }
+      if (xs[i][key] > ys[j][key]) {
+        merged.push(ys[j++]);
+        break;
+      }
     }
   }
 }
@@ -585,10 +618,10 @@ function mergeParseErrors(
   for (const err of errors) {
     if (err instanceof ParseError) {
       isError = true;
-      syntaxErrors = merge(syntaxErrors, err.errors);
+      syntaxErrors = merge(syntaxErrors, err.errors, ['row']);
     } else if (err instanceof ParseWarning) {
       isWarning = true;
-      syntaxErrors = merge(syntaxErrors, err.warnings);
+      syntaxErrors = merge(syntaxErrors, err.warnings, ['row']);
     }
   }
 
@@ -600,8 +633,6 @@ function mergeParseErrors(
   }
   return null;
 }
-
-export type LocationKey = 'row' | 'lineNo';
 
 /**
  * Split a ParseError or ParseWarning into a Record of multiple ParseErrors or
@@ -707,4 +738,18 @@ function removeFromParseError(
   }
 }
 
-export { mergeParseErrors, splitParseError, removeFromParseError };
+function sortParseError(
+  err: ParseError | ParseWarning | null,
+  keys: LocationKey[],
+): void {
+  if (err) {
+    err.sort(keys);
+  }
+}
+
+export {
+  mergeParseErrors,
+  splitParseError,
+  removeFromParseError,
+  sortParseError,
+};

@@ -27,9 +27,24 @@ export type Argv = typeof process.argv;
 export type Env = typeof process.env;
 
 /**
+ * Exit the command.
+ */
+export type ExitFn = typeof process.exit;
+
+/**
  * Options for running a CLI.
  */
 export interface RuntimeOptions {
+  /**
+   * A Host instance. Defaults to ConsoleHost.
+   */
+  host?: Host;
+
+  /**
+   * A command to exit the host. Defaults to process.exit.
+   */
+  exit?: ExitFn;
+
   /**
    * Command line arguments.
    */
@@ -85,13 +100,19 @@ async function repl<H extends Host>({ executor, host }: Container<H>) {
  *
  * @param options Runtime options.
  */
-export async function main({ argv, env }: RuntimeOptions): Promise<void> {
-  const host: Host = new ConsoleHost();
+export async function main({
+  host: overriddenHost,
+  exit: overriddenExit,
+  argv,
+  env,
+}: RuntimeOptions): Promise<void> {
+  const host: Host = overriddenHost || new ConsoleHost();
+  const exit: ExitFn = overriddenExit || process.exit;
 
   let error: any = null;
 
   function errorExit(error: any): void {
-    process.exit(
+    exit(
       typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
     );
   }
@@ -135,7 +156,7 @@ export async function main({ argv, env }: RuntimeOptions): Promise<void> {
 
   // For consistency, explicitly exit instead of allowing Node to run the
   // command to completion.
-  process.exit(0);
+  exit(0);
 }
 
 /**

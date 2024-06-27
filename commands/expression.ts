@@ -5,7 +5,7 @@ import { CommandRunner, ReturnValue } from './base';
  * An interactive expression.
  *
  * Interactive expressions are evaluated in the runtime, but their value
- * is returned to the Commander so that it can inspect and print it.
+ * is returned to the Executor so that it can inspect and print it.
  */
 export default function expression(
   this: CommandRunner,

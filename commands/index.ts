@@ -1,14 +1,14 @@
-import { Commander } from '../commander';
+import { Executor } from '../executor';
 import { Value } from '../value';
 import { CommandRunner, ReturnValue, invalid, noop } from './base';
 import visitExpressionCmd from './expression';
 
 export function commandRunner(
-  commander: Commander,
+  executor: Executor,
   args: Value[],
 ): CommandRunner {
   return {
-    commander,
+    executor,
     args,
     visitExpressionCmd,
     visitPrintCmd: invalid('print'),

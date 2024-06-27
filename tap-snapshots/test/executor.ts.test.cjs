@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/commander.ts > TAP > when input is requested > input is received? > must match snapshot 1`] = `
+exports[`test/executor.ts > TAP > when input is requested > input is received? > must match snapshot 1`] = `
 Buffer <
   0000: 1b5b 3147 1b5b 304a 7768 6174 2069 7320  .[1G.[0Jwhat.is.
   0010: 796f 7572 2066 6176 6f72 6974 6520 636f  your.favorite.co
@@ -14,7 +14,7 @@ Buffer <
 >
 `
 
-exports[`test/commander.ts > TAP > when prompted for a command > it gets a command > must match snapshot 1`] = `
+exports[`test/executor.ts > TAP > when prompted for a command > it gets a command > must match snapshot 1`] = `
 Buffer <
   0000: 1b5b 3147 1b5b 304a 6a6f 7368 4067 6962  .[1G.[0Jjosh@gib
   0010: 736f 6e3a 7e2f 536f 6674 7761 7265 2f6a  son:~/Software/j

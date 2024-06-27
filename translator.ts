@@ -1,6 +1,6 @@
 import { getTracer } from './debug';
 import { Config } from './config';
-import { Commander } from './commander';
+import { Executor } from './executor';
 import { Exit } from './exit';
 import { Host } from './host';
 import { BaseException } from './exceptions';
@@ -11,29 +11,29 @@ const tracer = getTracer('main');
 export class Translator {
   constructor(
     private _config: Config,
-    private commander: Commander,
+    private executor: Executor,
     private host: Host,
   ) {}
 
   async script(filename: string) {
-    await this.commander.using(async () => {
+    await this.executor.using(async () => {
       await tracer.span('script', async () => {
-        await this.commander.load(filename);
-        await this.commander.run();
+        await this.executor.load(filename);
+        await this.executor.run();
       });
     });
   }
 
   async repl() {
-    await this.commander.using(async () => {
+    await this.executor.using(async () => {
       await tracer.span('repl', async () => {
         while (true) {
           try {
-            const input = await this.commander.prompt();
-            await this.commander.eval(input);
+            const input = await this.executor.prompt();
+            await this.executor.eval(input);
           } catch (err) {
-            // TODO: This sort of logic is duplicated in the commander.
-            // On that note, the logic in the commander is probably buggy.
+            // TODO: This sort of logic is duplicated in the executor.
+            // On that note, the logic in the executor is probably buggy.
             if (err instanceof BaseFault || err instanceof Exit) {
               throw err;
             }

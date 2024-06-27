@@ -1,5 +1,5 @@
 import { getTracer } from '../debug';
-import { Commander } from '../commander';
+import { Executor } from '../executor';
 import { errorType } from '../errors';
 import { RuntimeFault } from '../faults';
 import { Value } from '../value';
@@ -22,7 +22,7 @@ export type InteractiveCommand<C extends Cmd> = (
 ) => ReturnValue;
 
 export interface CommandRunner extends CmdVisitor<ReturnValue> {
-  commander: Commander;
+  executor: Executor;
   args: Value[];
 }
 
@@ -36,7 +36,7 @@ export class Invalid extends Error {
 
 /**
  * Create an invalid command. Invalid commands should never be executed
- * by the Commander, as they should be fully implemented in the runtime.
+ * by the Executor, as they should be fully implemented in the runtime.
  *
  * @param name The name of the invalid command.
  * @returns An interactive command that will immediately throw a RuntimeFault

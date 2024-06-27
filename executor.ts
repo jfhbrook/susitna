@@ -25,7 +25,7 @@ import { Input, Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
-export class Commander {
+export class Executor {
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -47,7 +47,7 @@ export class Commander {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    return await tracer.span('Commander.init', async () => {
+    return await tracer.span('Executor.init', async () => {
       // Ensure the commander's state is clean before initializing.
       await this.close();
 
@@ -90,7 +90,7 @@ export class Commander {
    * Close the commander.
    */
   async close(): Promise<void> {
-    return tracer.span('Commander.close', () => {
+    return tracer.span('Executor.close', () => {
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
@@ -146,7 +146,7 @@ export class Commander {
    * @returns A promise that resolves to the user input.
    */
   input(question: string): Promise<string> {
-    return tracer.span('Commander.input', () => {
+    return tracer.span('Executor.input', () => {
       return this.readline.question(`${question} > `);
     });
   }
@@ -158,7 +158,7 @@ export class Commander {
    * @returns A promise that resolves to the source line.
    */
   prompt(): Promise<string> {
-    return tracer.span('Commander.prompt', () => {
+    return tracer.span('Executor.prompt', () => {
       return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
     });
   }

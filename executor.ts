@@ -10,7 +10,6 @@ import { Config } from './config';
 import { Editor } from './editor';
 import {
   Exception,
-  Warning,
   ParseError,
   ParseWarning,
   mergeParseErrors,
@@ -165,6 +164,12 @@ export class Executor {
     return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
   }
 
+  /**
+   * Load a script into the editor.
+   *
+   * @param filename The file path to the script.
+   * @returns A promise.
+   */
   async load(filename: string): Promise<void> {
     // TODO: This readFile call should be moved into the host
     const source: string = await readFile(filename, 'utf8');
@@ -188,6 +193,11 @@ export class Executor {
     this.editor.warning = warning;
   }
 
+  /**
+   * Run the script in the editor.
+   *
+   * @returns A promise.
+   */
   async run(): Promise<void> {
     const program = this.editor.program;
     const parseWarning = this.editor.warning;
@@ -221,14 +231,16 @@ export class Executor {
     this.runtime.interpret(chunk);
   }
 
+  /**
+   * Evaluate input.
+   *
+   * @param input Source code to eval.
+   * @returns A promise.
+   */
   async eval(input: string): Promise<void> {
     const [result, warning] = parseInput(input);
 
     const splitWarning = splitParseError(warning, 'row');
-
-    if (warning instanceof Warning) {
-      this.host.writeWarn(warning);
-    }
 
     for (const row of result.input) {
       const warning = splitWarning[row.row];

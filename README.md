@@ -39,7 +39,7 @@ gaps.
     - [X] Bite off splitting warnings by row number
   - [X] Attach warnings to the editor
   - [X] Log warnings by entered rows
-  - [ ] Log warnings before compiling/executing
+  - [X] Log warnings before compiling/executing
   - [ ] reset entire program
   - [ ] does msx basic log anything when you enter a line?
   - [ ] editor tests

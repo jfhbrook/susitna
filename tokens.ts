@@ -161,7 +161,7 @@ export interface TokenOptions {
   /**
    * If applicable, the literal value corresponding to the token.
    */
-  value: Value | undefined;
+  value: Value | null;
 }
 
 export class Token implements Formattable {
@@ -171,7 +171,7 @@ export class Token implements Formattable {
   readonly offsetStart: number;
   readonly offsetEnd: number;
   readonly text: string;
-  readonly value: Value | undefined;
+  readonly value: Value | null;
 
   constructor(options: TokenOptions) {
     this.kind = options.kind;

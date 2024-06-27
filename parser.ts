@@ -166,26 +166,20 @@ class Parser {
   }
 
   private peek(): Token {
-    // tracer.trace(`peek (${this.current.kind})`);
     return this.current;
-  }
-
-  private peekPrev(): Token {
-    // tracer.trace(`prev (${this.previous.kind})`);
-    return this.previous;
   }
 
   private consume(kind: TokenKind, message: string): Token {
     return tracer.spanSync('consume', () => {
       tracer.trace('kind', kind);
-      if (this.check(kind)) return this.advance();
+      if (this.check(kind)) return this.advance() as Token;
       tracer.trace('failure:', message);
       const token: Token = this.peek();
       this.syntaxError(token, message);
     });
   }
 
-  private syntaxError(token: Token, message: string): void {
+  private syntaxError(token: Token, message: string): never {
     return tracer.spanSync('syntaxError', () => {
       tracer.trace('kind', token.kind);
       tracer.trace('message', message);
@@ -193,7 +187,7 @@ class Parser {
         filename: this.filename,
         row: token.row,
         isLine: this.isLine,
-        lineNo: this.lineNo,
+        lineNo: this.lineNo === null ? -1 : this.lineNo,
         offsetStart: token.offsetStart,
         offsetEnd: token.offsetEnd,
         source: '<unknown>',
@@ -212,7 +206,7 @@ class Parser {
         filename: this.filename,
         row: token.row,
         isLine: this.isLine,
-        lineNo: this.lineNo,
+        lineNo: this.lineNo === null ? -1 : this.lineNo,
         offsetStart: token.offsetStart,
         offsetEnd: token.offsetEnd,
         source: '<unknown>',
@@ -282,14 +276,14 @@ class Parser {
       if (this.lineNo !== null) {
         if (this.lineNo % 10) {
           this.syntaxWarning(
-            this.previous,
+            this.previous!,
             'Line numbers should be in factors of 10',
           );
         }
         if (this.isProgram && prevLineNo !== null) {
           if (this.lineNo <= prevLineNo) {
             this.syntaxWarning(
-              this.previous,
+              this.previous!,
               'Line numbers should be in order',
             );
           }
@@ -397,44 +391,36 @@ class Parser {
   }
 
   private command(): Cmd | null {
-    return tracer.spanSync('command', () => {
-      const { offsetStart } = this.peek();
+    const { offsetStart } = this.peek();
 
-      let cmd: Cmd | null;
+    let cmd: Cmd;
 
-      // Remarks are treated like commands - the scanner handles the fact
-      // that they include all text to the end of the line
-      if (this.match(TokenKind.Rem)) {
-        cmd = new Rem(this.previous.value as string);
-      } else if (this.match(TokenKind.Semicolon)) {
-        cmd = new Rem('');
-      } else if (this.match(TokenKind.Print)) {
-        cmd = this.print();
-        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-      } else if (this.match(TokenKind.Exit)) {
-        cmd = this.exit();
-      } else {
-        cmd = this.expressionStatement();
-      }
+    // Remarks are treated like commands - the scanner handles the fact
+    // that they include all text to the end of the line
+    if (this.match(TokenKind.Rem)) {
+      cmd = new Rem(this.previous!.value as string);
+    } else if (this.match(TokenKind.Semicolon)) {
+      cmd = new Rem('');
+    } else if (this.match(TokenKind.Print)) {
+      cmd = this.print();
+      // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+    } else if (this.match(TokenKind.Exit)) {
+      cmd = this.exit();
+    } else {
+      cmd = this.expressionStatement();
+    }
 
-      const { offsetEnd } = this.peekPrev();
+    const { offsetEnd } = this.previous!;
 
-      cmd.offsetStart = offsetStart;
-      cmd.offsetEnd = offsetEnd;
+    cmd.offsetStart = offsetStart;
+    cmd.offsetEnd = offsetEnd;
 
-      return cmd;
-    });
+    return cmd;
   }
 
   // TODO: What's the syntax of print? lol
-  private print(): Cmd | null {
-    return tracer.spanSync('print', () => {
-      const expr = this.expression();
-      if (expr) {
-        return new Print(expr);
-      }
-      return null;
-    });
+  private print(): Cmd {
+    return new Print(this.expression());
   }
 
   private exit(): Cmd {
@@ -483,7 +469,7 @@ class Parser {
     let expr: Expr = operand();
 
     while (this.match(...kinds)) {
-      const op = this.previous.kind;
+      const op = this.previous!.kind;
       const right = operand();
 
       expr = factory(expr, op, right);
@@ -515,13 +501,13 @@ class Parser {
       (left, op, right) => {
         if (op == TokenKind.Eq) {
           this.syntaxWarning(
-            this.previous,
+            this.previous!,
             'Use `==` instead of `==` for equality',
           );
           op = TokenKind.EqEq;
         } else if (op == TokenKind.BangEq) {
           this.syntaxWarning(
-            this.previous,
+            this.previous!,
             'Use `<>` instead of `!=` for equality',
           );
           op = TokenKind.Ne;
@@ -558,7 +544,7 @@ class Parser {
 
   private unary(): Expr {
     if (this.match(TokenKind.Not, TokenKind.Minus)) {
-      const op = this.previous.kind;
+      const op = this.previous!.kind;
       const right = this.unary();
 
       return new Unary(op, right);
@@ -567,49 +553,42 @@ class Parser {
     return this.primary();
   }
 
-  private primary(): Expr | null {
-    return tracer.spanSync('primary', () => {
-      if (
-        this.match(
-          TokenKind.DecimalLiteral,
-          TokenKind.HexLiteral,
-          TokenKind.OctalLiteral,
-          TokenKind.BinaryLiteral,
-        )
-      ) {
-        return new IntLiteral(this.previous.value as number);
-      } else if (this.match(TokenKind.RealLiteral)) {
-        return new RealLiteral(this.previous.value as number);
-      } else if (this.match(TokenKind.TrueLiteral)) {
-        return new BoolLiteral(true);
-      } else if (this.match(TokenKind.FalseLiteral)) {
-        return new BoolLiteral(false);
-      } else if (this.match(TokenKind.StringLiteral)) {
-        return this.string();
-      } else if (this.match(TokenKind.NilLiteral)) {
-        return new NilLiteral();
-      } else if (this.match(TokenKind.LParen)) {
-        return this.group();
-      } else {
-        const token = this.peek();
-        let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
+  private primary(): Expr {
+    if (
+      this.match(
+        TokenKind.DecimalLiteral,
+        TokenKind.HexLiteral,
+        TokenKind.OctalLiteral,
+        TokenKind.BinaryLiteral,
+      )
+    ) {
+      return new IntLiteral(this.previous!.value as number);
+    } else if (this.match(TokenKind.RealLiteral)) {
+      return new RealLiteral(this.previous!.value as number);
+    } else if (this.match(TokenKind.TrueLiteral)) {
+      return new BoolLiteral(true);
+    } else if (this.match(TokenKind.FalseLiteral)) {
+      return new BoolLiteral(false);
+    } else if (this.match(TokenKind.StringLiteral)) {
+      return this.string();
+    } else if (this.match(TokenKind.NilLiteral)) {
+      return new NilLiteral();
+    } else if (this.match(TokenKind.LParen)) {
+      return this.group();
+    } else {
+      const token = this.peek();
+      let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
 
-        if (token.kind == TokenKind.UnterminatedStringLiteral) {
-          msg = `Unterminated string ${token.text}`;
-        }
-
-        this.syntaxError(token, msg);
-        this.syncNextCommand();
-        return null;
+      if (token.kind == TokenKind.UnterminatedStringLiteral) {
+        msg = `Unterminated string ${token.text}`;
       }
-    });
+
+      this.syntaxError(token, msg);
+    }
   }
 
-  private group(): Expr | null {
-    const expr = this.expression();
-    if (!expr) {
-      return null;
-    }
+  private group(): Expr {
+    const expr: Expr = this.expression();
     this.consume(TokenKind.RParen, 'Expected `)` after expression');
     return new Group(expr);
   }
@@ -624,8 +603,8 @@ class Parser {
 
   private parseStringEscapeCodes(isPrompt: boolean): string {
     const warnings: SyntaxWarning[] = [];
-    const text = this.previous.text;
-    const input = this.previous.value as string;
+    const text = this.previous!.text;
+    const input = this.previous!.value as string;
     let value: string = '';
 
     // Skip the first quote character
@@ -688,13 +667,13 @@ class Parser {
             break;
           default:
             // We advanced twice, for the \\ and the character respectively
-            const offset = this.previous.offsetStart + i - 2;
+            const offset = this.previous!.offsetStart + i - 2;
             warnings.push(
               new SyntaxWarning(`Invalid escape sequence \`\\${e}\``, {
                 filename: this.filename,
                 row: this.current.row,
                 isLine: this.isLine,
-                lineNo: this.lineNo,
+                lineNo: this.lineNo === null ? -1 : this.lineNo,
                 offsetStart: offset,
                 offsetEnd: offset + 2,
                 source: '<unknown>',

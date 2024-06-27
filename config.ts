@@ -94,9 +94,9 @@ export class Config {
    * @param env Environment variables. In practice, this is `process.env`.
    */
   static load(argv: typeof process.argv, env: typeof process.env) {
-    let command = null;
-    let eval_ = null;
-    let script = null;
+    let command: string | null = null;
+    let eval_: string | null = null;
+    let script: string | null = null;
     let level = Level.Info;
     const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
@@ -114,29 +114,39 @@ export class Config {
         case '-c':
         case '--command':
           args.shift();
-          command = args.shift();
+          if (!args.length) {
+            throw usage('no command provided');
+          }
+          command = args.shift() as string;
           break;
         case '-e':
         case '--eval':
           args.shift();
-          eval_ = args.shift();
+          if (!args.length) {
+            throw usage('No source to eval provided');
+          }
+          eval_ = args.shift() as string;
           break;
         case '--log-level':
           args.shift();
-          level = parseLevel(args.shift());
+          if (!args.length) {
+            throw usage('No log level provided');
+          }
+          level = parseLevel(args.shift() as string);
           break;
         case '-v':
         case '--version':
           throw version();
         default:
           if (!script && !args[0].startsWith('-')) {
-            script = args.shift();
-            scriptArgv.push(script);
+            const scr = args.shift() as string;
+            script = scr;
+            scriptArgv.push(scr);
             break;
           }
 
           if (script || command || eval_) {
-            scriptArgv.push(args.shift());
+            scriptArgv.push(args.shift() as string);
             break;
           }
 

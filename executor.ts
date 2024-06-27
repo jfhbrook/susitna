@@ -1,3 +1,4 @@
+import * as assert from 'assert';
 import { readFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
@@ -20,6 +21,7 @@ import { Host } from './host';
 import { parseInput, parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
+import { Value } from './value';
 
 import { Line, CommandGroup, Program } from './ast';
 
@@ -94,8 +96,9 @@ export class Executor {
     let p: Promise<void> = Promise.resolve();
 
     if (this._readline) {
+      const rl = this._readline;
       p = new Promise((resolve, _reject) => {
-        this._readline.once('close', () => {
+        rl.once('close', () => {
           tracer.close();
           resolve();
         });
@@ -297,7 +300,12 @@ export class Executor {
   //
   private runCompiledCommand([cmd, chunks]: CompiledCmd): ReturnValue {
     // Interpret any chunks.
-    const args = chunks.map((c) => this.runtime.interpret(c));
+    const args = chunks.map((c): Value => {
+      const rv: Value | null = this.runtime.interpret(c);
+      // Expression statements should not evaluate to null.
+      assert.ok(rv);
+      return rv as Value;
+    });
 
     if (cmd) {
       // Run an interactive command.

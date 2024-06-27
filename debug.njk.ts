@@ -239,6 +239,8 @@ export class DebugTracer implements Tracer {
       }
       multiLinePrefix = prefix + spanColor(this.spans - 1, '|  ');
       prefix += spanColor(this.spans - 1, '|- ');
+    } else {
+      multiLinePrefix = prefix;
     }
 
     let msg: string[];
@@ -268,7 +270,7 @@ export class DebugTracer implements Tracer {
 
   destroy(): void {
     if (TRACERS[this.name] && this.name !== 'main') {
-      TRACERS[this.name] = undefined;
+      delete TRACERS[this.name];
     }
   }
 }

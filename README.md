@@ -41,6 +41,9 @@ gaps.
   - [ ] solve "cmdNo" issue
     - should this be in the translator?
     - should this involve a persistent parser?
+  - [ ] solve contradiction between running program vs input
+    - editor insertion should probably happen in the commander
+    - this may call for an ADR
   - [ ] reset entire program
   - [ ] editor tests
   - Commands

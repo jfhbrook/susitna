@@ -45,9 +45,18 @@ export class Editor {
   /**
    * Reset the editor.
    */
-  reset() {
+  reset(): void {
     this.program = new Program('untitled.bas', []);
     this.warning = null;
+  }
+
+  /**
+   * List the current program.
+   *
+   * @returns The source code for the program.
+   */
+  list(): string {
+    return this.program.lines.map((l) => l.source).join('\n');
   }
 
   // A binary search to find the index containing a lineNo. If there's no

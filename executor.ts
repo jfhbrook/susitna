@@ -1,6 +1,5 @@
 import { readFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
-import { inspect } from 'util';
 
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
@@ -230,8 +229,7 @@ export class Executor {
     if (this.editor.warning) {
       this.host.writeWarn(this.editor.warning);
     }
-    // TODO: Use recreator.
-    const listings = inspect(this.editor.program.lines);
+    const listings = this.editor.list();
     this.host.writeLine(listings);
   }
 

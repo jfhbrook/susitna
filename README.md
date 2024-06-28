@@ -44,6 +44,7 @@ gaps.
   - [X] does msx basic log anything when you enter a line?
   - [X] executor methods for new commands
   - [X] Interactive commands
+  - [ ] Runtime fault in load for invalid filename
   - [ ] editor tests
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`

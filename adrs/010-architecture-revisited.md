@@ -23,7 +23,9 @@ the editor, and passing parsed ASTs to the Commander. The commander,
 meanwhile, is in charge of both compiling and executing runtime commands,
 *and* directly executing non-runtime interactive commands (such as editing).
 The editor is referenced by both the Translator and the Commander - the
-former writes to it, and the latter reads from it.
+former writes to it, and the latter reads from it. Finally, the initial
+architecture called for a "recreator", which would take parsed ASTs and
+convert them back to source code.
 
 ## Decision
 
@@ -101,19 +103,32 @@ the baggage of a REPL.
 
 ### The Interactive Compiler
 
-Finally, the compiler module was refactored to handle both interactive and
-runtime commands, and return different results accordingly. Without this
-change, the Commander had to separate commands within input and implement
-switching logic internally. This sounds like a minor issue. Tut it created
-challenges when trying to report compiler warning all at once, rather than
-piecemeal as commands were executed. This change allows all compilation and
-warning collection to occur in a single pass.
+The compiler module was refactored to handle both interactive and runtime
+commands, and return different results accordingly. Without this change, the
+Commander had to separate commands within input and implement switching logic
+internally. This sounds like a minor issue. The it created challenges when
+trying to report compiler warning all at once, rather than piecemeal as
+commands were executed. This change allows all compilation and warning
+collection to occur in a single pass.
 
 It's also motivated by yet another visitor. The runtime compiler uses a
 visitor to convert commands into Chunks, while the interactive compiler
 decides whether or not a command is interactive or not. This is distinct from
 the visitor that takes an already-known interactive command and decides how
 to execute it.
+
+### The Recreator
+
+Finally, the recreator was removed from the architecture. This is because,
+as the AST evolved, it ended up retaining the full source code for each
+line. This was motivated by good error messages - when an error is found
+during parsing or compiling, error messages are able to take both the original
+source and offsets to display exactly where the error was located.
+
+Given that parsed lines retain their original source, the recreator was no
+longer required - hence, removed. Something *like* the recreator may end up
+being implemented in the future - however, it would operate less as a
+requirement for generating listings, and more as a code formatter.
 
 ## Future Concerns
 

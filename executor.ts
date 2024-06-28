@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
 import { getTracer } from './debug';
@@ -217,7 +217,9 @@ export class Executor {
     if (filename) {
       this.editor.filename = filename;
     }
-    console.log('TODO: Save program');
+
+    // TODO: This writeFile call should be moved into the host
+    writeFile(this.editor.filename, this.editor.list() + '\n', 'utf8');
   }
 
   /**

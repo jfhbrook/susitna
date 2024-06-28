@@ -4,6 +4,7 @@ import {
   removeFromParseError,
 } from './exceptions';
 import { Line, Program } from './ast';
+import { Rem } from './ast/cmd';
 
 interface Index {
   i: number;
@@ -56,7 +57,18 @@ export class Editor {
    * @returns The source code for the program.
    */
   list(): string {
-    return this.program.lines.map((l) => l.source).join('\n');
+    return this.program.lines
+      .map((l) => {
+        if (
+          l.commands.length === 1 &&
+          l.commands[0] instanceof Rem &&
+          l.commands[0].remark === ''
+        ) {
+          return `${l.lineNo}`;
+        }
+        return l.source;
+      })
+      .join('\n');
   }
 
   // A binary search to find the index containing a lineNo. If there's no

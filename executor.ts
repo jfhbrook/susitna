@@ -285,9 +285,11 @@ export class Executor {
     const splitWarning = splitParseError(warning, 'row');
 
     for (const row of result.input) {
-      const warning = splitWarning[row.row];
+      const warning = splitWarning[row.row] || null;
       if (row instanceof Line) {
-        this.host.writeWarn(warning);
+        if (warning) {
+          this.host.writeWarn(warning);
+        }
         this.editor.setLine(row, warning);
       } else {
         await this.evalParsedCommands([row, warning]);

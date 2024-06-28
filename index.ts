@@ -29,7 +29,7 @@ export type Env = typeof process.env;
 /**
  * Exit the command.
  */
-export type ExitFn = typeof process.exit;
+export type ExitFn = ((exitCode: number) => void) | typeof process.exit;
 
 /**
  * Options for running a CLI.

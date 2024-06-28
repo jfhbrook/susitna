@@ -7,7 +7,7 @@ import { MockConsoleHost } from './host';
 
 export const EXAMPLES = readdirSync(join(__dirname, '../../examples'))
   .filter((entry) => entry.endsWith('.bas'))
-  .map((entry) => resolve(join(__dirname, '../../examples', entry)));
+  .map((entry) => [entry, resolve(join(__dirname, '../../examples', entry))]);
 
 export interface RunResult {
   exitCode: ExitCode;

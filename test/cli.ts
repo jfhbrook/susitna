@@ -1,14 +1,20 @@
-import { basename } from 'path';
-
 import t from 'tap';
 import { Test } from 'tap';
 
 import { run, EXAMPLES } from './helpers/cli';
 
+const TEST_CASES = EXAMPLES.map(([name, path]) => {
+  switch (name) {
+    // TODO: Some scripts will need mocked input
+    default:
+      return [name, path];
+  }
+});
+
 t.test('examples', async (t: Test) => {
-  for (const example of EXAMPLES) {
-    await t.test(basename(example), async (t: Test) => {
-      const { exitCode, host } = await run([example], process.env);
+  for (const [name, path] of TEST_CASES) {
+    await t.test(name, async (t: Test) => {
+      const { exitCode, host } = await run([path], process.env);
       t.matchSnapshot({
         exitCode,
         stdout: host.outputStream.output,

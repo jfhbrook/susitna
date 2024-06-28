@@ -44,8 +44,6 @@ gaps.
   - [X] does msx basic log anything when you enter a line?
   - [X] executor methods for new commands
   - [X] Interactive commands
-  - [ ] Support ',R' flag in load command
-    - or `--run` ? lol
   - [ ] editor tests
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`
@@ -53,10 +51,11 @@ gaps.
     - but you need the helpers, practically speaking, to make sure a trace
       always gets closed
   - "main" tracing actually not useful
+- "Expect" tests for the REPL and script input
+  - Including generated "exceedingly large" tests
 - Remove 'peek' from parser (use this.current)
-- citree issues
-  - parser has problems with Thing! in the middle
-  - handle optional semicolons
+- flags
+  - `--run` flag for `load`
 - add `env` support to `exercise-bike`
 - attach cmdNo to AST somehow
 - recreator
@@ -103,8 +102,6 @@ gaps.
   - (Language support can come later)
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
-- "Expect" tests for the REPL and script input
-  - Including generated "exceedingly large" tests
 - Type-checking compiler
   - Implement type analogues to operations
   - Simulated stack in the compiler

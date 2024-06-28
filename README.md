@@ -30,11 +30,9 @@ gaps.
 
 ### Prioritized Backlog
 
-- "Expect" tests for the REPL and script input
-  - Including generated "exceedingly large" tests
+- attach cmdNo to AST somehow
 - flags
   - `--run` flag for `load`
-- attach cmdNo to AST somehow
 - Global variables
 - If/else
 - For and while
@@ -116,6 +114,7 @@ gaps.
   - Benchmarks
   - Profile slow benchmarks
 - Editor plugins
+- Generated "exceedingly large" script tests
 
 ### The Future
 

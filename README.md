@@ -30,15 +30,10 @@ gaps.
 
 ### Prioritized Backlog
 
-- [X] Write ADR about architectural changes from 002
-- [X] Editing and running
-- [X] tracing, again
 - "Expect" tests for the REPL and script input
   - Including generated "exceedingly large" tests
-- [X] Remove 'peek' from parser (use this.current)
 - flags
   - `--run` flag for `load`
-- add `env` support to `exercise-bike`
 - attach cmdNo to AST somehow
 - Global variables
 - If/else

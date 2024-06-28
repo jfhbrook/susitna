@@ -107,26 +107,23 @@ class Parser {
    */
   @runtimeMethod
   public parseProgram(): ParseResult<Program> {
-    return tracer.spanSync('parseProgram', () => {
-      this.isProgram = true;
+    this.isProgram = true;
 
-      const result = this.rows();
-      sortLines(result as Line[]);
-      const program = new Program(this.filename, result as Line[]);
+    const result = this.rows();
+    sortLines(result as Line[]);
+    const program = new Program(this.filename, result as Line[]);
 
-      if (this.isError) {
-        throw new ParseError(this.errors);
-      } else if (this.isWarning) {
-        const warnings = this.errors as unknown as SyntaxWarning[];
-        return [program, new ParseWarning(warnings)];
-      }
+    if (this.isError) {
+      throw new ParseError(this.errors);
+    } else if (this.isWarning) {
+      const warnings = this.errors as unknown as SyntaxWarning[];
+      return [program, new ParseWarning(warnings)];
+    }
 
-      return [program, null];
-    });
+    return [program, null];
   }
 
   private match(...kinds: TokenKind[]): boolean {
-    tracer.trace(`match ${kinds.join(' ')}`);
     for (const kind of kinds) {
       if (this.check(kind)) {
         this.advance();
@@ -138,7 +135,6 @@ class Parser {
   }
 
   private check(kind: TokenKind): boolean {
-    tracer.trace(`check ${kind}`);
     if (this.done) {
       return kind === TokenKind.Eof;
     }
@@ -146,34 +142,29 @@ class Parser {
   }
 
   private advance(): Token | null {
-    return tracer.spanSync('advance', () => {
-      if (this.current.kind !== TokenKind.Whitespace) {
-        this.previous = this.current;
-      }
-      this.current = this.scanner.nextToken();
+    if (this.current.kind !== TokenKind.Whitespace) {
+      this.previous = this.current;
+    }
+    this.current = this.scanner.nextToken();
 
-      this.line += this.current.text;
+    this.line += this.current.text;
 
-      if (this.current.kind === TokenKind.Whitespace) {
-        return this.advance();
-      }
+    if (this.current.kind === TokenKind.Whitespace) {
+      return this.advance();
+    }
 
-      if (this.current.kind === TokenKind.Illegal) {
-        this.syntaxError(this.current, `Illegal token ${this.current.text}`);
-      }
+    if (this.current.kind === TokenKind.Illegal) {
+      this.syntaxError(this.current, `Illegal token ${this.current.text}`);
+    }
 
-      tracer.trace('previous', this.previous ? this.previous.text : null);
-      tracer.trace('current', this.current ? this.current.text : null);
-      tracer.trace('line', this.line);
+    tracer.trace('previous', this.previous ? this.previous.text : null);
+    tracer.trace('current', this.current ? this.current.text : null);
 
-      return this.previous;
-    });
+    return this.previous;
   }
 
   private get done(): boolean {
-    return tracer.spanSync('done?', () => {
-      return this.peek().kind == TokenKind.Eof;
-    });
+    return this.peek().kind == TokenKind.Eof;
   }
 
   private peek(): Token {
@@ -181,50 +172,40 @@ class Parser {
   }
 
   private consume(kind: TokenKind, message: string): Token {
-    return tracer.spanSync('consume', () => {
-      tracer.trace('kind', kind);
-      if (this.check(kind)) return this.advance() as Token;
-      tracer.trace('failure:', message);
-      const token: Token = this.peek();
-      this.syntaxError(token, message);
-    });
+    if (this.check(kind)) return this.advance() as Token;
+    const token: Token = this.peek();
+    this.syntaxError(token, message);
   }
 
   private syntaxError(token: Token, message: string): never {
-    return tracer.spanSync('syntaxError', () => {
-      tracer.trace('kind', token.kind);
-      tracer.trace('message', message);
-      const exc = new SyntaxError(message, {
-        filename: this.filename,
-        row: token.row,
-        isLine: this.isLine,
-        lineNo: this.lineNo === null ? -1 : this.lineNo,
-        offsetStart: token.offsetStart,
-        offsetEnd: token.offsetEnd,
-        source: '<unknown>',
-      });
-      this.isError = true;
-      this.lineErrors.push(exc);
-      throw new Synchronize();
+    tracer.trace('kind', token.kind);
+    tracer.trace('message', message);
+    const exc = new SyntaxError(message, {
+      filename: this.filename,
+      row: token.row,
+      isLine: this.isLine,
+      lineNo: this.lineNo === null ? -1 : this.lineNo,
+      offsetStart: token.offsetStart,
+      offsetEnd: token.offsetEnd,
+      source: '<unknown>',
     });
+    this.isError = true;
+    this.lineErrors.push(exc);
+    throw new Synchronize();
   }
 
   private syntaxWarning(token: Token, message: string): void {
-    return tracer.spanSync('syntaxWarning', () => {
-      tracer.trace('kind', token.kind);
-      tracer.trace('message', message);
-      const exc = new SyntaxWarning(message, {
-        filename: this.filename,
-        row: token.row,
-        isLine: this.isLine,
-        lineNo: this.lineNo === null ? -1 : this.lineNo,
-        offsetStart: token.offsetStart,
-        offsetEnd: token.offsetEnd,
-        source: '<unknown>',
-      });
-      this.isWarning = true;
-      this.lineErrors.push(exc);
+    const exc = new SyntaxWarning(message, {
+      filename: this.filename,
+      row: token.row,
+      isLine: this.isLine,
+      lineNo: this.lineNo === null ? -1 : this.lineNo,
+      offsetStart: token.offsetStart,
+      offsetEnd: token.offsetEnd,
+      source: '<unknown>',
     });
+    this.isWarning = true;
+    this.lineErrors.push(exc);
   }
 
   private rows(): Row[] {
@@ -232,7 +213,6 @@ class Parser {
       const rows: Row[] = [];
       while (!this.done) {
         const parsed = this.row();
-        tracer.trace('parsed row', parsed);
         if (parsed) {
           rows.push(parsed);
         }
@@ -243,9 +223,6 @@ class Parser {
 
   private row(): Row | null {
     return tracer.spanSync('row', () => {
-      tracer.trace('previous', this.previous);
-      tracer.trace('current', this.current);
-
       const rowNo = this.peek().row;
 
       let cmds: Cmd[];
@@ -372,8 +349,6 @@ class Parser {
 
   private commands(): Cmd[] {
     return tracer.spanSync('commands', () => {
-      tracer.trace('previous', this.previous);
-      tracer.trace('current', this.current);
       if (this.done || this.peek().kind === TokenKind.LineEnding) {
         return [];
       }
@@ -402,79 +377,97 @@ class Parser {
   }
 
   private command(): Cmd | null {
-    const { offsetStart } = this.peek();
+    return tracer.spanSync('command', () => {
+      const { offsetStart } = this.peek();
 
-    let cmd: Cmd;
+      let cmd: Cmd;
 
-    // Remarks are treated like commands - the scanner handles the fact
-    // that they include all text to the end of the line
-    if (this.match(TokenKind.Rem)) {
-      cmd = new Rem(this.previous!.value as string);
-    } else if (this.match(TokenKind.Semicolon)) {
-      cmd = new Rem('');
-    } else if (this.match(TokenKind.Print)) {
-      cmd = this.print();
-      // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-    } else if (this.match(TokenKind.Exit)) {
-      cmd = this.exit();
-    } else if (this.match(TokenKind.New)) {
-      cmd = this.new();
-    } else if (this.match(TokenKind.Load)) {
-      cmd = this.load();
-    } else if (this.match(TokenKind.List)) {
-      cmd = this.list();
-    } else if (this.match(TokenKind.Save)) {
-      cmd = this.save();
-    } else if (this.match(TokenKind.Run)) {
-      cmd = this.run();
-    } else {
-      cmd = this.expressionStatement();
-    }
+      // Remarks are treated like commands - the scanner handles the fact
+      // that they include all text to the end of the line
+      if (this.match(TokenKind.Rem)) {
+        cmd = new Rem(this.previous!.value as string);
+      } else if (this.match(TokenKind.Semicolon)) {
+        cmd = new Rem('');
+      } else if (this.match(TokenKind.Print)) {
+        cmd = this.print();
+        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+      } else if (this.match(TokenKind.Exit)) {
+        cmd = this.exit();
+      } else if (this.match(TokenKind.New)) {
+        cmd = this.new();
+      } else if (this.match(TokenKind.Load)) {
+        cmd = this.load();
+      } else if (this.match(TokenKind.List)) {
+        cmd = this.list();
+      } else if (this.match(TokenKind.Save)) {
+        cmd = this.save();
+      } else if (this.match(TokenKind.Run)) {
+        cmd = this.run();
+      } else {
+        cmd = this.expressionStatement();
+      }
 
-    const { offsetEnd } = this.previous!;
+      const { offsetEnd } = this.previous!;
 
-    cmd.offsetStart = offsetStart;
-    cmd.offsetEnd = offsetEnd;
+      cmd.offsetStart = offsetStart;
+      cmd.offsetEnd = offsetEnd;
 
-    return cmd;
+      return cmd;
+    });
   }
 
   // TODO: What's the syntax of print? lol
   private print(): Cmd {
-    return new Print(this.expression());
+    return tracer.spanSync('print', () => {
+      return new Print(this.expression());
+    });
   }
 
   private exit(): Cmd {
-    const expr = this.optionalExpression();
-    if (expr) {
-      return new Exit(expr);
-    }
-    return new Exit(null);
+    return tracer.spanSync('exit', () => {
+      const expr = this.optionalExpression();
+      if (expr) {
+        return new Exit(expr);
+      }
+      return new Exit(null);
+    });
   }
 
   private new(): Cmd {
-    return new New(this.optionalExpression());
+    return tracer.spanSync('new', () => {
+      return new New(this.optionalExpression());
+    });
   }
 
   private load(): Cmd {
-    // TODO: Support optional 'run' flag
-    return new Load(this.expression(), false);
+    return tracer.spanSync('load', () => {
+      // TODO: Support optional 'run' flag
+      return new Load(this.expression(), false);
+    });
   }
 
   private list(): Cmd {
-    return new List();
+    return tracer.spanSync('list', () => {
+      return new List();
+    });
   }
 
   private save(): Cmd {
-    return new Save(this.optionalExpression());
+    return tracer.spanSync('save', () => {
+      return new Save(this.optionalExpression());
+    });
   }
 
   private run(): Cmd {
-    return new Run();
+    return tracer.spanSync('run', () => {
+      return new Run();
+    });
   }
 
   private expressionStatement(): Cmd {
-    return new Expression(this.expression());
+    return tracer.spanSync('expressionStatement', () => {
+      return new Expression(this.expression());
+    });
   }
 
   private optionalExpression(): Expr | null {
@@ -517,126 +510,148 @@ class Parser {
   }
 
   private or(): Expr {
-    return this.operator(
-      [TokenKind.Or],
-      this.and.bind(this),
-      (l, o, r) => new Logical(l, o, r),
-    );
+    return tracer.spanSync('or', () => {
+      return this.operator(
+        [TokenKind.Or],
+        this.and.bind(this),
+        (l, o, r) => new Logical(l, o, r),
+      );
+    });
   }
 
   private and(): Expr {
-    return this.operator(
-      [TokenKind.And],
-      this.equality.bind(this),
-      (l, o, r) => new Logical(l, o, r),
-    );
+    return tracer.spanSync('and', () => {
+      return this.operator(
+        [TokenKind.And],
+        this.equality.bind(this),
+        (l, o, r) => new Logical(l, o, r),
+      );
+    });
   }
 
   private equality(): Expr {
-    return this.operator(
-      [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
-      this.comparison.bind(this),
-      (left, op, right) => {
-        if (op == TokenKind.Eq) {
-          this.syntaxWarning(
-            this.previous!,
-            'Use `==` instead of `==` for equality',
-          );
-          op = TokenKind.EqEq;
-        } else if (op == TokenKind.BangEq) {
-          this.syntaxWarning(
-            this.previous!,
-            'Use `<>` instead of `!=` for equality',
-          );
-          op = TokenKind.Ne;
-        }
+    return tracer.spanSync('equality', () => {
+      return this.operator(
+        [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
+        this.comparison.bind(this),
+        (left, op, right) => {
+          if (op == TokenKind.Eq) {
+            this.syntaxWarning(
+              this.previous!,
+              'Use `==` instead of `==` for equality',
+            );
+            op = TokenKind.EqEq;
+          } else if (op == TokenKind.BangEq) {
+            this.syntaxWarning(
+              this.previous!,
+              'Use `<>` instead of `!=` for equality',
+            );
+            op = TokenKind.Ne;
+          }
 
-        return new Binary(left, op, right);
-      },
-    );
+          return new Binary(left, op, right);
+        },
+      );
+    });
   }
 
   private comparison(): Expr {
-    return this.operator(
-      [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
-      this.term.bind(this),
-      (l, o, r) => new Binary(l, o, r),
-    );
+    return tracer.spanSync('comparison', () => {
+      return this.operator(
+        [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
+        this.term.bind(this),
+        (l, o, r) => new Binary(l, o, r),
+      );
+    });
   }
 
   private term(): Expr {
-    return this.operator(
-      [TokenKind.Minus, TokenKind.Plus],
-      this.factor.bind(this),
-      (l, o, r) => new Binary(l, o, r),
-    );
+    return tracer.spanSync('term', () => {
+      return this.operator(
+        [TokenKind.Minus, TokenKind.Plus],
+        this.factor.bind(this),
+        (l, o, r) => new Binary(l, o, r),
+      );
+    });
   }
 
   private factor(): Expr {
-    return this.operator(
-      [TokenKind.Slash, TokenKind.Star],
-      this.unary.bind(this),
-      (l, o, r) => new Binary(l, o, r),
-    );
+    return tracer.spanSync('factor', () => {
+      return this.operator(
+        [TokenKind.Slash, TokenKind.Star],
+        this.unary.bind(this),
+        (l, o, r) => new Binary(l, o, r),
+      );
+    });
   }
 
   private unary(): Expr {
-    if (this.match(TokenKind.Not, TokenKind.Minus)) {
-      const op = this.previous!.kind;
-      const right = this.unary();
+    return tracer.spanSync('unary', () => {
+      if (this.match(TokenKind.Not, TokenKind.Minus)) {
+        const op = this.previous!.kind;
+        const right = this.unary();
 
-      return new Unary(op, right);
-    }
+        return new Unary(op, right);
+      }
 
-    return this.primary();
+      return this.primary();
+    });
   }
 
   private primary(): Expr {
-    if (
-      this.match(
-        TokenKind.DecimalLiteral,
-        TokenKind.HexLiteral,
-        TokenKind.OctalLiteral,
-        TokenKind.BinaryLiteral,
-      )
-    ) {
-      return new IntLiteral(this.previous!.value as number);
-    } else if (this.match(TokenKind.RealLiteral)) {
-      return new RealLiteral(this.previous!.value as number);
-    } else if (this.match(TokenKind.TrueLiteral)) {
-      return new BoolLiteral(true);
-    } else if (this.match(TokenKind.FalseLiteral)) {
-      return new BoolLiteral(false);
-    } else if (this.match(TokenKind.StringLiteral)) {
-      return this.string();
-    } else if (this.match(TokenKind.NilLiteral)) {
-      return new NilLiteral();
-    } else if (this.match(TokenKind.LParen)) {
-      return this.group();
-    } else {
-      const token = this.peek();
-      let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
+    return tracer.spanSync('primary', () => {
+      if (
+        this.match(
+          TokenKind.DecimalLiteral,
+          TokenKind.HexLiteral,
+          TokenKind.OctalLiteral,
+          TokenKind.BinaryLiteral,
+        )
+      ) {
+        return new IntLiteral(this.previous!.value as number);
+      } else if (this.match(TokenKind.RealLiteral)) {
+        return new RealLiteral(this.previous!.value as number);
+      } else if (this.match(TokenKind.TrueLiteral)) {
+        return new BoolLiteral(true);
+      } else if (this.match(TokenKind.FalseLiteral)) {
+        return new BoolLiteral(false);
+      } else if (this.match(TokenKind.StringLiteral)) {
+        return this.string();
+      } else if (this.match(TokenKind.NilLiteral)) {
+        return new NilLiteral();
+      } else if (this.match(TokenKind.LParen)) {
+        return this.group();
+      } else {
+        const token = this.peek();
+        let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
 
-      if (token.kind == TokenKind.UnterminatedStringLiteral) {
-        msg = `Unterminated string ${token.text}`;
+        if (token.kind == TokenKind.UnterminatedStringLiteral) {
+          msg = `Unterminated string ${token.text}`;
+        }
+
+        this.syntaxError(token, msg);
       }
-
-      this.syntaxError(token, msg);
-    }
+    });
   }
 
   private group(): Expr {
-    const expr: Expr = this.expression();
-    this.consume(TokenKind.RParen, 'Expected `)` after expression');
-    return new Group(expr);
+    return tracer.spanSync('group', () => {
+      const expr: Expr = this.expression();
+      this.consume(TokenKind.RParen, 'Expected `)` after expression');
+      return new Group(expr);
+    });
   }
 
   private string(): StringLiteral {
-    return new StringLiteral(this.parseStringEscapeCodes(false));
+    return tracer.spanSync('string', () => {
+      return new StringLiteral(this.parseStringEscapeCodes(false));
+    });
   }
 
   private prompt(): PromptLiteral {
-    return new PromptLiteral(this.parseStringEscapeCodes(true));
+    return tracer.spanSync('prompt', () => {
+      return new PromptLiteral(this.parseStringEscapeCodes(true));
+    });
   }
 
   private parseStringEscapeCodes(isPrompt: boolean): string {

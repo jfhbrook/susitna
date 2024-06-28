@@ -150,86 +150,77 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   // program that includes loops.
 
   private match(...types: (typeof Cmd)[]): boolean {
-    return tracer.spanSync('match', () => {
-      for (const type of types) {
-        if (this.check(type)) {
-          this.advance();
-          return true;
-        }
+    for (const type of types) {
+      if (this.check(type)) {
+        this.advance();
+        return true;
       }
-      return false;
-    });
+    }
+    return false;
   }
 
   private check(type: typeof Cmd): boolean {
-    return tracer.spanSync('check', () => {
-      if (this.done) return false;
-      return this.peek() instanceof type;
-    });
+    if (this.done) return false;
+    return this.peek() instanceof type;
   }
 
   private advance(): Cmd | null {
-    return tracer.spanSync('advance', () => {
-      if (this.done) {
-        tracer.trace('already done, returning null');
-        return null;
-      }
-      this.currentCmdNo++;
-      if (this.currentCmdNo >= this.lines[this.currentLine].commands.length) {
-        this.currentLine++;
-        this.currentCmdNo = 0;
-      }
-      tracer.trace(`current line: ${this.lineNo}`);
-      tracer.trace(`current row: ${this.rowNo}`);
-      tracer.trace(`current cmd: ${this.currentCmdNo}`);
-      if (this.done) {
-        tracer.trace('done after advancing, returning null');
-        return null;
-      }
-      return this.peek();
-    });
+    if (this.done) {
+      return null;
+    }
+    this.currentCmdNo++;
+    if (this.currentCmdNo >= this.lines[this.currentLine].commands.length) {
+      this.currentLine++;
+      this.currentCmdNo = 0;
+    }
+    tracer.trace(`current line: ${this.lineNo}`);
+    tracer.trace(`current row: ${this.rowNo}`);
+    tracer.trace(`current cmd: ${this.currentCmdNo}`);
+    if (this.done) {
+      return null;
+    }
+    return this.peek();
   }
 
   private get done(): boolean {
-    return tracer.spanSync('done?', () => {
-      if (this.currentLine >= this.lines.length) {
-        tracer.trace('done!');
-        return true;
-      } else {
-        tracer.trace('not done');
-        return false;
-      }
-    });
+    if (this.currentLine >= this.lines.length) {
+      tracer.trace('done!');
+      return true;
+    } else {
+      tracer.trace('not done');
+      return false;
+    }
   }
 
   private peek(): Cmd | null {
-    return tracer.spanSync('peek', () => {
-      if (this.done) {
-        return null;
-      }
-      return this.lines[this.currentLine].commands[this.currentCmdNo];
-    });
+    if (this.done) {
+      return null;
+    }
+    return this.lines[this.currentLine].commands[this.currentCmdNo];
   }
 
   private syntaxError(cmd: Cmd, message: string): never {
-    return tracer.spanSync('syntaxError', () => {
-      const exc = new SyntaxError(message, {
-        filename: this.filename,
-        row: this.rowNo,
-        isLine: true,
-        lineNo: this.lineNo,
-        offsetStart: cmd.offsetStart,
-        offsetEnd: cmd.offsetEnd,
-        source: this.lineSource,
-      });
-      this.isError = true;
-      this.errors.push(exc);
-      throw new Synchronize();
+    const exc = new SyntaxError(message, {
+      filename: this.filename,
+      row: this.rowNo,
+      isLine: true,
+      lineNo: this.lineNo,
+      offsetStart: cmd.offsetStart,
+      offsetEnd: cmd.offsetEnd,
+      source: this.lineSource,
     });
+    this.isError = true;
+    this.errors.push(exc);
+    throw new Synchronize();
   }
 
   private interactive(name: string, cmd: Cmd): never {
-    this.syntaxError(cmd, `Cannot run interactive command in scripts: ${name}`);
+    return tracer.spanSync(name, () => {
+      this.syntaxError(
+        cmd,
+        `Cannot run interactive command in scripts: ${name}`,
+      );
+    });
   }
 
   private synchronize(): void {
@@ -282,9 +273,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private emitConstant(value: Value): void {
-    tracer.spanSync('emitConstant', () => {
-      this.emitBytes(OpCode.Constant, this.makeConstant(value));
-    });
+    this.emitBytes(OpCode.Constant, this.makeConstant(value));
   }
 
   // NOTE: This is only used to emit implicit and bare returns. Valued
@@ -316,14 +305,14 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitPrintCmd(print: Print): void {
-    tracer.spanSync('visitPrintCmd', () => {
+    tracer.spanSync('print', () => {
       print.expression.accept(this);
       this.emitByte(OpCode.Print);
     });
   }
 
   visitExitCmd(exit: Exit): void {
-    tracer.spanSync('visitExitCmd', () => {
+    tracer.spanSync('exit', () => {
       if (exit.expression) {
         exit.expression.accept(this);
       } else {
@@ -334,7 +323,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitExpressionCmd(expr: Expression): void {
-    tracer.spanSync('visitExpressionCmd', () => {
+    tracer.spanSync('expression', () => {
       this.isExpressionCmd = true;
       expr.expression.accept(this);
 
@@ -370,7 +359,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   // Expressions
 
   visitUnaryExpr(unary: Unary): void {
-    tracer.spanSync('visitUnaryExpr', () => {
+    tracer.spanSync('unary', () => {
       unary.expr.accept(this);
       switch (unary.op) {
         case TokenKind.Minus:
@@ -383,7 +372,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitBinaryExpr(binary: Binary): void {
-    tracer.spanSync('visitBinaryExpr', () => {
+    tracer.spanSync('binary', () => {
       binary.left.accept(this);
       binary.right.accept(this);
       switch (binary.op) {
@@ -424,35 +413,35 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   visitLogicalExpr(_logical: Logical): void {
-    tracer.spanSync('visitLogicalExpr', () => {});
+    tracer.spanSync('logical', () => {});
   }
 
   visitGroupExpr(group: Group): void {
-    tracer.spanSync('visitGroupExpr', () => {
+    tracer.spanSync('group', () => {
       group.expr.accept(this);
     });
   }
 
   visitIntLiteralExpr(int: IntLiteral): void {
-    tracer.spanSync('visitIntLiteralExpr', () => {
+    tracer.spanSync('int literal', () => {
       this.emitConstant(int.value);
     });
   }
 
   visitRealLiteralExpr(real: RealLiteral): void {
-    tracer.spanSync('visitRealLiteralExpr', () => {
+    tracer.spanSync('real literal', () => {
       this.emitConstant(real.value);
     });
   }
 
   visitBoolLiteralExpr(bool: BoolLiteral): void {
-    tracer.spanSync('visitBoolLiteralExpr', () => {
+    tracer.spanSync('bool literal', () => {
       this.emitConstant(bool.value);
     });
   }
 
   visitStringLiteralExpr(str: StringLiteral): void {
-    tracer.spanSync('visitStringLiteralExpr', () => {
+    tracer.spanSync('string literal', () => {
       this.emitConstant(str.value);
     });
   }
@@ -460,7 +449,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitPromptLiteralExpr(_ps: PromptLiteral): void {}
 
   visitNilLiteralExpr(_: NilLiteral): void {
-    tracer.spanSync('visitNilLiteralExpr', () => {
+    tracer.spanSync('nil literal', () => {
       this.emitByte(OpCode.Nil);
     });
   }

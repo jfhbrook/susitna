@@ -32,12 +32,7 @@ gaps.
 
 - [X] Write ADR about architectural changes from 002
 - [X] Editing and running
-- tracing, again
-  - manual calls to `tracer.open` and `tracer.close`
-    - each span adds a bunch of garbage to the stack trace
-    - but you need the helpers, practically speaking, to make sure a trace
-      always gets closed
-  - "main" tracing actually not useful
+- [X] tracing, again
 - "Expect" tests for the REPL and script input
   - Including generated "exceedingly large" tests
 - Remove 'peek' from parser (use this.current)

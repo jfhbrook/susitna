@@ -31,22 +31,7 @@ gaps.
 ### Prioritized Backlog
 
 - [X] Write ADR about architectural changes from 002
-- Editing and running
-  - [X] upsert lines
-  - [X] delete lines
-  - [X] fix line deletes
-  - [X] load entire program
-  - [X] solve contradiction between running program vs input
-    - [X] Bite off splitting warnings by row number
-  - [X] Attach warnings to the editor
-  - [X] Log warnings by entered rows
-  - [X] Log warnings before compiling/executing
-  - [X] reset entire program
-  - [X] does msx basic log anything when you enter a line?
-  - [X] executor methods for new commands
-  - [X] Interactive commands
-  - [X] Wrap fs calls in FileErrors
-  - [ ] editor tests
+- [X] Editing and running
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`
     - each span adds a bunch of garbage to the stack trace

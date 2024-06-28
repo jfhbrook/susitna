@@ -164,13 +164,6 @@ export class Executor {
   }
 
   /**
-   * Log that a command executed successfully.
-   */
-  ok(): void {
-    this.host.writeLine('Ok');
-  }
-
-  /**
    * Start a new program and reset the runtime.
    */
   new(filename: string): void {
@@ -349,9 +342,6 @@ export class Executor {
           this.host.writeLine(inspector.format(rv));
         }
       }
-
-      // Ok!!
-      this.ok();
     } catch (err) {
       if (err instanceof ParseError) {
         err = mergeParseErrors([parseWarning, err]);

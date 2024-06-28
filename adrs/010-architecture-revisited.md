@@ -15,7 +15,7 @@ their rationale and consequences.
 For illustration, here is a diagram of the architecture prior to significant
 refactors away from the design in ADR 002:
 
-![](./fig/010-01-architecture-v1.png)
+![](./fig/010-01-architecture-v1.jpg)
 
 ### On WIC&I
 
@@ -47,7 +47,7 @@ languages gained popularity in the 1990s; and the Open Source Movement
 
 The architecture after significant refactors looks like this:
 
-![](./fig/010-02-architecture-v2.png)
+![](./fig/010-02-architecture-v2.jpg)
 
 I will now dive into the differences between this architecture and the
 previous architecture.

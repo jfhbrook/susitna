@@ -138,7 +138,7 @@ class Parser {
     if (this.done) {
       return kind === TokenKind.Eof;
     }
-    return this.peek().kind === kind;
+    return this.current.kind === kind;
   }
 
   private advance(): Token | null {
@@ -164,17 +164,12 @@ class Parser {
   }
 
   private get done(): boolean {
-    return this.peek().kind == TokenKind.Eof;
-  }
-
-  private peek(): Token {
-    return this.current;
+    return this.current.kind == TokenKind.Eof;
   }
 
   private consume(kind: TokenKind, message: string): Token {
     if (this.check(kind)) return this.advance() as Token;
-    const token: Token = this.peek();
-    this.syntaxError(token, message);
+    this.syntaxError(this.current, message);
   }
 
   private syntaxError(token: Token, message: string): never {
@@ -223,7 +218,7 @@ class Parser {
 
   private row(): Row | null {
     return tracer.spanSync('row', () => {
-      const rowNo = this.peek().row;
+      const rowNo = this.current.row;
 
       let cmds: Cmd[];
       let source: string;
@@ -255,7 +250,7 @@ class Parser {
         this.lineNo = this.previous!.value as number;
         this.isLine = true;
       } else if (this.isProgram) {
-        this.syntaxError(this.peek(), 'Expected line number');
+        this.syntaxError(this.current, 'Expected line number');
       } else {
         this.lineNo = null;
         this.isLine = false;
@@ -298,7 +293,7 @@ class Parser {
       this.lineErrors = [];
 
       if (!this.match(TokenKind.LineEnding)) {
-        const token = this.peek();
+        const token = this.current;
         this.consume(
           TokenKind.Eof,
           `Unexpected token ${token.text.length ? token.text : token.kind}`,
@@ -324,7 +319,7 @@ class Parser {
           TokenKind.LineEnding,
           TokenKind.Eof,
           TokenKind.Rem,
-        ].includes(this.peek().kind)
+        ].includes(this.current.kind)
       ) {
         // TODO: Illegal, UnterminatedString
         this.advance();
@@ -336,7 +331,7 @@ class Parser {
     return tracer.spanSync('syncNextRow', () => {
       while (
         ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
-          this.peek().kind,
+          this.current.kind,
         )
       ) {
         // TODO: Illegal, UnterminatedString
@@ -349,7 +344,7 @@ class Parser {
 
   private commands(): Cmd[] {
     return tracer.spanSync('commands', () => {
-      if (this.done || this.peek().kind === TokenKind.LineEnding) {
+      if (this.done || this.current.kind === TokenKind.LineEnding) {
         return [];
       }
 
@@ -378,7 +373,7 @@ class Parser {
 
   private command(): Cmd | null {
     return tracer.spanSync('command', () => {
-      const { offsetStart } = this.peek();
+      const { offsetStart } = this.current;
 
       let cmd: Cmd;
 
@@ -622,7 +617,7 @@ class Parser {
       } else if (this.match(TokenKind.LParen)) {
         return this.group();
       } else {
-        const token = this.peek();
+        const token = this.current;
         let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
 
         if (token.kind == TokenKind.UnterminatedStringLiteral) {

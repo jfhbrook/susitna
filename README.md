@@ -35,15 +35,11 @@ gaps.
 - [X] tracing, again
 - "Expect" tests for the REPL and script input
   - Including generated "exceedingly large" tests
-- Remove 'peek' from parser (use this.current)
+- [X] Remove 'peek' from parser (use this.current)
 - flags
   - `--run` flag for `load`
 - add `env` support to `exercise-bike`
 - attach cmdNo to AST somehow
-- recreator
-  - remember, `10 rem` should serialize to `10`
-  - make list use recreator
-  - make save work
 - Global variables
 - If/else
 - For and while

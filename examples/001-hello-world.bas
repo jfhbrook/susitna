@@ -1,2 +1,3 @@
-100 print "hello world"
-200 print "goodbye world"
+10 rem A simple hello world example
+20 print "hello world"
+30 print "goodbye world"

@@ -40,7 +40,7 @@ previous architecture.
 
 First, the Commander has been renamed to Executor, though it retains much
 of the responsibilities of the "command module" called for by WIC&I. Second,
-a second command subsystem (literally in the "commands") module is in charge
+a second command subsystem (literally in the "commands" module) is in charge
 of interpreting interactive commands through a visitor pattern - though,
 crucially, it calls back to the Executor to do the heavy lifting. While the
 command module implements high-level flows, the Executor remains at the core
@@ -89,7 +89,7 @@ The idea of a "translator" also seems to combine both the responsibilities
 of a parser and a REPL.
 
 The concept of a REPL
-[came from Lisp)(https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop),
+[came from Lisp](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop),
 with origins in 1964 but popularized with Scheme in the 80s. I don't have
 strong evidence of this, but I suspect the terminology (and implied
 architecture) wasn't common outside Lisp until non-BASIC, non-shell scripting
@@ -106,7 +106,7 @@ the baggage of a REPL.
 The compiler module was refactored to handle both interactive and runtime
 commands, and return different results accordingly. Without this change, the
 Commander had to separate commands within input and implement switching logic
-internally. This sounds like a minor issue. The it created challenges when
+internally. This sounds like a minor issue. But it created challenges when
 trying to report compiler warning all at once, rather than piecemeal as
 commands were executed. This change allows all compilation and warning
 collection to occur in a single pass.
@@ -135,7 +135,7 @@ requirement for generating listings, and more as a code formatter.
 In the future, I can see a few other changes being made.
 
 First is revisiting ownership of readline management. This is currently
-handled by the Executor. But it's also squarely and I/O concern, and all other
+handled by the Executor. But it's also squarely an I/O concern, and all other
 I/O and OS operations are currently handled by the Host. One could argue that
 readline is "higher level" than the functionality of the Host, or that it's
 appropriate due to the Executor's ownership of sessions. But I'm not

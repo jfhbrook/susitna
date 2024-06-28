@@ -9,6 +9,7 @@ import { Config } from './config';
 import { Editor } from './editor';
 import {
   Exception,
+  FileError,
   ParseError,
   ParseWarning,
   mergeParseErrors,
@@ -187,7 +188,12 @@ export class Executor {
    */
   async load(filename: string): Promise<void> {
     // TODO: This readFile call should be moved into the host
-    const source: string = await readFile(filename, 'utf8');
+    let source: string;
+    try {
+      source = await readFile(filename, 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
 
     let result: ParseResult<Program>;
 
@@ -219,7 +225,11 @@ export class Executor {
     }
 
     // TODO: This writeFile call should be moved into the host
-    writeFile(this.editor.filename, this.editor.list() + '\n', 'utf8');
+    try {
+      writeFile(this.editor.filename, this.editor.list() + '\n', 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
   }
 
   /**

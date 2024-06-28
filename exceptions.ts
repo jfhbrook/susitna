@@ -292,10 +292,18 @@ export class FileError extends OsError {
   static fromError(
     message: any | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback | null,
+    traceback: Traceback | null = null,
   ) {
+    if (message === null) {
+      const split = err.message.split(': ');
+      if (split.length === 2) {
+        message = split[1];
+      } else {
+        message = err.message;
+      }
+    }
     return new FileError(
-      message || err.message,
+      message,
       err.code || '<unknown>',
       null,
       [err.path || '<unknown>'],

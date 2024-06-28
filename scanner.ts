@@ -261,25 +261,7 @@ export class Scanner {
       case 'r':
         // Remarks
         if (this.peek() === 'e' && this.peekNext() === 'm') {
-          this.advance();
-          this.advance();
-          if (
-            this.match(' ') ||
-            this.match('\t') ||
-            this.peek() === '\n' ||
-            this.peek() === EOF
-          ) {
-            while (this.peek() !== '\n' && !this.done) {
-              this.advance();
-            }
-
-            // The contents of the remark
-            const value = this.source
-              .slice(this.start + 3, this.current)
-              .trim();
-
-            return this.emitToken(TokenKind.Rem, value);
-          }
+          return this.rem();
         }
       // Fall through to default handling
       default:
@@ -455,6 +437,28 @@ export class Scanner {
     }
 
     return this.emitToken(kind, value);
+  }
+
+  private rem(): Token {
+    this.advance();
+    this.advance();
+    if (
+      this.match(' ') ||
+      this.match('\t') ||
+      this.peek() === '\n' ||
+      this.peek() === EOF
+    ) {
+      while (this.peek() !== '\n' && !this.done) {
+        this.advance();
+      }
+
+      // The contents of the remark
+      const value = this.source.slice(this.start + 3, this.current).trim();
+
+      return this.emitToken(TokenKind.Rem, value);
+    } else {
+      return this.identifier();
+    }
   }
 
   private shell(): Token {

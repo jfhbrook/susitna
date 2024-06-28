@@ -45,7 +45,6 @@ gaps.
   - [X] executor methods for new commands
   - [X] Interactive commands
   - [ ] editor tests
-- scanner doing weird things with prefix sigils
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`
     - each span adds a bunch of garbage to the stack trace

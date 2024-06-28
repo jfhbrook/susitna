@@ -258,12 +258,6 @@ export class Scanner {
           return this.binary();
         }
         return this.decimal();
-      case '$':
-        if (isAlpha(this.peek()) || this.peek() === '_') {
-          return this.identifier();
-        } else {
-          return this.illegal();
-        }
       case 'r':
         // Remarks
         if (this.peek() === 'e' && this.peekNext() === 'm') {

@@ -43,26 +43,9 @@ gaps.
   - [X] reset entire program
   - [X] does msx basic log anything when you enter a line?
   - [X] executor methods for new commands
-    - new
-      - clear the program
-      - clear runtime state
-      - close open files
-    - load
-      - load a program into the Editor
-      - optionally run the program
-    - save
-      - stub it out for now
-    - list
-      - print the AST in the Editor for now
-    - run
-  - [ ] Interactive commands
-    - new
-    - load
-      - load a program into the Editor
-      - optionally run the program
-    - save
-    - list
-    - run
+  - [X] Interactive commands
+  - [ ] Support ',R' flag in load command
+    - or `--run` ? lol
   - [ ] editor tests
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`

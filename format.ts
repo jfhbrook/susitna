@@ -44,6 +44,7 @@ import {
   Rem,
   New,
   Load,
+  List,
   Save,
   Run,
 } from './ast/cmd';
@@ -166,6 +167,7 @@ export abstract class Formatter
   abstract visitRemCmd(rem: Rem): string;
   abstract visitNewCmd(new_: New): string;
   abstract visitLoadCmd(load: Load): string;
+  abstract visitListCmd(list: List): string;
   abstract visitSaveCmd(save: Save): string;
   abstract visitRunCmd(run: Run): string;
 
@@ -593,6 +595,10 @@ export class DefaultFormatter extends Formatter {
 
   visitLoadCmd(load: Load): string {
     return `Load(${this.format(load.filename)}${load.run ? ',R' : ''})`;
+  }
+
+  visitListCmd(_list: List): string {
+    return `List`;
   }
 
   visitSaveCmd(save: Save): string {

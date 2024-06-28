@@ -21,6 +21,7 @@ import {
   Rem,
   New,
   Load,
+  List,
   Save,
   Run,
 } from './ast/cmd';
@@ -354,6 +355,10 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.interactive('load', load);
   }
 
+  visitListCmd(list: List): CompileResult<CompiledCmd> {
+    return this.interactive('list', list);
+  }
+
   visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
     return this.interactive('save', save);
   }
@@ -542,6 +547,10 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
     return this.interactive(load, [load.filename]);
+  }
+
+  visitListCmd(list: List): CompileResult<CompiledCmd> {
+    return this.interactive(list, []);
   }
 
   visitSaveCmd(save: Save): CompileResult<CompiledCmd> {

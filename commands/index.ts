@@ -7,6 +7,7 @@ import { Value } from '../value';
 import visitExpressionCmd from './expression';
 import visitNewCmd from './new';
 import visitLoadCmd from './load';
+import visitListCmd from './list';
 import visitSaveCmd from './save';
 import visitRunCmd from './run';
 
@@ -28,6 +29,7 @@ export function commandRunner(
     visitRemCmd: noop,
     visitNewCmd,
     visitLoadCmd,
+    visitListCmd,
     visitSaveCmd,
     visitRunCmd,
   };

@@ -6,6 +6,7 @@ export interface CmdVisitor<R> {
   visitExitCmd(node: Exit): R;
   visitNewCmd(node: New): R;
   visitLoadCmd(node: Load): R;
+  visitListCmd(node: List): R;
   visitRunCmd(node: Run): R;
   visitSaveCmd(node: Save): R;
   visitRemCmd(node: Rem): R;
@@ -88,6 +89,16 @@ export class Load extends Cmd {
 
   accept<R>(visitor: CmdVisitor<R>): R {
     return visitor.visitLoadCmd(this);
+  }
+}
+
+export class List extends Cmd {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitListCmd(this);
   }
 }
 

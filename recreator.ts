@@ -7,6 +7,7 @@ import {
   Rem,
   New,
   Load,
+  List,
   Save,
   Run,
 } from './ast/cmd';
@@ -68,6 +69,10 @@ export class Recreator
   }
 
   visitLoadCmd(_load: Load): string {
+    return '';
+  }
+
+  visitListCmd(_list: List): string {
     return '';
   }
 

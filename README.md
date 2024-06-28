@@ -30,7 +30,13 @@ gaps.
 
 ### Prioritized Backlog
 
-- attach cmdNo to AST somehow
+- Refactor cmdNo
+  - Add setSource method to parser
+  - Add persistent parser to executor
+  - Add cmdNo to CommandGroup AST
+  - Populate cmdNo in CommandGroup in parser
+  - Add cmdNo to syntax errors/warnings
+  - Add cmdNo to formatted syntax errors/warnings
 - flags
   - `--run` flag for `load`
 - Global variables

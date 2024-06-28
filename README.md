@@ -30,6 +30,7 @@ gaps.
 
 ### Prioritized Backlog
 
+- [X] Write ADR about architectural changes from 002
 - Editing and running
   - [X] upsert lines
   - [X] delete lines
@@ -44,8 +45,7 @@ gaps.
   - [X] does msx basic log anything when you enter a line?
   - [X] executor methods for new commands
   - [X] Interactive commands
-  - [ ] Move fs calls into host
-  - [ ] Wrap fs calls in FileErrors
+  - [X] Wrap fs calls in FileErrors
   - [ ] editor tests
 - tracing, again
   - manual calls to `tracer.open` and `tracer.close`
@@ -64,14 +64,6 @@ gaps.
   - remember, `10 rem` should serialize to `10`
   - make list use recreator
   - make save work
-- Write ADR about architectural changes from 002
-  - Renamed commander to executor
-  - Actual command(s) module executes visitor pattern on interactive commands
-  - editing is now in the executor, not the translator
-  - translator combined with index and Cli, is basically just the `repl`
-    function
-  - who should own readline? executor? host? translator?
-  - WIC&I didn't have the benefit of OOP, mind you
 - Global variables
 - If/else
 - For and while
@@ -104,6 +96,8 @@ gaps.
   - (Language support can come later)
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
+- Move FS calls into the Host
+  - This has challenges matching the types of Node.JS's fs module
 - Type-checking compiler
   - Implement type analogues to operations
   - Simulated stack in the compiler

@@ -20,11 +20,11 @@ type Cmd in './cmd' {
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null
-  New        => filename: Expr
+  New        => filename: Expr | null
   Load       => filename: Expr, run: boolean
   List!
   Run!
-  Save       => filename: Expr
+  Save       => filename: Expr | null
   Rem        => remark: string
 }
 

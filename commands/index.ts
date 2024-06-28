@@ -15,7 +15,7 @@ export function commandRunner(
   executor: Executor,
   editor: Editor,
   host: Host,
-  args: Array<Value>,
+  args: Array<Value | null>,
 ): CommandRunner {
   return {
     executor,

@@ -1,4 +1,3 @@
-import * as assert from 'assert';
 import { readFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 import { inspect } from 'util';
@@ -22,7 +21,6 @@ import { Host } from './host';
 import { parseInput, parseProgram, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
-import { Value } from './value';
 
 import { Line, CommandGroup, Program } from './ast';
 
@@ -361,11 +359,8 @@ export class Executor {
     chunks,
   ]: CompiledCmd): Promise<ReturnValue> {
     // Interpret any chunks.
-    const args = chunks.map((c): Value => {
-      const rv: Value | null = this.runtime.interpret(c);
-      // Expression statements should not evaluate to null.
-      assert.ok(rv);
-      return rv as Value;
+    const args = chunks.map((c) => {
+      return c ? this.runtime.interpret(c) : null;
     });
 
     if (cmd) {

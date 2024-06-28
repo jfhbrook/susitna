@@ -23,7 +23,18 @@ import {
   PromptLiteral,
   NilLiteral,
 } from './ast/expr';
-import { Cmd, Print, Exit, Expression, Rem } from './ast/cmd';
+import {
+  Cmd,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  New,
+  Load,
+  List,
+  Save,
+  Run,
+} from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
 
@@ -406,6 +417,16 @@ class Parser {
       // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
     } else if (this.match(TokenKind.Exit)) {
       cmd = this.exit();
+    } else if (this.match(TokenKind.New)) {
+      cmd = this.new();
+    } else if (this.match(TokenKind.Load)) {
+      cmd = this.load();
+    } else if (this.match(TokenKind.List)) {
+      cmd = this.list();
+    } else if (this.match(TokenKind.Save)) {
+      cmd = this.save();
+    } else if (this.match(TokenKind.Run)) {
+      cmd = this.run();
     } else {
       cmd = this.expressionStatement();
     }
@@ -424,19 +445,36 @@ class Parser {
   }
 
   private exit(): Cmd {
-    return tracer.spanSync('exit', () => {
-      const expr = this.optionalExpression();
-      if (expr) {
-        return new Exit(expr);
-      }
-      return new Exit(null);
-    });
+    const expr = this.optionalExpression();
+    if (expr) {
+      return new Exit(expr);
+    }
+    return new Exit(null);
+  }
+
+  private new(): Cmd {
+    return new New(this.optionalExpression());
+  }
+
+  private load(): Cmd {
+    // TODO: Support optional 'run' flag
+    return new Load(this.expression(), false);
+  }
+
+  private list(): Cmd {
+    return new List();
+  }
+
+  private save(): Cmd {
+    return new Save(this.optionalExpression());
+  }
+
+  private run(): Cmd {
+    return new Run();
   }
 
   private expressionStatement(): Cmd {
-    return tracer.spanSync('expression statement', () => {
-      return new Expression(this.expression());
-    });
+    return new Expression(this.expression());
   }
 
   private optionalExpression(): Expr | null {

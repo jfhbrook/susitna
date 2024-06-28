@@ -65,7 +65,7 @@ export class Exit extends Cmd {
 
 export class New extends Cmd {
   constructor(
-    public filename: Expr,
+    public filename: Expr | null,
     offsetStart: number = -1,
     offsetEnd: number = -1,
   ) {
@@ -114,7 +114,7 @@ export class Run extends Cmd {
 
 export class Save extends Cmd {
   constructor(
-    public filename: Expr,
+    public filename: Expr | null,
     offsetStart: number = -1,
     offsetEnd: number = -1,
   ) {

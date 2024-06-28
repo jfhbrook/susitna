@@ -502,7 +502,7 @@ export function compileProgram(
   return compiler.compile();
 }
 
-export type CompiledCmd = [Cmd | null, Chunk[]];
+export type CompiledCmd = [Cmd | null, Array<Chunk | null>];
 
 //
 // Compiler for both interactive and runtime commands. For more information,
@@ -516,10 +516,17 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
     return [[null, [chunk]], warning];
   }
 
-  private interactive(cmd: Cmd, exprs: Expr[]): CompileResult<CompiledCmd> {
-    const results = exprs.map((exp) =>
-      compileCommand(new Expression(exp), this.options),
-    );
+  private interactive(
+    cmd: Cmd,
+    exprs: Array<Expr | null>,
+  ): CompileResult<CompiledCmd> {
+    const results = exprs.map((exp) => {
+      if (!exp) {
+        return [null, null];
+      }
+
+      return compileCommand(new Expression(exp), this.options);
+    });
     const chunks = results.map(([c, _]) => c);
     const warnings: Array<ParseWarning | null> = results.map(([_, w]) => w);
     return [[cmd, chunks], mergeParseErrors(warnings)];

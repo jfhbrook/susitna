@@ -29,7 +29,7 @@ export interface CommandRunner extends CmdVisitor<Promise<ReturnValue>> {
   editor: Editor;
   program: Program;
   host: Host;
-  args: Array<Value>;
+  args: Array<Value | null>;
 }
 
 @errorType('Invalid')

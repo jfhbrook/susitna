@@ -203,8 +203,9 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     const exc = new SyntaxError(message, {
       filename: this.filename,
       row: this.rowNo,
-      isLine: true,
+      isLine: this.routineType !== RoutineType.Command,
       lineNo: this.lineNo,
+      cmdNo: this.routineType === RoutineType.Command ? null : this.lineNo,
       offsetStart: cmd.offsetStart,
       offsetEnd: cmd.offsetEnd,
       source: this.lineSource,

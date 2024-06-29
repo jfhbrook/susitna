@@ -36,13 +36,13 @@ Array [
 `
 
 exports[`test/compiler.ts > TAP > syntax errors > *1 > must match snapshot 1`] = `
-<input>:100:0: error: Invalid unary operator
+<input>:<R1>:0 (after line 100): error: Invalid unary operator
   *1
   ^
 `
 
 exports[`test/compiler.ts > TAP > syntax errors > 1 $ 1 > must match snapshot 1`] = `
-<input>:100:0: error: Invalid binary operator
+<input>:<R1>:0 (after line 100): error: Invalid binary operator
   1 $ 1
   ^
 `

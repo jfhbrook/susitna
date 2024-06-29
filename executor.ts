@@ -33,7 +33,6 @@ export class Executor {
 
   private ps1: string = '\\u@\\h:\\w\\$';
 
-  private cmdNo: number = 0;
   private cmdSource: string = '';
 
   constructor(
@@ -317,14 +316,13 @@ export class Executor {
   ]: ParseResult<CommandGroup>): Promise<void> {
     // TODO: This should be getting attached in either the parser or
     // the translator
-    this.cmdNo += 10;
     this.cmdSource = cmds.source;
 
     let warning: ParseWarning | null = null;
     try {
       const result = compileCommands(cmds.commands, {
         filename: '<input>',
-        cmdNo: this.cmdNo,
+        cmdNo: cmds.cmdNo,
         cmdSource: this.cmdSource,
       });
       const commands = result[0];

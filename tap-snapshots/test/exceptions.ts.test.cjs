@@ -13,6 +13,7 @@ exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a warning and an er
 Exception {
   "errors": Array [
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 100,
@@ -24,6 +25,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 300,
@@ -35,6 +37,7 @@ Exception {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 500,
@@ -46,6 +49,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 700,
@@ -69,6 +73,7 @@ ParseWarning {
   "traceback": null,
   "warnings": Array [
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 100,
@@ -80,6 +85,7 @@ ParseWarning {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 500,
@@ -98,6 +104,7 @@ exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a warning, an error
 Exception {
   "errors": Array [
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 200,
@@ -109,6 +116,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 300,
@@ -120,6 +128,7 @@ Exception {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 600,
@@ -131,6 +140,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 700,
@@ -154,6 +164,7 @@ ParseWarning {
   "traceback": null,
   "warnings": Array [
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 100,
@@ -165,6 +176,7 @@ ParseWarning {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 500,
@@ -183,6 +195,7 @@ exports[`test/exceptions.ts > TAP > mergeParseErrors > merge two errors 1`] = `
 Exception {
   "errors": Array [
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 300,
@@ -194,6 +207,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 400,
@@ -205,6 +219,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 700,
@@ -216,6 +231,7 @@ Exception {
       "traceback": null,
     },
     SyntaxError: expected ) {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": false,
       "lineNo": 800,
@@ -239,6 +255,7 @@ ParseWarning {
   "traceback": null,
   "warnings": Array [
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 100,
@@ -250,6 +267,7 @@ ParseWarning {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 200,
@@ -261,6 +279,7 @@ ParseWarning {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 500,
@@ -272,6 +291,7 @@ ParseWarning {
       "traceback": null,
     },
     SyntaxWarning: identifier has no sigil {
+      "cmdNo": null,
       "filename": "/home/josh/script.bas",
       "isLine": true,
       "lineNo": 600,

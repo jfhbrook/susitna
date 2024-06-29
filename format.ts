@@ -381,12 +381,18 @@ export class DefaultFormatter extends Formatter {
     let lineNote: string = '';
     if (loc.isLine) {
       lineNo = String(loc.lineNo);
-    } else if (loc.lineNo > 0) {
-      lineNo = `<R${loc.row}>`;
-      lineNote = ` (after line ${loc.lineNo})`;
     } else {
-      lineNo = `<R${loc.row}>`;
-      lineNote = ` (at the beginning)`;
+      if (loc.cmdNo) {
+        lineNo = `command ${loc.cmdNo}`;
+      } else {
+        lineNo = `<R${loc.row}>`;
+      }
+
+      if (loc.lineNo && loc.lineNo > 0) {
+        lineNote = ` (after line ${loc.lineNo})`;
+      } else {
+        lineNote = ` (at the beginning)`;
+      }
     }
     let report = `${loc.filename}:${lineNo}:${loc.offsetStart}${lineNote}: ${level}: ${message}\n`;
     report += `  ${loc.source}\n`;

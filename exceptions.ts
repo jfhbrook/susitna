@@ -423,7 +423,12 @@ export interface SourceLocation {
    * The line number in the source code. When not in a line, this is the
    * previous line number.
    */
-  lineNo: number;
+  lineNo: number | null;
+
+  /**
+   * The command number in the source code.
+   */
+  cmdNo: number | null;
 
   /**
    * The column offset at which the location starts.
@@ -445,7 +450,7 @@ export interface SourceLocation {
   // endLineNo: number | null,
 }
 
-export type LocationKey = 'row' | 'lineNo' | 'offsetStart';
+export type LocationKey = 'row' | 'lineNo' | 'cmdNo' | 'offsetStart';
 export type ParseErrorSplit = Record<number, ParseError | ParseWarning>;
 export type ParseWarningSplit = Record<number, ParseWarning>;
 
@@ -456,7 +461,9 @@ export interface LocationSortable {
 function compareLocationKeys(keys: LocationKey[]) {
   return function compare(a: SourceLocation, b: SourceLocation): number {
     for (const key of keys) {
-      const cmp = a[key] - b[key];
+      const aKey: number = a[key] === null ? -1 : (a[key] as number);
+      const bKey: number = b[key] === null ? -1 : (b[key] as number);
+      const cmp = aKey - bKey;
       if (cmp) {
         return cmp;
       }
@@ -476,6 +483,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
   public row: number;
   public isLine: boolean;
   public lineNo: number;
+  public cmdNo: number;
   public offsetStart: number;
   public offsetEnd: number;
   public source: string;
@@ -535,6 +543,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
   public row: number;
   public isLine: boolean;
   public lineNo: number;
+  public cmdNo: number;
   public offsetStart: number;
   public offsetEnd: number;
   public source: string;
@@ -598,11 +607,15 @@ function merge<T extends SourceLocation>(
       return merged.concat(xs.slice(i));
     }
     for (const key of keys) {
-      if (xs[i][key] < ys[j][key]) {
+      const xKey: number =
+        typeof xs[i][key] === 'number' ? (xs[i][key] as number) : -1;
+      const yKey: number =
+        typeof ys[j][key] === 'number' ? (ys[j][key] as number) : -1;
+      if (xKey < yKey) {
         merged.push(xs[i++]);
         break;
       }
-      if (xs[i][key] > ys[j][key]) {
+      if (xKey > yKey) {
         merged.push(ys[j++]);
         break;
       }

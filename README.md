@@ -30,11 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- Refactor cmdNo
-  - Add cmdNo to CommandGroup AST
-  - Populate cmdNo in CommandGroup in parser
-  - Add cmdNo to syntax errors/warnings
-  - Add cmdNo to formatted syntax errors/warnings
 - flags
   - `--run` flag for `load`
 - Global variables

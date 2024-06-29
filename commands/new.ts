@@ -1,6 +1,5 @@
 import { ValueError } from '../exceptions';
 import { formatter } from '../format';
-import { Nil } from '../value';
 import { New } from '../ast/cmd';
 
 import { CommandRunner, ReturnValue } from './base';
@@ -17,7 +16,7 @@ export default async function new_(
 ): Promise<ReturnValue> {
   const { executor } = this;
   let [filename] = this.args;
-  if (filename instanceof Nil) {
+  if (!filename) {
     filename = 'untitled.bas';
   } else if (typeof filename !== 'string') {
     throw new ValueError(`Invalid filename; ${formatter.format(filename)}`);

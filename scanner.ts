@@ -208,6 +208,9 @@ export class Scanner {
       case '+':
         return this.emitToken(TokenKind.Plus);
       case '-':
+        if (this.match('-')) {
+          return this.longFlag();
+        }
         return this.emitToken(TokenKind.Minus);
       case '*':
         return this.emitToken(TokenKind.Star);
@@ -288,6 +291,19 @@ export class Scanner {
   //
   // Various value scanners.
   //
+
+  private longFlag(): Token {
+    while (!this.done) {
+      const c = this.peek();
+      if (isIllegalShellChar(c) || isWhitespace(c)) {
+        break;
+      }
+      this.advance();
+    }
+
+    const value = this.source.slice(this.start + 2, this.current);
+    return this.emitToken(TokenKind.LongFlag, value);
+  }
 
   private string(quoteChar: '"' | "'"): Token {
     let value: string = quoteChar;

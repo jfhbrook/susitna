@@ -40,6 +40,12 @@ import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
 
+export type Flags = Record<string, boolean | Expr>;
+export interface FlagOptions {
+  boolean?: string[];
+  expression?: string[];
+}
+
 export type ParseResult<T> = [T, ParseWarning | null];
 export type Row = Line | CommandGroup;
 
@@ -459,8 +465,10 @@ export class Parser {
 
   private load(): Cmd {
     return tracer.spanSync('load', () => {
-      // TODO: Support optional 'run' flag
-      return new Load(this.expression(), false);
+      const filename = this.expression();
+      const flags = this.flags({ boolean: ['run'] });
+      const run = flags.run;
+      return new Load(filename, !!run);
     });
   }
 
@@ -485,6 +493,29 @@ export class Parser {
   private expressionStatement(): Cmd {
     return tracer.spanSync('expressionStatement', () => {
       return new Expression(this.expression());
+    });
+  }
+
+  // TODO: Support positional args
+  private flags(options: FlagOptions): Flags {
+    return tracer.spanSync('flags', () => {
+      const flags: Flags = {};
+      const boolFlags: Set<string> = new Set(options.boolean || []);
+      const boolNoFlags: Set<string> = new Set(
+        (options.boolean || []).map((f) => `no-${f}`),
+      );
+      const exprFlags: Set<string> = new Set(options.expression || []);
+      while (this.match(TokenKind.LongFlag)) {
+        const key = this.previous!.value as string;
+        if (boolFlags.has(key)) {
+          flags[key] = true;
+        } else if (key in boolNoFlags) {
+          flags[key] = false;
+        } else if (key in exprFlags) {
+          flags[key] = this.expression();
+        }
+      }
+      return flags;
     });
   }
 

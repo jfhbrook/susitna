@@ -55,6 +55,7 @@ export enum TokenKind {
   BoolIdent = '<ident[bool]>',
   StringIdent = '<ident[str]>',
 
+  LongFlag = '--<flag>',
   ShellToken = '<shell>',
 
   Exit = 'exit',

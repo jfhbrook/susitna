@@ -82,7 +82,7 @@ for (const [source, cmd] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new CommandGroup(1, source, [cmd])]));
+    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -107,7 +107,7 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
     t.ok(result[1]);
     t.matchSnapshot(formatter.format(result[1]));
 
-    t.same(result[0], new Input([new CommandGroup(1, source, [cmd])]));
+    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -137,7 +137,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new CommandGroup(1, source, [
+      new CommandGroup(10, 1, source, [
         new Expression(new StringLiteral('\\q'), 0, 4),
       ]),
     ]),
@@ -174,7 +174,7 @@ t.test('print command', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(1, source, [
+        new CommandGroup(10, 1, source, [
           new Print(new StringLiteral('hello world'), 0, 19),
         ]),
       ]),
@@ -232,7 +232,7 @@ t.test('exit command', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(1, source, [new Exit(new IntLiteral(0), 0, 6)]),
+        new CommandGroup(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
       ]),
     );
   });
@@ -259,7 +259,7 @@ t.test('exit command', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(1, source, [new Exit(null, 0, 4)])]),
+      new Input([new CommandGroup(10, 1, source, [new Exit(null, 0, 4)])]),
     );
   });
 
@@ -286,7 +286,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(1, source, [new Rem('this is a comment', 0, 21)]),
+        new CommandGroup(10, 1, source, [new Rem('this is a comment', 0, 21)]),
       ]),
     );
   });
@@ -299,7 +299,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(1, source, [new Rem('', 0, 3)])]),
+      new Input([new CommandGroup(10, 1, source, [new Rem('', 0, 3)])]),
     );
   });
 
@@ -311,7 +311,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(1, source, [new Rem('', 0, 1)])]),
+      new Input([new CommandGroup(10, 1, source, [new Rem('', 0, 1)])]),
     );
   });
 
@@ -324,7 +324,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(1, source, [
+        new CommandGroup(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 8, 29),
         ]),
@@ -341,7 +341,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(1, source, [
+        new CommandGroup(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 10, 31),
         ]),
@@ -379,7 +379,7 @@ t.test('multiple inputs', async (t: Test) => {
       new Line(100, 1, source[0], [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new CommandGroup(2, source[1], [
+      new CommandGroup(10, 2, source[1], [
         new Expression(new StringLiteral('foo'), 0, 5),
       ]),
       new Line(200, 3, source[2], [

@@ -31,7 +31,7 @@ type Cmd in './cmd' {
 type Tree in './index' {
   import { Cmd } from './cmd'
 
-  CommandGroup => row: number, source: string, commands: Cmd[]
+  CommandGroup => cmdNo: number, row: number, source: string, commands: Cmd[]
   Line         => lineNo: number, row: number, source: string, commands: Cmd[]
   Input        => input: Array<CommandGroup | Line>
   Program      => filename: string, lines: Line[]

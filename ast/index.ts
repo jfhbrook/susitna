@@ -13,6 +13,7 @@ export abstract class Tree {
 
 export class CommandGroup extends Tree {
   constructor(
+    public cmdNo: number,
     public row: number,
     public source: string,
     public commands: Cmd[],

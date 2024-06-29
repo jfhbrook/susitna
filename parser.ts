@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { getTracer, showTree } from './debug';
 import { errorType } from './errors';
 import {
@@ -69,6 +68,7 @@ export class Parser {
   private isProgram: boolean = false;
   private isLine: boolean = false;
   private lineNo: number | null = null;
+  private cmdNo: number = 0;
   private line: string = '';
 
   constructor() {}
@@ -259,7 +259,8 @@ export class Parser {
       if (this.lineNo !== null) {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
-      return new CommandGroup(rowNo, source, cmds);
+      this.cmdNo += 10;
+      return new CommandGroup(this.cmdNo, rowNo, source, cmds);
     });
   }
 

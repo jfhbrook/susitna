@@ -40,6 +40,19 @@ import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
 
+export type OptionName = Exclude<string, '_'>;
+export interface Options {
+  parameters: Expr[];
+  flags: Record<string, boolean>;
+  options: Record<string, Expr>;
+}
+
+export interface OptionsSpec {
+  parameters?: string[];
+  flags?: string[];
+  options?: string[];
+}
+
 export type ParseResult<T> = [T, ParseWarning | null];
 export type Row = Line | CommandGroup;
 
@@ -459,8 +472,13 @@ export class Parser {
 
   private load(): Cmd {
     return tracer.spanSync('load', () => {
-      // TODO: Support optional 'run' flag
-      return new Load(this.expression(), false);
+      const { parameters, flags } = this.options({
+        parameters: ['filename'],
+        flags: ['run'],
+      });
+
+      const filename = parameters[0];
+      return new Load(filename, flags.run);
     });
   }
 
@@ -485,6 +503,49 @@ export class Parser {
   private expressionStatement(): Cmd {
     return tracer.spanSync('expressionStatement', () => {
       return new Expression(this.expression());
+    });
+  }
+
+  private options(spec: OptionsSpec): Options {
+    return tracer.spanSync('options', () => {
+      const parameters = spec.parameters || [];
+      const options: Options = { parameters: [], flags: {}, options: {} };
+      const flagNames: Set<string> = new Set(spec.flags || []);
+      const noFlagNames: Set<string> = new Set(
+        (spec.flags || []).map((f) => `no-${f}`),
+      );
+      const optionNames: Set<string> = new Set(spec.options || []);
+
+      while (
+        !this.check(TokenKind.Colon) &&
+        !this.check(TokenKind.Rem) &&
+        !this.check(TokenKind.LineEnding) &&
+        !this.check(TokenKind.Eof)
+      ) {
+        if (this.match(TokenKind.LongFlag)) {
+          const key = this.previous!.value as string;
+          if (flagNames.has(key)) {
+            options.flags[key] = true;
+          } else if (noFlagNames.has(key)) {
+            options.flags[key] = false;
+          } else if (optionNames.has(key)) {
+            options.options[key] = this.expression();
+          }
+        } else if (options.parameters.length > parameters.length) {
+          this.syntaxError(this.current, 'Unexpected parameter');
+        } else {
+          options.parameters.push(this.expression());
+        }
+      }
+
+      if (options.parameters.length !== parameters.length) {
+        this.syntaxError(
+          this.previous!,
+          `Missing parameter ${options.parameters[parameters.length]}`,
+        );
+      }
+
+      return options;
     });
   }
 

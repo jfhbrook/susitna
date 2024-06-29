@@ -241,16 +241,7 @@ const SHELL: Array<[string, TokenKind[]]> = [
   ['./pony', [TokenKind.Dot, TokenKind.Slash, TokenKind.Ident]],
   ['.\\pony', [TokenKind.Dot, TokenKind.BSlash, TokenKind.Ident]],
   ['-o', [TokenKind.Minus, TokenKind.Ident]],
-  [
-    '--long-option',
-    [
-      TokenKind.Minus,
-      TokenKind.Minus,
-      TokenKind.Ident,
-      TokenKind.Minus,
-      TokenKind.Ident,
-    ],
-  ],
+  ['--long-option', [TokenKind.LongFlag]],
 ];
 
 t.test('shell tokens', async (t: Test) => {

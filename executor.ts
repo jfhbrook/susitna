@@ -18,7 +18,7 @@ import {
 import { RuntimeFault } from './faults';
 import { inspector } from './format';
 import { Host } from './host';
-import { parseInput, parseProgram, ParseResult } from './parser';
+import { Parser, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
@@ -27,6 +27,7 @@ import { Line, CommandGroup, Program } from './ast';
 const tracer = getTracer('main');
 
 export class Executor {
+  private parser: Parser;
   private runtime: Runtime;
   private _readline: readline.Interface | null;
 
@@ -40,6 +41,7 @@ export class Executor {
     private editor: Editor,
     private host: Host,
   ) {
+    this.parser = new Parser();
     this.runtime = new Runtime(host);
     this._readline = null;
   }
@@ -192,7 +194,7 @@ export class Executor {
 
     // TODO: filename and warning should be a property on the Program
     try {
-      result = parseProgram(source, filename);
+      result = this.parser.parseProgram(source, filename);
     } catch (err) {
       if (err instanceof Exception) {
         throw err;
@@ -287,7 +289,7 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    const [result, warning] = parseInput(input);
+    const [result, warning] = this.parser.parseInput(input);
 
     const splitWarning = splitParseError(warning, 'row');
 
@@ -297,9 +299,9 @@ export class Executor {
         if (warning) {
           this.host.writeWarn(warning);
         }
-        this.editor.setLine(row, warning);
+        this.editor.setLine(row, warning as ParseWarning);
       } else {
-        await this.evalParsedCommands([row, warning]);
+        await this.evalParsedCommands([row, warning as ParseWarning]);
       }
     }
   }

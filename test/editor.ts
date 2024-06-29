@@ -2,9 +2,9 @@ import t from 'tap';
 import { Test } from 'tap';
 
 import { Editor } from '../editor';
-import { parseInput } from '../parser';
 import { Line } from '../ast';
 
+import { parseInput } from './helpers/parser';
 import { MockConsoleHost } from './helpers/host';
 
 t.test('editor', async (t: Test) => {

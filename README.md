@@ -31,8 +31,6 @@ gaps.
 ### Prioritized Backlog
 
 - Refactor cmdNo
-  - Add setSource method to parser
-  - Add persistent parser to executor
   - Add cmdNo to CommandGroup AST
   - Populate cmdNo in CommandGroup in parser
   - Add cmdNo to syntax errors/warnings

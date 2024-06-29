@@ -4,8 +4,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { parseProgram } from '../parser';
-
+import { parseProgram } from './helpers/parser';
 import { FILENAME } from './helpers/traceback';
 
 t.test('operator precedence', async (t: Test) => {

@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { getTracer, showTree } from './debug';
 import { errorType } from './errors';
 import {
@@ -54,7 +55,8 @@ class Synchronize extends Error {
   }
 }
 
-class Parser {
+export class Parser {
+  private filename: string = '<unknown>';
   private scanner: Scanner;
 
   private previous: Token | null;
@@ -69,58 +71,76 @@ class Parser {
   private lineNo: number | null = null;
   private line: string = '';
 
-  constructor(
-    source: string,
-    private filename: string = '<unknown>',
-  ) {
+  constructor() {}
+
+  init(source: string, filename: string, isProgram: boolean) {
+    this.filename = filename;
     this.scanner = new Scanner(source, filename);
+    this.previous = null;
     this.current = this.scanner.nextToken();
+    this.lineErrors = [];
+    this.errors = [];
+    this.isError = false;
+    this.isWarning = false;
+    this.isProgram = isProgram;
+    this.isLine = false;
+    this.lineNo = null;
     this.line = this.current.text;
+
     tracer.trace('current', this.current);
   }
 
   /**
    * Parse the source as input, returning a list of lines and commands.
    *
+   * @param source The source code.
    * @returns A list of lines and commands.
    */
   @runtimeMethod
-  public parseInput(): ParseResult<Input> {
-    return tracer.spanSync('parseInput', () => {
-      const result = new Input(this.rows());
+  public parseInput(source: string): ParseResult<Input> {
+    this.init(source, '<input>', false);
 
-      if (this.isError) {
-        throw new ParseError(this.errors);
-      } else if (this.isWarning) {
-        const warnings = this.errors as unknown as SyntaxWarning[];
-        return [result, new ParseWarning(warnings)];
-      }
+    const result = new Input(this.rows());
 
-      return [result, null];
-    });
+    let warning: ParseWarning | null = null;
+    if (this.isError) {
+      throw new ParseError(this.errors);
+    } else if (this.isWarning) {
+      const warnings = this.errors as unknown as SyntaxWarning[];
+      warning = new ParseWarning(warnings);
+    }
+
+    showTree(result);
+
+    return [result, warning];
   }
 
   /**
    * Parse the source as a program, returning a Program.
    *
+   * @param source The source code.
+   * @param filename The source filename.
    * @returns A Program.
    */
   @runtimeMethod
-  public parseProgram(): ParseResult<Program> {
-    this.isProgram = true;
+  public parseProgram(source: string, filename: string): ParseResult<Program> {
+    this.init(source, filename, true);
 
     const result = this.rows();
     sortLines(result as Line[]);
     const program = new Program(this.filename, result as Line[]);
 
+    let warning: ParseWarning | null = null;
     if (this.isError) {
       throw new ParseError(this.errors);
     } else if (this.isWarning) {
       const warnings = this.errors as unknown as SyntaxWarning[];
-      return [program, new ParseWarning(warnings)];
+      warning = new ParseWarning(warnings);
     }
 
-    return [program, null];
+    showTree(program);
+
+    return [program, warning];
   }
 
   private match(...kinds: TokenKind[]): boolean {
@@ -744,32 +764,4 @@ class Parser {
 
     return value;
   }
-}
-
-/*
- * Parse input, return a list of lines and commands.
- *
- * @param source The source code.
- */
-export function parseInput(source: string): ParseResult<Input> {
-  const parser = new Parser(source, '<input>');
-  const input = parser.parseInput();
-  showTree(input[0]);
-  return input;
-}
-
-/*
- * Parse a program, made up of multipled numbered lines.
- *
- * @param source The source code.
- * @param filename The source filename.
- */
-export function parseProgram(
-  source: string,
-  filename: string,
-): ParseResult<Program> {
-  const parser = new Parser(source, filename);
-  const program = parser.parseProgram();
-  showTree(program[0]);
-  return program;
 }

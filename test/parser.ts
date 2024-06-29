@@ -14,8 +14,8 @@ import {
 } from '../ast/expr';
 import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
-import { parseInput, parseProgram } from '../parser';
 import { TokenKind } from '../tokens';
+import { parseInput, parseProgram } from './helpers/parser';
 import { FILENAME } from './helpers/traceback';
 
 const EXPRESSIONS: Array<[string, Cmd]> = [
@@ -484,16 +484,10 @@ t.test('program with a negative line number', async (t: Test) => {
 
 t.test('accidentally an entire semicolon', async (t: Test) => {
   t.plan(2);
-  t.throws(() => {
-    try {
-      parseInput('print 1 + 1;');
-    } catch (err) {
-      try {
-        t.matchSnapshot(formatter.format(err));
-      } catch (e) {
-        console.log(e);
-      }
-      throw err;
-    }
-  });
+  try {
+    parseInput('print 1 + 1;');
+  } catch (err) {
+    t.pass(err);
+    t.matchSnapshot(formatter.format(err));
+  }
 });

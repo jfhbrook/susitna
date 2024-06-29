@@ -1,8 +1,10 @@
+import { relative, resolve } from 'path';
 import {
   ParseWarning,
   mergeParseErrors,
   removeFromParseError,
 } from './exceptions';
+import { Host } from './host';
 import { Line, Program } from './ast';
 import { Rem } from './ast/cmd';
 
@@ -19,17 +21,17 @@ export class Editor {
   public program: Program;
   public warning: ParseWarning | null;
 
-  constructor() {
+  constructor(public host: Host) {
     this.program = new Program('untitled.bas', []);
     this.warning = null;
   }
 
   get filename(): string {
-    return this.program.filename;
+    return relative(this.host.cwd(), this.program.filename);
   }
 
   set filename(filename: string) {
-    this.program.filename = filename;
+    this.program.filename = resolve(filename);
   }
 
   /**

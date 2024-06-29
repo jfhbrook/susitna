@@ -19,7 +19,7 @@ export function container<H extends Host>(
   host: H,
 ): Container<H> {
   return tracer.spanSync('container', () => {
-    const editor = new Editor();
+    const editor = new Editor(host);
     const executor = new Executor(config, editor, host);
 
     return {

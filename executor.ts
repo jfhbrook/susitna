@@ -234,6 +234,10 @@ export class Executor {
     if (this.editor.warning) {
       this.host.writeWarn(this.editor.warning);
     }
+
+    this.host.writeLine(
+      `${this.editor.filename}\n${'-'.repeat(this.editor.filename.length)}`,
+    );
     const listings = this.editor.list();
     this.host.writeLine(listings);
   }

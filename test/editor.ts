@@ -5,8 +5,10 @@ import { Editor } from '../editor';
 import { parseInput } from '../parser';
 import { Line } from '../ast';
 
+import { MockConsoleHost } from './helpers/host';
+
 t.test('editor', async (t: Test) => {
-  const editor = new Editor();
+  const editor = new Editor(new MockConsoleHost());
   function insert(source: string) {
     const [result] = parseInput(source);
     t.equal(result.input.length, 1);

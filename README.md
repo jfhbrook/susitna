@@ -30,8 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- flags
-  - `--run` flag for `load`
 - Global variables
 - If/else
 - For and while

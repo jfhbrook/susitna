@@ -98,6 +98,13 @@ export class TypeError extends RuntimeError {
 export class ValueError extends RuntimeError {}
 
 /**
+ * An exception raised when a variable or property can't be found. Extends
+ * RuntimeError.
+ */
+@errorType('NameError')
+export class NameError extends RuntimeError {}
+
+/**
  * An exception raised for various arithmetic errors. Extends RuntimeError.
  */
 @errorType('ArithmeticError')

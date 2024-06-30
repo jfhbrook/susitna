@@ -4,9 +4,10 @@ export enum OpCode {
   Nil,
   True,
   False,
-
-  // !
   Pop,
+  GetGlobal,
+  DefineGlobal,
+  SetGlobal,
 
   // Operators
   //

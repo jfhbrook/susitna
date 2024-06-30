@@ -15,11 +15,11 @@ export class Stack<V> implements Formattable {
     return val;
   }
 
-  peek(): V | null {
+  peek(n: number = 0): V | null {
     if (this.empty) {
       return null;
     }
-    return this.stack[this.stack.length - 1];
+    return this.stack[this.stack.length - n - 1];
   }
 
   get empty(): boolean {

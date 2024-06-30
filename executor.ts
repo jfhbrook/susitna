@@ -181,7 +181,6 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    // TODO: This readFile call should be moved into the host
     let source: string;
     try {
       source = await readFile(filename, 'utf8');
@@ -191,7 +190,6 @@ export class Executor {
 
     let result: ParseResult<Program>;
 
-    // TODO: filename and warning should be a property on the Program
     try {
       result = this.parser.parseProgram(source, filename);
     } catch (err) {

@@ -1,6 +1,10 @@
+import * as assert from 'assert';
+
 import { startTraceExec, traceExec } from './debug';
 
-import { NotImplementedError } from './exceptions';
+import { BaseException, NameError, NotImplementedError } from './exceptions';
+import { Exit } from './exit';
+import { RuntimeFault } from './faults';
 import { Host } from './host';
 import { Stack } from './stack';
 import { Traceback } from './traceback';
@@ -11,10 +15,13 @@ import { OpCode } from './bytecode/opcodes';
 
 import * as op from './operations';
 
+export type Globals = Record<string, Value>;
+
 export class Runtime {
   public stack: Stack<Value>;
   public pc: number = -1;
   public chunk: Chunk = new Chunk();
+  public globals: Globals = {};
 
   constructor(private host: Host) {
     this.stack = new Stack();
@@ -50,6 +57,12 @@ export class Runtime {
     return this.chunk.constants[this.readByte()];
   }
 
+  private readString(): string {
+    const value = this.readConstant();
+    assert.equal(typeof value, 'string', 'Value is string');
+    return value as string;
+  }
+
   private createTraceback(): Traceback | null {
     return new Traceback(
       null,
@@ -59,8 +72,8 @@ export class Runtime {
   }
 
   private run(): Value | null {
-    let a: any = null;
-    let b: any = null;
+    let a: Value | null = null;
+    let b: Value | null = null;
     let rv: Value | null = null;
 
     startTraceExec();
@@ -86,62 +99,111 @@ export class Runtime {
           case OpCode.Pop:
             this.stack.pop();
             break;
+          case OpCode.GetGlobal:
+            a = this.globals[this.readString()];
+            this.stack.push(this.globals[this.readString()]);
+            break;
+          case OpCode.DefineGlobal:
+            a = this.readString();
+            // NOTE: Pops afterwards for garbage collection reasons
+            b = this.stack.peek();
+            assert.ok(a);
+            assert.ok(b);
+            this.globals[a] = b;
+            this.stack.pop();
+            break;
+          case OpCode.SetGlobal:
+            a = this.readString();
+            // NOTE: Pops afterwards for garbage collection reasons
+            b = this.stack.peek();
+            assert.ok(a);
+            assert.ok(b);
+            if (typeof this.globals[a] === 'undefined') {
+              throw new NameError(`Undefined variable '${a}'`);
+            }
+            this.globals[a] = b;
+            // TODO: This is missing from my clox implementation. That's a
+            // bug, right?
+            this.stack.pop();
+            break;
           case OpCode.Eq:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.eq(a, b));
             break;
           case OpCode.Gt:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.gt(a, b));
             break;
           case OpCode.Ge:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.ge(a, b));
             break;
           case OpCode.Lt:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.lt(a, b));
             break;
           case OpCode.Le:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.le(a, b));
             break;
           case OpCode.Ne:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.ne(a, b));
             break;
           case OpCode.Not:
             a = this.stack.pop();
+            assert.ok(a);
             this.stack.push(op.not(a));
             break;
           case OpCode.Add:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.add(a, b));
             break;
           case OpCode.Sub:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.sub(a, b));
             break;
           case OpCode.Mul:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.mul(a, b));
             break;
           case OpCode.Div:
             b = this.stack.pop();
             a = this.stack.pop();
+            assert.ok(a);
+            assert.ok(b);
             this.stack.push(op.div(a, b));
             break;
           case OpCode.Neg:
             a = this.stack.pop();
+            assert.ok(a);
             this.stack.push(op.neg(a));
             break;
           case OpCode.Print:
@@ -180,6 +242,14 @@ export class Runtime {
         }
       }
     } catch (err) {
+      if (err instanceof Exit) {
+        throw err;
+      }
+
+      if (!(err instanceof BaseException)) {
+        err = RuntimeFault.fromError(err);
+      }
+
       err.traceback = this.createTraceback();
       throw err;
     }

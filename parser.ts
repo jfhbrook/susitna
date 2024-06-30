@@ -40,14 +40,13 @@ import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
 
-export type OptionName = Exclude<string, '_'>;
-export interface Options {
+export interface Arguments {
   parameters: Expr[];
   flags: Record<string, boolean>;
   options: Record<string, Expr>;
 }
 
-export interface OptionsSpec {
+export interface ArgumentsSpec {
   parameters?: string[];
   flags?: string[];
   options?: string[];
@@ -472,7 +471,7 @@ export class Parser {
 
   private load(): Cmd {
     return tracer.spanSync('load', () => {
-      const { parameters, flags } = this.options({
+      const { parameters, flags } = this.arguments({
         parameters: ['filename'],
         flags: ['run'],
       });
@@ -506,10 +505,10 @@ export class Parser {
     });
   }
 
-  private options(spec: OptionsSpec): Options {
-    return tracer.spanSync('options', () => {
+  private arguments(spec: ArgumentsSpec): Arguments {
+    return tracer.spanSync('arguments', () => {
       const parameters = spec.parameters || [];
-      const options: Options = { parameters: [], flags: {}, options: {} };
+      const argv: Arguments = { parameters: [], flags: {}, options: {} };
       const flagNames: Set<string> = new Set(spec.flags || []);
       const noFlagNames: Set<string> = new Set(
         (spec.flags || []).map((f) => `no-${f}`),
@@ -525,27 +524,27 @@ export class Parser {
         if (this.match(TokenKind.LongFlag)) {
           const key = this.previous!.value as string;
           if (flagNames.has(key)) {
-            options.flags[key] = true;
+            argv.flags[key] = true;
           } else if (noFlagNames.has(key)) {
-            options.flags[key] = false;
+            argv.flags[key] = false;
           } else if (optionNames.has(key)) {
-            options.options[key] = this.expression();
+            argv.options[key] = this.expression();
           }
-        } else if (options.parameters.length > parameters.length) {
+        } else if (argv.parameters.length > parameters.length) {
           this.syntaxError(this.current, 'Unexpected parameter');
         } else {
-          options.parameters.push(this.expression());
+          argv.parameters.push(this.expression());
         }
       }
 
-      if (options.parameters.length !== parameters.length) {
+      if (argv.parameters.length !== parameters.length) {
         this.syntaxError(
           this.previous!,
-          `Missing parameter ${options.parameters[parameters.length]}`,
+          `Missing parameter ${argv.parameters[parameters.length]}`,
         );
       }
 
-      return options;
+      return argv;
     });
   }
 

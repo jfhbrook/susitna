@@ -20,6 +20,18 @@ exports[`test/parser.ts > TAP > bare expression starting with an integer > must 
     ^
 `
 
+exports[`test/parser.ts > TAP > load > load with no filename > must match snapshot 1`] = `
+<input>:<R1>:4 (at the beginning): error: Missing parameter 'filename'
+  load
+      ^
+`
+
+exports[`test/parser.ts > TAP > load > load with two positional arguments > must match snapshot 1`] = `
+<input>:<R1>:5 (at the beginning): error: Unexpected parameter
+  load "./examples/001-hello-world.bas" "extra"
+       ^
+`
+
 exports[`test/parser.ts > TAP > non-numbered expression (1 != 1) > must match snapshot 1`] = `
 <input>:<R1>:6 (at the beginning): warning: Use \`<>\` instead of \`!=\` for equality
   (1 != 1)

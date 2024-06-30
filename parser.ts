@@ -477,7 +477,7 @@ export class Parser {
       });
 
       const filename = parameters[0];
-      return new Load(filename, flags.run);
+      return new Load(filename, flags.run || false);
     });
   }
 
@@ -515,6 +515,8 @@ export class Parser {
       );
       const optionNames: Set<string> = new Set(spec.options || []);
 
+      let prevParamToken: Token = this.previous!;
+      let currParamToken: Token = this.current;
       while (
         !this.check(TokenKind.Colon) &&
         !this.check(TokenKind.Rem) &&
@@ -530,18 +532,20 @@ export class Parser {
           } else if (optionNames.has(key)) {
             argv.options[key] = this.expression();
           }
-        } else if (argv.parameters.length > parameters.length) {
-          this.syntaxError(this.current, 'Unexpected parameter');
         } else {
+          prevParamToken = currParamToken;
+          currParamToken = this.current;
           argv.parameters.push(this.expression());
         }
       }
 
-      if (argv.parameters.length !== parameters.length) {
+      if (argv.parameters.length < parameters.length) {
         this.syntaxError(
-          this.previous!,
-          `Missing parameter ${argv.parameters[parameters.length]}`,
+          currParamToken,
+          `Missing parameter '${parameters[argv.parameters.length]}'`,
         );
+      } else if (argv.parameters.length > parameters.length) {
+        this.syntaxError(prevParamToken, 'Unexpected parameter');
       }
 
       return argv;

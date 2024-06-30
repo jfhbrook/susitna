@@ -12,9 +12,10 @@ import {
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem, Load } from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { TokenKind } from '../tokens';
+import { throws } from './helpers/exceptions';
 import { parseInput, parseProgram } from './helpers/parser';
 import { FILENAME } from './helpers/traceback';
 
@@ -198,26 +199,14 @@ t.test('print command', async (t: Test) => {
   });
 
   await t.test('non-numbered, without arguments', async (t: Test) => {
-    t.plan(2);
-    t.throws(() => {
-      try {
-        parseInput('print');
-      } catch (err) {
-        t.matchSnapshot(formatter.format(err));
-        throw err;
-      }
+    throws(t, () => {
+      parseInput('print');
     });
   });
 
   await t.test('numbered, without arguments', async (t: Test) => {
-    t.plan(2);
-    t.throws(() => {
-      try {
-        parseInput('100 print');
-      } catch (err) {
-        t.matchSnapshot(formatter.format(err));
-        throw err;
-      }
+    throws(t, () => {
+      parseInput('100 print');
     });
   });
 });
@@ -350,6 +339,82 @@ t.test('remarks', async (t: Test) => {
   });
 });
 
+t.test('load', async (t: Test) => {
+  await t.test('load with filename', async (t: Test) => {
+    const source = 'load "./examples/001-hello-world.bas"';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(10, 1, source, [
+          new Load(
+            new StringLiteral('./examples/001-hello-world.bas'),
+            false,
+            0,
+            37,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('load with filename and --run', async (t: Test) => {
+    const source = 'load "./examples/001-hello-world.bas" --run';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(10, 1, source, [
+          new Load(
+            new StringLiteral('./examples/001-hello-world.bas'),
+            true,
+            0,
+            43,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('load with filename and --no-run', async (t: Test) => {
+    const source = 'load "./examples/001-hello-world.bas" --no-run';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new CommandGroup(10, 1, source, [
+          new Load(
+            new StringLiteral('./examples/001-hello-world.bas'),
+            false,
+            0,
+            46,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('load with no filename', async (t: Test) => {
+    const source = 'load';
+    throws(t, () => {
+      parseInput(source);
+    });
+  });
+
+  await t.test('load with two positional arguments', async (t: Test) => {
+    const source = 'load "./examples/001-hello-world.bas" "extra"';
+    throws(t, () => {
+      parseInput(source);
+    });
+  });
+});
+
 t.test('empty input', async (t: Test) => {
   const result = parseInput('');
 
@@ -403,14 +468,8 @@ t.test('multiple inputs', async (t: Test) => {
 // we're parsing the very first command, and that we're parsing an expression
 // statement. That's a boatload of state, but I think it's doable.
 t.test('bare expression starting with an integer', async (t: Test) => {
-  t.plan(2);
-  t.throws(() => {
-    try {
-      parseInput('1 + 1');
-    } catch (err) {
-      t.matchSnapshot(formatter.format(err));
-      throw err;
-    }
+  throws(t, () => {
+    parseInput('1 + 1');
   });
 });
 
@@ -453,41 +512,25 @@ t.test('out of order program', async (t: Test) => {
 });
 
 t.test('program with non-numbered input', async (t: Test) => {
-  t.plan(2);
-  t.throws(() => {
-    try {
-      parseProgram(
-        '100 print "hello world"\n"foo"\n200 print "goodbye"',
-        FILENAME,
-      );
-    } catch (err) {
-      t.matchSnapshot(formatter.format(err));
-      throw err;
-    }
+  throws(t, () => {
+    parseProgram(
+      '100 print "hello world"\n"foo"\n200 print "goodbye"',
+      FILENAME,
+    );
   });
 });
 
 t.test('program with a negative line number', async (t: Test) => {
-  t.plan(2);
-  t.throws(() => {
-    try {
-      parseProgram(
-        '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
-        FILENAME,
-      );
-    } catch (err) {
-      t.matchSnapshot(formatter.format(err));
-      throw err;
-    }
+  throws(t, () => {
+    parseProgram(
+      '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
+      FILENAME,
+    );
   });
 });
 
 t.test('accidentally an entire semicolon', async (t: Test) => {
-  t.plan(2);
-  try {
+  throws(t, () => {
     parseInput('print 1 + 1;');
-  } catch (err) {
-    t.pass(err);
-    t.matchSnapshot(formatter.format(err));
-  }
+  });
 });

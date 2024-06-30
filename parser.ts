@@ -5,6 +5,7 @@ import {
   ParseError,
   SyntaxWarning,
   ParseWarning,
+  sortParseError,
 } from './exceptions';
 import { runtimeMethod } from './faults';
 import { Scanner } from './scanner';
@@ -114,12 +115,19 @@ export class Parser {
 
     const result = new Input(this.rows());
 
+    // NOTE: errors and warnings are *almost* sorted, but there are
+    // certain cases where an error is only known after its expression is
+    // parsed - for example, parameter length validation in arguments
+    // parsing.
     let warning: ParseWarning | null = null;
     if (this.isError) {
-      throw new ParseError(this.errors);
+      const err = new ParseError(this.errors);
+      sortParseError(err, ['row', 'offsetStart']);
+      throw err;
     } else if (this.isWarning) {
       const warnings = this.errors as unknown as SyntaxWarning[];
       warning = new ParseWarning(warnings);
+      sortParseError(warning, ['row', 'offsetStart']);
     }
 
     showTree(result);

@@ -30,7 +30,12 @@ gaps.
 
 ### Prioritized Backlog
 
-- Global variables
+- [X] Global variables
+  - [X] runtime
+  - [ ] disassembler
+  - [ ] scanner
+  - [ ] parser
+  - [ ] compiler
 - If/else
 - For and while
 - Logical operators

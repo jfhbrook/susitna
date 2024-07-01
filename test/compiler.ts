@@ -1,11 +1,12 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Cmd, Print, Exit, Expression, Rem } from '../ast/cmd';
+import { Cmd, Print, Exit, Expression, Rem, Let, Assign } from '../ast/cmd';
 import {
   Expr,
   Binary,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -25,7 +26,7 @@ import {
   CompileResult,
 } from '../compiler';
 import { formatter } from '../format';
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 
 import { chunk } from './helpers/bytecode';
 import { FILENAME } from './helpers/traceback';
@@ -127,6 +128,40 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
       constants: [1],
       code: [OpCode.Constant, 0, OpCode.Neg],
       lines: [100, 100, 100],
+    }),
+  ],
+
+  [
+    'i% + 1',
+    new Expression(
+      new Binary(
+        new Variable(
+          new Token({
+            kind: TokenKind.IntIdent,
+            index: 0,
+            row: 1,
+            offsetStart: 0,
+            offsetEnd: 2,
+            text: 'i%',
+            value: 'i%',
+          }),
+        ),
+        TokenKind.Plus,
+        new IntLiteral(1),
+      ),
+    ),
+    chunk({
+      constants: ['i%', 1],
+      code: [
+        OpCode.Constant,
+        0,
+        OpCode.GetGlobal,
+        0,
+        OpCode.Constant,
+        1,
+        OpCode.Add,
+      ],
+      lines: [100, 100, 100, 100, 100, 100, 100],
     }),
   ],
 ];
@@ -244,6 +279,69 @@ const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
 let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('print', Print, OpCode.Print),
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
+  [
+    'let i% = 1',
+    new Let(
+      new Variable(
+        new Token({
+          kind: TokenKind.IntIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i%',
+          value: 'i%',
+        }),
+      ),
+      new IntLiteral(1),
+    ),
+    chunk({
+      constants: ['i%', 1],
+      code: [
+        OpCode.Constant,
+        0,
+        OpCode.Constant,
+        1,
+        OpCode.DefineGlobal,
+        0,
+        OpCode.Nil,
+        OpCode.Return,
+      ],
+      lines: [100, 100, 100, 100, 100, 100, 100, 100],
+    }),
+  ],
+
+  [
+    'i% = 1',
+    new Assign(
+      new Variable(
+        new Token({
+          kind: TokenKind.IntIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i%',
+          value: 'i%',
+        }),
+      ),
+      new IntLiteral(1),
+    ),
+    chunk({
+      constants: ['i%', 1],
+      code: [
+        OpCode.Constant,
+        0,
+        OpCode.Constant,
+        1,
+        OpCode.SetGlobal,
+        0,
+        OpCode.Nil,
+        OpCode.Return,
+      ],
+      lines: [100, 100, 100, 100, 100, 100, 100, 100],
+    }),
+  ],
 ];
 
 const PROGRAMS: TestCase[] = [

@@ -76,6 +76,8 @@ export class Parser {
 
   private previous: Token | null;
   private current: Token;
+  private next: Token;
+  private nextWs: string = '';
 
   private lineErrors: Array<SyntaxError | SyntaxWarning> = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
@@ -93,7 +95,11 @@ export class Parser {
     this.filename = filename;
     this.scanner = new Scanner(source, filename);
     this.previous = null;
-    this.current = this.scanner.nextToken();
+    const [ws1, current] = this.nextToken();
+    this.current = current;
+    const [ws2, next] = this.nextToken();
+    this.next = next;
+    this.nextWs = ws2;
     this.lineErrors = [];
     this.errors = [];
     this.isError = false;
@@ -101,7 +107,7 @@ export class Parser {
     this.isProgram = isProgram;
     this.isLine = false;
     this.lineNo = null;
-    this.line = this.current.text;
+    this.line = ws1 + this.current.text;
 
     tracer.trace('current', this.current);
   }
@@ -184,17 +190,30 @@ export class Parser {
     return this.current.kind === kind;
   }
 
-  private advance(): Token | null {
-    if (this.current.kind !== TokenKind.Whitespace) {
-      this.previous = this.current;
+  private checkNext(kind: TokenKind): boolean {
+    if (this.done) {
+      return kind === TokenKind.Eof;
     }
-    this.current = this.scanner.nextToken();
+    return this.next.kind === kind;
+  }
 
-    this.line += this.current.text;
+  private nextToken(line: string = ''): [string, Token] {
+    const token = this.scanner.nextToken();
 
-    if (this.current.kind === TokenKind.Whitespace) {
-      return this.advance();
+    if (token.kind === TokenKind.Whitespace) {
+      return this.nextToken(line + token.text);
     }
+
+    return [line, token];
+  }
+
+  private advance(): Token {
+    this.previous = this.current;
+    this.current = this.next;
+    this.line += this.nextWs + this.current.text;
+    const [ws, next] = this.nextToken();
+    this.nextWs = ws;
+    this.next = next;
 
     if (this.current.kind === TokenKind.Illegal) {
       this.syntaxError(this.current, `Illegal token ${this.current.text}`);
@@ -203,7 +222,7 @@ export class Parser {
     tracer.trace('previous', this.previous ? this.previous.text : null);
     tracer.trace('current', this.current ? this.current.text : null);
 
-    return this.previous;
+    return this.previous as Token;
   }
 
   private get done(): boolean {
@@ -447,7 +466,12 @@ export class Parser {
       } else if (this.match(TokenKind.Let)) {
         cmd = this.let();
       } else {
-        cmd = this.expressionStatement();
+        const assign = this.assign();
+        if (assign) {
+          cmd = assign;
+        } else {
+          cmd = this.expressionStatement();
+        }
       }
 
       const { offsetEnd } = this.previous!;
@@ -514,19 +538,7 @@ export class Parser {
 
   private expressionStatement(): Cmd {
     return tracer.spanSync('expressionStatement', () => {
-      const expr = this.expression();
-
-      if (this.match(TokenKind.Eq)) {
-        const eq = this.previous!;
-        const value = this.expression();
-        if (expr instanceof Variable) {
-          return new Assign(expr, value);
-        }
-
-        this.syntaxError(eq, 'Cannot assign to variable');
-      }
-
-      return new Expression(expr);
+      return new Expression(this.expression());
     });
   }
 
@@ -551,6 +563,26 @@ export class Parser {
         value = this.expression();
       }
       return new Let(variable, value);
+    });
+  }
+
+  private assign(): Cmd | null {
+    return tracer.spanSync('assign', () => {
+      if (
+        (this.check(TokenKind.IntIdent) ||
+          this.check(TokenKind.RealIdent) ||
+          this.check(TokenKind.BoolIdent) ||
+          this.check(TokenKind.StringIdent)) &&
+        this.checkNext(TokenKind.Eq)
+      ) {
+        this.advance();
+        const variable = this.variable();
+        this.consume(TokenKind.Eq, 'Expected =');
+        const value = this.expression();
+        return new Assign(variable, value);
+      }
+
+      return null;
     });
   }
 

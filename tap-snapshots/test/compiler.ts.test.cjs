@@ -19,7 +19,7 @@ Array [
       "code": Array [
         0,
         0,
-        22,
+        25,
       ],
       "constants": Array [
         "Hello",

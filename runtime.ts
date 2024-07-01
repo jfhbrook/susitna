@@ -1,6 +1,10 @@
+import * as assert from 'assert';
+
 import { startTraceExec, traceExec } from './debug';
 
-import { NotImplementedError } from './exceptions';
+import { BaseException, NameError, NotImplementedError } from './exceptions';
+import { Exit } from './exit';
+import { RuntimeFault } from './faults';
 import { Host } from './host';
 import { Stack } from './stack';
 import { Traceback } from './traceback';
@@ -11,10 +15,13 @@ import { OpCode } from './bytecode/opcodes';
 
 import * as op from './operations';
 
+export type Globals = Record<string, Value>;
+
 export class Runtime {
   public stack: Stack<Value>;
   public pc: number = -1;
   public chunk: Chunk = new Chunk();
+  public globals: Globals = {};
 
   constructor(private host: Host) {
     this.stack = new Stack();
@@ -50,6 +57,12 @@ export class Runtime {
     return this.chunk.constants[this.readByte()];
   }
 
+  private readString(): string {
+    const value = this.readConstant();
+    assert.equal(typeof value, 'string', 'Value is string');
+    return value as string;
+  }
+
   private createTraceback(): Traceback | null {
     return new Traceback(
       null,
@@ -59,8 +72,8 @@ export class Runtime {
   }
 
   private run(): Value | null {
-    let a: any = null;
-    let b: any = null;
+    let a: Value | null = null;
+    let b: Value | null = null;
     let rv: Value | null = null;
 
     startTraceExec();
@@ -84,6 +97,36 @@ export class Runtime {
             this.stack.push(false);
             break;
           case OpCode.Pop:
+            this.stack.pop();
+            break;
+          case OpCode.GetGlobal:
+            a = this.readString();
+            b = this.globals[a];
+            if (typeof b === 'undefined') {
+              throw new NameError(`Variable ${a} is undefined`);
+            }
+            this.stack.push(b);
+            break;
+          case OpCode.DefineGlobal:
+            a = this.readString();
+            // NOTE: Pops afterwards for garbage collection reasons
+            b = this.stack.peek();
+            if (typeof this.globals[a] !== 'undefined') {
+              throw new NameError(`Cannot define variable ${a} twice`);
+            }
+            this.globals[a] = b as Value;
+            this.stack.pop();
+            break;
+          case OpCode.SetGlobal:
+            a = this.readString();
+            // NOTE: Pops afterwards for garbage collection reasons
+            b = this.stack.peek();
+            if (typeof this.globals[a] === 'undefined') {
+              throw new NameError(`Cannot assign to undefined variable ${a}`);
+            }
+            this.globals[a] = b as Value;
+            // TODO: This is missing from my clox implementation. That's a
+            // bug, right?
             this.stack.pop();
             break;
           case OpCode.Eq:
@@ -180,6 +223,14 @@ export class Runtime {
         }
       }
     } catch (err) {
+      if (err instanceof Exit) {
+        throw err;
+      }
+
+      if (!(err instanceof BaseException)) {
+        err = RuntimeFault.fromError(err);
+      }
+
       err.traceback = this.createTraceback();
       throw err;
     }

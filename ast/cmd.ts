@@ -1,6 +1,8 @@
-import { Expr } from './expr';
+import { Expr, Variable } from './expr';
 
 export interface CmdVisitor<R> {
+  visitLetCmd(node: Let): R;
+  visitAssignCmd(node: Assign): R;
   visitExpressionCmd(node: Expression): R;
   visitPrintCmd(node: Print): R;
   visitExitCmd(node: Exit): R;
@@ -19,6 +21,36 @@ export abstract class Cmd {
   ) {}
 
   abstract accept<R>(visitor: CmdVisitor<R>): R;
+}
+
+export class Let extends Cmd {
+  constructor(
+    public variable: Variable,
+    public value: Expr | null,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitLetCmd(this);
+  }
+}
+
+export class Assign extends Cmd {
+  constructor(
+    public variable: Variable,
+    public value: Expr,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: CmdVisitor<R>): R {
+    return visitor.visitAssignCmd(this);
+  }
 }
 
 export class Expression extends Cmd {

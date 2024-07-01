@@ -48,12 +48,12 @@ export enum TokenKind {
 
   NilLiteral = 'nil',
 
-  Ident = '<ident[any]>',
+  Ident = '<ident>',
 
-  IntIdent = '<ident[int]>',
-  RealIdent = '<ident[real]>',
-  BoolIdent = '<ident[bool]>',
-  StringIdent = '<ident[str]>',
+  IntIdent = '<ident%>',
+  RealIdent = '<ident!>',
+  BoolIdent = '<ident?>',
+  StringIdent = '<ident$>',
 
   LongFlag = '--<flag>',
   ShellToken = '<shell>',
@@ -67,8 +67,8 @@ export enum TokenKind {
   Run = 'run',
   End = 'end',
 
+  Let = 'let',
   /*
-  Let = 'LET',
   Data = 'DATA',
   Def = 'DEF',
   Fn = 'FN',

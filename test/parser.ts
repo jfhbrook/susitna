@@ -6,15 +6,25 @@ import { formatter } from '../format';
 import {
   Binary,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Exit, Expression, Rem, Load } from '../ast/cmd';
+import {
+  Cmd,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  Load,
+  Let,
+  Assign,
+} from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 import { throws } from './helpers/exceptions';
 import { parseInput, parseProgram } from './helpers/parser';
 import { FILENAME } from './helpers/traceback';
@@ -77,6 +87,81 @@ const WARNED_EXPRESSIONS: Array<[string, Cmd]> = [
   ],
 ];
 
+const IDENT_EXPRESSIONS: Array<[string, Expression]> = [
+  [
+    'i%',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.IntIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i%',
+          value: 'i%',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i!',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.RealIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i!',
+          value: 'i!',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i?',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.BoolIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i?',
+          value: 'i?',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i$',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.StringIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i$',
+          value: 'i$',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+];
+
 for (const [source, cmd] of EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
@@ -124,6 +209,36 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
 
     cmd.offsetStart -= 4;
     cmd.offsetEnd -= 4;
+  });
+}
+
+for (const [source, cmd] of IDENT_EXPRESSIONS) {
+  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
+  });
+
+  t.test(`numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(`100 ${source}`);
+
+    t.equal(result[1], null);
+
+    cmd.offsetStart += 4;
+    cmd.offsetEnd += 4;
+    (cmd.expression as any).ident.index += 4;
+    (cmd.expression as any).ident.offsetStart += 4;
+    (cmd.expression as any).ident.offsetEnd += 4;
+
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+
+    cmd.offsetStart -= 4;
+    cmd.offsetEnd -= 4;
+    (cmd.expression as any).ident.index -= 4;
+    (cmd.expression as any).ident.offsetStart -= 4;
+    (cmd.expression as any).ident.offsetEnd -= 4;
   });
 }
 
@@ -413,6 +528,66 @@ t.test('load', async (t: Test) => {
       parseInput(source);
     });
   });
+});
+
+t.test('let', async (t: Test) => {
+  const source = 'let i% = 1';
+  const result = parseInput(source);
+
+  t.equal(result[1], null);
+  t.same(
+    result[0],
+    new Input([
+      new CommandGroup(10, 1, source, [
+        new Let(
+          new Variable(
+            new Token({
+              kind: TokenKind.IntIdent,
+              index: 4,
+              row: 1,
+              offsetStart: 4,
+              offsetEnd: 6,
+              text: 'i%',
+              value: 'i%',
+            }),
+          ),
+          new IntLiteral(1),
+          0,
+          10,
+        ),
+      ]),
+    ]),
+  );
+});
+
+t.test('assign', async (t: Test) => {
+  const source = 'i% = 1';
+  const result = parseInput(source);
+
+  t.equal(result[1], null);
+  t.same(
+    result[0],
+    new Input([
+      new CommandGroup(10, 1, source, [
+        new Assign(
+          new Variable(
+            new Token({
+              kind: TokenKind.IntIdent,
+              index: 0,
+              row: 1,
+              offsetStart: 0,
+              offsetEnd: 2,
+              text: 'i%',
+              value: 'i%',
+            }),
+          ),
+          new IntLiteral(1),
+          0,
+          6,
+        ),
+      ]),
+    ]),
+  );
 });
 
 t.test('empty input', async (t: Test) => {

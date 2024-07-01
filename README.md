@@ -30,7 +30,7 @@ gaps.
 
 ### Prioritized Backlog
 
-- Global variables
+- [ ] Tests for editor commands
 - If/else
 - For and while
 - Logical operators

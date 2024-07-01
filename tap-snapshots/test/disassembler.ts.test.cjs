@@ -106,6 +106,24 @@ exports[`test/disassembler.ts > TAP > missing constants > must match snapshot 1`
 -1  5  RETURN
 `
 
+exports[`test/disassembler.ts > TAP > print > i% = 1 > must match snapshot 1`] = `
+=== Disassembly of <unknown>: ===
+100  1  CONSTANT    i%
+100  3  CONSTANT    1
+100  5  SET_GLOBAL  i%
+100  7  NIL
+100  8  RETURN
+`
+
+exports[`test/disassembler.ts > TAP > print > let i% = 1 > must match snapshot 1`] = `
+=== Disassembly of <unknown>: ===
+100  1  CONSTANT       i%
+100  3  CONSTANT       1
+100  5  DEFINE_GLOBAL  i%
+100  7  NIL
+100  8  RETURN
+`
+
 exports[`test/disassembler.ts > TAP > print > print "hello world" > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  hello world
@@ -154,6 +172,14 @@ exports[`test/disassembler.ts > TAP > print > print false > must match snapshot 
 -1  3  PRINT
 -1  4  NIL
 -1  5  RETURN
+`
+
+exports[`test/disassembler.ts > TAP > print > print i% + 1 > must match snapshot 1`] = `
+=== Disassembly of <unknown>: ===
+100  1  CONSTANT    i%
+100  3  GET_GLOBAL  i%
+100  5  CONSTANT    1
+100  7  ADD
 `
 
 exports[`test/disassembler.ts > TAP > print > print nil > must match snapshot 1`] = `

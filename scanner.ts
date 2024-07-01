@@ -29,7 +29,9 @@ export const KEYWORDS: Record<string, TokenKind> = {
   // restore: TokenKind.Restore,
   // renum: TokenKind.Renum,
 
-  // TODO: variable definitions
+  // variable definitions
+  let: TokenKind.Let,
+
   // TODO: control flow
   // TODO: error handling
   // TODO: datetime

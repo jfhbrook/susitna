@@ -1,11 +1,12 @@
 import { Test } from 'tap';
 
+import { Exit } from '../../exit';
 import { Chunk } from '../../bytecode/chunk';
 import { formatter } from '../../format';
 import { Runtime } from '../../runtime';
 import { Value } from '../../value';
 
-import { MockConsoleHost, MockExit } from './host';
+import { MockConsoleHost } from './host';
 
 export interface ChunkTests {
   effect?: [Value[], Value[]];
@@ -25,7 +26,7 @@ export function testChunk(t: Test, chunk: Chunk, tests: ChunkTests = {}): void {
       try {
         runtime.interpret(chunk);
       } catch (err) {
-        if (!(err instanceof MockExit)) {
+        if (!(err instanceof Exit)) {
           t.matchSnapshot(formatter.format(err));
           throw err;
         }

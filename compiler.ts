@@ -7,7 +7,7 @@ import {
   mergeParseErrors,
 } from './exceptions';
 import { runtimeMethod } from './faults';
-import { TokenKind } from './tokens';
+import { Token, TokenKind } from './tokens';
 import { Value } from './value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
@@ -24,6 +24,8 @@ import {
   List,
   Save,
   Run,
+  Let,
+  Assign,
 } from './ast/cmd';
 import {
   Expr,
@@ -32,6 +34,7 @@ import {
   Binary,
   Logical,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -184,10 +187,8 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private get done(): boolean {
     if (this.currentLine >= this.lines.length) {
-      tracer.trace('done!');
       return true;
     } else {
-      tracer.trace('not done');
       return false;
     }
   }
@@ -274,7 +275,19 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private emitConstant(value: Value): void {
-    this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    return tracer.spanSync('emitConstant', () => {
+      tracer.trace('value:', value);
+      this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    });
+  }
+
+  private emitIdent(ident: Token): number {
+    return tracer.spanSync('emitIdent', () => {
+      tracer.trace('ident:', ident.value);
+      const constant = this.makeConstant(ident.value as Value);
+      this.emitBytes(OpCode.Constant, constant);
+      return constant;
+    });
   }
 
   // NOTE: This is only used to emit implicit and bare returns. Valued
@@ -298,7 +311,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   // Commands
   //
 
-  private command(cmd: Cmd) {
+  private command(cmd: Cmd): void {
     tracer.spanSync('command', () => {
       tracer.trace('cmd', cmd);
       cmd.accept(this);
@@ -337,24 +350,44 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitRemCmd(_rem: Rem): void {}
 
-  visitNewCmd(new_: New): CompileResult<CompiledCmd> {
+  visitNewCmd(new_: New): void {
     return this.interactive('new', new_);
   }
 
-  visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
+  visitLoadCmd(load: Load): void {
     return this.interactive('load', load);
   }
 
-  visitListCmd(list: List): CompileResult<CompiledCmd> {
+  visitListCmd(list: List): void {
     return this.interactive('list', list);
   }
 
-  visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
+  visitSaveCmd(save: Save): void {
     return this.interactive('save', save);
   }
 
-  visitRunCmd(run: Run): CompileResult<CompiledCmd> {
+  visitRunCmd(run: Run): void {
     return this.interactive('run', run);
+  }
+
+  visitLetCmd(let_: Let): void {
+    return tracer.spanSync('let', () => {
+      const target = this.emitIdent(let_.variable.ident);
+      if (let_.value) {
+        let_.value.accept(this);
+      } else {
+        this.emitByte(OpCode.Nil);
+      }
+      this.emitBytes(OpCode.DefineGlobal, target);
+    });
+  }
+
+  visitAssignCmd(assign: Assign): void {
+    return tracer.spanSync('assign', () => {
+      const target = this.emitIdent(assign.variable.ident);
+      assign.value.accept(this);
+      this.emitBytes(OpCode.SetGlobal, target);
+    });
   }
 
   // Expressions
@@ -420,6 +453,13 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitGroupExpr(group: Group): void {
     tracer.spanSync('group', () => {
       group.expr.accept(this);
+    });
+  }
+
+  visitVariableExpr(variable: Variable): void {
+    tracer.spanSync('variable', () => {
+      const ident = this.emitIdent(variable.ident);
+      this.emitBytes(OpCode.GetGlobal, ident);
     });
   }
 
@@ -556,6 +596,14 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitRunCmd(run: Run): CompileResult<CompiledCmd> {
     return this.interactive(run, []);
+  }
+
+  visitLetCmd(let_: Let): CompileResult<CompiledCmd> {
+    return this.compiled(let_);
+  }
+
+  visitAssignCmd(assign: Assign): CompileResult<CompiledCmd> {
+    return this.compiled(assign);
   }
 }
 

@@ -53,18 +53,18 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
     return [String(lineNo), String(offset), code, ''];
   }
 
-  function constant(): Row {
+  function constant(code: string): Row {
     return [
       String(lineNo),
       String(offset),
-      'CONSTANT',
+      code,
       formatter.format(chunk.constants[advance()]),
     ];
   }
 
   switch (advance()) {
     case OpCode.Constant:
-      row = constant();
+      row = constant('CONSTANT');
       break;
     case OpCode.Nil:
       row = simple('NIL');
@@ -77,6 +77,15 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
       break;
     case OpCode.Pop:
       row = simple('POP');
+      break;
+    case OpCode.GetGlobal:
+      row = constant('GET_GLOBAL');
+      break;
+    case OpCode.DefineGlobal:
+      row = constant('DEFINE_GLOBAL');
+      break;
+    case OpCode.SetGlobal:
+      row = constant('SET_GLOBAL');
       break;
     case OpCode.Eq:
       row = simple('NIL');

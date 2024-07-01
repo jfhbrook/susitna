@@ -28,6 +28,7 @@ import {
   Logical,
   Unary,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -47,6 +48,8 @@ import {
   List,
   Save,
   Run,
+  Let,
+  Assign,
 } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -154,6 +157,7 @@ export abstract class Formatter
   abstract visitLogicalExpr(logical: Logical): string;
   abstract visitUnaryExpr(unary: Unary): string;
   abstract visitGroupExpr(group: Group): string;
+  abstract visitVariableExpr(variable: Variable): string;
   abstract visitIntLiteralExpr(int: IntLiteral): string;
   abstract visitRealLiteralExpr(real: RealLiteral): string;
   abstract visitBoolLiteralExpr(bool: BoolLiteral): string;
@@ -170,6 +174,8 @@ export abstract class Formatter
   abstract visitListCmd(list: List): string;
   abstract visitSaveCmd(save: Save): string;
   abstract visitRunCmd(run: Run): string;
+  abstract visitLetCmd(let_: Let): string;
+  abstract visitAssignCmd(assign: Assign): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
@@ -555,6 +561,10 @@ export class DefaultFormatter extends Formatter {
     return `(${this.format(group.expr)})`;
   }
 
+  visitVariableExpr(variable: Variable): string {
+    return variable.ident.text;
+  }
+
   visitIntLiteralExpr(int: IntLiteral): string {
     return String(int.value);
   }
@@ -600,7 +610,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitLoadCmd(load: Load): string {
-    return `Load(${this.format(load.filename)}${load.run ? ',R' : ''})`;
+    return `Load(${this.format(load.filename)}, run=${load.run ? 'true' : 'false'})`;
   }
 
   visitListCmd(_list: List): string {
@@ -613,6 +623,14 @@ export class DefaultFormatter extends Formatter {
 
   visitRunCmd(_run: Run): string {
     return `Run`;
+  }
+
+  visitLetCmd(let_: Let): string {
+    return `Let(${this.format(let_.variable)}, ${this.format(let_.value)})`;
+  }
+
+  visitAssignCmd(assign: Assign): string {
+    return `Assign(${this.format(assign.variable)}, ${this.format(assign.value)})`;
   }
 
   formatStack<V>(stack: Stack<V>): string {

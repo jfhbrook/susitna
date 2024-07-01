@@ -1,10 +1,11 @@
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitUnaryExpr(node: Unary): R;
   visitBinaryExpr(node: Binary): R;
   visitLogicalExpr(node: Logical): R;
   visitGroupExpr(node: Group): R;
+  visitVariableExpr(node: Variable): R;
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
@@ -65,6 +66,16 @@ export class Group extends Expr {
 
   accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitGroupExpr(this);
+  }
+}
+
+export class Variable extends Expr {
+  constructor(public ident: Token) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitVariableExpr(this);
   }
 }
 

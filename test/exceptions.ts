@@ -14,6 +14,7 @@ import {
   Warning,
   DeprecationWarning,
   ValueError,
+  NameError,
   ArithmeticError,
   OsError,
   FileError,
@@ -34,6 +35,7 @@ const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   RuntimeError,
   NotImplementedError,
   ValueError,
+  NameError,
   ArithmeticError,
 ];
 

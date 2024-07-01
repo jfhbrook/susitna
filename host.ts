@@ -2,8 +2,10 @@ import { basename } from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
-
 import { Readable, Writable } from 'stream';
+
+import { injectable } from 'inversify';
+import 'reflect-metadata';
 
 import { ErrorCode } from './errors';
 import { BaseException, FileError } from './exceptions';
@@ -199,6 +201,7 @@ export interface Host {
 /**
  * A host for a standard terminal console.
  */
+@injectable()
 export class ConsoleHost implements Host {
   private formatter = new DefaultFormatter();
   inputStream: Readable;

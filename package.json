@@ -49,6 +49,8 @@
     "@types/text-table": "^0.2.5",
     "ansi-colors": "^4.1.3",
     "dotenv": "^16.4.5",
+    "inversify": "^6.0.2",
+    "reflect-metadata": "^0.2.2",
     "strftime": "^0.10.2",
     "text-table": "^0.2.0"
   },

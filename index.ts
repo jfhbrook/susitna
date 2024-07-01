@@ -6,9 +6,13 @@ if (MATBAS_BUILD === 'debug') {
   dotenv.config();
 }
 
+import { Container } from 'inversify';
+
 import { getTracer } from './debug';
-import { container, Container } from './container';
+import { container } from './container';
+import { TYPES } from './container/types';
 import { Config } from './config';
+import { Executor } from './executor';
 import { BaseException } from './exceptions';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { ConsoleHost, Host } from './host';
@@ -59,7 +63,10 @@ export interface RuntimeOptions {
 //
 // Run the REPL.
 //
-async function repl<H extends Host>({ executor, host }: Container<H>) {
+async function repl(deps: Container) {
+  const executor = deps.get<Executor>(TYPES.Executor);
+  const host = deps.get<Host>(TYPES.Host);
+
   while (true) {
     try {
       const input = await executor.prompt();
@@ -120,15 +127,17 @@ export async function main({
     const config = Config.load(argv, env);
     host.setLevel(config.level);
 
-    const deps = container(config, host);
-    const { executor } = deps;
+    container.bind<Host>(TYPES.Host).toConstantValue(host);
+    container.bind<Config>(TYPES.Config).toConstantValue(config);
+
+    const executor = container.get<Executor>(TYPES.Executor);
 
     await executor.using(async () => {
       if (config.script) {
         await executor.load(config.script);
         await executor.run();
       } else {
-        await repl(deps);
+        await repl(container);
       }
     });
   } catch (err) {

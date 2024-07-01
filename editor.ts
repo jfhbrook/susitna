@@ -1,4 +1,9 @@
 import { relative, resolve } from 'path';
+
+import { injectable, inject } from 'inversify';
+import 'reflect-metadata';
+import { TYPES } from './container/types';
+
 import {
   ParseWarning,
   mergeParseErrors,
@@ -17,11 +22,12 @@ interface Index {
 // An index corresponding to inserting the line at the very front
 const HEAD: number = -1;
 
+@injectable()
 export class Editor {
   public program: Program;
   public warning: ParseWarning | null;
 
-  constructor(public host: Host) {
+  constructor(@inject(TYPES.Host) public host: Host) {
     this.program = new Program('untitled.bas', []);
     this.warning = null;
   }

@@ -1,3 +1,6 @@
+import { injectable } from 'inversify';
+import 'reflect-metadata';
+
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
@@ -64,6 +67,7 @@ function parseLevel(arg: string): Level {
 /**
  * Basic configuration for Matanuska BASIC.
  */
+@injectable()
 export class Config {
   public readonly eval: string | null;
 

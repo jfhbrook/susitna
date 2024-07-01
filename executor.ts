@@ -1,6 +1,10 @@
 import { readFile, writeFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
+import { injectable, inject } from 'inversify';
+import 'reflect-metadata';
+import { TYPES } from './container/types';
+
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -26,6 +30,7 @@ import { Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
+@injectable()
 export class Executor {
   private parser: Parser;
   private runtime: Runtime;
@@ -36,9 +41,9 @@ export class Executor {
   private cmdSource: string = '';
 
   constructor(
-    private _config: Config,
-    private editor: Editor,
-    private host: Host,
+    @inject(TYPES.Config) private _config: Config,
+    @inject(TYPES.Editor) private editor: Editor,
+    @inject(TYPES.Host) private host: Host,
   ) {
     this.parser = new Parser();
     this.runtime = new Runtime(host);

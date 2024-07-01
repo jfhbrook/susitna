@@ -238,6 +238,48 @@ t.test('print', async (t: Test) => {
       ),
     );
   });
+
+  await t.test('let i% = 1', async (t: Test) => {
+    t.matchSnapshot(
+      disassemble(
+        chunk({
+          constants: ['i%', 1],
+          code: [
+            OpCode.Constant,
+            0,
+            OpCode.Constant,
+            1,
+            OpCode.DefineGlobal,
+            0,
+            OpCode.Nil,
+            OpCode.Return,
+          ],
+          lines: [100, 100, 100, 100, 100, 100, 100, 100],
+        }),
+      ),
+    );
+  });
+
+  await t.test('i% = 1', async (t: Test) => {
+    t.matchSnapshot(
+      disassemble(
+        chunk({
+          constants: ['i%', 1],
+          code: [
+            OpCode.Constant,
+            0,
+            OpCode.Constant,
+            1,
+            OpCode.SetGlobal,
+            0,
+            OpCode.Nil,
+            OpCode.Return,
+          ],
+          lines: [100, 100, 100, 100, 100, 100, 100, 100],
+        }),
+      ),
+    );
+  });
 });
 
 t.test('simple program', async (t: Test) => {

@@ -37,8 +37,8 @@ gaps.
   - [X] compiler
   - [X] parser tests for let/assign
   - [X] parser tests for idents in expressions
-  - [ ] compiler tests for let/assign/idents
-  - [ ] disassembler tests for let/assign/idents
+  - [X] compiler tests for let/assign/idents
+  - [X] disassembler tests for let/assign/idents
   - [ ] ADR for let/assign semantics
 - [ ] Tests for editor commands
 - If/else

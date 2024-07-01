@@ -532,7 +532,7 @@ export class Parser {
 
   private let(): Cmd {
     return tracer.spanSync('let', () => {
-      let name: Token;
+      let variable: Variable;
       if (
         this.match(
           TokenKind.IntIdent,
@@ -541,17 +541,16 @@ export class Parser {
           TokenKind.StringIdent,
         )
       ) {
-        name = this.current;
-        this.advance();
+        variable = this.variable();
       } else {
         this.syntaxError(this.current, 'Expected variable name');
       }
 
-      let initializer: Expr | null = null;
+      let value: Expr | null = null;
       if (this.match(TokenKind.Eq)) {
-        initializer = this.expression();
+        value = this.expression();
       }
-      return new Let(name, initializer);
+      return new Let(variable, value);
     });
   }
 
@@ -666,6 +665,7 @@ export class Parser {
         [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
         this.comparison.bind(this),
         (left, op, right) => {
+          // TODO: Can not be parsed in a let/assign command
           if (op == TokenKind.Eq) {
             this.syntaxWarning(
               this.previous!,
@@ -774,7 +774,7 @@ export class Parser {
     });
   }
 
-  private variable(): Expr {
+  private variable(): Variable {
     return tracer.spanSync('variable', () => {
       return new Variable(this.previous!);
     });

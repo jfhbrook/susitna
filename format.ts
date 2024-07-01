@@ -626,7 +626,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitLetCmd(let_: Let): string {
-    return `Let(${this.format(let_.name)}, ${this.format(let_.initializer)})`;
+    return `Let(${this.format(let_.variable)}, ${this.format(let_.value)})`;
   }
 
   visitAssignCmd(assign: Assign): string {

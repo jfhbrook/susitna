@@ -7,7 +7,7 @@ import {
   mergeParseErrors,
 } from './exceptions';
 import { runtimeMethod } from './faults';
-import { TokenKind } from './tokens';
+import { Token, TokenKind } from './tokens';
 import { Value } from './value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
@@ -187,10 +187,8 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   private get done(): boolean {
     if (this.currentLine >= this.lines.length) {
-      tracer.trace('done!');
       return true;
     } else {
-      tracer.trace('not done');
       return false;
     }
   }
@@ -277,7 +275,19 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   private emitConstant(value: Value): void {
-    this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    return tracer.spanSync('emitConstant', () => {
+      tracer.trace('value:', value);
+      this.emitBytes(OpCode.Constant, this.makeConstant(value));
+    });
+  }
+
+  private emitIdent(ident: Token): number {
+    return tracer.spanSync('emitIdent', () => {
+      tracer.trace('ident:', ident.value);
+      const constant = this.makeConstant(ident.value as Value);
+      this.emitBytes(OpCode.Constant, constant);
+      return constant;
+    });
   }
 
   // NOTE: This is only used to emit implicit and bare returns. Valued
@@ -360,15 +370,23 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.interactive('run', run);
   }
 
-  visitLetCmd(_let: Let): void {
+  visitLetCmd(let_: Let): void {
     return tracer.spanSync('let', () => {
-      throw new Error('TODO');
+      const target = this.emitIdent(let_.variable.ident);
+      if (let_.value) {
+        let_.value.accept(this);
+      } else {
+        this.emitByte(OpCode.Nil);
+      }
+      this.emitBytes(OpCode.DefineGlobal, target);
     });
   }
 
-  visitAssignCmd(_assign: Assign): void {
+  visitAssignCmd(assign: Assign): void {
     return tracer.spanSync('assign', () => {
-      throw new Error('TODO');
+      const target = this.emitIdent(assign.variable.ident);
+      assign.value.accept(this);
+      this.emitBytes(OpCode.SetGlobal, target);
     });
   }
 
@@ -438,9 +456,10 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitVariableExpr(_variable: Variable): void {
+  visitVariableExpr(variable: Variable): void {
     tracer.spanSync('variable', () => {
-      throw new Error('TODO');
+      const ident = this.emitIdent(variable.ident);
+      this.emitBytes(OpCode.GetGlobal, ident);
     });
   }
 

@@ -1,4 +1,3 @@
-import { Token } from '../tokens';
 import { Expr, Variable } from './expr';
 
 export interface CmdVisitor<R> {
@@ -160,8 +159,8 @@ export class Rem extends Cmd {
 
 export class Let extends Cmd {
   constructor(
-    public name: Token,
-    public initializer: Expr | null,
+    public variable: Variable,
+    public value: Expr | null,
     offsetStart: number = -1,
     offsetEnd: number = -1,
   ) {

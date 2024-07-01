@@ -33,6 +33,7 @@ import { Token, TokenKind } from '../tokens';
 import {
   Binary,
   Unary,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -393,15 +394,17 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
         new Save(null),
         new Run(),
         new Let(
-          new Token({
-            kind: TokenKind.IntIdent,
-            index: 0,
-            row: 1,
-            offsetStart: 5,
-            offsetEnd: 6,
-            text: 'i%',
-            value: null,
-          }),
+          new Variable(
+            new Token({
+              kind: TokenKind.IntIdent,
+              index: 0,
+              row: 1,
+              offsetStart: 5,
+              offsetEnd: 6,
+              text: 'i%',
+              value: null,
+            }),
+          ),
           new IntLiteral(1),
         ),
       ];

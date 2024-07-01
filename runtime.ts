@@ -101,7 +101,7 @@ export class Runtime {
             break;
           case OpCode.GetGlobal:
             a = this.globals[this.readString()];
-            this.stack.push(this.globals[this.readString()]);
+            this.stack.push(a);
             break;
           case OpCode.DefineGlobal:
             a = this.readString();

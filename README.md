@@ -36,6 +36,8 @@ gaps.
   - [ ] scanner
   - [ ] parser
   - [ ] compiler
+  - [ ] tests
+  - [ ] ADR for let/assign semantics
 - If/else
 - For and while
 - Logical operators

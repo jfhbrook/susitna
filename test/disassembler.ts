@@ -239,6 +239,26 @@ t.test('print', async (t: Test) => {
     );
   });
 
+  await t.test('print i% + 1', async (t: Test) => {
+    t.matchSnapshot(
+      disassemble(
+        chunk({
+          constants: ['i%', 1],
+          code: [
+            OpCode.Constant,
+            0,
+            OpCode.GetGlobal,
+            0,
+            OpCode.Constant,
+            1,
+            OpCode.Add,
+          ],
+          lines: [100, 100, 100, 100, 100, 100, 100],
+        }),
+      ),
+    );
+  });
+
   await t.test('let i% = 1', async (t: Test) => {
     t.matchSnapshot(
       disassemble(

@@ -100,8 +100,12 @@ export class Runtime {
             this.stack.pop();
             break;
           case OpCode.GetGlobal:
-            a = this.globals[this.readString()];
-            this.stack.push(a);
+            a = this.readString();
+            b = this.globals[a];
+            if (typeof b === 'undefined') {
+              throw new NameError(`Variable ${a} is undefined`);
+            }
+            this.stack.push(b);
             break;
           case OpCode.DefineGlobal:
             a = this.readString();

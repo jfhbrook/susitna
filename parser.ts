@@ -568,6 +568,8 @@ export class Parser {
 
   private assign(): Cmd | null {
     return tracer.spanSync('assign', () => {
+      // We can't match here because we need to check the *next* token
+      // before advancing...
       if (
         (this.check(TokenKind.IntIdent) ||
           this.check(TokenKind.RealIdent) ||
@@ -575,6 +577,7 @@ export class Parser {
           this.check(TokenKind.StringIdent)) &&
         this.checkNext(TokenKind.Eq)
       ) {
+        // ...and so we advance here.
         this.advance();
         const variable = this.variable();
         this.consume(TokenKind.Eq, 'Expected =');
@@ -697,7 +700,6 @@ export class Parser {
         [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
         this.comparison.bind(this),
         (left, op, right) => {
-          // TODO: Can not be parsed in a let/assign command
           if (op == TokenKind.Eq) {
             this.syntaxWarning(
               this.previous!,

@@ -174,6 +174,14 @@ exports[`test/disassembler.ts > TAP > print > print false > must match snapshot 
 -1  5  RETURN
 `
 
+exports[`test/disassembler.ts > TAP > print > print i% + 1 > must match snapshot 1`] = `
+=== Disassembly of <unknown>: ===
+100  1  CONSTANT    i%
+100  3  GET_GLOBAL  i%
+100  5  CONSTANT    1
+100  7  ADD
+`
+
 exports[`test/disassembler.ts > TAP > print > print nil > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  NIL

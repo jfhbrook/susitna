@@ -18,6 +18,7 @@ type Cmd in './cmd' {
   import { Expr, Variable } from './expr'
 
   Cmd        => offsetStart: number = -1, offsetEnd: number = -1
+  Let        => variable: Variable, value: Expr | null
   Assign     => variable: Variable, value: Expr
   Expression => expression: Expr
   Print      => expression: Expr
@@ -28,7 +29,6 @@ type Cmd in './cmd' {
   Run!
   Save       => filename: Expr | null
   Rem        => remark: string
-  Let        => variable: Variable, value: Expr | null
 }
 
 type Tree in './index' {

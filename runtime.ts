@@ -107,21 +107,20 @@ export class Runtime {
             a = this.readString();
             // NOTE: Pops afterwards for garbage collection reasons
             b = this.stack.peek();
-            assert.ok(a);
-            assert.ok(b);
-            this.globals[a] = b;
+            if (typeof this.globals[a] !== 'undefined') {
+              throw new NameError(`Cannot define variable ${a} twice`);
+            }
+            this.globals[a] = b as Value;
             this.stack.pop();
             break;
           case OpCode.SetGlobal:
             a = this.readString();
             // NOTE: Pops afterwards for garbage collection reasons
             b = this.stack.peek();
-            assert.ok(a);
-            assert.ok(b);
             if (typeof this.globals[a] === 'undefined') {
               throw new NameError(`Cannot assign to undefined variable ${a}`);
             }
-            this.globals[a] = b;
+            this.globals[a] = b as Value;
             // TODO: This is missing from my clox implementation. That's a
             // bug, right?
             this.stack.pop();
@@ -129,81 +128,59 @@ export class Runtime {
           case OpCode.Eq:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.eq(a, b));
             break;
           case OpCode.Gt:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.gt(a, b));
             break;
           case OpCode.Ge:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.ge(a, b));
             break;
           case OpCode.Lt:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.lt(a, b));
             break;
           case OpCode.Le:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.le(a, b));
             break;
           case OpCode.Ne:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.ne(a, b));
             break;
           case OpCode.Not:
             a = this.stack.pop();
-            assert.ok(a);
             this.stack.push(op.not(a));
             break;
           case OpCode.Add:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.add(a, b));
             break;
           case OpCode.Sub:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.sub(a, b));
             break;
           case OpCode.Mul:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.mul(a, b));
             break;
           case OpCode.Div:
             b = this.stack.pop();
             a = this.stack.pop();
-            assert.ok(a);
-            assert.ok(b);
             this.stack.push(op.div(a, b));
             break;
           case OpCode.Neg:
             a = this.stack.pop();
-            assert.ok(a);
             this.stack.push(op.neg(a));
             break;
           case OpCode.Print:

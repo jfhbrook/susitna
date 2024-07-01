@@ -31,6 +31,7 @@ gaps.
 ### Prioritized Backlog
 
 - [ ] Tests for editor commands
+  - [ ] Introduce a real DI container
   - [ ] Write MockExecutor
   - [ ] Test that thang
 - If/else

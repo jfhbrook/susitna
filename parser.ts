@@ -17,6 +17,7 @@ import {
   Logical,
   Unary,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -26,6 +27,7 @@ import {
 } from './ast/expr';
 import {
   Cmd,
+  Assign,
   Print,
   Exit,
   Expression,
@@ -512,29 +514,45 @@ export class Parser {
 
   private expressionStatement(): Cmd {
     return tracer.spanSync('expressionStatement', () => {
-      return new Expression(this.expression());
+      const expr = this.expression();
+
+      if (this.match(TokenKind.Eq)) {
+        const eq = this.previous!;
+        const value = this.expression();
+        if (expr instanceof Variable) {
+          return new Assign(expr, value);
+        }
+
+        this.syntaxError(eq, 'Cannot assign to variable');
+      }
+
+      return new Expression(expr);
     });
   }
 
   private let(): Cmd {
-    let name: Token;
-    if (
-      this.match(TokenKind.IntIdent) ||
-      this.match(TokenKind.RealIdent) ||
-      this.match(TokenKind.BoolIdent) ||
-      this.match(TokenKind.StringIdent)
-    ) {
-      name = this.current;
-      this.advance();
-    } else {
-      this.syntaxError(this.current, 'Expected variable name');
-    }
+    return tracer.spanSync('let', () => {
+      let name: Token;
+      if (
+        this.match(
+          TokenKind.IntIdent,
+          TokenKind.RealIdent,
+          TokenKind.BoolIdent,
+          TokenKind.StringIdent,
+        )
+      ) {
+        name = this.current;
+        this.advance();
+      } else {
+        this.syntaxError(this.current, 'Expected variable name');
+      }
 
-    let initializer: Expr | null = null;
-    if (this.match(TokenKind.Eq)) {
-      initializer = this.expression();
-    }
-    return new Let(name, initializer);
+      let initializer: Expr | null = null;
+      if (this.match(TokenKind.Eq)) {
+        initializer = this.expression();
+      }
+      return new Let(name, initializer);
+    });
   }
 
   private arguments(spec: ArgumentsSpec): Arguments {
@@ -732,6 +750,15 @@ export class Parser {
         return this.string();
       } else if (this.match(TokenKind.NilLiteral)) {
         return new NilLiteral();
+      } else if (
+        this.match(
+          TokenKind.IntIdent,
+          TokenKind.RealIdent,
+          TokenKind.BoolIdent,
+          TokenKind.StringIdent,
+        )
+      ) {
+        return this.variable();
       } else if (this.match(TokenKind.LParen)) {
         return this.group();
       } else {
@@ -744,6 +771,12 @@ export class Parser {
 
         this.syntaxError(token, msg);
       }
+    });
+  }
+
+  private variable(): Expr {
+    return tracer.spanSync('variable', () => {
+      return new Variable(this.previous!);
     });
   }
 

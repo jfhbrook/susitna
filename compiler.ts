@@ -25,6 +25,7 @@ import {
   Save,
   Run,
   Let,
+  Assign,
 } from './ast/cmd';
 import {
   Expr,
@@ -33,6 +34,7 @@ import {
   Binary,
   Logical,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
@@ -299,7 +301,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   // Commands
   //
 
-  private command(cmd: Cmd) {
+  private command(cmd: Cmd): void {
     tracer.spanSync('command', () => {
       tracer.trace('cmd', cmd);
       cmd.accept(this);
@@ -338,28 +340,34 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitRemCmd(_rem: Rem): void {}
 
-  visitNewCmd(new_: New): CompileResult<CompiledCmd> {
+  visitNewCmd(new_: New): void {
     return this.interactive('new', new_);
   }
 
-  visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
+  visitLoadCmd(load: Load): void {
     return this.interactive('load', load);
   }
 
-  visitListCmd(list: List): CompileResult<CompiledCmd> {
+  visitListCmd(list: List): void {
     return this.interactive('list', list);
   }
 
-  visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
+  visitSaveCmd(save: Save): void {
     return this.interactive('save', save);
   }
 
-  visitRunCmd(run: Run): CompileResult<CompiledCmd> {
+  visitRunCmd(run: Run): void {
     return this.interactive('run', run);
   }
 
-  visitLetCmd(_let: Let): CompileResult<CompiledCmd> {
+  visitLetCmd(_let: Let): void {
     return tracer.spanSync('let', () => {
+      throw new Error('TODO');
+    });
+  }
+
+  visitAssignCmd(_assign: Assign): void {
+    return tracer.spanSync('assign', () => {
       throw new Error('TODO');
     });
   }
@@ -427,6 +435,12 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   visitGroupExpr(group: Group): void {
     tracer.spanSync('group', () => {
       group.expr.accept(this);
+    });
+  }
+
+  visitVariableExpr(_variable: Variable): void {
+    tracer.spanSync('variable', () => {
+      throw new Error('TODO');
     });
   }
 
@@ -567,6 +581,10 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitLetCmd(let_: Let): CompileResult<CompiledCmd> {
     return this.compiled(let_);
+  }
+
+  visitAssignCmd(assign: Assign): CompileResult<CompiledCmd> {
+    return this.compiled(assign);
   }
 }
 

@@ -33,6 +33,7 @@ export function commandRunner(
     visitSaveCmd,
     visitRunCmd,
     visitLetCmd: invalid('let'),
+    visitAssignCmd: invalid('assign'),
   };
 }
 

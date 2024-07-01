@@ -1,10 +1,11 @@
 type Expr in './expr' {
-  import { TokenKind } from '../tokens'
+  import { Token, TokenKind } from '../tokens'
 
   Unary          => op: TokenKind, expr: Expr
   Binary         => left: Expr, op: TokenKind, right: Expr
   Logical        => left: Expr, op: TokenKind, right: Expr
   Group          => expr: Expr
+  Variable       => ident: Token
   IntLiteral     => value: number
   RealLiteral    => value: number
   BoolLiteral    => value: boolean
@@ -15,9 +16,10 @@ type Expr in './expr' {
 
 type Cmd in './cmd' {
   import { Token } from '../tokens'
-  import { Expr } from './expr'
+  import { Expr, Variable } from './expr'
 
   Cmd        => offsetStart: number = -1, offsetEnd: number = -1
+  Assign     => variable: Variable, value: Expr
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null

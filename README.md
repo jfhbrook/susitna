@@ -32,9 +32,8 @@ gaps.
 
 - [X] Global variables
   - [X] runtime
-  - [ ] disassembler
-  - [ ] scanner
-  - [ ] parser
+  - [X] disassembler
+  - [X] parser
   - [ ] compiler
   - [ ] tests
   - [ ] ADR for let/assign semantics

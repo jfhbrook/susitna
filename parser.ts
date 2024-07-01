@@ -35,6 +35,7 @@ import {
   List,
   Save,
   Run,
+  Let,
 } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
@@ -441,6 +442,8 @@ export class Parser {
         cmd = this.save();
       } else if (this.match(TokenKind.Run)) {
         cmd = this.run();
+      } else if (this.match(TokenKind.Let)) {
+        cmd = this.let();
       } else {
         cmd = this.expressionStatement();
       }
@@ -513,6 +516,27 @@ export class Parser {
     });
   }
 
+  private let(): Cmd {
+    let name: Token;
+    if (
+      this.match(TokenKind.IntIdent) ||
+      this.match(TokenKind.RealIdent) ||
+      this.match(TokenKind.BoolIdent) ||
+      this.match(TokenKind.StringIdent)
+    ) {
+      name = this.current;
+      this.advance();
+    } else {
+      this.syntaxError(this.current, 'Expected variable name');
+    }
+
+    let initializer: Expr | null = null;
+    if (this.match(TokenKind.Eq)) {
+      initializer = this.expression();
+    }
+    return new Let(name, initializer);
+  }
+
   private arguments(spec: ArgumentsSpec): Arguments {
     return tracer.spanSync('arguments', () => {
       const parameters = spec.parameters || [];
@@ -577,7 +601,6 @@ export class Parser {
 
   private expression(): Expr {
     return tracer.spanSync('expression', () => {
-      // TODO: assignment
       return this.or();
     });
   }

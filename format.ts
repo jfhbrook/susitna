@@ -47,6 +47,7 @@ import {
   List,
   Save,
   Run,
+  Let,
 } from './ast/cmd';
 import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -170,6 +171,7 @@ export abstract class Formatter
   abstract visitListCmd(list: List): string;
   abstract visitSaveCmd(save: Save): string;
   abstract visitRunCmd(run: Run): string;
+  abstract visitLetCmd(let_: Let): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
@@ -600,7 +602,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitLoadCmd(load: Load): string {
-    return `Load(${this.format(load.filename)}${load.run ? ',R' : ''})`;
+    return `Load(${this.format(load.filename)}, run=${load.run ? 'true' : 'false'})`;
   }
 
   visitListCmd(_list: List): string {
@@ -613,6 +615,10 @@ export class DefaultFormatter extends Formatter {
 
   visitRunCmd(_run: Run): string {
     return `Run`;
+  }
+
+  visitLetCmd(let_: Let): string {
+    return `Let(${this.format(let_.name)}, ${this.format(let_.initializer)})`;
   }
 
   formatStack<V>(stack: Stack<V>): string {

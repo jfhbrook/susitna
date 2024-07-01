@@ -14,6 +14,7 @@ type Expr in './expr' {
 }
 
 type Cmd in './cmd' {
+  import { Token } from '../tokens'
   import { Expr } from './expr'
 
   Cmd        => offsetStart: number = -1, offsetEnd: number = -1
@@ -26,6 +27,7 @@ type Cmd in './cmd' {
   Run!
   Save       => filename: Expr | null
   Rem        => remark: string
+  Let        => name: Token, initializer: Expr | null
 }
 
 type Tree in './index' {

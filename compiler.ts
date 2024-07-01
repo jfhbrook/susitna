@@ -24,6 +24,7 @@ import {
   List,
   Save,
   Run,
+  Let,
 } from './ast/cmd';
 import {
   Expr,
@@ -357,6 +358,12 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.interactive('run', run);
   }
 
+  visitLetCmd(_let: Let): CompileResult<CompiledCmd> {
+    return tracer.spanSync('let', () => {
+      throw new Error('TODO');
+    });
+  }
+
   // Expressions
 
   visitUnaryExpr(unary: Unary): void {
@@ -556,6 +563,10 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitRunCmd(run: Run): CompileResult<CompiledCmd> {
     return this.interactive(run, []);
+  }
+
+  visitLetCmd(let_: Let): CompileResult<CompiledCmd> {
+    return this.compiled(let_);
   }
 }
 

@@ -40,7 +40,17 @@ import {
   PromptLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Print } from '../ast/cmd';
+import {
+  Print,
+  Exit as ExitCmd,
+  Rem,
+  New,
+  Load,
+  List,
+  Save,
+  Run,
+  Let,
+} from '../ast/cmd';
 import { Line, Program } from '../ast';
 import { scrubNodeVersion } from './helpers/format';
 import { FILENAME, TRACEBACK } from './helpers/traceback';
@@ -371,6 +381,34 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
           ]),
         ),
       );
+    });
+
+    t.test('commands', async (t: Test) => {
+      const COMMANDS = [
+        new ExitCmd(new IntLiteral(0)),
+        new Rem('a witty remark'),
+        new New(null),
+        new Load(new StringLiteral('./examples/001-hello-world.bas'), true),
+        new List(),
+        new Save(null),
+        new Run(),
+        new Let(
+          new Token({
+            kind: TokenKind.IntIdent,
+            index: 0,
+            row: 1,
+            offsetStart: 5,
+            offsetEnd: 6,
+            text: 'i%',
+            value: null,
+          }),
+          new IntLiteral(1),
+        ),
+      ];
+
+      for (const cmd of COMMANDS) {
+        t.matchSnapshot(formatter.format(cmd));
+      }
     });
 
     t.test('it formats a native value', async (t: Test) => {

@@ -32,6 +32,7 @@ export function commandRunner(
     visitListCmd,
     visitSaveCmd,
     visitRunCmd,
+    visitLetCmd: invalid('let'),
   };
 }
 

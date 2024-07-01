@@ -35,8 +35,7 @@ gaps.
   - [X] disassembler
   - [X] parser
   - [X] compiler
-  - [ ] parser tests for let
-  - [ ] parser tests for assign
+  - [X] parser tests for let/assign
   - [ ] parser tests for idents in expressions
   - [ ] compiler tests for let/assign/idents
   - [ ] disassembler tests for let/assign/idents

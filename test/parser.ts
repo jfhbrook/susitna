@@ -6,15 +6,25 @@ import { formatter } from '../format';
 import {
   Binary,
   Group,
+  Variable,
   IntLiteral,
   RealLiteral,
   BoolLiteral,
   StringLiteral,
   NilLiteral,
 } from '../ast/expr';
-import { Cmd, Print, Exit, Expression, Rem, Load } from '../ast/cmd';
+import {
+  Cmd,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  Load,
+  Let,
+  Assign,
+} from '../ast/cmd';
 import { CommandGroup, Line, Input, Program } from '../ast';
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 import { throws } from './helpers/exceptions';
 import { parseInput, parseProgram } from './helpers/parser';
 import { FILENAME } from './helpers/traceback';
@@ -413,6 +423,66 @@ t.test('load', async (t: Test) => {
       parseInput(source);
     });
   });
+});
+
+t.test('let', async (t: Test) => {
+  const source = 'let i% = 1';
+  const result = parseInput(source);
+
+  t.equal(result[1], null);
+  t.same(
+    result[0],
+    new Input([
+      new CommandGroup(10, 1, source, [
+        new Let(
+          new Variable(
+            new Token({
+              kind: TokenKind.IntIdent,
+              index: 4,
+              row: 1,
+              offsetStart: 4,
+              offsetEnd: 6,
+              text: 'i%',
+              value: 'i%',
+            }),
+          ),
+          new IntLiteral(1),
+          0,
+          10,
+        ),
+      ]),
+    ]),
+  );
+});
+
+t.test('assign', async (t: Test) => {
+  const source = 'i% = 1';
+  const result = parseInput(source);
+
+  t.equal(result[1], null);
+  t.same(
+    result[0],
+    new Input([
+      new CommandGroup(10, 1, source, [
+        new Assign(
+          new Variable(
+            new Token({
+              kind: TokenKind.IntIdent,
+              index: 0,
+              row: 1,
+              offsetStart: 0,
+              offsetEnd: 2,
+              text: 'i%',
+              value: 'i%',
+            }),
+          ),
+          new IntLiteral(1),
+          0,
+          6,
+        ),
+      ]),
+    ]),
+  );
 });
 
 t.test('empty input', async (t: Test) => {

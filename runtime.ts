@@ -119,7 +119,7 @@ export class Runtime {
             assert.ok(a);
             assert.ok(b);
             if (typeof this.globals[a] === 'undefined') {
-              throw new NameError(`Undefined variable '${a}'`);
+              throw new NameError(`Cannot assign to undefined variable ${a}`);
             }
             this.globals[a] = b;
             // TODO: This is missing from my clox implementation. That's a

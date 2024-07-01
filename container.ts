@@ -1,5 +1,7 @@
 import { getTracer } from './debug';
 
+import { Module } from '@nestjs/common';
+
 import { Config } from './config';
 import { Host } from './host';
 import { Editor } from './editor';

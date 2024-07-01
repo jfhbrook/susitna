@@ -1,4 +1,7 @@
 import { relative, resolve } from 'path';
+
+import { Injectable } from '@nestjs/common';
+
 import {
   ParseWarning,
   mergeParseErrors,
@@ -17,6 +20,7 @@ interface Index {
 // An index corresponding to inserting the line at the very front
 const HEAD: number = -1;
 
+@Injectable()
 export class Editor {
   public program: Program;
   public warning: ParseWarning | null;

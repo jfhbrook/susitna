@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+
 import { basename } from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
@@ -199,6 +201,7 @@ export interface Host {
 /**
  * A host for a standard terminal console.
  */
+@Injectable()
 export class ConsoleHost implements Host {
   private formatter = new DefaultFormatter();
   inputStream: Readable;

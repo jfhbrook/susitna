@@ -1,6 +1,8 @@
 import { readFile, writeFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
+import { Injectable } from '@nestjs/common';
+
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -26,6 +28,7 @@ import { Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
+@Injectable()
 export class Executor {
   private parser: Parser;
   private runtime: Runtime;

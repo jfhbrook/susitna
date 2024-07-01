@@ -1,3 +1,5 @@
+import { Injectable } from '@nestjs/common';
+
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
 import { Level } from './host';
@@ -64,6 +66,7 @@ function parseLevel(arg: string): Level {
 /**
  * Basic configuration for Matanuska BASIC.
  */
+@Injectable()
 export class Config {
   public readonly eval: string | null;
 

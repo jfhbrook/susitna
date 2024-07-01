@@ -30,16 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- [X] Global variables
-  - [X] runtime
-  - [X] disassembler
-  - [X] parser
-  - [X] compiler
-  - [X] parser tests for let/assign
-  - [X] parser tests for idents in expressions
-  - [X] compiler tests for let/assign/idents
-  - [X] disassembler tests for let/assign/idents
-  - [ ] ADR for let/assign semantics
 - [ ] Tests for editor commands
 - If/else
 - For and while

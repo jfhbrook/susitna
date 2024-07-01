@@ -36,7 +36,7 @@ gaps.
   - [X] parser
   - [X] compiler
   - [X] parser tests for let/assign
-  - [ ] parser tests for idents in expressions
+  - [X] parser tests for idents in expressions
   - [ ] compiler tests for let/assign/idents
   - [ ] disassembler tests for let/assign/idents
   - [ ] ADR for let/assign semantics

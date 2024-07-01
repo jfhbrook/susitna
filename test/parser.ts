@@ -87,6 +87,81 @@ const WARNED_EXPRESSIONS: Array<[string, Cmd]> = [
   ],
 ];
 
+const IDENT_EXPRESSIONS: Array<[string, Expression]> = [
+  [
+    'i%',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.IntIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i%',
+          value: 'i%',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i!',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.RealIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i!',
+          value: 'i!',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i?',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.BoolIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i?',
+          value: 'i?',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+  [
+    'i$',
+    new Expression(
+      new Variable(
+        new Token({
+          kind: TokenKind.StringIdent,
+          index: 0,
+          row: 1,
+          offsetStart: 0,
+          offsetEnd: 2,
+          text: 'i$',
+          value: 'i$',
+        }),
+      ),
+      0,
+      2,
+    ),
+  ],
+];
+
 for (const [source, cmd] of EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
@@ -134,6 +209,36 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
 
     cmd.offsetStart -= 4;
     cmd.offsetEnd -= 4;
+  });
+}
+
+for (const [source, cmd] of IDENT_EXPRESSIONS) {
+  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+
+    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
+  });
+
+  t.test(`numbered expression ${source}`, async (t: Test) => {
+    const result = parseInput(`100 ${source}`);
+
+    t.equal(result[1], null);
+
+    cmd.offsetStart += 4;
+    cmd.offsetEnd += 4;
+    (cmd.expression as any).ident.index += 4;
+    (cmd.expression as any).ident.offsetStart += 4;
+    (cmd.expression as any).ident.offsetEnd += 4;
+
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+
+    cmd.offsetStart -= 4;
+    cmd.offsetEnd -= 4;
+    (cmd.expression as any).ident.index -= 4;
+    (cmd.expression as any).ident.offsetStart -= 4;
+    (cmd.expression as any).ident.offsetEnd -= 4;
   });
 }
 

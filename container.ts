@@ -14,13 +14,27 @@ export interface Container<H extends Host> {
   executor: Executor;
 }
 
+export interface ExecutorDependencies {
+  config: Config;
+  editor: Editor;
+  host: Host;
+}
+
+export type ExecutorFactory = ({
+  config,
+  editor,
+  host,
+}: ExecutorDependencies) => Executor;
+
 export function container<H extends Host>(
   config: Config,
   host: H,
+  executorFactory: ExecutorFactory = ({ config, editor, host }) =>
+    new Executor(config, editor, host),
 ): Container<H> {
   return tracer.spanSync('container', () => {
     const editor = new Editor(host);
-    const executor = new Executor(config, editor, host);
+    const executor = executorFactory({ config, editor, host });
 
     return {
       config,

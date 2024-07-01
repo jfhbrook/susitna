@@ -174,6 +174,25 @@ export class Executor {
     // TODO: Close open file handles on this.host
   }
 
+  // TODO: Move these I/O functions into the Host
+  async _readFile(filename: string): Promise<string> {
+    let source: string;
+    try {
+      source = await readFile(filename, 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
+    return source;
+  }
+
+  async _writeFile(filename: string, source: string): Promise<void> {
+    try {
+      writeFile(filename, source, 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
+  }
+
   /**
    * Load a script into the editor.
    *
@@ -181,13 +200,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    let source: string;
-    try {
-      source = await readFile(filename, 'utf8');
-    } catch (err) {
-      throw FileError.fromError(null, err);
-    }
-
+    const source = await this._readFile(filename);
     let result: ParseResult<Program>;
 
     try {
@@ -216,12 +229,7 @@ export class Executor {
       this.editor.filename = filename;
     }
 
-    // TODO: This writeFile call should be moved into the host
-    try {
-      writeFile(this.editor.filename, this.editor.list() + '\n', 'utf8');
-    } catch (err) {
-      throw FileError.fromError(null, err);
-    }
+    await this._writeFile(this.editor.filename, this.editor.list() + '\n');
   }
 
   /**

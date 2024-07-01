@@ -6,7 +6,9 @@ import { RuntimeFault } from '../faults';
 import { IntLiteral, StringLiteral } from '../ast/expr';
 import { Cmd, Expression, Print, Exit, Rem } from '../ast/cmd';
 
-import { executorTopic as topic } from './helpers/executor';
+import { executorTopic } from './helpers/executor';
+
+const topic = executorTopic();
 
 const INVALID_CMDS: Array<[string, Cmd]> = [
   ['print', new Print(new IntLiteral(1))],

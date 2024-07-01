@@ -31,6 +31,8 @@ gaps.
 ### Prioritized Backlog
 
 - [ ] Tests for editor commands
+  - [ ] Write MockExecutor
+  - [ ] Test that thang
 - If/else
 - For and while
 - Logical operators

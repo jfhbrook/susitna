@@ -34,9 +34,14 @@ gaps.
   - [X] runtime
   - [X] disassembler
   - [X] parser
-  - [ ] compiler
-  - [ ] tests
+  - [X] compiler
+  - [ ] parser tests for let
+  - [ ] parser tests for assign
+  - [ ] parser tests for idents in expressions
+  - [ ] compiler tests for let/assign/idents
+  - [ ] disassembler tests for let/assign/idents
   - [ ] ADR for let/assign semantics
+- [ ] Tests for editor commands
 - If/else
 - For and while
 - Logical operators

@@ -8,7 +8,7 @@ if (MATBAS_BUILD === 'debug') {
 
 import { NestFactory } from '@nestjs/core';
 
-import { getTracer } from './debug';
+import { getTracer, NestLogger } from './debug';
 import { Container } from './container';
 import { Main } from './cli';
 
@@ -16,7 +16,9 @@ const tracer = getTracer('main');
 
 export async function main(): Promise<void> {
   tracer.open('main');
-  const deps = await NestFactory.createApplicationContext(Container);
+  const deps = await NestFactory.createApplicationContext(Container, {
+    logger: new NestLogger(),
+  });
   const main = deps.get(Main);
   try {
     await main.start();

@@ -1,3 +1,5 @@
+import { LoggerService, Injectable } from '@nestjs/common';
+
 import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
@@ -364,4 +366,36 @@ TRACERS['runtime'] = NOOP_TRACER;
 TRACERS['gc'] = NOOP_TRACER;
 `{% endif %}`;
 
-export { getTracer, showTree, showChunk, startTraceExec, traceExec };
+@Injectable()
+class NestLogger implements LoggerService {
+  private tracer: Tracer;
+
+  constructor() {
+    this.tracer = getTracer('main');
+  }
+
+  log(message: any, ...optionalParams: any[]) {
+    this.tracer.trace(message, ...optionalParams);
+  }
+
+  fatal(message: any, ...optionalParams: any[]) {
+    this.tracer.trace(`FATAL: ${message}`, ...optionalParams);
+  }
+
+  error(message: any, ...optionalParams: any[]) {
+    this.tracer.trace(`ERROR: ${message}`, ...optionalParams);
+  }
+
+  warn(message: any, ...optionalParams: any[]) {
+    this.tracer.trace(`WARN: ${message}`, ...optionalParams);
+  }
+}
+
+export {
+  getTracer,
+  showTree,
+  showChunk,
+  startTraceExec,
+  traceExec,
+  NestLogger,
+};

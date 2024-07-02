@@ -32,8 +32,11 @@ gaps.
 
 - [ ] Tests for editor commands
   - [X] Introduce a real DI container
-  - [ ] Write MockExecutor
-  - [ ] Test that thang
+  - [X] Implement expect method on mock host
+  - [X] File I/O on mock host
+  - [X] Path operations on host
+  - [ ] Generate example paths relative to mock host's cwd
+  - [ ] Write commands tests
 - switch typescript to module: nodenext
 - If/else
 - For and while

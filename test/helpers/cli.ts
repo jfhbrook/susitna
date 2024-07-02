@@ -7,7 +7,7 @@ import { Config, Argv, Env } from '../../config';
 import { Editor } from '../../editor';
 import { Executor } from '../../executor';
 import { ExitCode } from '../../exit';
-import { MockConsoleHost } from './host';
+import { MockConsoleHost, MockConsoleHostOptions } from './host';
 
 export const EXAMPLES = readdirSync(join(__dirname, '../../examples'))
   .filter((entry) => entry.endsWith('.bas'))
@@ -18,8 +18,12 @@ export interface RunResult {
   host: MockConsoleHost;
 }
 
-export async function run(argv: Argv, env: Env): Promise<RunResult> {
-  const host = new MockConsoleHost();
+export async function run(
+  argv: Argv,
+  env: Env,
+  options: MockConsoleHostOptions = {},
+): Promise<RunResult> {
+  const host = new MockConsoleHost(options);
 
   return await new Promise((resolve, reject) => {
     Testing.createTestingModule({

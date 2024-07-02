@@ -1,3 +1,5 @@
+import * as assert from 'assert';
+
 import { Test } from 'tap';
 // TODO: strip-ansi v7+ uses .mjs, which completely breaks in typescript if
 // you're compiling imports to commonjs, lolsob
@@ -59,6 +61,10 @@ export class MockOutputStream extends Writable {
   }
 }
 
+export interface MockConsoleHostOptions {
+  files?: Record<string, string>;
+}
+
 /**
  * A subclass of ConsoleHost with test streams.
  */
@@ -66,12 +72,14 @@ export class MockConsoleHost extends ConsoleHost {
   declare inputStream: MockInputStream;
   declare outputStream: MockOutputStream;
   declare errorStream: MockOutputStream;
+  public files: Record<string, string>;
 
-  constructor() {
+  constructor({ files }: MockConsoleHostOptions = {}) {
     super();
     this.inputStream = new MockInputStream();
     this.outputStream = new MockOutputStream();
     this.errorStream = new MockOutputStream();
+    this.files = files || {};
   }
 
   async expect<T>(
@@ -140,5 +148,15 @@ export class MockConsoleHost extends ConsoleHost {
 
   cwd(): string {
     return '/Users/josh/Software/jfhbrook/matanuska';
+  }
+
+  async readFile(filename: string): Promise<string> {
+    const contents = this.files[filename];
+    assert.ok(contents);
+    return contents;
+  }
+
+  async writeFile(filename: string, contents: string): Promise<void> {
+    this.files[filename] = contents;
   }
 }

@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+
 import t from 'tap';
 import { Test } from 'tap';
 
@@ -14,7 +16,13 @@ const TEST_CASES = EXAMPLES.map(([name, path]) => {
 t.test('examples', async (t: Test) => {
   for (const [name, path] of TEST_CASES) {
     await t.test(name, async (t: Test) => {
-      const { exitCode, host } = await run([path], process.env);
+      const { exitCode, host } = await run([path], process.env, {
+        files: Object.fromEntries(
+          TEST_CASES.map(([_, path]) => {
+            return [path, readFileSync(path, 'utf8')];
+          }),
+        ),
+      });
       t.matchSnapshot({
         exitCode,
         stdout: host.outputStream.output,

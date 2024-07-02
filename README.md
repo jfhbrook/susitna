@@ -30,14 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- [ ] Tests for editor commands
-  - [X] Introduce a real DI container
-  - [X] Implement expect method on mock host
-  - [X] File I/O on mock host
-  - [X] Path operations on host
-  - [X] Generate example paths relative to mock host's cwd
-  - [ ] Write commands tests
-- switch typescript to module: nodenext
 - If/else
 - For and while
 - Logical operators
@@ -46,6 +38,7 @@ gaps.
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
+- cd, ls, etc
 - Switch typescript to `module: "nodenext"`
   - use require() for node modules
   - use mjs for own modules

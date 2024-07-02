@@ -431,7 +431,7 @@ export class ConsoleHost implements Host {
 
   async readFile(filename: string): Promise<string> {
     try {
-      return await readFile(filename, 'utf8');
+      return await readFile(this.resolvePath(filename), 'utf8');
     } catch (err) {
       throw FileError.fromError(null, err);
     }
@@ -439,7 +439,7 @@ export class ConsoleHost implements Host {
 
   async writeFile(filename: string, contents: string): Promise<void> {
     try {
-      await writeFile(filename, contents, 'utf8');
+      await writeFile(this.resolvePath(filename), contents, 'utf8');
     } catch (err) {
       throw FileError.fromError(null, err);
     }

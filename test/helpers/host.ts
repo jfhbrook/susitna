@@ -82,7 +82,11 @@ export class MockConsoleHost extends ConsoleHost {
     this.outputStream = new MockOutputStream();
     this.errorStream = new MockOutputStream();
     this.cwd = '/Users/josh/Software/jfhbrook/matanuska';
-    this.files = files || {};
+    this.files = Object.fromEntries(
+      Object.entries(files || {}).map(([path, contents]) => {
+        return [this.resolvePath(path), contents];
+      }),
+    );
   }
 
   async expect<T>(
@@ -150,12 +154,12 @@ export class MockConsoleHost extends ConsoleHost {
   }
 
   async readFile(filename: string): Promise<string> {
-    const contents = this.files[filename];
+    const contents = this.files[this.resolvePath(filename)];
     assert.ok(contents);
     return contents;
   }
 
   async writeFile(filename: string, contents: string): Promise<void> {
-    this.files[filename] = contents;
+    this.files[this.resolvePath(filename)] = contents;
   }
 }

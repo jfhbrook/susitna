@@ -1,28 +1,51 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { MockInputStream, MockOutputStream } from './helpers/host';
 import { executorTopic as topic } from './helpers/executor';
 
-t.test('when prompted for a command', async (t: Test) => {
-  t.test('it gets a command', async (t: Test) => {
-    await topic.swear(async ({ executor, host }) => {
-      const prompt = executor.prompt();
-      host.inputStream.write('print "hello world"\n');
+async function expect<T>(
+  t: Test,
+  action: Promise<T>,
+  input: string,
+  inputStream: MockInputStream,
+  outputStream: MockOutputStream,
+): Promise<T> {
+  inputStream.write(`${input}\n`);
 
-      const command = await prompt;
-      t.matchSnapshot(host.outputStream.output);
+  const rv = await action;
+
+  t.matchSnapshot(outputStream.output);
+
+  return rv;
+}
+
+t.test('when prompted for a command', async (t: Test) => {
+  await t.test('it gets a command', async (t: Test) => {
+    await topic.swear(async ({ executor, host }) => {
+      const command = await expect(
+        t,
+        executor.prompt(),
+        'print "hello world"',
+        host.inputStream,
+        host.outputStream,
+      );
       t.equal(command, 'print "hello world"');
     });
   });
 });
 
 t.test('when input is requested', async (t: Test) => {
-  t.test('input is received?', async (t: Test) => {
+  await t.test('input is received?', async (t: Test) => {
     await topic.swear(async ({ executor, host }) => {
-      const question = executor.input('what is your favorite color?');
-      host.inputStream.write('blue\n');
+      const input = await expect(
+        t,
+        executor.input('what is your favorite color?'),
+        'blue',
+        host.inputStream,
+        host.outputStream,
+      );
 
-      const input = await question;
       t.matchSnapshot(host.outputStream.output);
       t.equal(input, 'blue');
     });

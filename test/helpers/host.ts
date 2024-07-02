@@ -6,7 +6,7 @@ import { ConsoleHost } from '../../host';
 /**
  * An input stream for testing.
  */
-class MockInputStream extends Transform {
+export class MockInputStream extends Transform {
   input: string;
 
   constructor() {
@@ -32,7 +32,7 @@ class MockInputStream extends Transform {
 /**
  * An output stream for testing.
  */
-class MockOutputStream extends Writable {
+export class MockOutputStream extends Writable {
   output: string;
 
   constructor() {

@@ -1,3 +1,5 @@
+import { Test } from 'tap';
+
 import { Buffer } from 'buffer';
 import { Transform, Writable } from 'stream';
 
@@ -67,6 +69,23 @@ export class MockConsoleHost extends ConsoleHost {
     this.inputStream = new MockInputStream();
     this.outputStream = new MockOutputStream();
     this.errorStream = new MockOutputStream();
+  }
+
+  async expect<T>(
+    t: Test,
+    action: Promise<T>,
+    input: string,
+    outputStream: MockOutputStream | null = null,
+  ): Promise<T> {
+    outputStream = outputStream || this.outputStream;
+
+    this.inputStream.write(`${input}\n`);
+
+    const rv = await action;
+
+    t.matchSnapshot(outputStream.output);
+
+    return rv;
   }
 
   hostname(): string {

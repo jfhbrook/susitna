@@ -35,7 +35,7 @@ gaps.
   - [X] Implement expect method on mock host
   - [X] File I/O on mock host
   - [X] Path operations on host
-  - [ ] Generate example paths relative to mock host's cwd
+  - [X] Generate example paths relative to mock host's cwd
   - [ ] Write commands tests
 - switch typescript to module: nodenext
 - If/else

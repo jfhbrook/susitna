@@ -187,7 +187,10 @@ export class Executor {
     let result: ParseResult<Program>;
 
     try {
-      result = this.parser.parseProgram(source, this.host.resolvePath(filename));
+      result = this.parser.parseProgram(
+        source,
+        this.host.resolvePath(filename),
+      );
     } catch (err) {
       if (err instanceof Exception) {
         throw err;

@@ -29,7 +29,6 @@ import {
   Cmd,
   Assign,
   Print,
-  Exit,
   Expression,
   Rem,
   New,
@@ -37,6 +36,8 @@ import {
   List,
   Save,
   Run,
+  End,
+  Exit,
   Let,
 } from './ast/cmd';
 import { CommandGroup, Line, Input, Program } from './ast';
@@ -451,8 +452,6 @@ export class Parser {
       } else if (this.match(TokenKind.Print)) {
         cmd = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-      } else if (this.match(TokenKind.Exit)) {
-        cmd = this.exit();
       } else if (this.match(TokenKind.New)) {
         cmd = this.new();
       } else if (this.match(TokenKind.Load)) {
@@ -463,6 +462,10 @@ export class Parser {
         cmd = this.save();
       } else if (this.match(TokenKind.Run)) {
         cmd = this.run();
+      } else if (this.match(TokenKind.End)) {
+        cmd = this.end();
+      } else if (this.match(TokenKind.Exit)) {
+        cmd = this.exit();
       } else if (this.match(TokenKind.Let)) {
         cmd = this.let();
       } else {
@@ -487,16 +490,6 @@ export class Parser {
   private print(): Cmd {
     return tracer.spanSync('print', () => {
       return new Print(this.expression());
-    });
-  }
-
-  private exit(): Cmd {
-    return tracer.spanSync('exit', () => {
-      const expr = this.optionalExpression();
-      if (expr) {
-        return new Exit(expr);
-      }
-      return new Exit(null);
     });
   }
 
@@ -533,6 +526,23 @@ export class Parser {
   private run(): Cmd {
     return tracer.spanSync('run', () => {
       return new Run();
+    });
+  }
+
+  private end(): Cmd {
+    // TODO: Should end take an exit code?
+    return tracer.spanSync('end', () => {
+      return new End();
+    });
+  }
+
+  private exit(): Cmd {
+    return tracer.spanSync('exit', () => {
+      const expr = this.optionalExpression();
+      if (expr) {
+        return new Exit(expr);
+      }
+      return new Exit(null);
     });
   }
 

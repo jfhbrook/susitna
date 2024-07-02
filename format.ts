@@ -40,7 +40,6 @@ import {
   Cmd,
   CmdVisitor,
   Print,
-  Exit as ExitCmd,
   Expression,
   Rem,
   New,
@@ -48,6 +47,8 @@ import {
   List,
   Save,
   Run,
+  End,
+  Exit as ExitCmd,
   Let,
   Assign,
 } from './ast/cmd';
@@ -166,7 +167,6 @@ export abstract class Formatter
   abstract visitNilLiteralExpr(node: NilLiteral): string;
 
   abstract visitPrintCmd(node: Print): string;
-  abstract visitExitCmd(node: ExitCmd): string;
   abstract visitExpressionCmd(node: Expression): string;
   abstract visitRemCmd(rem: Rem): string;
   abstract visitNewCmd(new_: New): string;
@@ -176,6 +176,8 @@ export abstract class Formatter
   abstract visitRunCmd(run: Run): string;
   abstract visitLetCmd(let_: Let): string;
   abstract visitAssignCmd(assign: Assign): string;
+  abstract visitEndCmd(end: End): string;
+  abstract visitExitCmd(exit: ExitCmd): string;
 
   abstract visitCommandGroupTree(node: CommandGroup): string;
   abstract visitLineTree(node: Line): string;
@@ -597,10 +599,6 @@ export class DefaultFormatter extends Formatter {
     return `Print(${this.format(node.expression)})`;
   }
 
-  visitExitCmd(node: ExitCmd): string {
-    return `Exit(${this.format(node.expression)})`;
-  }
-
   visitRemCmd(rem: Rem): string {
     return `Rem(${rem.remark})`;
   }
@@ -614,7 +612,7 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitListCmd(_list: List): string {
-    return `List`;
+    return 'List';
   }
 
   visitSaveCmd(save: Save): string {
@@ -622,7 +620,15 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitRunCmd(_run: Run): string {
-    return `Run`;
+    return 'Run';
+  }
+
+  visitEndCmd(_end: End): string {
+    return 'End';
+  }
+
+  visitExitCmd(exit: ExitCmd): string {
+    return `Exit(${this.format(exit.expression)})`;
   }
 
   visitLetCmd(let_: Let): string {

@@ -58,14 +58,13 @@ export enum TokenKind {
   LongFlag = '--<flag>',
   ShellToken = '<shell>',
 
-  Exit = 'exit',
-
   New = 'new',
   Load = 'load',
   Save = 'save',
   List = 'list',
   Run = 'run',
   End = 'end',
+  Exit = 'exit',
 
   Let = 'let',
   /*

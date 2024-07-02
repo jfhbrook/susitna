@@ -11,8 +11,6 @@ export const KEYWORDS: Record<string, TokenKind> = {
   or: TokenKind.Or,
   not: TokenKind.Not,
 
-  exit: TokenKind.Exit,
-
   // loading, saving, running etc
   new: TokenKind.New,
   load: TokenKind.Load,
@@ -20,6 +18,7 @@ export const KEYWORDS: Record<string, TokenKind> = {
   list: TokenKind.List,
   run: TokenKind.Run,
   end: TokenKind.End,
+  exit: TokenKind.Exit,
   // bload: TokenKind.BLoad,
   // bsave: TokenKind.BSave,
   // resume execution of a paused program

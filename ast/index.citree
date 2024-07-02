@@ -23,6 +23,7 @@ type Cmd in './cmd' {
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null
+  End!
   New        => filename: Expr | null
   Load       => filename: Expr, run: boolean
   List!

@@ -16,7 +16,6 @@ import {
   Cmd,
   CmdVisitor,
   Print,
-  Exit,
   Expression,
   Rem,
   New,
@@ -24,6 +23,8 @@ import {
   List,
   Save,
   Run,
+  End,
+  Exit,
   Let,
   Assign,
 } from './ast/cmd';
@@ -325,17 +326,6 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitExitCmd(exit: Exit): void {
-    tracer.spanSync('exit', () => {
-      if (exit.expression) {
-        exit.expression.accept(this);
-      } else {
-        this.emitConstant(0);
-      }
-      this.emitByte(OpCode.Exit);
-    });
-  }
-
   visitExpressionCmd(expr: Expression): void {
     tracer.spanSync('expression', () => {
       this.isExpressionCmd = true;
@@ -368,6 +358,27 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 
   visitRunCmd(run: Run): void {
     return this.interactive('run', run);
+  }
+
+  visitEndCmd(_end: End): void {
+    tracer.spanSync('end', () => {
+      // TODO: I'm currently treating 'end' as a synonym for 'return nil'.
+      // But perhaps it should behave differently? In MSX it also cleans up
+      // open file handles.
+      this.emitByte(OpCode.Nil);
+      this.emitByte(OpCode.Return);
+    });
+  }
+
+  visitExitCmd(exit: Exit): void {
+    tracer.spanSync('exit', () => {
+      if (exit.expression) {
+        exit.expression.accept(this);
+      } else {
+        this.emitConstant(0);
+      }
+      this.emitByte(OpCode.Exit);
+    });
   }
 
   visitLetCmd(let_: Let): void {
@@ -566,10 +577,6 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
     return this.compiled(print);
   }
 
-  visitExitCmd(exit: Exit): CompileResult<CompiledCmd> {
-    return this.compiled(exit);
-  }
-
   visitExpressionCmd(expr: Expression): CompileResult<CompiledCmd> {
     return this.interactive(expr, [expr.expression]);
   }
@@ -596,6 +603,14 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitRunCmd(run: Run): CompileResult<CompiledCmd> {
     return this.interactive(run, []);
+  }
+
+  visitEndCmd(end: End): CompileResult<CompiledCmd> {
+    return this.compiled(end);
+  }
+
+  visitExitCmd(exit: Exit): CompileResult<CompiledCmd> {
+    return this.compiled(exit);
   }
 
   visitLetCmd(let_: Let): CompileResult<CompiledCmd> {

@@ -75,6 +75,33 @@ export class Editor {
       .join('\n');
   }
 
+  /**
+   * Renumber the current program.
+   */
+  renum(): void {
+    const renumbering: Record<number, number> = {};
+
+    for (let i = 0; i < this.program.lines.length; i++) {
+      const line = this.program.lines[i];
+      const source = line.source;
+      const from = line.lineNo;
+      const to = (i + 1) * 10;
+      line.lineNo = to;
+      line.source = source.replace(/^\d+/, String(to));
+      renumbering[from] = to;
+    }
+
+    if (this.warning) {
+      for (let i = 0; i < this.warning.warnings.length; i++) {
+        const warning = this.warning.warnings[i];
+        const to = renumbering[warning.lineNo];
+        if (to) {
+          warning.lineNo = to;
+        }
+      }
+    }
+  }
+
   // A binary search to find the index containing a lineNo. If there's no
   // exact match, return the index just prior.
   private findLineIndex(lineNo: number): Index {

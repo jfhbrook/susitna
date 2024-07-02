@@ -62,6 +62,7 @@ export enum TokenKind {
   Load = 'load',
   Save = 'save',
   List = 'list',
+  Renum = 'renum',
   Run = 'run',
   End = 'end',
   Exit = 'exit',

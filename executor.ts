@@ -236,6 +236,13 @@ export class Executor {
   }
 
   /**
+   * Renumber the current program.
+   */
+  renum(): void {
+    this.editor.renum();
+  }
+
+  /**
    * Run the script in the editor.
    *
    * @returns A promise.

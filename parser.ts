@@ -34,6 +34,7 @@ import {
   New,
   Load,
   List,
+  Renum,
   Save,
   Run,
   End,
@@ -458,6 +459,8 @@ export class Parser {
         cmd = this.load();
       } else if (this.match(TokenKind.List)) {
         cmd = this.list();
+      } else if (this.match(TokenKind.Renum)) {
+        cmd = this.renum();
       } else if (this.match(TokenKind.Save)) {
         cmd = this.save();
       } else if (this.match(TokenKind.Run)) {
@@ -514,6 +517,12 @@ export class Parser {
   private list(): Cmd {
     return tracer.spanSync('list', () => {
       return new List();
+    });
+  }
+
+  private renum(): Cmd {
+    return tracer.spanSync('renum', () => {
+      return new Renum();
     });
   }
 

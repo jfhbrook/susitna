@@ -45,6 +45,7 @@ import {
   New,
   Load,
   List,
+  Renum,
   Save,
   Run,
   End,
@@ -172,6 +173,7 @@ export abstract class Formatter
   abstract visitNewCmd(new_: New): string;
   abstract visitLoadCmd(load: Load): string;
   abstract visitListCmd(list: List): string;
+  abstract visitRenumCmd(renum: Renum): string;
   abstract visitSaveCmd(save: Save): string;
   abstract visitRunCmd(run: Run): string;
   abstract visitLetCmd(let_: Let): string;
@@ -613,6 +615,10 @@ export class DefaultFormatter extends Formatter {
 
   visitListCmd(_list: List): string {
     return 'List';
+  }
+
+  visitRenumCmd(_renum: Renum): string {
+    return 'Renum';
   }
 
   visitSaveCmd(save: Save): string {

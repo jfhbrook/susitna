@@ -16,6 +16,7 @@ export const KEYWORDS: Record<string, TokenKind> = {
   load: TokenKind.Load,
   save: TokenKind.Save,
   list: TokenKind.List,
+  renum: TokenKind.Renum,
   run: TokenKind.Run,
   end: TokenKind.End,
   exit: TokenKind.Exit,

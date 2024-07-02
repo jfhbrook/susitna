@@ -74,6 +74,21 @@ t.test('editing', async (t: Test) => {
       ].join('\n'),
     );
 
+    await executor.eval('25 print "how you doin\' world?"');
+    await executor.eval('renum');
+
+    await host.expect(
+      t,
+      executor.eval('list'),
+      null,
+      [
+        '10 rem A simple hello world example',
+        '20 print "hello world"',
+        '30 print "how you doin\' world?"',
+        '40 print "goodbye world"',
+      ].join('\n'),
+    );
+
     await executor.eval('save "hello-world.bas"');
 
     t.ok(host.files['/home/josh/matanuska/hello-world.bas']);

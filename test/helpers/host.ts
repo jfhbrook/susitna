@@ -16,7 +16,7 @@ import { EXAMPLES } from './files';
  * An input stream for testing.
  */
 export class MockInputStream extends Transform {
-  input: string;
+  public input: string;
 
   constructor() {
     super();
@@ -75,6 +75,7 @@ export class MockConsoleHost extends ConsoleHost {
   declare outputStream: MockOutputStream;
   declare errorStream: MockOutputStream;
   public files: Record<string, string>;
+  private expectStart: number;
 
   constructor({ files }: MockConsoleHostOptions = { files: EXAMPLES }) {
     super();
@@ -87,6 +88,7 @@ export class MockConsoleHost extends ConsoleHost {
         return [this.resolvePath(path), contents];
       }),
     );
+    this.expectStart = 0;
   }
 
   async expect<T>(
@@ -104,19 +106,12 @@ export class MockConsoleHost extends ConsoleHost {
 
     const rv = await action;
 
-    const output = stripAnsi(outputStream.output);
+    let output = stripAnsi(outputStream.output);
+    const expectStart = this.expectStart;
+    this.expectStart = output.length;
+    output = output.slice(expectStart);
 
-    // TODO: Should this assert be more flexible? ie., should I look for the
-    // output anywhere in the output that comes after the call?
-
-    let end: string = '';
-    if (output.endsWith('\r\n')) {
-      end = '\r\n';
-    } else if (output.endsWith('\n')) {
-      end = '\n';
-    }
-
-    t.ok(output.endsWith(`${expected}${end}`), `expect: ${expected}`);
+    t.match(output, expected, `expect: ${expected}`);
 
     return rv;
   }

@@ -8,6 +8,7 @@ import visitExpressionCmd from './expression';
 import visitNewCmd from './new';
 import visitLoadCmd from './load';
 import visitListCmd from './list';
+import visitRenumCmd from './renum';
 import visitSaveCmd from './save';
 import visitRunCmd from './run';
 
@@ -29,6 +30,7 @@ export function commandRunner(
     visitNewCmd,
     visitLoadCmd,
     visitListCmd,
+    visitRenumCmd,
     visitSaveCmd,
     visitRunCmd,
     visitEndCmd: invalid('end'),

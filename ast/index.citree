@@ -27,6 +27,7 @@ type Cmd in './cmd' {
   New        => filename: Expr | null
   Load       => filename: Expr, run: boolean
   List!
+  Renum!
   Run!
   Save       => filename: Expr | null
   Rem        => remark: string

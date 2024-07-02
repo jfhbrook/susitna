@@ -21,6 +21,7 @@ import {
   New,
   Load,
   List,
+  Renum,
   Save,
   Run,
   End,
@@ -352,6 +353,10 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     return this.interactive('list', list);
   }
 
+  visitRenumCmd(renum: Renum): void {
+    return this.interactive('renum', renum);
+  }
+
   visitSaveCmd(save: Save): void {
     return this.interactive('save', save);
   }
@@ -595,6 +600,10 @@ export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
 
   visitListCmd(list: List): CompileResult<CompiledCmd> {
     return this.interactive(list, []);
+  }
+
+  visitRenumCmd(renum: Renum): CompileResult<CompiledCmd> {
+    return this.interactive(renum, []);
   }
 
   visitSaveCmd(save: Save): CompileResult<CompiledCmd> {

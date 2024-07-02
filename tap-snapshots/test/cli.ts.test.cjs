@@ -21,7 +21,7 @@ exports[`test/cli.ts > TAP > examples > 002-invalid-line-number.bas > must match
 Object {
   "exitCode": 70,
   "stderr": String(
-    {CWD}/examples/002-invalid-line-number.bas:<R3>:0 (after line 20): error: Expected line number
+    examples/002-invalid-line-number.bas:<R3>:0 (after line 20): error: Expected line number
       "foo"
       ^
     

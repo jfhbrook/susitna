@@ -1,6 +1,6 @@
 import { relative, resolve } from 'path';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 
 import {
   ParseWarning,
@@ -25,7 +25,7 @@ export class Editor {
   public program: Program;
   public warning: ParseWarning | null;
 
-  constructor(public host: Host) {
+  constructor(@Inject('Host') public host: Host) {
     this.program = new Program('untitled.bas', []);
     this.warning = null;
   }

@@ -6,10 +6,13 @@ if (MATBAS_BUILD === 'debug') {
   dotenv.config();
 }
 
+import { NestFactory } from '@nestjs/core';
+
 import { getTracer } from './debug';
-import { container, Container } from './container';
+import { Container } from './container';
 import { Config } from './config';
 import { BaseException } from './exceptions';
+import { Executor } from './executor';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import { ConsoleHost, Host } from './host';
 import { Exit, ExitCode } from './exit';
@@ -59,7 +62,7 @@ export interface RuntimeOptions {
 //
 // Run the REPL.
 //
-async function repl<H extends Host>({ executor, host }: Container<H>) {
+async function repl(executor: Executor, host: Host) {
   while (true) {
     try {
       const input = await executor.prompt();
@@ -117,18 +120,17 @@ export async function main({
   process.on('unhandledRejection', errorHandler);
 
   try {
-    const config = Config.load(argv, env);
-    host.setLevel(config.level);
-
-    const deps = container(config, host);
-    const { executor } = deps;
+    const deps = await NestFactory.createApplicationContext(Container);
+    const config = deps.get(Config);
+    const host: Host = deps.get('Host');
+    const executor: Executor = deps.get(Executor);
 
     await executor.using(async () => {
       if (config.script) {
         await executor.load(config.script);
         await executor.run();
       } else {
-        await repl(deps);
+        await repl(executor, host);
       }
     });
   } catch (err) {

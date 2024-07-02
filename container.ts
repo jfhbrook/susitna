@@ -1,34 +1,27 @@
-import { getTracer } from './debug';
-
 import { Module } from '@nestjs/common';
 
 import { Config } from './config';
-import { Host } from './host';
+import { ConsoleHost } from './host';
 import { Editor } from './editor';
 import { Executor } from './executor';
 
-const tracer = getTracer('main');
-
-export interface Container<H extends Host> {
-  config: Config;
-  host: H;
-  editor: Editor;
-  executor: Executor;
-}
-
-export function container<H extends Host>(
-  config: Config,
-  host: H,
-): Container<H> {
-  return tracer.spanSync('container', () => {
-    const editor = new Editor(host);
-    const executor = new Executor(config, editor, host);
-
-    return {
-      config,
-      host,
-      editor,
-      executor,
-    };
-  });
-}
+@Module({
+  providers: [
+    { provide: 'argv', useValue: process.argv.slice(2) },
+    { provide: 'env', useValue: process.env },
+    {
+      provide: Config,
+      useFactory: (argv: typeof process.argv, env: typeof process.env) => {
+        return Config.load(argv, env);
+      },
+      inject: ['argv', 'env'],
+    },
+    {
+      provide: 'Host',
+      useClass: ConsoleHost,
+    },
+    Editor,
+    Executor,
+  ],
+})
+export class Container {}

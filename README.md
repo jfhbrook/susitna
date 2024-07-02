@@ -46,6 +46,10 @@ gaps.
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
+- Switch typescript to `module: "nodenext"`
+  - use require() for node modules
+  - use mjs for own modules
+  - upgrade strip-ansi
 - Support `end`
   - In MSX BASIC, `end` closes open files and ends program execution. It's
     distinct from a bare `exit`, insofar as `end` will hand control back to the

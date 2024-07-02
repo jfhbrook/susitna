@@ -217,10 +217,10 @@ export function renderPrompt(promptString: string, host: Host): string {
           ps += MATBAS_VERSION;
           break;
         case 'w':
-          ps += abbreviateHome(host.cwd(), host);
+          ps += abbreviateHome(host.cwd, host);
           break;
         case 'W':
-          ps += abbreviateHome(basename(host.cwd()), host);
+          ps += abbreviateHome(basename(host.cwd), host);
           break;
         case '!':
           ps += '0';

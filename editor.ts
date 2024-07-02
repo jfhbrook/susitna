@@ -1,5 +1,3 @@
-import { relative, resolve } from 'path';
-
 import { Injectable, Inject } from '@nestjs/common';
 
 import {
@@ -31,11 +29,11 @@ export class Editor {
   }
 
   get filename(): string {
-    return relative(this.host.cwd(), this.program.filename);
+    return this.host.relativePath('.', this.program.filename);
   }
 
   set filename(filename: string) {
-    this.program.filename = resolve(filename);
+    this.program.filename = this.host.resolvePath(filename);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'fs/promises';
-import { basename } from 'path';
+import * as path from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
@@ -149,6 +149,13 @@ export interface Host {
   writeChannel(channel: number, value: any): void;
 
   /**
+   * Exit the process.
+   *
+   * @param code The exit code.
+   */
+  exit(code: number): void;
+
+  /**
    * The OS's hostname.
    */
   hostname(): string;
@@ -190,14 +197,42 @@ export interface Host {
   homedir(): string;
 
   /**
-   * The process's current working directory. This is not the same as the
-   * shell's current working directory.
+   * The shell's current working directory. This is not the same as the
+   * process's current working directory.
    */
-  cwd(): string;
+  cwd: string;
 
-  exit(code: number): void;
+  /**
+   * Resolve a relative path into a full path.
+   *
+   * @param path A relative path.
+   * @returns The absolute path.
+   */
+  resolvePath(path: string): string;
 
+  /**
+   * Return a path relative to the current working directory.
+   *
+   * @param from The path the output is relative to.
+   * @param to The path to get the relative path for.
+   * @returns The relative path.
+   */
+  relativePath(from: string, to: string): string;
+
+  /**
+   * Read a file from disk.
+   *
+   * @param filename The path to the file.
+   * @returns The contents of the file.
+   */
   readFile(filename: string): Promise<string>;
+
+  /**
+   * Write a file to disk.
+   *
+   * @param filename The path to the file.
+   * @param contents The contents of the file.
+   */
   writeFile(filename: string, contents: string): Promise<void>;
 }
 
@@ -213,6 +248,8 @@ export class ConsoleHost implements Host {
   level: Level;
 
   private _tty: string | null | undefined = undefined;
+
+  public cwd: string = process.cwd();
 
   constructor() {
     this.inputStream = stdin;
@@ -303,6 +340,10 @@ export class ConsoleHost implements Host {
   // OS and environment concerns.
   //
 
+  exit(exitCode: number): void {
+    throw new Exit(exitCode);
+  }
+
   hostname(): string {
     return os.hostname();
   }
@@ -355,7 +396,7 @@ export class ConsoleHost implements Host {
     if (process.env.__MATBAS_DOLLAR_ZERO) {
       return process.env.__MATBAS_DOLLAR_ZERO;
     }
-    return basename(process.argv[1]);
+    return path.basename(process.argv[1]);
   }
 
   // TODO: JavaScript Dates aren't very good. Is there a sensible replacement?
@@ -380,12 +421,12 @@ export class ConsoleHost implements Host {
     return os.homedir();
   }
 
-  cwd(): string {
-    return process.cwd();
+  resolvePath(p: string): string {
+    return path.resolve(path.join(this.cwd, p));
   }
 
-  exit(exitCode: number): void {
-    throw new Exit(exitCode);
+  relativePath(from: string, to: string): string {
+    return path.relative(this.resolvePath(from), to);
   }
 
   async readFile(filename: string): Promise<string> {

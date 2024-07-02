@@ -79,6 +79,7 @@ export class MockConsoleHost extends ConsoleHost {
     this.inputStream = new MockInputStream();
     this.outputStream = new MockOutputStream();
     this.errorStream = new MockOutputStream();
+    this.cwd = '/Users/josh/Software/jfhbrook/matanuska';
     this.files = files || {};
   }
 
@@ -144,10 +145,6 @@ export class MockConsoleHost extends ConsoleHost {
 
   homedir(): string {
     return '/Users/josh';
-  }
-
-  cwd(): string {
-    return '/Users/josh/Software/jfhbrook/matanuska';
   }
 
   async readFile(filename: string): Promise<string> {

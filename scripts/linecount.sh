@@ -4,7 +4,7 @@ MATBAS_LC="$(cat ./*.ts \
   ./ast/index.citree ./ast/util.ts \
   ./bin/* \
   ./bytecode/* \
-  ./examples/* \
+  ./examples/*.bas \
   ./scripts/* \
   ./test/*.ts ./test/helpers/*.ts | wc -l)"
 

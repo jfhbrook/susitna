@@ -22,51 +22,43 @@ export async function run(argv: Argv, env: Env): Promise<RunResult> {
   const host = new MockConsoleHost();
 
   return await new Promise((resolve, reject) => {
-    try {
-      Testing.createTestingModule({
-        providers: [
-          {
-            provide: 'Host',
-            useValue: host,
+    Testing.createTestingModule({
+      providers: [
+        {
+          provide: 'Host',
+          useValue: host,
+        },
+        {
+          provide: 'argv',
+          useValue: argv,
+        },
+        {
+          provide: 'env',
+          useValue: env,
+        },
+        {
+          provide: Config,
+          useValue: Config.load(argv, env),
+        },
+        {
+          provide: 'exitFn',
+          useValue: (exitCode: number): void => {
+            resolve({
+              exitCode,
+              host,
+            });
           },
-          {
-            provide: 'argv',
-            useValue: argv,
-          },
-          {
-            provide: 'env',
-            useValue: env,
-          },
-          {
-            provide: Config,
-            useValue: Config.load(argv, env),
-          },
-          {
-            provide: 'exitFn',
-            useValue: (exitCode: number): void => {
-              resolve({
-                exitCode,
-                host,
-              });
-            },
-          },
-          Editor,
-          Executor,
-          Main,
-        ],
+        },
+        Editor,
+        Executor,
+        Main,
+      ],
+    })
+      .compile()
+      .then((deps) => {
+        const main = deps.get(Main);
+        return main.start();
       })
-        .compile()
-        .then(async (deps) => {
-          try {
-            const main = deps.get(Main);
-            await main.start();
-          } catch (err) {
-            reject(err);
-          }
-        })
-        .catch(reject);
-    } catch (err) {
-      reject(err);
-    }
+      .catch(reject);
   });
 }

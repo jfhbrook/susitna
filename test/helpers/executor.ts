@@ -29,14 +29,14 @@ export const executorTopic = discuss(
         },
       ],
     }).compile();
+    const editor = deps.get(Editor);
     const executor = deps.get(Executor);
 
     await executor.init();
 
     return {
-      config: CONFIG,
       host,
-      editor: deps.get(Editor),
+      editor,
       executor,
     };
   },

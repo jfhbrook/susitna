@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
 import { UsageFault } from './faults';
@@ -78,12 +78,26 @@ function parseLevel(arg: string): Level {
  */
 @Injectable()
 export class Config {
-  public readonly command: string | null;
   public readonly eval: string | null;
-  public readonly script: string | null;
-  public readonly level: Level;
-  public readonly argv: Argv;
-  public readonly env: Env;
+
+  /**
+   * @param command A command to run.
+   * @param eval_ The source of a script to evaluate.
+   * @param script The path to a script to run.
+   * @param logLevel The log level.
+   * @param argv Command line arguments passed to the runtime.
+   * @param env Environment variables.
+   */
+  constructor(
+    public readonly command: string | null,
+    eval_: string | null,
+    public readonly script: string | null,
+    public readonly level: Level,
+    public readonly argv: Argv,
+    public readonly env: Env,
+  ) {
+    this.eval = eval_;
+  }
 
   /**
    * Load configuration from command line arguments and environment variables.
@@ -92,7 +106,7 @@ export class Config {
    *        script name. In practice, this is `process.argv.slice(2)`.
    * @param env Environment variables. In practice, this is `process.env`.
    */
-  constructor(@Inject('argv') argv: Argv, @Inject('env') env: Env) {
+  static load(argv: Argv, env: Env) {
     let command: string | null = null;
     let eval_: string | null = null;
     let script: string | null = null;
@@ -153,12 +167,7 @@ export class Config {
       }
     }
 
-    this.command = command;
-    this.eval = eval_;
-    this.script = script;
-    this.level = level;
-    this.argv = scriptArgv;
-    this.env = env;
+    return new Config(command, eval_, script, level, scriptArgv, env);
   }
 
   /**

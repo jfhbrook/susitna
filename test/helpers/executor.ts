@@ -4,6 +4,7 @@ import { discuss } from '@jfhbrook/swears';
 import { Config } from '../../config';
 import { Editor } from '../../editor';
 import { Executor } from '../../executor';
+import { CONFIG } from './config';
 import { MockConsoleHost } from './host';
 
 class MockExecutor extends Executor {}
@@ -19,7 +20,7 @@ export const executorTopic = discuss(
         },
         {
           provide: Config,
-          useValue: new Config([], {}),
+          useValue: CONFIG,
         },
         Editor,
         {

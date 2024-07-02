@@ -49,15 +49,38 @@ t.test('expression', async (t: Test) => {
   });
 });
 
-t.todo('editing', async (t: Test) => {
+t.test('editing', async (t: Test) => {
   await topic.swear(async ({ executor, editor, host }) => {
-    t.ok(executor);
-    t.ok(editor);
-    t.ok(host);
-    // TODO: load a test program into the editor
-    // TODO: run the test program
-    // TODO: edit the test program "manually"
-    // TODO: save the test program
-    // TODO: start a new program
+    await executor.eval('load "./examples/001-hello-world.bas"');
+
+    t.equal(editor.filename, 'examples/001-hello-world.bas');
+    t.equal(editor.program.lines.length, 3);
+
+    await host.expect(
+      t,
+      executor.eval('run'),
+      null,
+      'hello world\ngoodbye world',
+    );
+
+    await host.expect(
+      t,
+      executor.eval('list'),
+      null,
+      [
+        '10 rem A simple hello world example',
+        '20 print "hello world"',
+        '30 print "goodbye world"',
+      ].join('\n'),
+    );
+
+    await executor.eval('save "hello-world.bas"');
+
+    t.ok(host.files['/home/josh/matanuska/hello-world.bas']);
+
+    await executor.eval('new "script.bas"');
+
+    t.equal(editor.filename, 'script.bas');
+    t.equal(editor.program.lines.length, 0);
   });
 });

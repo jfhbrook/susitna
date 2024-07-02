@@ -98,3 +98,35 @@ t.test(
   'when writing to channel 5',
   channelTest(5, 'errorStream', 'DEBUG: test\n'),
 );
+
+type RelativePath = string;
+type AbsolutePath = string;
+
+const RELATIVE_PATH_CASES: Array<[RelativePath, RelativePath, RelativePath]> = [
+  ['.', './examples/001-hello-world.bas', 'examples/001-hello-world.bas'],
+  ['/home/josh/matanuska', '/home/josh/autoexec.bas', '../autoexec.bas'],
+];
+
+const RESOLVE_PATH_CASES: Array<[RelativePath, AbsolutePath]> = [
+  [
+    './examples/001-hello-world.bas',
+    '/home/josh/matanuska/examples/001-hello-world.bas',
+  ],
+  ['/usr/bin/vim', '/usr/bin/vim'],
+];
+
+t.test('relativePath', async (t: Test) => {
+  await topic.swear(async (host) => {
+    for (const [from, to, expected] of RELATIVE_PATH_CASES) {
+      t.equal(host.relativePath(from, to), expected);
+    }
+  });
+});
+
+t.test('resolvePath', async (t: Test) => {
+  await topic.swear(async (host) => {
+    for (const [relative, expected] of RESOLVE_PATH_CASES) {
+      t.equal(host.resolvePath(relative), expected);
+    }
+  });
+});

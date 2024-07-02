@@ -213,7 +213,8 @@ export interface Host {
   /**
    * Return a path relative to the current working directory.
    *
-   * @param from The path the output is relative to.
+   * @param from The path the output is relative to, itself relative to the
+   *             current working directory.
    * @param to The path to get the relative path for.
    * @returns The relative path.
    */
@@ -422,11 +423,14 @@ export class ConsoleHost implements Host {
   }
 
   resolvePath(p: string): string {
+    if (p.startsWith('/') || p.startsWith('\\')) {
+      return p;
+    }
     return path.resolve(path.join(this.cwd, p));
   }
 
   relativePath(from: string, to: string): string {
-    return path.relative(this.resolvePath(from), to);
+    return path.relative(this.resolvePath(from), this.resolvePath(to));
   }
 
   async readFile(filename: string): Promise<string> {

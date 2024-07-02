@@ -92,13 +92,15 @@ export class MockConsoleHost extends ConsoleHost {
   async expect<T>(
     t: Test,
     action: Promise<T>,
-    input: string,
+    input: string | null = null,
     expected: string,
     outputStream: MockOutputStream | null = null,
   ): Promise<T> {
     outputStream = outputStream || this.outputStream;
 
-    this.inputStream.write(`${input}\n`);
+    if (input) {
+      this.inputStream.write(`${input}\n`);
+    }
 
     const rv = await action;
 

@@ -11,8 +11,8 @@ import { NestFactory } from '@nestjs/core';
 
 import { NestLogger } from './debug';
 
+import { App } from './app';
 import { Config, Argv, Env } from './config';
-import { Main } from './cli';
 import { ConsoleHost } from './host';
 import { Editor } from './editor';
 import { Executor } from './executor';
@@ -35,7 +35,7 @@ import { Executor } from './executor';
     },
     Editor,
     Executor,
-    Main,
+    App,
   ],
 })
 export class Container {}
@@ -44,6 +44,6 @@ export async function main(): Promise<void> {
   const deps = await NestFactory.createApplicationContext(Container, {
     logger: new NestLogger(),
   });
-  const main = deps.get(Main);
-  await main.start();
+  const app = deps.get(App);
+  await app.start();
 }

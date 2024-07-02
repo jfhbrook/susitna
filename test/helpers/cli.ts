@@ -2,7 +2,7 @@ import { Test as Testing } from '@nestjs/testing';
 import { join, resolve } from 'path';
 import { readdirSync } from 'fs';
 
-import { Main } from '../../cli';
+import { App } from '../../app';
 import { Config, Argv, Env } from '../../config';
 import { Editor } from '../../editor';
 import { Executor } from '../../executor';
@@ -51,12 +51,12 @@ export async function run(argv: Argv, env: Env): Promise<RunResult> {
         },
         Editor,
         Executor,
-        Main,
+        App,
       ],
     })
       .compile()
       .then((deps) => {
-        const main = deps.get(Main);
+        const main = deps.get(App);
         return main.start();
       })
       .catch(reject);

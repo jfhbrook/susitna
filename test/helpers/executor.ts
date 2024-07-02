@@ -1,17 +1,44 @@
+import { Test as Testing } from '@nestjs/testing';
 import { discuss } from '@jfhbrook/swears';
 
-import { container } from '../../container';
+import { Config } from '../../config';
+import { Editor } from '../../editor';
+import { Executor } from '../../executor';
 import { CONFIG } from './config';
 import { MockConsoleHost } from './host';
+
+class MockExecutor extends Executor {}
 
 export const executorTopic = discuss(
   async () => {
     const host = new MockConsoleHost();
-    const deps = container(CONFIG, host);
+    const deps = await Testing.createTestingModule({
+      providers: [
+        {
+          provide: 'Host',
+          useValue: host,
+        },
+        {
+          provide: Config,
+          useValue: CONFIG,
+        },
+        Editor,
+        {
+          provide: Executor,
+          useClass: MockExecutor,
+        },
+      ],
+    }).compile();
+    const executor = deps.get(Executor);
 
-    await deps.executor.init();
+    await executor.init();
 
-    return deps;
+    return {
+      config: CONFIG,
+      host,
+      editor: deps.get(Editor),
+      executor,
+    };
   },
   async ({ executor }) => {
     await executor.close();

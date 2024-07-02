@@ -46,14 +46,18 @@
   "dependencies": {
     "@jfhbrook/citree": "file:tools/citree",
     "@matanuska/test-generator": "file:tools/test-generator",
+    "@nestjs/common": "^10.3.10",
+    "@nestjs/core": "^10.3.10",
     "@types/text-table": "^0.2.5",
     "ansi-colors": "^4.1.3",
     "dotenv": "^16.4.5",
+    "reflect-metadata": "^0.2.2",
     "strftime": "^0.10.2",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
     "@jfhbrook/swears": "^1.0.2",
+    "@nestjs/testing": "^10.3.10",
     "@types/strftime": "^0.9.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

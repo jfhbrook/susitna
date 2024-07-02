@@ -1,6 +1,8 @@
 import { readFile, writeFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
+import { Injectable, Inject } from '@nestjs/common';
+
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -26,6 +28,7 @@ import { Line, CommandGroup, Program } from './ast';
 
 const tracer = getTracer('main');
 
+@Injectable()
 export class Executor {
   private parser: Parser;
   private runtime: Runtime;
@@ -38,7 +41,7 @@ export class Executor {
   constructor(
     private _config: Config,
     private editor: Editor,
-    private host: Host,
+    @Inject('Host') private host: Host,
   ) {
     this.parser = new Parser();
     this.runtime = new Runtime(host);

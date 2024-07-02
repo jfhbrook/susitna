@@ -1,7 +1,11 @@
+import { Test as Testing } from '@nestjs/testing';
 import { join, resolve } from 'path';
 import { readdirSync } from 'fs';
 
-import { main } from '../../';
+import { Main } from '../../cli';
+import { Config, Argv, Env } from '../../config';
+import { Editor } from '../../editor';
+import { Executor } from '../../executor';
 import { ExitCode } from '../../exit';
 import { MockConsoleHost } from './host';
 
@@ -14,24 +18,53 @@ export interface RunResult {
   host: MockConsoleHost;
 }
 
-export function run(
-  argv: typeof process.argv,
-  env: typeof process.env,
-): Promise<RunResult> {
+export async function run(argv: Argv, env: Env): Promise<RunResult> {
   const host = new MockConsoleHost();
-  return new Promise((resolve, reject) => {
+
+  return await new Promise((resolve, reject) => {
     try {
-      main({
-        host,
-        exit: (exitCode: number): void => {
-          resolve({
-            exitCode,
-            host,
-          });
-        },
-        argv,
-        env,
-      });
+      Testing.createTestingModule({
+        providers: [
+          {
+            provide: 'Host',
+            useValue: host,
+          },
+          {
+            provide: 'argv',
+            useValue: argv,
+          },
+          {
+            provide: 'env',
+            useValue: env,
+          },
+          {
+            provide: Config,
+            useValue: Config.load(argv, env),
+          },
+          {
+            provide: 'exitFn',
+            useValue: (exitCode: number): void => {
+              resolve({
+                exitCode,
+                host,
+              });
+            },
+          },
+          Editor,
+          Executor,
+          Main,
+        ],
+      })
+        .compile()
+        .then(async (deps) => {
+          try {
+            const main = deps.get(Main);
+            await main.start();
+          } catch (err) {
+            reject(err);
+          }
+        })
+        .catch(reject);
     } catch (err) {
       reject(err);
     }

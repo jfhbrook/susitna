@@ -13,14 +13,11 @@ const topic = discuss(async () => {
 t.test('abbreviateHome', async (t: Test) => {
   await topic.swear(async (host) => {
     t.test("when it's in the home directory", async (t: Test) => {
-      t.equal(
-        abbreviateHome('/Users/josh/Software/jfhbrook/matanuska', host),
-        '~/Software/jfhbrook/matanuska',
-      );
+      t.equal(abbreviateHome('/home/josh/matanuska', host), '~/matanuska');
     });
 
     t.test('when it IS the home directory', async (t: Test) => {
-      t.equal(abbreviateHome('/Users/josh', host), '~');
+      t.equal(abbreviateHome('/home/josh', host), '~');
     });
 
     t.test("when it's outside the home directory", async (t: Test) => {
@@ -104,7 +101,7 @@ t.test('renderPrompt', async (t: Test) => {
     });
 
     t.test('pwd', async (t: Test) => {
-      t.equal(renderPrompt('\\w', host), '~/Software/jfhbrook/matanuska');
+      t.equal(renderPrompt('\\w', host), '~/matanuska');
     });
 
     t.todo('history number', async (t: Test) => {

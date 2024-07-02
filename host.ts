@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-
+import { readFile, writeFile } from 'fs/promises';
 import { basename } from 'path';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { stdin, stdout, stderr } from 'node:process';
-
 import { Readable, Writable } from 'stream';
+
+import { Injectable } from '@nestjs/common';
 
 import { ErrorCode } from './errors';
 import { BaseException, FileError } from './exceptions';
@@ -196,6 +196,9 @@ export interface Host {
   cwd(): string;
 
   exit(code: number): void;
+
+  readFile(filename: string): Promise<string>;
+  writeFile(filename: string, contents: string): Promise<void>;
 }
 
 /**
@@ -383,5 +386,21 @@ export class ConsoleHost implements Host {
 
   exit(exitCode: number): void {
     throw new Exit(exitCode);
+  }
+
+  async readFile(filename: string): Promise<string> {
+    try {
+      return await readFile(filename, 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
+  }
+
+  async writeFile(filename: string, contents: string): Promise<void> {
+    try {
+      await writeFile(filename, contents, 'utf8');
+    } catch (err) {
+      throw FileError.fromError(null, err);
+    }
   }
 }

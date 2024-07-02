@@ -1,4 +1,3 @@
-import { readFile, writeFile } from 'fs/promises';
 import * as readline from 'node:readline/promises';
 
 import { Injectable, Inject } from '@nestjs/common';
@@ -11,7 +10,6 @@ import { Config } from './config';
 import { Editor } from './editor';
 import {
   Exception,
-  FileError,
   ParseError,
   ParseWarning,
   mergeParseErrors,
@@ -184,12 +182,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    let source: string;
-    try {
-      source = await readFile(filename, 'utf8');
-    } catch (err) {
-      throw FileError.fromError(null, err);
-    }
+    const source = await this.host.readFile(filename);
 
     let result: ParseResult<Program>;
 
@@ -219,12 +212,7 @@ export class Executor {
       this.editor.filename = filename;
     }
 
-    // TODO: This writeFile call should be moved into the host
-    try {
-      writeFile(this.editor.filename, this.editor.list() + '\n', 'utf8');
-    } catch (err) {
-      throw FileError.fromError(null, err);
-    }
+    await this.host.writeFile(this.editor.filename, this.editor.list() + '\n');
   }
 
   /**

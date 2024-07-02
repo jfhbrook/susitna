@@ -26,8 +26,8 @@ import {
 import { CommandGroup, Line, Input, Program } from '../ast';
 import { Token, TokenKind } from '../tokens';
 import { throws } from './helpers/exceptions';
+import { FILENAME } from './helpers/files';
 import { parseInput, parseProgram } from './helpers/parser';
-import { FILENAME } from './helpers/traceback';
 
 const EXPRESSIONS: Array<[string, Cmd]> = [
   // NOTE: '1' parses as a line number.

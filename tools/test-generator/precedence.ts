@@ -41,9 +41,8 @@ export function generatePrecedenceTest({ precedenceCount }: Config): string {
 import t from 'tap';
 import { Test } from 'tap';
 
-import { parseProgram } from '../parser';
-
-import { FILENAME } from './helpers/traceback';
+import { FILENAME } from './helpers/files';
+import { parseProgram } from './helpers/parser';
 
 t.test('operator precedence', async (t: Test) => {
 `;

@@ -1,6 +1,8 @@
 import { join, relative, resolve } from 'path';
 import { readFileSync, readdirSync } from 'fs';
 
+export const FILENAME = '/home/josh/script.bas';
+
 type FullPath = string;
 type Contents = string;
 

@@ -29,7 +29,7 @@ import { formatter } from '../format';
 import { Token, TokenKind } from '../tokens';
 
 import { chunk } from './helpers/bytecode';
-import { FILENAME } from './helpers/traceback';
+import { FILENAME } from './helpers/files';
 
 function compile(
   ast: Program | Cmd,

@@ -53,8 +53,9 @@ import {
   Let,
 } from '../ast/cmd';
 import { Line, Program } from '../ast';
+import { FILENAME } from './helpers/files';
 import { scrubNodeVersion } from './helpers/format';
-import { FILENAME, TRACEBACK } from './helpers/traceback';
+import { TRACEBACK } from './helpers/traceback';
 
 const LINE = '100 print someFn(ident';
 const IS_LINE = [true, false];

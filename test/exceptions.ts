@@ -26,7 +26,8 @@ import {
   splitParseError,
   removeFromParseError,
 } from '../exceptions';
-import { FILENAME, TRACEBACK } from './helpers/traceback';
+import { FILENAME } from './helpers/files';
+import { TRACEBACK } from './helpers/traceback';
 
 const SIMPLE_EXCEPTIONS: Array<typeof BaseException> = [
   BaseException,

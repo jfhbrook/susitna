@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import { Scanner } from '../../scanner';
 import { Token, TokenKind } from '../../tokens';
 
-import { FILENAME } from './traceback';
+import { FILENAME } from './files';
 
 export function scanTokens(source: string): Token[] {
   const scanner = new Scanner(source, FILENAME);

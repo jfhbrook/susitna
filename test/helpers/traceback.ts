@@ -1,5 +1,5 @@
 import { Traceback } from '../../traceback';
 
-export const FILENAME = '/home/josh/script.bas';
+import { FILENAME } from './files';
 
 export const TRACEBACK = new Traceback(null, FILENAME, 100);

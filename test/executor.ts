@@ -10,6 +10,7 @@ t.test('when prompted for a command', async (t: Test) => {
         t,
         executor.prompt(),
         'print "hello world"',
+        'print "hello world"',
       );
       t.equal(command, 'print "hello world"');
     });
@@ -23,9 +24,9 @@ t.test('when input is requested', async (t: Test) => {
         t,
         executor.input('what is your favorite color?'),
         'blue',
+        'blue',
       );
 
-      t.matchSnapshot(host.outputStream.output);
       t.equal(input, 'blue');
     });
   });

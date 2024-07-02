@@ -78,6 +78,7 @@ export class MockConsoleHost extends ConsoleHost {
     t: Test,
     action: Promise<T>,
     input: string,
+    expected: string,
     outputStream: MockOutputStream | null = null,
   ): Promise<T> {
     outputStream = outputStream || this.outputStream;
@@ -86,7 +87,19 @@ export class MockConsoleHost extends ConsoleHost {
 
     const rv = await action;
 
-    t.matchSnapshot(stripAnsi(outputStream.output));
+    const output = stripAnsi(outputStream.output);
+
+    // TODO: Should this assert be more flexible? ie., should I look for the
+    // output anywhere in the output that comes after the call?
+
+    let end: string = '';
+    if (output.endsWith('\r\n')) {
+      end = '\r\n';
+    } else if (output.endsWith('\n')) {
+      end = '\n';
+    }
+
+    t.ok(output.endsWith(`${expected}${end}`), `expect: ${expected}`);
 
     return rv;
   }

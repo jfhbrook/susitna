@@ -44,6 +44,9 @@ gaps.
   - use mjs for own modules
   - upgrade strip-ansi
   - switch to 'node:{}' style requires
+- Expanded list
+  - `list 10`
+  - `list 10-20`
 - Functions
   - [ ] ADR for functions (and maybe subroutines?)
   - Local variables

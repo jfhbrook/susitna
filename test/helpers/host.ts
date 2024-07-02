@@ -1,4 +1,7 @@
 import { Test } from 'tap';
+// TODO: strip-ansi v7+ uses .mjs, which completely breaks in typescript if
+// you're compiling imports to commonjs, lolsob
+import stripAnsi from 'strip-ansi';
 
 import { Buffer } from 'buffer';
 import { Transform, Writable } from 'stream';
@@ -83,7 +86,7 @@ export class MockConsoleHost extends ConsoleHost {
 
     const rv = await action;
 
-    t.matchSnapshot(outputStream.output);
+    t.matchSnapshot(stripAnsi(outputStream.output));
 
     return rv;
   }

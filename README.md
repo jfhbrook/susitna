@@ -34,6 +34,7 @@ gaps.
   - [X] Introduce a real DI container
   - [ ] Write MockExecutor
   - [ ] Test that thang
+- switch typescript to module: nodenext
 - If/else
 - For and while
 - Logical operators

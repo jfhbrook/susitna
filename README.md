@@ -43,6 +43,7 @@ gaps.
   - use require() for node modules
   - use mjs for own modules
   - upgrade strip-ansi
+  - switch to 'node:{}' style requires
 - Functions
   - [ ] ADR for functions (and maybe subroutines?)
   - Local variables

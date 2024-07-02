@@ -114,6 +114,11 @@ export enum ExitCode {
 }
 
 /**
+ * A function that exits the app.
+ */
+export type ExitFn = ((exitCode: number) => void) | typeof process.exit;
+
+/**
  * Objects implementing this interface have an exit code corresponding to
  * sysexits.h.
  */

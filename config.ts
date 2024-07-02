@@ -31,6 +31,16 @@ Environment variables:
 MATBAS_LOG_LEVEL      set log level (debug, info, warn, error)${TRACE_USAGE}
 `;
 
+/**
+ * Command line arguments.
+ */
+export type Argv = typeof process.argv;
+
+/**
+ * Command line environment.
+ */
+export type Env = typeof process.env;
+
 function help(): Exit {
   return new Exit(ExitCode.Success, USAGE);
 }
@@ -83,8 +93,8 @@ export class Config {
     eval_: string | null,
     public readonly script: string | null,
     public readonly level: Level,
-    public readonly argv: string[],
-    public readonly env: typeof process.env,
+    public readonly argv: Argv,
+    public readonly env: Env,
   ) {
     this.eval = eval_;
   }
@@ -96,7 +106,7 @@ export class Config {
    *        script name. In practice, this is `process.argv.slice(2)`.
    * @param env Environment variables. In practice, this is `process.env`.
    */
-  static load(argv: typeof process.argv, env: typeof process.env) {
+  static load(argv: Argv, env: Env) {
     let command: string | null = null;
     let eval_: string | null = null;
     let script: string | null = null;

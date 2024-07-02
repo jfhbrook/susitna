@@ -3,9 +3,10 @@ import { readFileSync } from 'fs';
 import t from 'tap';
 import { Test } from 'tap';
 
-import { run, EXAMPLES } from './helpers/cli';
+import { run } from './helpers/cli';
+import { EXAMPLES } from './helpers/files';
 
-const TEST_CASES = EXAMPLES.map(([name, path]) => {
+const TEST_CASES = Object.entries(EXAMPLES).map(([name, path]) => {
   switch (name) {
     // TODO: Some scripts will need mocked input
     default:

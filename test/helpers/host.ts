@@ -10,6 +10,8 @@ import { Transform, Writable } from 'stream';
 
 import { ConsoleHost } from '../../host';
 
+import { EXAMPLES } from './files';
+
 /**
  * An input stream for testing.
  */
@@ -74,7 +76,7 @@ export class MockConsoleHost extends ConsoleHost {
   declare errorStream: MockOutputStream;
   public files: Record<string, string>;
 
-  constructor({ files }: MockConsoleHostOptions = {}) {
+  constructor({ files }: MockConsoleHostOptions = { files: EXAMPLES }) {
     super();
     this.inputStream = new MockInputStream();
     this.outputStream = new MockOutputStream();

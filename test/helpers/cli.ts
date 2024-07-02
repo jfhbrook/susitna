@@ -1,17 +1,12 @@
 import { Test as Testing } from '@nestjs/testing';
-import { join, resolve } from 'path';
-import { readdirSync } from 'fs';
 
 import { App } from '../../app';
 import { Config, Argv, Env } from '../../config';
 import { Editor } from '../../editor';
 import { Executor } from '../../executor';
 import { ExitCode } from '../../exit';
-import { MockConsoleHost, MockConsoleHostOptions } from './host';
 
-export const EXAMPLES = readdirSync(join(__dirname, '../../examples'))
-  .filter((entry) => entry.endsWith('.bas'))
-  .map((entry) => [entry, resolve(join(__dirname, '../../examples', entry))]);
+import { MockConsoleHost, MockConsoleHostOptions } from './host';
 
 export interface RunResult {
   exitCode: ExitCode;
@@ -21,7 +16,7 @@ export interface RunResult {
 export async function run(
   argv: Argv,
   env: Env,
-  options: MockConsoleHostOptions = {},
+  options?: MockConsoleHostOptions,
 ): Promise<RunResult> {
   const host = new MockConsoleHost(options);
 

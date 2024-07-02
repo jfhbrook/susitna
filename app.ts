@@ -48,8 +48,7 @@ export class App {
 
   public async start(): Promise<void> {
     tracer.open('main');
-    const host = this.host;
-    const exit = this.exit;
+    const { host, exit, config, executor } = this;
     let error: any = null;
 
     function errorExit(error: any): void {
@@ -73,16 +72,16 @@ export class App {
     process.on('unhandledRejection', errorHandler);
 
     try {
-      await this.executor.using(async () => {
-        if (this.config.script) {
-          await this.executor.load(this.config.script);
-          await this.executor.run();
+      await executor.using(async () => {
+        if (config.script) {
+          await executor.load(config.script);
+          await executor.run();
         } else {
-          await repl(this.executor, host);
+          await repl(executor, host);
         }
       });
     } catch (err) {
-      reportError(err, this.host);
+      reportError(err, host);
       error = err;
     }
 

@@ -30,27 +30,36 @@ gaps.
 
 ### Prioritized Backlog
 
-- If/else
-- For and while
+- if/else
+  - [ ] ADR for if/else syntax
+- for/while/goto
+  - [ ] ADR for for/while/goto
 - Logical operators
   - [X] Support through the parser
-  - [ ] Requires Jump and JumpIfFalse operators
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
-- cd, ls, etc
-- Switch typescript to `module: "nodenext"`
-  - use require() for node modules
-  - use mjs for own modules
-  - upgrade strip-ansi
 - Support `end`
   - In MSX BASIC, `end` closes open files and ends program execution. It's
     distinct from a bare `exit`, insofar as `end` will hand control back to the
     commander in the context of a `run`.
-  - In MSX BASIC, `stop` 
+- Switch typescript to `module: "nodenext"`
+  - use require() for node modules
+  - use mjs for own modules
+  - upgrade strip-ansi
+- Functions
+  - [ ] ADR for functions (and maybe subroutines?)
+  - Local variables
+  - Closures
+  - Native functions
+- Path navigation - cd, ls, etc
+  - Leverage native functions
+- Date/Time/Duration/TZData types
+  - Core library
+  - Host support
+  - (Language support can come later)
 - REPL history support
   - Support \# and \! in prompt rendering
-- Gotos
 - Shell commands
   - Will need to research jobs in Bash
   - Scanner and parser support for shell commands and "shell tokens"
@@ -60,28 +69,18 @@ gaps.
   - Support \j in prompt rendering
   - (Pipes will come later)
 - Shell variable export
-- Date/Time/Duration/TZData types
-  - Core library
-  - Host support
-  - (Language support can come later)
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
-- Move FS calls into the Host
-  - This has challenges matching the types of Node.JS's fs module
 - Type-checking compiler
   - Implement type analogues to operations
   - Simulated stack in the compiler
-- Escaped newlines
 
 ### Up Next
 
+- Escaped newlines
 - Arrays
   - Including array literals - BASIC assigns each index one at a time, or
     uses the `data` command
-- Functions and/or subroutines
-  - Local variables
-  - Closures
-  - Native functions
 - Implement Acey Ducey
   - `center$(n)`
   - `rnd!` (random) function

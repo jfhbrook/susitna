@@ -48,3 +48,16 @@ t.test('expression', async (t: Test) => {
     t.equal(rv, 'hello');
   });
 });
+
+t.todo('editing', async (t: Test) => {
+  await topic.swear(async ({ executor, editor, host }) => {
+    t.ok(executor);
+    t.ok(editor);
+    t.ok(host);
+    // TODO: load a test program into the editor
+    // TODO: run the test program
+    // TODO: edit the test program "manually"
+    // TODO: save the test program
+    // TODO: start a new program
+  });
+});

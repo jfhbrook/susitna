@@ -69,7 +69,7 @@ gaps.
   - Closures
   - Native functions
 - Path navigation - cd, ls, etc
-  - `cd` is probably a native function, though there is a bin
+  - `cd` is a builtin ("native function")
   - `ls` and others are on the PATH, actually
 - Date/Time/Duration/TZData types
   - Core library

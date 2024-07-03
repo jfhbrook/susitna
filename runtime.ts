@@ -74,7 +74,6 @@ export class Runtime {
   private run(): Value | null {
     let a: Value | null = null;
     let b: Value | null = null;
-    let rv: Value | null = null;
 
     startTraceExec();
 
@@ -214,10 +213,10 @@ export class Runtime {
             this.notImplemented('Loop');
             break;
           case OpCode.Return:
-            rv = this.stack.pop();
+            a = this.stack.pop();
             // TODO: Clean up the current frame, and only return if we're
             // done with the main program.
-            return rv;
+            return a;
           default:
             this.notImplemented(`Unknown opcode: ${instruction}`);
         }

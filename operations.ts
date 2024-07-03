@@ -73,30 +73,22 @@ export function binaryOperation(op: BinaryOperator): BinaryOperation {
     const typeB = typeOf(b);
     const castTo = highestTypePrecedence(typeA, typeB);
 
-    let castA: any;
-    let castB: any;
+    const castA: any = cast(a, typeA, castTo);
+    const castB: any = cast(b, typeB, castTo);
     let method: string;
 
     try {
       switch (castTo) {
         case Type.Boolean:
-          castA = cast(a, typeA, Type.Boolean);
-          castB = cast(b, typeB, Type.Boolean);
           method = 'boolean';
           break;
         case Type.Integer:
-          castA = cast(a, typeA, Type.Integer);
-          castB = cast(b, typeB, Type.Integer);
           method = 'integer';
           break;
         case Type.Real:
-          castA = cast(a, typeA, Type.Real);
-          castB = cast(b, typeB, Type.Real);
           method = 'real';
           break;
         case Type.String:
-          castA = cast(a, typeA, Type.String);
-          castB = cast(b, typeB, Type.String);
           method = 'string';
           break;
         default:

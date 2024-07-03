@@ -1,6 +1,8 @@
 import { Expr, Variable } from './expr';
+import { Line } from './index';
 
 export interface InstrVisitor<R> {
+  visitRemInstr(node: Rem): R;
   visitLetInstr(node: Let): R;
   visitAssignInstr(node: Assign): R;
   visitExpressionInstr(node: Expression): R;
@@ -13,7 +15,8 @@ export interface InstrVisitor<R> {
   visitRenumInstr(node: Renum): R;
   visitRunInstr(node: Run): R;
   visitSaveInstr(node: Save): R;
-  visitRemInstr(node: Rem): R;
+  visitShortIfInstr(node: ShortIf): R;
+  visitIfInstr(node: If): R;
 }
 
 export abstract class Instr {
@@ -23,6 +26,20 @@ export abstract class Instr {
   ) {}
 
   abstract accept<R>(visitor: InstrVisitor<R>): R;
+}
+
+export class Rem extends Instr {
+  constructor(
+    public remark: string,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitRemInstr(this);
+  }
 }
 
 export class Let extends Instr {
@@ -180,9 +197,11 @@ export class Save extends Instr {
   }
 }
 
-export class Rem extends Instr {
+export class ShortIf extends Instr {
   constructor(
-    public remark: string,
+    public condition: Expr,
+    public then: Instr[],
+    public else_: Instr[],
     offsetStart: number = -1,
     offsetEnd: number = -1,
   ) {
@@ -190,6 +209,22 @@ export class Rem extends Instr {
   }
 
   accept<R>(visitor: InstrVisitor<R>): R {
-    return visitor.visitRemInstr(this);
+    return visitor.visitShortIfInstr(this);
+  }
+}
+
+export class If extends Instr {
+  constructor(
+    public condition: Expr,
+    public then: Line[],
+    public else_: Line[] | If,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitIfInstr(this);
   }
 }

@@ -51,6 +51,8 @@ import {
   Save,
   Run,
   Let,
+  ShortIf,
+  If,
 } from '../ast/instr';
 import { Line, Program } from '../ast';
 import { FILENAME } from './helpers/files';
@@ -387,6 +389,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
 
     t.test('instructions', async (t: Test) => {
       const INSTRUCTIONS = [
+        new Print(new StringLiteral('hello')),
         new ExitInstr(new IntLiteral(0)),
         new Rem('a witty remark'),
         new New(null),
@@ -407,6 +410,55 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
             }),
           ),
           new IntLiteral(1),
+        ),
+        new ShortIf(
+          new BoolLiteral(true),
+          [new Print(new StringLiteral('true'))],
+          [],
+        ),
+        new ShortIf(
+          new BoolLiteral(true),
+          [new Print(new StringLiteral('true'))],
+          [new Print(new StringLiteral('false'))],
+        ),
+        new If(
+          new BoolLiteral(true),
+          [
+            new Line(20, 1, '20   print "true"', [
+              new Print(new StringLiteral('hello world')),
+            ]),
+          ],
+          [],
+        ),
+        new If(
+          new BoolLiteral(true),
+          [
+            new Line(20, 1, '20   print "true"', [
+              new Print(new StringLiteral('hello world')),
+            ]),
+          ],
+          [
+            new Line(20, 1, '20   print "false"', [
+              new Print(new StringLiteral('hello world')),
+            ]),
+          ],
+        ),
+        new If(
+          new BoolLiteral(true),
+          [
+            new Line(20, 1, '20   print "true"', [
+              new Print(new StringLiteral('true')),
+            ]),
+          ],
+          new If(
+            new BoolLiteral(true),
+            [
+              new Line(20, 1, '40   print "false, but true"', [
+                new Print(new StringLiteral('false, but true')),
+              ]),
+            ],
+            [],
+          ),
         ),
       ];
 

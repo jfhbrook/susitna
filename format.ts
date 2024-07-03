@@ -52,6 +52,8 @@ import {
   Exit as ExitInstr,
   Let,
   Assign,
+  ShortIf,
+  If,
 } from './ast/instr';
 import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -180,6 +182,8 @@ export abstract class Formatter
   abstract visitAssignInstr(assign: Assign): string;
   abstract visitEndInstr(end: End): string;
   abstract visitExitInstr(exit: ExitInstr): string;
+  abstract visitShortIfInstr(if_: ShortIf): string;
+  abstract visitIfInstr(if_: If): string;
 
   abstract visitCmdTree(node: Cmd): string;
   abstract visitLineTree(node: Line): string;
@@ -643,6 +647,39 @@ export class DefaultFormatter extends Formatter {
 
   visitAssignInstr(assign: Assign): string {
     return `Assign(${this.format(assign.variable)}, ${this.format(assign.value)})`;
+  }
+
+  visitShortIfInstr(if_: ShortIf): string {
+    let formatted = `ShortIf (${this.format(if_.condition)}) { `;
+    formatted += if_.then.map((c) => this.format(c)).join(' : ') + ' }';
+    if (if_.else_.length) {
+      formatted +=
+        ' { ' + if_.else_.map((c) => this.format(c)).join(' : ') + ' }';
+    }
+    return formatted;
+  }
+
+  visitIfInstr(if_: If): string {
+    let formatted = `If (${this.format(if_.condition)}) {\n`;
+
+    for (const line of if_.then) {
+      formatted += indent(1, `${this.format(line)},\n`);
+    }
+
+    if (if_.else_ instanceof If) {
+      formatted += '} Else ';
+      formatted += this.format(if_.else_);
+    } else if (if_.else_.length) {
+      formatted += '} Else {\n';
+      for (const line of if_.else_) {
+        formatted += indent(1, `${this.format(line)},\n`);
+      }
+      formatted += '}';
+    } else {
+      formatted += '}';
+    }
+
+    return formatted;
   }
 
   formatStack<V>(stack: Stack<V>): string {

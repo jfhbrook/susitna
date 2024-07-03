@@ -87,7 +87,7 @@ export class Editor {
       const from = line.lineNo;
       const to = (i + 1) * 10;
       line.lineNo = to;
-      line.source = source.replace(/^\d+/, String(to));
+      line.source = source.replace(/\d+/, String(to));
       renumbering[from] = to;
     }
 

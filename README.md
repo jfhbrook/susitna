@@ -31,7 +31,26 @@ gaps.
 ### Prioritized Backlog
 
 - if/else
+<<<<<<< Updated upstream
   - [ ] ADR for if/else syntax
+=======
+  - [X] ADR for if/else syntax
+  - [X] ShortIf and If in AST
+  - [X] Update the AST and ADR to not use nesting
+  - [ ] ShortIf in parser
+  - [ ] If in parser
+  - [ ] Instructions needed to implement ShortIf/If
+  - [ ] ShortIf in compiler
+  - [ ] If in compiler
+  - [ ] What if long if typed into repl?
+- fix renum
+  - match number (include leading whitespace)
+  - get number length
+  - traverse and re-number elements/tokens based on changed length
+  - test where `100` gets renumbered to `10`
+  - test where `10` gets renumbered to `100`
+- rename "arguments" to "params"?
+>>>>>>> Stashed changes
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

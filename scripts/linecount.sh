@@ -4,9 +4,13 @@ MATBAS_LC="$(cat ./*.ts \
   ./ast/index.citree ./ast/util.ts \
   ./bin/* \
   ./bytecode/* \
+  ./commands/* \
   ./examples/*.bas \
   ./scripts/* \
-  ./test/*.ts ./test/helpers/*.ts | wc -l)"
+  ./value/* \
+  ./test/*.ts \
+  ./test/helpers/*.ts \
+  ./test/value/*.ts | wc -l)"
 
 CITREE_LC="$(cat ./tools/citree/src/*.ts \
   ./tools/citree/src/templates/* | wc -l)"

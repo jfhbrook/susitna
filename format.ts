@@ -48,12 +48,15 @@ import {
   Renum,
   Save,
   Run,
-  End,
+  // End,
   Exit as ExitInstr,
   Let,
   Assign,
   ShortIf,
   If,
+  Else,
+  ElseIf,
+  End,
 } from './ast/instr';
 import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -180,10 +183,13 @@ export abstract class Formatter
   abstract visitRunInstr(run: Run): string;
   abstract visitLetInstr(let_: Let): string;
   abstract visitAssignInstr(assign: Assign): string;
-  abstract visitEndInstr(end: End): string;
+  // abstract visitEndInstr(end: End): string;
   abstract visitExitInstr(exit: ExitInstr): string;
   abstract visitShortIfInstr(if_: ShortIf): string;
   abstract visitIfInstr(if_: If): string;
+  abstract visitElseInstr(else_: Else): string;
+  abstract visitElseIfInstr(elseIf: ElseIf): string;
+  abstract visitEndInstr(end: End): string;
 
   abstract visitCmdTree(node: Cmd): string;
   abstract visitLineTree(node: Line): string;
@@ -633,9 +639,11 @@ export class DefaultFormatter extends Formatter {
     return 'Run';
   }
 
+  /*
   visitEndInstr(_end: End): string {
     return 'End';
   }
+  */
 
   visitExitInstr(exit: ExitInstr): string {
     return `Exit(${this.format(exit.expression)})`;
@@ -660,26 +668,19 @@ export class DefaultFormatter extends Formatter {
   }
 
   visitIfInstr(if_: If): string {
-    let formatted = `If (${this.format(if_.condition)}) {\n`;
+    return `If (${this.format(if_.condition)})`;
+  }
 
-    for (const line of if_.then) {
-      formatted += indent(1, `${this.format(line)},\n`);
-    }
+  visitElseInstr(_else: Else): string {
+    return `Else`;
+  }
 
-    if (if_.else_ instanceof If) {
-      formatted += '} Else ';
-      formatted += this.format(if_.else_);
-    } else if (if_.else_.length) {
-      formatted += '} Else {\n';
-      for (const line of if_.else_) {
-        formatted += indent(1, `${this.format(line)},\n`);
-      }
-      formatted += '}';
-    } else {
-      formatted += '}';
-    }
+  visitElseIfInstr(elseIf: ElseIf): string {
+    return `ElseIf (${this.format(elseIf.condition)})`;
+  }
 
-    return formatted;
+  visitEndInstr(_end: End): string {
+    return 'End';
   }
 
   formatStack<V>(stack: Stack<V>): string {

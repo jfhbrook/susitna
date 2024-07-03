@@ -25,12 +25,14 @@ import {
   Renum,
   Save,
   Run,
-  End,
   Exit,
   Let,
   Assign,
   ShortIf,
   If,
+  Else,
+  ElseIf,
+  End,
 } from './ast/instr';
 import {
   Expr,
@@ -370,6 +372,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     return this.interactive('run', run);
   }
 
+  /*
   visitEndInstr(_end: End): void {
     tracer.spanSync('end', () => {
       // TODO: I'm currently treating 'end' as a synonym for 'return nil'.
@@ -379,6 +382,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       this.emitByte(OpCode.Return);
     });
   }
+  */
 
   visitExitInstr(exit: Exit): void {
     tracer.spanSync('exit', () => {
@@ -417,6 +421,18 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitIfInstr(_if: If): void {
     throw new NotImplementedError('If');
+  }
+
+  visitElseCmd(_else: Else): void {
+    throw new NotImplementedError('Else');
+  }
+
+  visitElseIfCmd(_elseIf: ElseIf): void {
+    throw new NotImplementedError('ElseIf');
+  }
+
+  visitEndCmd(_end: End): void {
+    throw new NotImplementedError('End');
   }
 
   // Expressions
@@ -629,9 +645,11 @@ export class CommandCompiler
     return this.command(run, []);
   }
 
+  /*
   visitEndInstr(end: End): CompileResult<CompiledCmd> {
     return this.runtime(end);
   }
+  */
 
   visitExitInstr(exit: Exit): CompileResult<CompiledCmd> {
     return this.runtime(exit);
@@ -651,6 +669,18 @@ export class CommandCompiler
 
   visitIfInstr(if_: If): CompileResult<CompiledCmd> {
     return this.runtime(if_);
+  }
+
+  visitElseInstr(else_: Else): CompileResult<CompiledCmd> {
+    return this.runtime(else_);
+  }
+
+  visitElseIfInstr(elseIf: ElseIf): CompileResult<CompiledCmd> {
+    return this.runtime(elseIf);
+  }
+
+  visitEndInstr(end: End): CompileResult<CompiledCmd> {
+    return this.runtime(end);
   }
 }
 

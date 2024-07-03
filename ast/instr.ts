@@ -1,5 +1,4 @@
 import { Expr, Variable } from './expr';
-import { Line } from './index';
 
 export interface InstrVisitor<R> {
   visitRemInstr(node: Rem): R;
@@ -8,15 +7,17 @@ export interface InstrVisitor<R> {
   visitExpressionInstr(node: Expression): R;
   visitPrintInstr(node: Print): R;
   visitExitInstr(node: Exit): R;
-  visitEndInstr(node: End): R;
   visitNewInstr(node: New): R;
   visitLoadInstr(node: Load): R;
   visitListInstr(node: List): R;
   visitRenumInstr(node: Renum): R;
   visitRunInstr(node: Run): R;
   visitSaveInstr(node: Save): R;
+  visitEndInstr(node: End): R;
   visitShortIfInstr(node: ShortIf): R;
   visitIfInstr(node: If): R;
+  visitElseInstr(node: Else): R;
+  visitElseIfInstr(node: ElseIf): R;
 }
 
 export abstract class Instr {
@@ -114,16 +115,6 @@ export class Exit extends Instr {
   }
 }
 
-export class End extends Instr {
-  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
-    super(offsetStart, offsetEnd);
-  }
-
-  accept<R>(visitor: InstrVisitor<R>): R {
-    return visitor.visitEndInstr(this);
-  }
-}
-
 export class New extends Instr {
   constructor(
     public filename: Expr | null,
@@ -197,6 +188,16 @@ export class Save extends Instr {
   }
 }
 
+export class End extends Instr {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitEndInstr(this);
+  }
+}
+
 export class ShortIf extends Instr {
   constructor(
     public condition: Expr,
@@ -216,8 +217,6 @@ export class ShortIf extends Instr {
 export class If extends Instr {
   constructor(
     public condition: Expr,
-    public then: Line[],
-    public else_: Line[] | If,
     offsetStart: number = -1,
     offsetEnd: number = -1,
   ) {
@@ -226,5 +225,29 @@ export class If extends Instr {
 
   accept<R>(visitor: InstrVisitor<R>): R {
     return visitor.visitIfInstr(this);
+  }
+}
+
+export class Else extends Instr {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitElseInstr(this);
+  }
+}
+
+export class ElseIf extends Instr {
+  constructor(
+    public condition: Expr,
+    offsetStart: number = -1,
+    offsetEnd: number = -1,
+  ) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitElseIfInstr(this);
   }
 }

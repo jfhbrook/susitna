@@ -18,35 +18,19 @@ ShortIf (true) { Print('true') } { Print('false') }
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 12`] = `
-If (true) {
-  Line(20) [
-    Print('hello world'),
-  ],
-}
+If (true)
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 13`] = `
-If (true) {
-  Line(20) [
-    Print('hello world'),
-  ],
-} Else {
-  Line(20) [
-    Print('hello world'),
-  ],
-}
+Else
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 14`] = `
-If (true) {
-  Line(20) [
-    Print('true'),
-  ],
-} Else If (true) {
-  Line(20) [
-    Print('false, but true'),
-  ],
-}
+ElseIf (true)
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 15`] = `
+End
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 2`] = `
@@ -92,7 +76,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BaseFaul
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:268:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:271:40)
     at TapWrap.runInAsyncScope (node:async_hooks:211:14)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -208,7 +192,7 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a RuntimeF
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:272:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:275:26)
     at TapWrap.runInAsyncScope (node:async_hooks:211:14)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -390,35 +374,19 @@ ShortIf (true) { Print('true') } { Print('false') }
 `
 
 exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 12`] = `
-If (true) {
-  Line(20) [
-    Print('hello world'),
-  ],
-}
+If (true)
 `
 
 exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 13`] = `
-If (true) {
-  Line(20) [
-    Print('hello world'),
-  ],
-} Else {
-  Line(20) [
-    Print('hello world'),
-  ],
-}
+Else
 `
 
 exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 14`] = `
-If (true) {
-  Line(20) [
-    Print('true'),
-  ],
-} Else If (true) {
-  Line(20) [
-    Print('false, but true'),
-  ],
-}
+ElseIf (true)
+`
+
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 15`] = `
+End
 `
 
 exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 2`] = `
@@ -464,7 +432,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a BaseFault > mus
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at Test.<anonymous> ({CWD}/test/format.ts:268:40)
+    at Test.<anonymous> ({CWD}/test/format.ts:271:40)
     at TapWrap.runInAsyncScope (node:async_hooks:211:14)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)
@@ -580,7 +548,7 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a RuntimeFault > 
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at Test.<anonymous> ({CWD}/test/format.ts:272:26)
+    at Test.<anonymous> ({CWD}/test/format.ts:275:26)
     at TapWrap.runInAsyncScope (node:async_hooks:211:14)
     at Test.cb ({CWD}/node_modules/@tapjs/core/src/test-base.ts:338:17)
     at <anonymous> ({CWD}/node_modules/@tapjs/core/src/test-base.ts:1153:21)

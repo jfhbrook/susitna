@@ -31,7 +31,7 @@ gaps.
 ### Prioritized Backlog
 
 - if/else
-  - [X] ADR for if/else syntax
+  - [ ] ADR for if/else syntax
   - [X] ShortIf and If in AST
   - [X] Update the AST and ADR to not use nesting
   - [ ] ShortIf in parser

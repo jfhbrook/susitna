@@ -147,6 +147,7 @@ gaps.
 - Object support
 - Vector/matrix support for 1D/2D integer/float arrays
 - Assembler mini-language
+- Stack trace tests robust against different node versions
 
 ## Resources
 

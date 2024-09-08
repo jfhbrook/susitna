@@ -313,16 +313,12 @@ export class Executor {
     cmds,
     parseWarning,
   ]: ParseResult<CommandGroup>): Promise<void> {
-    // TODO: This should be getting attached in either the parser or
-    // the translator
-    this.cmdSource = cmds.source;
-
     let warning: ParseWarning | null = null;
     try {
       const result = compileCommands(cmds.commands, {
         filename: '<input>',
         cmdNo: cmds.cmdNo,
-        cmdSource: this.cmdSource,
+        cmdSource: cmds.source,
       });
       const commands = result[0];
       warning = result[1];
@@ -352,8 +348,6 @@ export class Executor {
 
       throw err;
     }
-
-    this.cmdSource = '';
   }
 
   //

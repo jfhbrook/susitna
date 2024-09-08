@@ -43,6 +43,9 @@
   ],
   "author": "Josh Holbrook",
   "license": "MIT",
+  "engines": {
+    "node": "^20.17.0 || ^22.8.0"
+  },
   "dependencies": {
     "@jfhbrook/citree": "file:tools/citree",
     "@matanuska/test-generator": "file:tools/test-generator",

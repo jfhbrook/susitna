@@ -40,6 +40,14 @@ are named (and defined) as such:
 - **Lines**: A command group combined with a preceding line number. Lines are
   currently contained on a single source line, though that may not be true in
   the future if newlines can be escaped (like Bash).
+
+**TODO:** Instructions are actually made up of op codes *and* arguments. These
+arguments can, for example, be addresses of constants or variables, or jump
+locations. Therefore, op codes *themselves* are only *part* of an instruction.
+**This means we can not simply rename instructions to codes!**
+
+Can we refer to them as "source instructions" and "bytecode instructions"?
+
 - **Instructions**: *op codes* which, when encountered by the runtime, cause
   some effect to occur.
 - **Op codes**: Integer values which constitute *instructions* in the context
@@ -48,9 +56,11 @@ are named (and defined) as such:
   "byte codes" - or simply "codes". Note that "op" is short for "operation",
   though this is unrelated to the idea of *operations* within Matanuska's
   source code.
-- **Chunks**: Collections of *instructions*, along with various pieces of
+- **Chunks**: Collections of *bytecode*, along with various pieces of
   metadata. These form the base units which are executed by the `runtime`.
   This term comes directly from `Crafting Interpreters`.
+- **Bytecode**: The unifying concept around *op codes* and *chunks*. In other
+  words, *bytecode* is made up of *chunks* and *codes*.
 
 However, in the [MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions),
 they very consistently call them "instructions" - and it is believed that the
@@ -122,3 +132,7 @@ with the following:
   "instructions" and "op codes" within Matanuska, and avoids the overlap with
   the concept of operations. Note that, in certain context, they may still
   be referred to "op codes" in the context of standard interpreter terminology.
+
+"Bytecode" will still refer to the unifying concept around "codes" and
+"cnunks". This is in part to maintain consistency with general interpreter
+concepts. This decision may be revisited.

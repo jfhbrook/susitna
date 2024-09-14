@@ -1,6 +1,6 @@
 import { Test as Testing } from '@nestjs/testing';
 
-import { App } from '../../app';
+import { Translator } from '../../translator';
 import { Config, Argv, Env } from '../../config';
 import { Editor } from '../../editor';
 import { Executor } from '../../executor';
@@ -50,12 +50,12 @@ export async function run(
         },
         Editor,
         Executor,
-        App,
+        Translator,
       ],
     })
       .compile()
       .then((deps) => {
-        const main = deps.get(App);
+        const main = deps.get(Translator);
         return main.start();
       })
       .catch(reject);

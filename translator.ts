@@ -35,7 +35,7 @@ async function repl(executor: Executor, host: Host) {
 }
 
 @Injectable()
-export class App {
+export class Translator {
   /**
    * The main entry point for the application.
    */

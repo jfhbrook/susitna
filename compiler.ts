@@ -526,9 +526,7 @@ export function compileInstruction(
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
-  const lines = [
-    new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [instr]),
-  ];
+  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [instr])];
   const compiler = new LineCompiler(lines, RoutineType.Instruction, options);
   return compiler.compile();
 }

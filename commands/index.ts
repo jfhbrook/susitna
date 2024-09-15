@@ -33,7 +33,7 @@ export function commandRunner(
     visitRenumInstr,
     visitSaveInstr,
     visitRunInstr,
-    // visitEndInstr: invalid('end'),
+    visitEndInstr: invalid('end'),
     visitExitInstr: invalid('exit'),
     visitLetInstr: invalid('let'),
     visitAssignInstr: invalid('assign'),
@@ -41,7 +41,7 @@ export function commandRunner(
     visitIfInstr: invalid('if'),
     visitElseInstr: invalid('else'),
     visitElseIfInstr: invalid('else if'),
-    visitEndInstr: invalid('end'),
+    visitEndIfInstr: invalid('endif'),
   };
 }
 

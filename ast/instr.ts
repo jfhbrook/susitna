@@ -7,17 +7,18 @@ export interface InstrVisitor<R> {
   visitExpressionInstr(node: Expression): R;
   visitPrintInstr(node: Print): R;
   visitExitInstr(node: Exit): R;
+  visitEndInstr(node: End): R;
   visitNewInstr(node: New): R;
   visitLoadInstr(node: Load): R;
   visitListInstr(node: List): R;
   visitRenumInstr(node: Renum): R;
   visitRunInstr(node: Run): R;
   visitSaveInstr(node: Save): R;
-  visitEndInstr(node: End): R;
   visitShortIfInstr(node: ShortIf): R;
   visitIfInstr(node: If): R;
   visitElseInstr(node: Else): R;
   visitElseIfInstr(node: ElseIf): R;
+  visitEndIfInstr(node: EndIf): R;
 }
 
 export abstract class Instr {
@@ -115,6 +116,16 @@ export class Exit extends Instr {
   }
 }
 
+export class End extends Instr {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitEndInstr(this);
+  }
+}
+
 export class New extends Instr {
   constructor(
     public filename: Expr | null,
@@ -188,16 +199,6 @@ export class Save extends Instr {
   }
 }
 
-export class End extends Instr {
-  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
-    super(offsetStart, offsetEnd);
-  }
-
-  accept<R>(visitor: InstrVisitor<R>): R {
-    return visitor.visitEndInstr(this);
-  }
-}
-
 export class ShortIf extends Instr {
   constructor(
     public condition: Expr,
@@ -249,5 +250,15 @@ export class ElseIf extends Instr {
 
   accept<R>(visitor: InstrVisitor<R>): R {
     return visitor.visitElseIfInstr(this);
+  }
+}
+
+export class EndIf extends Instr {
+  constructor(offsetStart: number = -1, offsetEnd: number = -1) {
+    super(offsetStart, offsetEnd);
+  }
+
+  accept<R>(visitor: InstrVisitor<R>): R {
+    return visitor.visitEndIfInstr(this);
   }
 }

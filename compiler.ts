@@ -26,13 +26,14 @@ import {
   Save,
   Run,
   Exit,
+  End,
   Let,
   Assign,
   ShortIf,
   If,
   Else,
   ElseIf,
-  End,
+  EndIf,
 } from './ast/instr';
 import {
   Expr,
@@ -372,7 +373,6 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     return this.interactive('run', run);
   }
 
-  /*
   visitEndInstr(_end: End): void {
     tracer.spanSync('end', () => {
       // TODO: I'm currently treating 'end' as a synonym for 'return nil'.
@@ -382,7 +382,6 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       this.emitByte(OpCode.Return);
     });
   }
-  */
 
   visitExitInstr(exit: Exit): void {
     tracer.spanSync('exit', () => {
@@ -423,16 +422,16 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     throw new NotImplementedError('If');
   }
 
-  visitElseCmd(_else: Else): void {
+  visitElseInstr(_else: Else): void {
     throw new NotImplementedError('Else');
   }
 
-  visitElseIfCmd(_elseIf: ElseIf): void {
+  visitElseIfInstr(_elseIf: ElseIf): void {
     throw new NotImplementedError('ElseIf');
   }
 
-  visitEndCmd(_end: End): void {
-    throw new NotImplementedError('End');
+  visitEndIfInstr(_endif: EndIf): void {
+    throw new NotImplementedError('EndIf');
   }
 
   // Expressions
@@ -588,11 +587,13 @@ export class CommandCompiler
 {
   constructor(private options: CompilerOptions) {}
 
+  // A runtime command
   private runtime(instr: Instr): CompileResult<CompiledCmd> {
     const [chunk, warning] = compileInstruction(instr, this.options);
     return [[null, [chunk]], warning];
   }
 
+  // An interactive command
   private command(
     cmd: Instr,
     exprs: Array<Expr | null>,
@@ -607,6 +608,26 @@ export class CommandCompiler
     const chunks = results.map(([c, _]) => c);
     const warnings: Array<ParseWarning | null> = results.map(([_, w]) => w);
     return [[cmd, chunks], mergeParseErrors(warnings)];
+  }
+
+  // An instruction which can *not* be executed as a command. This is distinct
+  // from an invalid *interactive* command, which may be executed in the
+  // runtime.
+  private invalid(cmd: string, instr: Instr): never {
+    const { filename, cmdNo, cmdSource } = this.options;
+
+    const exc = new SyntaxError(`Invalid command: ${cmd}`, {
+      filename: filename || '<unknown>',
+      row: cmdNo || 100,
+      isLine: false,
+      lineNo: cmdNo || 100,
+      cmdNo: cmdNo || 100,
+      offsetStart: instr.offsetStart,
+      offsetEnd: instr.offsetEnd,
+      source: cmdSource || '<unknown>',
+    });
+
+    throw new ParseError([exc]);
   }
 
   visitPrintInstr(print: Print): CompileResult<CompiledCmd> {
@@ -645,11 +666,9 @@ export class CommandCompiler
     return this.command(run, []);
   }
 
-  /*
   visitEndInstr(end: End): CompileResult<CompiledCmd> {
     return this.runtime(end);
   }
-  */
 
   visitExitInstr(exit: Exit): CompileResult<CompiledCmd> {
     return this.runtime(exit);
@@ -668,19 +687,19 @@ export class CommandCompiler
   }
 
   visitIfInstr(if_: If): CompileResult<CompiledCmd> {
-    return this.runtime(if_);
+    return this.invalid('if', if_);
   }
 
   visitElseInstr(else_: Else): CompileResult<CompiledCmd> {
-    return this.runtime(else_);
+    return this.invalid('else', else_);
   }
 
   visitElseIfInstr(elseIf: ElseIf): CompileResult<CompiledCmd> {
-    return this.runtime(elseIf);
+    return this.invalid('else if', elseIf);
   }
 
-  visitEndInstr(end: End): CompileResult<CompiledCmd> {
-    return this.runtime(end);
+  visitEndIfInstr(endif: EndIf): CompileResult<CompiledCmd> {
+    return this.invalid('endif', endif);
   }
 }
 
@@ -695,6 +714,7 @@ export function compileCommands(
   cmds: Instr[],
   options: CompilerOptions = {},
 ): CompileResult<CompiledCmd[]> {
+  // TODO: Collect ParseErrors
   const compiler = new CommandCompiler(options);
   const results: CompileResult<CompiledCmd>[] = cmds.map((cmd) =>
     cmd.accept(compiler),

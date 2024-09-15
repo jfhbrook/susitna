@@ -48,7 +48,7 @@ import {
   Renum,
   Save,
   Run,
-  // End,
+  End,
   Exit as ExitInstr,
   Let,
   Assign,
@@ -56,7 +56,7 @@ import {
   If,
   Else,
   ElseIf,
-  End,
+  EndIf,
 } from './ast/instr';
 import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast';
 import { Token } from './tokens';
@@ -183,13 +183,13 @@ export abstract class Formatter
   abstract visitRunInstr(run: Run): string;
   abstract visitLetInstr(let_: Let): string;
   abstract visitAssignInstr(assign: Assign): string;
-  // abstract visitEndInstr(end: End): string;
+  abstract visitEndInstr(end: End): string;
   abstract visitExitInstr(exit: ExitInstr): string;
   abstract visitShortIfInstr(if_: ShortIf): string;
   abstract visitIfInstr(if_: If): string;
   abstract visitElseInstr(else_: Else): string;
   abstract visitElseIfInstr(elseIf: ElseIf): string;
-  abstract visitEndInstr(end: End): string;
+  abstract visitEndIfInstr(endif_: EndIf): string;
 
   abstract visitCmdTree(node: Cmd): string;
   abstract visitLineTree(node: Line): string;
@@ -639,11 +639,9 @@ export class DefaultFormatter extends Formatter {
     return 'Run';
   }
 
-  /*
   visitEndInstr(_end: End): string {
     return 'End';
   }
-  */
 
   visitExitInstr(exit: ExitInstr): string {
     return `Exit(${this.format(exit.expression)})`;
@@ -679,8 +677,8 @@ export class DefaultFormatter extends Formatter {
     return `ElseIf (${this.format(elseIf.condition)})`;
   }
 
-  visitEndInstr(_end: End): string {
-    return 'End';
+  visitEndIfInstr(_endif: EndIf): string {
+    return 'EndIf';
   }
 
   formatStack<V>(stack: Stack<V>): string {

@@ -1,4 +1,4 @@
-import { Renum } from '../ast/cmd';
+import { Renum } from '../ast/instr';
 import { CommandRunner, ReturnValue } from './base';
 
 /**

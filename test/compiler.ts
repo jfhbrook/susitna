@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Cmd, Print, Exit, Expression, Rem, Let, Assign } from '../ast/cmd';
+import { Instr, Print, Exit, Expression, Rem, Let, Assign } from '../ast/instr';
 import {
   Expr,
   Binary,
@@ -18,9 +18,9 @@ import { Program, Line } from '../ast';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 import {
-  compileCommand,
+  compileInstruction,
   compileCommands,
-  CompiledCmd,
+  CompiledInstr,
   compileProgram,
   CompilerOptions,
   CompileResult,
@@ -32,17 +32,17 @@ import { chunk } from './helpers/bytecode';
 import { FILENAME } from './helpers/files';
 
 function compile(
-  ast: Program | Cmd,
+  ast: Program | Instr,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
   if (ast instanceof Program) {
     return compileProgram(ast, options);
   } else {
-    return compileCommand(ast, options);
+    return compileInstruction(ast, options);
   }
 }
 
-type TestCase = [string, Cmd | Program, Chunk];
+type TestCase = [string, Instr | Program, Chunk];
 
 const EXPRESSION_STATEMENTS: TestCase[] = [
   [
@@ -166,11 +166,11 @@ const EXPRESSION_STATEMENTS: TestCase[] = [
   ],
 ];
 
-type CmdCtor<C> = { new <E extends Expr>(expr: E): C };
+type InstrCtor<C> = { new <E extends Expr>(expr: E): C };
 
-function commandExpr1Cases<C extends Cmd>(
+function commandExpr1Cases<C extends Instr>(
   name: string,
-  cmd: CmdCtor<C>,
+  cmd: InstrCtor<C>,
   code: OpCode,
 ): TestCase[] {
   return [
@@ -350,7 +350,7 @@ const PROGRAMS: TestCase[] = [
       return [
         `100 ${source}`,
         new Program(FILENAME, [
-          new Line(100, 1, `100 ${source}`, [ast as Cmd]),
+          new Line(100, 1, `100 ${source}`, [ast as Instr]),
         ]),
         chunk({
           constants,
@@ -363,7 +363,9 @@ const PROGRAMS: TestCase[] = [
   ...COMMANDS.map(([source, ast, { constants, code, lines }]): TestCase => {
     return [
       `100 ${source}`,
-      new Program(FILENAME, [new Line(100, 1, `100 ${source}`, [ast as Cmd])]),
+      new Program(FILENAME, [
+        new Line(100, 1, `100 ${source}`, [ast as Instr]),
+      ]),
       chunk({
         constants,
         code,
@@ -419,7 +421,7 @@ t.test('syntax errors', async (t: Test) => {
       try {
         compile(
           new Expression(new Unary(TokenKind.Star, new IntLiteral(1)), 0, 2),
-          { filename: '<input>', cmdSource: '*1' },
+          { filename: '<input>', instrSource: '*1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
@@ -438,7 +440,7 @@ t.test('syntax errors', async (t: Test) => {
             0,
             5,
           ),
-          { filename: '<input>', cmdSource: '1 $ 1' },
+          { filename: '<input>', instrSource: '1 $ 1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
@@ -451,10 +453,10 @@ t.test('syntax errors', async (t: Test) => {
 async function isCompiled(
   t: Test,
   name: string,
-  [cmd, chunks]: CompiledCmd,
+  [cmd, chunks]: CompiledInstr,
 ): Promise<void> {
   await t.test(name, async (t: Test) => {
-    t.equal(cmd, null, 'is a compiled command');
+    t.equal(cmd, null, 'is a runtime instruction');
     t.equal(chunks.length, 1, 'chunk is compiled');
   });
 }
@@ -462,7 +464,7 @@ async function isCompiled(
 async function isInteractive(
   t: Test,
   name: string,
-  cmd: CompiledCmd,
+  cmd: CompiledInstr,
 ): Promise<void> {
   await t.test(name, async (t: Test) => {
     t.ok(cmd, 'is an interactive command');

@@ -7,7 +7,7 @@ import {
 } from './exceptions';
 import { Host } from './host';
 import { Line, Program } from './ast';
-import { Rem } from './ast/cmd';
+import { Rem } from './ast/instr';
 
 interface Index {
   i: number;
@@ -64,9 +64,9 @@ export class Editor {
     return this.program.lines
       .map((l) => {
         if (
-          l.commands.length === 1 &&
-          l.commands[0] instanceof Rem &&
-          l.commands[0].remark === ''
+          l.instructions.length === 1 &&
+          l.instructions[0] instanceof Rem &&
+          l.instructions[0].remark === ''
         ) {
           return `${l.lineNo}`;
         }
@@ -180,13 +180,13 @@ export class Editor {
   /**
    * Set a line and its corresponding warnings.
    *
-   * If a line has no commands, delete the corresponding line. Otherwise,
+   * If a line has no instructions, delete the corresponding line. Otherwise,
    * insert or update the line based on lineNo.
    */
   setLine(line: Line, warning: ParseWarning | null): void {
     const { i, match } = this.findLineIndex(line.lineNo);
 
-    if (!line.commands.length) {
+    if (!line.instructions.length) {
       if (match) {
         this.program.lines.splice(i, 1);
         this.warning = removeFromParseError(

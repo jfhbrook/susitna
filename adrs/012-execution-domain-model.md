@@ -124,13 +124,18 @@ with the following:
   invoke state when executed. These were previously called *commands*. This
   will extend to other concepts: "instruction groups", "simple instructions",
   "complex instructions", etc.
-- **Commands**: Instructions which may only be executed in an interactive
-  session. These were previously called *interactive commands*.
+- **Commands**: Instructions which are executed in an interactive session.
+  This is similar to the previous idea of *interactive commands*, but also
+  includes "runtime commands" which were executed interactively.
 - **Runtime instructions**: Instructions which are compiled into chunks and
   codes and executed by the `runtime`. These were previously called "runtime
   commands". Often these will simply be called "instructions" - we only need
   to invoke "runtime instructions" when there's a strong need to exclude
   "commands".
+- **Runtime commands** (or **compiled commands**): Runtime instructions which
+  were sent as commands in the REPL. These are known as "commands" before
+  they are scanned and sorted into runtime instructions, at which point they
+  are known as "runtime commands" or "instructions" depending on the context.
 - **Instructions** (**Bytecode**): Instructions in bytecode will continue to
   be called "instructions", but may be referred to as "bytecode instructions"
   to distinguish from source or AST instructions.

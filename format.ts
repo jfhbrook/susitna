@@ -37,8 +37,8 @@ import {
   NilLiteral,
 } from './ast/expr';
 import {
-  Cmd,
-  CmdVisitor,
+  Instr,
+  InstrVisitor,
   Print,
   Expression,
   Rem,
@@ -49,11 +49,11 @@ import {
   Save,
   Run,
   End,
-  Exit as ExitCmd,
+  Exit as ExitInstr,
   Let,
   Assign,
-} from './ast/cmd';
-import { Tree, TreeVisitor, CommandGroup, Line, Input, Program } from './ast';
+} from './ast/instr';
+import { Tree, TreeVisitor, InstrGroup, Line, Input, Program } from './ast';
 import { Token } from './tokens';
 
 /**
@@ -78,7 +78,7 @@ export function indent(indent: number, value: string): string {
  * A formatter. This is an abstract class and should not be used directly.
  */
 export abstract class Formatter
-  implements ExprVisitor<string>, CmdVisitor<string>, TreeVisitor<string>
+  implements ExprVisitor<string>, InstrVisitor<string>, TreeVisitor<string>
 {
   /**
    * Format a value.
@@ -102,8 +102,8 @@ export abstract class Formatter
       return this.formatExpr(value);
     }
 
-    if (value instanceof Cmd) {
-      return this.formatCmd(value);
+    if (value instanceof Instr) {
+      return this.formatInstr(value);
     }
 
     if (value instanceof Tree) {
@@ -151,7 +151,7 @@ export abstract class Formatter
   abstract formatExit(exit: Exit): string;
 
   abstract formatExpr(expr: Expr): string;
-  abstract formatCmd(cmd: Cmd): string;
+  abstract formatInstr(instr: Instr): string;
   abstract formatTree(ast: Tree): string;
   abstract formatToken(token: Token): string;
 
@@ -167,21 +167,21 @@ export abstract class Formatter
   abstract visitPromptLiteralExpr(ps: PromptLiteral): string;
   abstract visitNilLiteralExpr(node: NilLiteral): string;
 
-  abstract visitPrintCmd(node: Print): string;
-  abstract visitExpressionCmd(node: Expression): string;
-  abstract visitRemCmd(rem: Rem): string;
-  abstract visitNewCmd(new_: New): string;
-  abstract visitLoadCmd(load: Load): string;
-  abstract visitListCmd(list: List): string;
-  abstract visitRenumCmd(renum: Renum): string;
-  abstract visitSaveCmd(save: Save): string;
-  abstract visitRunCmd(run: Run): string;
-  abstract visitLetCmd(let_: Let): string;
-  abstract visitAssignCmd(assign: Assign): string;
-  abstract visitEndCmd(end: End): string;
-  abstract visitExitCmd(exit: ExitCmd): string;
+  abstract visitPrintInstr(node: Print): string;
+  abstract visitExpressionInstr(node: Expression): string;
+  abstract visitRemInstr(rem: Rem): string;
+  abstract visitNewInstr(new_: New): string;
+  abstract visitLoadInstr(load: Load): string;
+  abstract visitListInstr(list: List): string;
+  abstract visitRenumInstr(renum: Renum): string;
+  abstract visitSaveInstr(save: Save): string;
+  abstract visitRunInstr(run: Run): string;
+  abstract visitLetInstr(let_: Let): string;
+  abstract visitAssignInstr(assign: Assign): string;
+  abstract visitEndInstr(end: End): string;
+  abstract visitExitInstr(exit: ExitInstr): string;
 
-  abstract visitCommandGroupTree(node: CommandGroup): string;
+  abstract visitInstrGroupTree(node: InstrGroup): string;
   abstract visitLineTree(node: Line): string;
   abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
@@ -470,18 +470,18 @@ export class DefaultFormatter extends Formatter {
     return `Exit ${exit.exitCode}${exit.message.length ? ': ' + exit.message : ''}`;
   }
 
-  visitCommandGroupTree(node: CommandGroup): string {
-    return this.formatArray(node.commands);
+  visitInstrGroupTree(node: InstrGroup): string {
+    return this.formatArray(node.instructions);
   }
 
   visitLineTree(line: Line): string {
     let formatted = `Line(${line.lineNo}) [\n`;
-    const cmds: string[] = [];
-    for (const cmd of line.commands) {
-      cmds.push(this.format(cmd));
+    const instrs: string[] = [];
+    for (const instr of line.instructions) {
+      instrs.push(this.format(instr));
     }
-    for (const cmd of cmds) {
-      formatted += indent(1, `${cmd},\n`);
+    for (const instr of instrs) {
+      formatted += indent(1, `${instr},\n`);
     }
     formatted += ']';
 
@@ -512,8 +512,8 @@ export class DefaultFormatter extends Formatter {
     return expr.accept(this);
   }
 
-  formatCmd(cmd: Cmd): string {
-    return cmd.accept(this);
+  formatInstr(instr: Instr): string {
+    return instr.accept(this);
   }
 
   formatTree(ast: Tree): string {
@@ -593,55 +593,55 @@ export class DefaultFormatter extends Formatter {
     return 'nil';
   }
 
-  visitExpressionCmd(node: Expression): string {
+  visitExpressionInstr(node: Expression): string {
     return `Expression(${this.format(node.expression)})`;
   }
 
-  visitPrintCmd(node: Print): string {
+  visitPrintInstr(node: Print): string {
     return `Print(${this.format(node.expression)})`;
   }
 
-  visitRemCmd(rem: Rem): string {
+  visitRemInstr(rem: Rem): string {
     return `Rem(${rem.remark})`;
   }
 
-  visitNewCmd(new_: New): string {
+  visitNewInstr(new_: New): string {
     return `New(${this.format(new_.filename)})`;
   }
 
-  visitLoadCmd(load: Load): string {
+  visitLoadInstr(load: Load): string {
     return `Load(${this.format(load.filename)}, run=${load.run ? 'true' : 'false'})`;
   }
 
-  visitListCmd(_list: List): string {
+  visitListInstr(_list: List): string {
     return 'List';
   }
 
-  visitRenumCmd(_renum: Renum): string {
+  visitRenumInstr(_renum: Renum): string {
     return 'Renum';
   }
 
-  visitSaveCmd(save: Save): string {
+  visitSaveInstr(save: Save): string {
     return `New(${this.format(save.filename)})`;
   }
 
-  visitRunCmd(_run: Run): string {
+  visitRunInstr(_run: Run): string {
     return 'Run';
   }
 
-  visitEndCmd(_end: End): string {
+  visitEndInstr(_end: End): string {
     return 'End';
   }
 
-  visitExitCmd(exit: ExitCmd): string {
+  visitExitInstr(exit: ExitInstr): string {
     return `Exit(${this.format(exit.expression)})`;
   }
 
-  visitLetCmd(let_: Let): string {
+  visitLetInstr(let_: Let): string {
     return `Let(${this.format(let_.variable)}, ${this.format(let_.value)})`;
   }
 
-  visitAssignCmd(assign: Assign): string {
+  visitAssignInstr(assign: Assign): string {
     return `Assign(${this.format(assign.variable)}, ${this.format(assign.value)})`;
   }
 

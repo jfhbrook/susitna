@@ -1,6 +1,6 @@
 import { ValueError } from '../exceptions';
 import { formatter } from '../format';
-import { Load } from '../ast/cmd';
+import { Load } from '../ast/instr';
 import { CommandRunner, ReturnValue } from './base';
 
 /**

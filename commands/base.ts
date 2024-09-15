@@ -6,7 +6,7 @@ import { RuntimeFault } from '../faults';
 import { Host } from '../host';
 import { Value } from '../value';
 import { Program } from '../ast';
-import { Cmd, CmdVisitor } from '../ast/cmd';
+import { Instr, InstrVisitor } from '../ast/instr';
 
 const tracer = getTracer('main');
 
@@ -19,12 +19,12 @@ export type ReturnValue = Value | null;
 /**
  * An interactive command.
  */
-export type InteractiveCommand<C extends Cmd> = (
+export type InteractiveCommand<C extends Instr> = (
   this: CommandRunner,
   cmd: C,
 ) => Promise<ReturnValue>;
 
-export interface CommandRunner extends CmdVisitor<Promise<ReturnValue>> {
+export interface CommandRunner extends InstrVisitor<Promise<ReturnValue>> {
   executor: Executor;
   editor: Editor;
   program: Program;
@@ -47,7 +47,7 @@ export class Invalid extends Error {
  * @param name The name of the invalid command.
  * @returns An interactive command that will immediately throw a RuntimeFault
  */
-export function invalid<C extends Cmd>(name: string): InteractiveCommand<C> {
+export function invalid<C extends Instr>(name: string): InteractiveCommand<C> {
   return async function invalidCommand(_cmd: C): Promise<ReturnValue> {
     throw RuntimeFault.fromError(new Invalid(name));
   };
@@ -60,11 +60,11 @@ export function invalid<C extends Cmd>(name: string): InteractiveCommand<C> {
  * @param cmd The no-op command
  * @returns null
  */
-export async function noop<C extends Cmd>(_cmd: C): Promise<ReturnValue> {
+export async function noop<C extends Instr>(_cmd: C): Promise<ReturnValue> {
   return null;
 }
 
-export function trace<C extends Cmd>(
+export function trace<C extends Instr>(
   name: string,
   command: InteractiveCommand<C>,
 ): InteractiveCommand<C> {

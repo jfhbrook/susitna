@@ -1,7 +1,7 @@
-import { Cmd } from './cmd';
+import { Instr } from './instr';
 
 export interface TreeVisitor<R> {
-  visitCommandGroupTree(node: CommandGroup): R;
+  visitInstrGroupTree(node: InstrGroup): R;
   visitLineTree(node: Line): R;
   visitInputTree(node: Input): R;
   visitProgramTree(node: Program): R;
@@ -11,18 +11,18 @@ export abstract class Tree {
   abstract accept<R>(visitor: TreeVisitor<R>): R;
 }
 
-export class CommandGroup extends Tree {
+export class InstrGroup extends Tree {
   constructor(
-    public cmdNo: number,
+    public instrNo: number,
     public row: number,
     public source: string,
-    public commands: Cmd[],
+    public instructions: Instr[],
   ) {
     super();
   }
 
   accept<R>(visitor: TreeVisitor<R>): R {
-    return visitor.visitCommandGroupTree(this);
+    return visitor.visitInstrGroupTree(this);
   }
 }
 
@@ -31,7 +31,7 @@ export class Line extends Tree {
     public lineNo: number,
     public row: number,
     public source: string,
-    public commands: Cmd[],
+    public instructions: Instr[],
   ) {
     super();
   }
@@ -42,7 +42,7 @@ export class Line extends Tree {
 }
 
 export class Input extends Tree {
-  constructor(public input: Array<CommandGroup | Line>) {
+  constructor(public input: Array<InstrGroup | Line>) {
     super();
   }
 

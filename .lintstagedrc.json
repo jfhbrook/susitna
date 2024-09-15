@@ -1,7 +1,11 @@
 {
-  "*.ts": [
+  "!(tools/**)*.ts": [
     "prettier --list-different",
     "eslint --fix"
+  ],
+  "tools/citree/**/*.ts": [
+    "cd tools/citree && prettier --list-different",
+    "cd tools/citree && eslint --fix"
   ],
   "*.sh": ["shellcheck"]
 }

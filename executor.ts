@@ -5,7 +5,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
-import { compileCommands, compileProgram, CompiledInstr } from './compiler';
+import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
 import { Editor } from './editor';
 import {
@@ -22,7 +22,7 @@ import { Parser, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { renderPrompt } from './shell';
 
-import { Line, InstrGroup, Program } from './ast';
+import { Line, Cmd, Program } from './ast';
 
 const tracer = getTracer('main');
 
@@ -305,22 +305,22 @@ export class Executor {
   }
 
   /**
-   * Evaluate an instruction group.
+   * Evaluate a group of commands.
    *
    * @param instrs A group of instructions to evaluate.
    */
   private async evalParsedCommands([
-    instrs,
+    cmds,
     parseWarning,
-  ]: ParseResult<InstrGroup>): Promise<void> {
+  ]: ParseResult<Cmd>): Promise<void> {
     let warning: ParseWarning | null = null;
     try {
-      const result = compileCommands(instrs.instructions, {
+      const result = compileCommands(cmds.instructions, {
         filename: '<input>',
-        instrNo: instrs.instrNo,
-        instrSource: instrs.source,
+        cmdNo: cmds.cmdNo,
+        cmdSource: cmds.source,
       });
-      const instructions = result[0];
+      const commands = result[0];
       warning = result[1];
 
       warning = mergeParseErrors([parseWarning, warning]);
@@ -329,14 +329,14 @@ export class Executor {
         this.host.writeWarn(warning);
       }
 
-      const lastInstr = instructions.pop();
+      const lastCmd = commands.pop();
 
-      for (const instr of instructions) {
-        await this.runCompiledCommand(instr);
+      for (const cmd of commands) {
+        await this.runCompiledCommand(cmd);
       }
 
-      if (lastInstr) {
-        const rv = await this.runCompiledCommand(lastInstr);
+      if (lastCmd) {
+        const rv = await this.runCompiledCommand(lastCmd);
         if (rv !== null) {
           this.host.writeLine(inspector.format(rv));
         }
@@ -351,20 +351,20 @@ export class Executor {
   }
 
   //
-  // Run a compiled instruction.
+  // Run a compiled command.
   //
   private async runCompiledCommand([
-    instr,
+    cmd,
     chunks,
-  ]: CompiledInstr): Promise<ReturnValue> {
+  ]: CompiledCmd): Promise<ReturnValue> {
     // Interpret any chunks.
     const args = chunks.map((c) => {
       return c ? this.runtime.interpret(c) : null;
     });
 
-    if (instr) {
+    if (cmd) {
       // Run an interactive command.
-      return await instr.accept(
+      return await cmd.accept(
         commandRunner(this, this.editor, this.host, args),
       );
     } else {

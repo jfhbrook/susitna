@@ -36,8 +36,8 @@ type Instr in './instr' {
 type Tree in './index' {
   import { Instr } from './instr'
 
-  InstrGroup => instrNo: number, row: number, source: string, instructions: Instr[]
+  Cmd          => cmdNo: number, row: number, source: string, instructions: Instr[]
   Line         => lineNo: number, row: number, source: string, instructions: Instr[]
-  Input        => input: Array<InstrGroup | Line>
+  Input        => input: Array<Cmd | Line>
   Program      => filename: string, lines: Line[]
 }

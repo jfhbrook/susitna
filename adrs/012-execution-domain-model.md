@@ -126,7 +126,9 @@ with the following:
   "complex instructions", etc.
 - **Commands**: Instructions which are executed in an interactive session.
   This is similar to the previous idea of *interactive commands*, but also
-  includes "runtime commands" which were executed interactively.
+  includes "runtime commands" which were executed interactively. Note that,
+  depending on the context, a command *may* be made up of multiple
+  colon-separated instructions.
 - **Runtime instructions**: Instructions which are compiled into chunks and
   codes and executed by the `runtime`. These were previously called "runtime
   commands". Often these will simply be called "instructions" - we only need

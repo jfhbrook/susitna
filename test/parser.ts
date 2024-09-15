@@ -23,7 +23,7 @@ import {
   Let,
   Assign,
 } from '../ast/instr';
-import { InstrGroup, Line, Input, Program } from '../ast';
+import { Cmd, Line, Input, Program } from '../ast';
 import { Token, TokenKind } from '../tokens';
 import { throws } from './helpers/exceptions';
 import { FILENAME } from './helpers/files';
@@ -168,7 +168,7 @@ for (const [source, instr] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
+    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -193,7 +193,7 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
     t.ok(result[1]);
     t.matchSnapshot(formatter.format(result[1]));
 
-    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
+    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -218,7 +218,7 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
+    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -253,7 +253,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new InstrGroup(10, 1, source, [
+      new Cmd(10, 1, source, [
         new Expression(new StringLiteral('\\q'), 0, 4),
       ]),
     ]),
@@ -290,7 +290,7 @@ t.test('print instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Print(new StringLiteral('hello world'), 0, 19),
         ]),
       ]),
@@ -336,7 +336,7 @@ t.test('exit instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
+        new Cmd(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
       ]),
     );
   });
@@ -363,7 +363,7 @@ t.test('exit instruction', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new InstrGroup(10, 1, source, [new Exit(null, 0, 4)])]),
+      new Input([new Cmd(10, 1, source, [new Exit(null, 0, 4)])]),
     );
   });
 
@@ -390,7 +390,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [new Rem('this is a comment', 0, 21)]),
+        new Cmd(10, 1, source, [new Rem('this is a comment', 0, 21)]),
       ]),
     );
   });
@@ -403,7 +403,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new InstrGroup(10, 1, source, [new Rem('', 0, 3)])]),
+      new Input([new Cmd(10, 1, source, [new Rem('', 0, 3)])]),
     );
   });
 
@@ -415,7 +415,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new InstrGroup(10, 1, source, [new Rem('', 0, 1)])]),
+      new Input([new Cmd(10, 1, source, [new Rem('', 0, 1)])]),
     );
   });
 
@@ -428,7 +428,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 8, 29),
         ]),
@@ -445,7 +445,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 10, 31),
         ]),
@@ -463,7 +463,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -483,7 +483,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             true,
@@ -503,7 +503,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new InstrGroup(10, 1, source, [
+        new Cmd(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -538,7 +538,7 @@ t.test('let', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new InstrGroup(10, 1, source, [
+      new Cmd(10, 1, source, [
         new Let(
           new Variable(
             new Token({
@@ -568,7 +568,7 @@ t.test('assign', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new InstrGroup(10, 1, source, [
+      new Cmd(10, 1, source, [
         new Assign(
           new Variable(
             new Token({
@@ -619,7 +619,7 @@ t.test('multiple inputs', async (t: Test) => {
       new Line(100, 1, source[0], [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new InstrGroup(10, 2, source[1], [
+      new Cmd(10, 2, source[1], [
         new Expression(new StringLiteral('foo'), 0, 5),
       ]),
       new Line(200, 3, source[2], [

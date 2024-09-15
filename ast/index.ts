@@ -1,7 +1,7 @@
 import { Instr } from './instr';
 
 export interface TreeVisitor<R> {
-  visitInstrGroupTree(node: InstrGroup): R;
+  visitCmdTree(node: Cmd): R;
   visitLineTree(node: Line): R;
   visitInputTree(node: Input): R;
   visitProgramTree(node: Program): R;
@@ -11,9 +11,9 @@ export abstract class Tree {
   abstract accept<R>(visitor: TreeVisitor<R>): R;
 }
 
-export class InstrGroup extends Tree {
+export class Cmd extends Tree {
   constructor(
-    public instrNo: number,
+    public cmdNo: number,
     public row: number,
     public source: string,
     public instructions: Instr[],
@@ -22,7 +22,7 @@ export class InstrGroup extends Tree {
   }
 
   accept<R>(visitor: TreeVisitor<R>): R {
-    return visitor.visitInstrGroupTree(this);
+    return visitor.visitCmdTree(this);
   }
 }
 
@@ -42,7 +42,7 @@ export class Line extends Tree {
 }
 
 export class Input extends Tree {
-  constructor(public input: Array<InstrGroup | Line>) {
+  constructor(public input: Array<Cmd | Line>) {
     super();
   }
 

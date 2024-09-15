@@ -41,7 +41,7 @@ import {
   Exit,
   Let,
 } from './ast/instr';
-import { InstrGroup, Line, Input, Program } from './ast';
+import { Cmd, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
@@ -59,7 +59,7 @@ export interface ArgumentsSpec {
 }
 
 export type ParseResult<T> = [T, ParseWarning | null];
-export type Row = Line | InstrGroup;
+export type Row = Line | Cmd;
 
 // The alternative to using exceptions is to set a panicMode flag to ignore
 // emitted errors until we can synchronize. This might be worth trying out
@@ -306,7 +306,7 @@ export class Parser {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
       this.cmdNo += 10;
-      return new InstrGroup(this.cmdNo, rowNo, source, cmds);
+      return new Cmd(this.cmdNo, rowNo, source, cmds);
     });
   }
 

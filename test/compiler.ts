@@ -20,7 +20,7 @@ import { OpCode } from '../bytecode/opcodes';
 import {
   compileInstruction,
   compileCommands,
-  CompiledInstr,
+  CompiledCmd,
   compileProgram,
   CompilerOptions,
   CompileResult,
@@ -421,7 +421,7 @@ t.test('syntax errors', async (t: Test) => {
       try {
         compile(
           new Expression(new Unary(TokenKind.Star, new IntLiteral(1)), 0, 2),
-          { filename: '<input>', instrSource: '*1' },
+          { filename: '<input>', cmdSource: '*1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
@@ -440,7 +440,7 @@ t.test('syntax errors', async (t: Test) => {
             0,
             5,
           ),
-          { filename: '<input>', instrSource: '1 $ 1' },
+          { filename: '<input>', cmdSource: '1 $ 1' },
         );
       } catch (err) {
         t.matchSnapshot(formatter.format(err));
@@ -453,7 +453,7 @@ t.test('syntax errors', async (t: Test) => {
 async function isCompiled(
   t: Test,
   name: string,
-  [cmd, chunks]: CompiledInstr,
+  [cmd, chunks]: CompiledCmd,
 ): Promise<void> {
   await t.test(name, async (t: Test) => {
     t.equal(cmd, null, 'is a runtime instruction');
@@ -464,7 +464,7 @@ async function isCompiled(
 async function isInteractive(
   t: Test,
   name: string,
-  cmd: CompiledInstr,
+  cmd: CompiledCmd,
 ): Promise<void> {
   await t.test(name, async (t: Test) => {
     t.ok(cmd, 'is an interactive command');

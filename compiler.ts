@@ -65,8 +65,8 @@ class Synchronize extends Error {
 
 export type CompilerOptions = {
   filename?: string;
-  instrNo?: number;
-  instrSource?: string;
+  cmdNo?: number;
+  cmdSource?: string;
 };
 
 export type CompileResult<T> = [T, ParseWarning | null];
@@ -525,9 +525,9 @@ export function compileInstruction(
   instr: Instr,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
-  const { instrNo, instrSource } = options;
+  const { cmdNo, cmdSource } = options;
   const lines = [
-    new Line(instrNo || 100, 1, instrSource || '<unknown>', [instr]),
+    new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [instr]),
   ];
   const compiler = new LineCompiler(lines, RoutineType.Instruction, options);
   return compiler.compile();
@@ -552,18 +552,18 @@ export function compileProgram(
   return compiler.compile();
 }
 
-export type CompiledInstr = [Instr | null, Array<Chunk | null>];
+export type CompiledCmd = [Instr | null, Array<Chunk | null>];
 
 //
 // Compiler for both interactive and runtime commands. For more information,
 // see the jsdoc for compileCommands.
 //
 export class CommandCompiler
-  implements InstrVisitor<CompileResult<CompiledInstr>>
+  implements InstrVisitor<CompileResult<CompiledCmd>>
 {
   constructor(private options: CompilerOptions) {}
 
-  private runtime(instr: Instr): CompileResult<CompiledInstr> {
+  private runtime(instr: Instr): CompileResult<CompiledCmd> {
     const [chunk, warning] = compileInstruction(instr, this.options);
     return [[null, [chunk]], warning];
   }
@@ -571,7 +571,7 @@ export class CommandCompiler
   private command(
     cmd: Instr,
     exprs: Array<Expr | null>,
-  ): CompileResult<CompiledInstr> {
+  ): CompileResult<CompiledCmd> {
     const results = exprs.map((exp) => {
       if (!exp) {
         return [null, null];
@@ -584,55 +584,55 @@ export class CommandCompiler
     return [[cmd, chunks], mergeParseErrors(warnings)];
   }
 
-  visitPrintInstr(print: Print): CompileResult<CompiledInstr> {
+  visitPrintInstr(print: Print): CompileResult<CompiledCmd> {
     return this.runtime(print);
   }
 
-  visitExpressionInstr(expr: Expression): CompileResult<CompiledInstr> {
+  visitExpressionInstr(expr: Expression): CompileResult<CompiledCmd> {
     return this.command(expr, [expr.expression]);
   }
 
-  visitRemInstr(rem: Rem): CompileResult<CompiledInstr> {
+  visitRemInstr(rem: Rem): CompileResult<CompiledCmd> {
     return [[rem, []], null];
   }
 
-  visitNewInstr(new_: New): CompileResult<CompiledInstr> {
+  visitNewInstr(new_: New): CompileResult<CompiledCmd> {
     return this.command(new_, [new_.filename]);
   }
 
-  visitLoadInstr(load: Load): CompileResult<CompiledInstr> {
+  visitLoadInstr(load: Load): CompileResult<CompiledCmd> {
     return this.command(load, [load.filename]);
   }
 
-  visitListInstr(list: List): CompileResult<CompiledInstr> {
+  visitListInstr(list: List): CompileResult<CompiledCmd> {
     return this.command(list, []);
   }
 
-  visitRenumInstr(renum: Renum): CompileResult<CompiledInstr> {
+  visitRenumInstr(renum: Renum): CompileResult<CompiledCmd> {
     return this.command(renum, []);
   }
 
-  visitSaveInstr(save: Save): CompileResult<CompiledInstr> {
+  visitSaveInstr(save: Save): CompileResult<CompiledCmd> {
     return this.command(save, [save.filename]);
   }
 
-  visitRunInstr(run: Run): CompileResult<CompiledInstr> {
+  visitRunInstr(run: Run): CompileResult<CompiledCmd> {
     return this.command(run, []);
   }
 
-  visitEndInstr(end: End): CompileResult<CompiledInstr> {
+  visitEndInstr(end: End): CompileResult<CompiledCmd> {
     return this.runtime(end);
   }
 
-  visitExitInstr(exit: Exit): CompileResult<CompiledInstr> {
+  visitExitInstr(exit: Exit): CompileResult<CompiledCmd> {
     return this.runtime(exit);
   }
 
-  visitLetInstr(let_: Let): CompileResult<CompiledInstr> {
+  visitLetInstr(let_: Let): CompileResult<CompiledCmd> {
     return this.runtime(let_);
   }
 
-  visitAssignInstr(assign: Assign): CompileResult<CompiledInstr> {
+  visitAssignInstr(assign: Assign): CompileResult<CompiledCmd> {
     return this.runtime(assign);
   }
 }
@@ -647,12 +647,12 @@ export class CommandCompiler
 export function compileCommands(
   cmds: Instr[],
   options: CompilerOptions = {},
-): CompileResult<CompiledInstr[]> {
+): CompileResult<CompiledCmd[]> {
   const compiler = new CommandCompiler(options);
-  const results: CompileResult<CompiledInstr>[] = cmds.map((cmd) =>
+  const results: CompileResult<CompiledCmd>[] = cmds.map((cmd) =>
     cmd.accept(compiler),
   );
-  const commands: CompiledInstr[] = results
+  const commands: CompiledCmd[] = results
     .map(([cmd, _]) => cmd)
     .filter(([c, _]) => !(c instanceof Rem));
   const warnings: Array<ParseWarning | null> = results.reduce(

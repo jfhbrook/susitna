@@ -53,7 +53,7 @@ import {
   Let,
   Assign,
 } from './ast/instr';
-import { Tree, TreeVisitor, InstrGroup, Line, Input, Program } from './ast';
+import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast';
 import { Token } from './tokens';
 
 /**
@@ -181,7 +181,7 @@ export abstract class Formatter
   abstract visitEndInstr(end: End): string;
   abstract visitExitInstr(exit: ExitInstr): string;
 
-  abstract visitInstrGroupTree(node: InstrGroup): string;
+  abstract visitCmdTree(node: Cmd): string;
   abstract visitLineTree(node: Line): string;
   abstract visitInputTree(node: Input): string;
   abstract visitProgramTree(node: Program): string;
@@ -470,7 +470,7 @@ export class DefaultFormatter extends Formatter {
     return `Exit ${exit.exitCode}${exit.message.length ? ': ' + exit.message : ''}`;
   }
 
-  visitInstrGroupTree(node: InstrGroup): string {
+  visitCmdTree(node: Cmd): string {
     return this.formatArray(node.instructions);
   }
 

@@ -253,9 +253,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, source, [
-        new Expression(new StringLiteral('\\q'), 0, 4),
-      ]),
+      new Cmd(10, 1, source, [new Expression(new StringLiteral('\\q'), 0, 4)]),
     ]),
   );
   t.matchSnapshot(formatter.format(warning));
@@ -335,9 +333,7 @@ t.test('exit instruction', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([
-        new Cmd(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
-      ]),
+      new Input([new Cmd(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)])]),
     );
   });
 
@@ -401,10 +397,7 @@ t.test('remarks', async (t: Test) => {
 
     t.equal(result[1], null);
 
-    t.same(
-      result[0],
-      new Input([new Cmd(10, 1, source, [new Rem('', 0, 3)])]),
-    );
+    t.same(result[0], new Input([new Cmd(10, 1, source, [new Rem('', 0, 3)])]));
   });
 
   await t.test('bare semicolong', async (t: Test) => {
@@ -413,10 +406,7 @@ t.test('remarks', async (t: Test) => {
 
     t.equal(result[1], null);
 
-    t.same(
-      result[0],
-      new Input([new Cmd(10, 1, source, [new Rem('', 0, 1)])]),
-    );
+    t.same(result[0], new Input([new Cmd(10, 1, source, [new Rem('', 0, 1)])]));
   });
 
   await t.test('remark following a instruction', async (t: Test) => {

@@ -15,11 +15,12 @@ are named (and defined) as such:
 - **Values**: Elements within memory that represent numbers, booleans, strings,
   and various object types. May either be contained within a variable, or
   specified as a "literal" within source code.
-- **Operations** and **Operators**: Elements within *expressions* that add or
-  remove *values* from the expression stack when they're evaluated. These have
-  varying semantics, such as having infix/prefix/postfix operators and having
-  operator precedence. Note that *operators* are the syntactic element, and
-  *operations* are the corresponding units of execution.
+- **Operations** and **Operators** (**source** and **AST**): Elements within
+  *expressions* that add or remove *values* from the expression stack when
+  they're evaluated. These have varying semantics, such as having
+  infix/prefix/postfix operators and having operator precedence. Note that
+  *operators* are the syntactic element, and *operations* are the corresponding
+  units of execution.
 - **Commands**: Units of code which generally invoke state when executed.
   Commands *may* take expressions as arguments, but may also include
   non-expression syntactic elements or other commands. These
@@ -40,32 +41,27 @@ are named (and defined) as such:
 - **Lines**: A command group combined with a preceding line number. Lines are
   currently contained on a single source line, though that may not be true in
   the future if newlines can be escaped (like Bash).
-
-**TODO:** Instructions are actually made up of op codes *and* arguments. These
-arguments can, for example, be addresses of constants or variables, or jump
-locations. Therefore, op codes *themselves* are only *part* of an instruction.
-**This means we can not simply rename instructions to codes!**
-
-Can we refer to them as "source instructions" and "bytecode instructions"?
-
-- **Instructions**: *op codes* which, when encountered by the runtime, cause
-  some effect to occur.
-- **Op codes**: Integer values which constitute *instructions* in the context
-  of the runtime. These values are between 0 and 255, and are intended
-  to be represented by bytes (as in bytecode). These are also called
-  "byte codes" - or simply "codes". Note that "op" is short for "operation",
-  though this is unrelated to the idea of *operations* within Matanuska's
-  source code.
+- **Instructions**: Collections of *op codes* and *addresses* which, when
+  encountered by the runtime, cause some effect to occur.
+- **Op codes**: Integer values which, when combined with addresses into
+  *instructions*, cause the `runtime` to execute an "operation". These values
+  are between 0 and 255, and are intended to be represented by bytes (as in
+  bytecode). These are also called "byte codes" - or simply "codes". "Op" is short for "operation".
+- **Operations** (**bytecode**): Stateful actions which occur when the
+  `runtime` encounters an *op code*. This is distinct from *operations* in
+  source or AST code, though they may implement the behavior implied by a
+  source or AST operation.
 - **Chunks**: Collections of *bytecode*, along with various pieces of
   metadata. These form the base units which are executed by the `runtime`.
   This term comes directly from `Crafting Interpreters`.
-- **Bytecode**: The unifying concept around *op codes* and *chunks*. In other
-  words, *bytecode* is made up of *chunks* and *codes*.
+- **Bytecode**: The unifying concept around *op codes*, *instructions* and
+  *chunks*. In other words, *bytecode* is made up of *chunks* and
+  *instructions*.
 
 However, in the [MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions),
 they very consistently call them "instructions" - and it is believed that the
-domain model in not *just* MSX BASIC but most other classic BASIC
-follow this pattern.
+domain model in not *just* MSX BASIC but most other classic BASIC languages
+as well.
 
 This raises the question: should Matanuska rename "commands" to "instructions"?
 If so, how would this decision cascade to the rest of the domain model?
@@ -97,29 +93,37 @@ commands in the `WIC&I` model.
 Consider that we rename "commands" to "instructions", and consider "interactive
 commands" to be simply "commands", a special case of "instructions". This
 reveals a new problem: the term "instruction" is already used within the
-`runtime` to refer to instances of op codes.
+`runtime` to refer to collections of op codes and addresses.
 
 This is not entirely accidental - in traditional BASIC, programs are stored in
 an uncanny valley between AST and bytecode. Like bytecode, BASIC programs are
 stored in bytes, with instructions stored in "reverse polish" - but, like an
 AST, they can be translated back into source code at any time. The structure of
 BASIC means that source code instructions are exactly equivalent to bytecode
-instructions.
+instructions. Even as Matanuska diverges from this design, there's still a
+clear lineage of semantics between the construction of a BASIC source
+instruction and a bytecode instruction.
 
-Of course, we've also revealed that we already have two different ways to refer
-to "instructions" - ie, variations of "op codes". We can even see that "op
-codes" itself has some semantic overlap with "operators" and "operations" as
-seen in *expressions*. This overlap is subtle, but we are also motivated to
-avoid it.
+On the surface, it may make sense to rename "instructions" in bytecode to
+some alternative name. However, that's challenging, because "instruction" has
+particular meaning within the context of bytecode. But consider that
+"instruction" has general meaning within a language itself, and that - in a
+sense - the BASIC source and the bytecode constitute different *languages*.
+In short, "instruction" has the same semantic meaning with the additional
+context of them being in the source code and AST or in bytecode. This is
+different from the case of "command", as "interactive commands" are a subtype
+of source/AST instructions/commands, rather than a type of command distinct from
+source/AST instructions/commands.
 
 ## Decision
 
 Matanuska will modify its definitions for execution domain concepts to align
 with the following:
 
-- **Instructions**: Units of code which generally invoke state when executed.
-  These were previously called *commands*. This will extend to other concepts:
-  "instruction groups", "simple instructions", "complex instructions", etc.
+- **Instructions** (**Source** or **AST**): Units of code which generally
+  invoke state when executed. These were previously called *commands*. This
+  will extend to other concepts: "instruction groups", "simple instructions",
+  "complex instructions", etc.
 - **Commands**: Instructions which may only be executed in an interactive
   session. These were previously called *interactive commands*.
 - **Runtime instructions**: Instructions which are compiled into chunks and
@@ -127,12 +131,6 @@ with the following:
   commands". Often these will simply be called "instructions" - we only need
   to invoke "runtime instructions" when there's a strong need to exclude
   "commands".
-- **Codes**: The combined concepts of "byte codes", "op codes" and
-  "instructions" will simply be called "codes". This aligns the use of
-  "instructions" and "op codes" within Matanuska, and avoids the overlap with
-  the concept of operations. Note that, in certain context, they may still
-  be referred to "op codes" in the context of standard interpreter terminology.
-
-"Bytecode" will still refer to the unifying concept around "codes" and
-"cnunks". This is in part to maintain consistency with general interpreter
-concepts. This decision may be revisited.
+- **Instructions** (**Bytecode**): Instructions in bytecode will continue to
+  be called "instructions", but may be referred to as "bytecode instructions"
+  to distinguish from source or AST instructions.

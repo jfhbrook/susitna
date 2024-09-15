@@ -1,4 +1,4 @@
-import { Expression } from '../ast/cmd';
+import { Expression } from '../ast/instr';
 import { CommandRunner, ReturnValue } from './base';
 
 /**

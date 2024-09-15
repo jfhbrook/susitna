@@ -43,7 +43,7 @@ import {
 } from '../ast/expr';
 import {
   Print,
-  Exit as ExitCmd,
+  Exit as ExitInstr,
   Rem,
   New,
   Load,
@@ -51,7 +51,7 @@ import {
   Save,
   Run,
   Let,
-} from '../ast/cmd';
+} from '../ast/instr';
 import { Line, Program } from '../ast';
 import { FILENAME } from './helpers/files';
 import { scrubNodeVersion } from './helpers/format';
@@ -359,7 +359,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       t.matchSnapshot(formatter.format(new NilLiteral()));
     });
 
-    t.test('it formats a Cmd', async (t: Test) => {
+    t.test('it formats a Instr', async (t: Test) => {
       t.matchSnapshot(formatter.format(new Print(new StringLiteral('hello'))));
     });
 
@@ -385,9 +385,9 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('commands', async (t: Test) => {
-      const COMMANDS = [
-        new ExitCmd(new IntLiteral(0)),
+    t.test('instructions', async (t: Test) => {
+      const INSTRUCTIONS = [
+        new ExitInstr(new IntLiteral(0)),
         new Rem('a witty remark'),
         new New(null),
         new Load(new StringLiteral('./examples/001-hello-world.bas'), true),
@@ -410,8 +410,8 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
         ),
       ];
 
-      for (const cmd of COMMANDS) {
-        t.matchSnapshot(formatter.format(cmd));
+      for (const instr of INSTRUCTIONS) {
+        t.matchSnapshot(formatter.format(instr));
       }
     });
 

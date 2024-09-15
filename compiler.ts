@@ -13,8 +13,8 @@ import { Value } from './value';
 // import { Stack } from './stack';
 import { Line, Program } from './ast';
 import {
-  Cmd,
-  CmdVisitor,
+  Instr,
+  InstrVisitor,
   Print,
   Expression,
   Rem,
@@ -28,7 +28,7 @@ import {
   Exit,
   Let,
   Assign,
-} from './ast/cmd';
+} from './ast/instr';
 import {
   Expr,
   ExprVisitor,
@@ -51,7 +51,7 @@ import { OpCode } from './bytecode/opcodes';
 const tracer = getTracer('compiler');
 
 export enum RoutineType {
-  Command,
+  Instruction,
   Program,
 }
 
@@ -65,29 +65,29 @@ class Synchronize extends Error {
 
 export type CompilerOptions = {
   filename?: string;
-  cmdNo?: number;
-  cmdSource?: string;
+  instrNo?: number;
+  instrSource?: string;
 };
 
 export type CompileResult<T> = [T, ParseWarning | null];
 
 //
 // Compile a series of lines. These lines may be from an entire program,
-// or a single line in the context of a compiled command.
+// or a single line in the context of a compiled instruction.
 //
-export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
+export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   private currentChunk: Chunk;
   private lines: Line[] = [];
-  private currentCmdNo: number = -1;
+  private currentInstrNo: number = -1;
   private currentLine: number = 0;
 
   private filename: string;
-  private routineType: RoutineType = RoutineType.Command;
+  private routineType: RoutineType = RoutineType.Instruction;
 
   // private stack: Stack<Type> = new Stack();
 
   // Set to true whenever an expression command is compiled. In the case of
-  // Cmds, this will signal that the result of the single expression
+  // Instrs, this will signal that the result of the single expression
   // should be returned. In Program cases, it's ignored.
   private isExpressionCmd: boolean = false;
 
@@ -118,15 +118,15 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   @runtimeMethod
   compile(): CompileResult<Chunk> {
     return tracer.spanSync('compile', () => {
-      let cmd: Cmd | null = this.advance();
-      while (cmd) {
+      let instr: Instr | null = this.advance();
+      while (instr) {
         try {
-          this.command(cmd);
-          cmd = this.advance();
+          this.instruction(instr);
+          instr = this.advance();
         } catch (err) {
           if (err instanceof Synchronize) {
             this.synchronize();
-            cmd = this.peek();
+            instr = this.peek();
             continue;
           }
           throw err;
@@ -154,7 +154,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   // Parsing navigation methods. These are only used when compiling a full
   // program that includes loops.
 
-  private match(...types: (typeof Cmd)[]): boolean {
+  private match(...types: (typeof Instr)[]): boolean {
     for (const type of types) {
       if (this.check(type)) {
         this.advance();
@@ -164,23 +164,25 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     return false;
   }
 
-  private check(type: typeof Cmd): boolean {
+  private check(type: typeof Instr): boolean {
     if (this.done) return false;
     return this.peek() instanceof type;
   }
 
-  private advance(): Cmd | null {
+  private advance(): Instr | null {
     if (this.done) {
       return null;
     }
-    this.currentCmdNo++;
-    if (this.currentCmdNo >= this.lines[this.currentLine].commands.length) {
+    this.currentInstrNo++;
+    if (
+      this.currentInstrNo >= this.lines[this.currentLine].instructions.length
+    ) {
       this.currentLine++;
-      this.currentCmdNo = 0;
+      this.currentInstrNo = 0;
     }
     tracer.trace(`current line: ${this.lineNo}`);
     tracer.trace(`current row: ${this.rowNo}`);
-    tracer.trace(`current cmd: ${this.currentCmdNo}`);
+    tracer.trace(`current instr: ${this.currentInstrNo}`);
     if (this.done) {
       return null;
     }
@@ -195,22 +197,22 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     }
   }
 
-  private peek(): Cmd | null {
+  private peek(): Instr | null {
     if (this.done) {
       return null;
     }
-    return this.lines[this.currentLine].commands[this.currentCmdNo];
+    return this.lines[this.currentLine].instructions[this.currentInstrNo];
   }
 
-  private syntaxError(cmd: Cmd, message: string): never {
+  private syntaxError(instr: Instr, message: string): never {
     const exc = new SyntaxError(message, {
       filename: this.filename,
       row: this.rowNo,
-      isLine: this.routineType !== RoutineType.Command,
+      isLine: this.routineType !== RoutineType.Instruction,
       lineNo: this.lineNo,
-      cmdNo: this.routineType === RoutineType.Command ? null : this.lineNo,
-      offsetStart: cmd.offsetStart,
-      offsetEnd: cmd.offsetEnd,
+      cmdNo: this.routineType === RoutineType.Instruction ? null : this.lineNo,
+      offsetStart: instr.offsetStart,
+      offsetEnd: instr.offsetEnd,
       source: this.lineSource,
     });
     this.isError = true;
@@ -218,10 +220,10 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     throw new Synchronize();
   }
 
-  private interactive(name: string, cmd: Cmd): never {
+  private interactive(name: string, instr: Instr): never {
     return tracer.spanSync(name, () => {
       this.syntaxError(
-        cmd,
+        instr,
         `Cannot run interactive command in scripts: ${name}`,
       );
     });
@@ -230,7 +232,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   private synchronize(): void {
     return tracer.spanSync('synchronize', () => {
       this.currentLine++;
-      this.currentCmdNo = 0;
+      this.currentInstrNo = 0;
     });
   }
 
@@ -298,7 +300,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     // NOTE: If/when implementing classes, I would need to detect when
     // compiling a constructor and return "this", not nil.
 
-    if (this.routineType !== RoutineType.Command || !this.isExpressionCmd) {
+    if (this.routineType !== RoutineType.Instruction || !this.isExpressionCmd) {
       this.emitByte(OpCode.Nil);
     }
     this.emitByte(OpCode.Return);
@@ -310,62 +312,62 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
   }
 
   //
-  // Commands
+  // Instructions
   //
 
-  private command(cmd: Cmd): void {
-    tracer.spanSync('command', () => {
-      tracer.trace('cmd', cmd);
-      cmd.accept(this);
+  private instruction(instr: Instr): void {
+    tracer.spanSync('instruction', () => {
+      tracer.trace('instr', instr);
+      instr.accept(this);
     });
   }
 
-  visitPrintCmd(print: Print): void {
+  visitPrintInstr(print: Print): void {
     tracer.spanSync('print', () => {
       print.expression.accept(this);
       this.emitByte(OpCode.Print);
     });
   }
 
-  visitExpressionCmd(expr: Expression): void {
+  visitExpressionInstr(expr: Expression): void {
     tracer.spanSync('expression', () => {
       this.isExpressionCmd = true;
       expr.expression.accept(this);
 
-      // NOTE: In interactive commands, save the result to return later.
+      // NOTE: In commands, save the result to return later.
       if (this.routineType === RoutineType.Program) {
         this.emitByte(OpCode.Pop);
       }
     });
   }
 
-  visitRemCmd(_rem: Rem): void {}
+  visitRemInstr(_rem: Rem): void {}
 
-  visitNewCmd(new_: New): void {
+  visitNewInstr(new_: New): void {
     return this.interactive('new', new_);
   }
 
-  visitLoadCmd(load: Load): void {
+  visitLoadInstr(load: Load): void {
     return this.interactive('load', load);
   }
 
-  visitListCmd(list: List): void {
+  visitListInstr(list: List): void {
     return this.interactive('list', list);
   }
 
-  visitRenumCmd(renum: Renum): void {
+  visitRenumInstr(renum: Renum): void {
     return this.interactive('renum', renum);
   }
 
-  visitSaveCmd(save: Save): void {
+  visitSaveInstr(save: Save): void {
     return this.interactive('save', save);
   }
 
-  visitRunCmd(run: Run): void {
+  visitRunInstr(run: Run): void {
     return this.interactive('run', run);
   }
 
-  visitEndCmd(_end: End): void {
+  visitEndInstr(_end: End): void {
     tracer.spanSync('end', () => {
       // TODO: I'm currently treating 'end' as a synonym for 'return nil'.
       // But perhaps it should behave differently? In MSX it also cleans up
@@ -375,7 +377,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitExitCmd(exit: Exit): void {
+  visitExitInstr(exit: Exit): void {
     tracer.spanSync('exit', () => {
       if (exit.expression) {
         exit.expression.accept(this);
@@ -386,7 +388,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitLetCmd(let_: Let): void {
+  visitLetInstr(let_: Let): void {
     return tracer.spanSync('let', () => {
       const target = this.emitIdent(let_.variable.ident);
       if (let_.value) {
@@ -398,7 +400,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitAssignCmd(assign: Assign): void {
+  visitAssignInstr(assign: Assign): void {
     return tracer.spanSync('assign', () => {
       const target = this.emitIdent(assign.variable.ident);
       assign.value.accept(this);
@@ -416,7 +418,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
           this.emitByte(OpCode.Neg);
           break;
         default:
-          this.syntaxError(this.peek() as Cmd, 'Invalid unary operator');
+          this.syntaxError(this.peek() as Instr, 'Invalid unary operator');
       }
     });
   }
@@ -457,7 +459,7 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
           this.emitByte(OpCode.Ne);
           break;
         default:
-          this.syntaxError(this.peek() as Cmd, 'Invalid binary operator');
+          this.syntaxError(this.peek() as Instr, 'Invalid binary operator');
       }
     });
   }
@@ -513,19 +515,21 @@ export class LineCompiler implements CmdVisitor<void>, ExprVisitor<void> {
 }
 
 /**
- * Compile an individual runtime command.
+ * Compile an individual runtime instruction.
  *
- * @param cmd An individual runtime command to compile.
+ * @param instr An individual runtime instruction to compile.
  * @param options Compiler options.
- * @returns The result of compiling the command, plus warnings.
+ * @returns The result of compiling the instruction, plus warnings.
  */
-export function compileCommand(
-  cmd: Cmd,
+export function compileInstruction(
+  instr: Instr,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
-  const { cmdNo, cmdSource } = options;
-  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [cmd])];
-  const compiler = new LineCompiler(lines, RoutineType.Command, options);
+  const { instrNo, instrSource } = options;
+  const lines = [
+    new Line(instrNo || 100, 1, instrSource || '<unknown>', [instr]),
+  ];
+  const compiler = new LineCompiler(lines, RoutineType.Instruction, options);
   return compiler.compile();
 }
 
@@ -548,105 +552,107 @@ export function compileProgram(
   return compiler.compile();
 }
 
-export type CompiledCmd = [Cmd | null, Array<Chunk | null>];
+export type CompiledInstr = [Instr | null, Array<Chunk | null>];
 
 //
 // Compiler for both interactive and runtime commands. For more information,
 // see the jsdoc for compileCommands.
 //
-export class CommandCompiler implements CmdVisitor<CompileResult<CompiledCmd>> {
+export class CommandCompiler
+  implements InstrVisitor<CompileResult<CompiledInstr>>
+{
   constructor(private options: CompilerOptions) {}
 
-  private compiled(cmd: Cmd): CompileResult<CompiledCmd> {
-    const [chunk, warning] = compileCommand(cmd, this.options);
+  private runtime(instr: Instr): CompileResult<CompiledInstr> {
+    const [chunk, warning] = compileInstruction(instr, this.options);
     return [[null, [chunk]], warning];
   }
 
-  private interactive(
-    cmd: Cmd,
+  private command(
+    cmd: Instr,
     exprs: Array<Expr | null>,
-  ): CompileResult<CompiledCmd> {
+  ): CompileResult<CompiledInstr> {
     const results = exprs.map((exp) => {
       if (!exp) {
         return [null, null];
       }
 
-      return compileCommand(new Expression(exp), this.options);
+      return compileInstruction(new Expression(exp), this.options);
     });
     const chunks = results.map(([c, _]) => c);
     const warnings: Array<ParseWarning | null> = results.map(([_, w]) => w);
     return [[cmd, chunks], mergeParseErrors(warnings)];
   }
 
-  visitPrintCmd(print: Print): CompileResult<CompiledCmd> {
-    return this.compiled(print);
+  visitPrintInstr(print: Print): CompileResult<CompiledInstr> {
+    return this.runtime(print);
   }
 
-  visitExpressionCmd(expr: Expression): CompileResult<CompiledCmd> {
-    return this.interactive(expr, [expr.expression]);
+  visitExpressionInstr(expr: Expression): CompileResult<CompiledInstr> {
+    return this.command(expr, [expr.expression]);
   }
 
-  visitRemCmd(rem: Rem): CompileResult<CompiledCmd> {
+  visitRemInstr(rem: Rem): CompileResult<CompiledInstr> {
     return [[rem, []], null];
   }
 
-  visitNewCmd(new_: New): CompileResult<CompiledCmd> {
-    return this.interactive(new_, [new_.filename]);
+  visitNewInstr(new_: New): CompileResult<CompiledInstr> {
+    return this.command(new_, [new_.filename]);
   }
 
-  visitLoadCmd(load: Load): CompileResult<CompiledCmd> {
-    return this.interactive(load, [load.filename]);
+  visitLoadInstr(load: Load): CompileResult<CompiledInstr> {
+    return this.command(load, [load.filename]);
   }
 
-  visitListCmd(list: List): CompileResult<CompiledCmd> {
-    return this.interactive(list, []);
+  visitListInstr(list: List): CompileResult<CompiledInstr> {
+    return this.command(list, []);
   }
 
-  visitRenumCmd(renum: Renum): CompileResult<CompiledCmd> {
-    return this.interactive(renum, []);
+  visitRenumInstr(renum: Renum): CompileResult<CompiledInstr> {
+    return this.command(renum, []);
   }
 
-  visitSaveCmd(save: Save): CompileResult<CompiledCmd> {
-    return this.interactive(save, [save.filename]);
+  visitSaveInstr(save: Save): CompileResult<CompiledInstr> {
+    return this.command(save, [save.filename]);
   }
 
-  visitRunCmd(run: Run): CompileResult<CompiledCmd> {
-    return this.interactive(run, []);
+  visitRunInstr(run: Run): CompileResult<CompiledInstr> {
+    return this.command(run, []);
   }
 
-  visitEndCmd(end: End): CompileResult<CompiledCmd> {
-    return this.compiled(end);
+  visitEndInstr(end: End): CompileResult<CompiledInstr> {
+    return this.runtime(end);
   }
 
-  visitExitCmd(exit: Exit): CompileResult<CompiledCmd> {
-    return this.compiled(exit);
+  visitExitInstr(exit: Exit): CompileResult<CompiledInstr> {
+    return this.runtime(exit);
   }
 
-  visitLetCmd(let_: Let): CompileResult<CompiledCmd> {
-    return this.compiled(let_);
+  visitLetInstr(let_: Let): CompileResult<CompiledInstr> {
+    return this.runtime(let_);
   }
 
-  visitAssignCmd(assign: Assign): CompileResult<CompiledCmd> {
-    return this.compiled(assign);
+  visitAssignInstr(assign: Assign): CompileResult<CompiledInstr> {
+    return this.runtime(assign);
   }
 }
 
 /**
- * Compile a mixture of runtime and interactive commands.
+ * Compile a mixture of interactive instructions and commands.
  *
- * @param cmds The commands to compile.
+ * @param instrs The instructions to compile.
  * @param options Compiler options.
  * @returns The result of compiling each line, plus warnings.
  */
 export function compileCommands(
-  cmds: Cmd[],
+  cmds: Instr[],
   options: CompilerOptions = {},
-): CompileResult<CompiledCmd[]> {
+): CompileResult<CompiledInstr[]> {
   const compiler = new CommandCompiler(options);
-  const results: CompileResult<CompiledCmd>[] = cmds.map((cmd) =>
+  const results: CompileResult<CompiledInstr>[] = cmds.map((cmd) =>
     cmd.accept(compiler),
   );
-  const commands: CompiledCmd[] = results
+  const commands: CompiledInstr[] = results
     .map(([cmd, _]) => cmd)
     .filter(([c, _]) => !(c instanceof Rem));
   const warnings: Array<ParseWarning | null> = results.reduce(

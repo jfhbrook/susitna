@@ -14,7 +14,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import {
-  Cmd,
+  Instr,
   Print,
   Exit,
   Expression,
@@ -22,14 +22,14 @@ import {
   Load,
   Let,
   Assign,
-} from '../ast/cmd';
-import { CommandGroup, Line, Input, Program } from '../ast';
+} from '../ast/instr';
+import { InstrGroup, Line, Input, Program } from '../ast';
 import { Token, TokenKind } from '../tokens';
 import { throws } from './helpers/exceptions';
 import { FILENAME } from './helpers/files';
 import { parseInput, parseProgram } from './helpers/parser';
 
-const EXPRESSIONS: Array<[string, Cmd]> = [
+const EXPRESSIONS: Array<[string, Instr]> = [
   // NOTE: '1' parses as a line number.
   ['0xff', new Expression(new IntLiteral(255), 0, 4)],
   ['0o755', new Expression(new IntLiteral(493), 0, 5)],
@@ -66,7 +66,7 @@ const EXPRESSIONS: Array<[string, Cmd]> = [
   ],
 ];
 
-const WARNED_EXPRESSIONS: Array<[string, Cmd]> = [
+const WARNED_EXPRESSIONS: Array<[string, Instr]> = [
   [
     '(1 = 1)',
     new Expression(
@@ -162,13 +162,13 @@ const IDENT_EXPRESSIONS: Array<[string, Expression]> = [
   ],
 ];
 
-for (const [source, cmd] of EXPRESSIONS) {
+for (const [source, instr] of EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
+    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -176,24 +176,24 @@ for (const [source, cmd] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    cmd.offsetStart += 4;
-    cmd.offsetEnd += 4;
+    instr.offsetStart += 4;
+    instr.offsetEnd += 4;
 
-    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [instr])]));
 
-    cmd.offsetStart -= 4;
-    cmd.offsetEnd -= 4;
+    instr.offsetStart -= 4;
+    instr.offsetEnd -= 4;
   });
 }
 
-for (const [source, cmd] of WARNED_EXPRESSIONS) {
+for (const [source, instr] of WARNED_EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
     t.ok(result[1]);
     t.matchSnapshot(formatter.format(result[1]));
 
-    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
+    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -202,23 +202,23 @@ for (const [source, cmd] of WARNED_EXPRESSIONS) {
     t.ok(result[1]);
     t.matchSnapshot(formatter.format(result[1]));
 
-    cmd.offsetStart += 4;
-    cmd.offsetEnd += 4;
+    instr.offsetStart += 4;
+    instr.offsetEnd += 4;
 
-    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [instr])]));
 
-    cmd.offsetStart -= 4;
-    cmd.offsetEnd -= 4;
+    instr.offsetStart -= 4;
+    instr.offsetEnd -= 4;
   });
 }
 
-for (const [source, cmd] of IDENT_EXPRESSIONS) {
+for (const [source, instr] of IDENT_EXPRESSIONS) {
   t.test(`non-numbered expression ${source}`, async (t: Test) => {
     const result = parseInput(source);
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new CommandGroup(10, 1, source, [cmd])]));
+    t.same(result[0], new Input([new InstrGroup(10, 1, source, [instr])]));
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -226,19 +226,19 @@ for (const [source, cmd] of IDENT_EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    cmd.offsetStart += 4;
-    cmd.offsetEnd += 4;
-    (cmd.expression as any).ident.index += 4;
-    (cmd.expression as any).ident.offsetStart += 4;
-    (cmd.expression as any).ident.offsetEnd += 4;
+    instr.offsetStart += 4;
+    instr.offsetEnd += 4;
+    (instr.expression as any).ident.index += 4;
+    (instr.expression as any).ident.offsetStart += 4;
+    (instr.expression as any).ident.offsetEnd += 4;
 
-    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [cmd])]));
+    t.same(result[0], new Input([new Line(100, 1, `100 ${source}`, [instr])]));
 
-    cmd.offsetStart -= 4;
-    cmd.offsetEnd -= 4;
-    (cmd.expression as any).ident.index -= 4;
-    (cmd.expression as any).ident.offsetStart -= 4;
-    (cmd.expression as any).ident.offsetEnd -= 4;
+    instr.offsetStart -= 4;
+    instr.offsetEnd -= 4;
+    (instr.expression as any).ident.index -= 4;
+    (instr.expression as any).ident.offsetStart -= 4;
+    (instr.expression as any).ident.offsetEnd -= 4;
   });
 }
 
@@ -253,7 +253,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new CommandGroup(10, 1, source, [
+      new InstrGroup(10, 1, source, [
         new Expression(new StringLiteral('\\q'), 0, 4),
       ]),
     ]),
@@ -280,7 +280,7 @@ t.test('numbered invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
-t.test('print command', async (t: Test) => {
+t.test('print instruction', async (t: Test) => {
   await t.test('non-numbered', async (t: Test) => {
     const source = 'print "hello world"';
     const result = parseInput(source);
@@ -290,7 +290,7 @@ t.test('print command', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Print(new StringLiteral('hello world'), 0, 19),
         ]),
       ]),
@@ -326,7 +326,7 @@ t.test('print command', async (t: Test) => {
   });
 });
 
-t.test('exit command', async (t: Test) => {
+t.test('exit instruction', async (t: Test) => {
   await t.test('non-numbered', async (t: Test) => {
     const source = 'exit 0';
     const result = parseInput(source);
@@ -336,7 +336,7 @@ t.test('exit command', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
+        new InstrGroup(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)]),
       ]),
     );
   });
@@ -363,7 +363,7 @@ t.test('exit command', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(10, 1, source, [new Exit(null, 0, 4)])]),
+      new Input([new InstrGroup(10, 1, source, [new Exit(null, 0, 4)])]),
     );
   });
 
@@ -390,7 +390,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [new Rem('this is a comment', 0, 21)]),
+        new InstrGroup(10, 1, source, [new Rem('this is a comment', 0, 21)]),
       ]),
     );
   });
@@ -403,7 +403,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(10, 1, source, [new Rem('', 0, 3)])]),
+      new Input([new InstrGroup(10, 1, source, [new Rem('', 0, 3)])]),
     );
   });
 
@@ -415,11 +415,11 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new CommandGroup(10, 1, source, [new Rem('', 0, 1)])]),
+      new Input([new InstrGroup(10, 1, source, [new Rem('', 0, 1)])]),
     );
   });
 
-  await t.test('remark following a command', async (t: Test) => {
+  await t.test('remark following a instruction', async (t: Test) => {
     const source = 'print 1 rem this is a comment';
     const result = parseInput(source);
 
@@ -428,7 +428,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 8, 29),
         ]),
@@ -436,7 +436,7 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
-  await t.test('remark as a second command', async (t: Test) => {
+  await t.test('remark as a second instruction', async (t: Test) => {
     const source = 'print 1 : rem this is a comment';
     const result = parseInput(source);
 
@@ -445,7 +445,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 10, 31),
         ]),
@@ -463,7 +463,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -483,7 +483,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             true,
@@ -503,7 +503,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new CommandGroup(10, 1, source, [
+        new InstrGroup(10, 1, source, [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -538,7 +538,7 @@ t.test('let', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new CommandGroup(10, 1, source, [
+      new InstrGroup(10, 1, source, [
         new Let(
           new Variable(
             new Token({
@@ -568,7 +568,7 @@ t.test('assign', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new CommandGroup(10, 1, source, [
+      new InstrGroup(10, 1, source, [
         new Assign(
           new Variable(
             new Token({
@@ -619,7 +619,7 @@ t.test('multiple inputs', async (t: Test) => {
       new Line(100, 1, source[0], [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new CommandGroup(10, 2, source[1], [
+      new InstrGroup(10, 2, source[1], [
         new Expression(new StringLiteral('foo'), 0, 5),
       ]),
       new Line(200, 3, source[2], [
@@ -634,13 +634,13 @@ t.test('multiple inputs', async (t: Test) => {
 // to show a better error. The trace is basically:
 //
 // - successfully parse line number
-// - attempt to parse commands
-// - parse the *first* command
+// - attempt to parse instructions
+// - parse the *first* instruction
 // - fall through to an expression statement
 // - fail to parse a valid expression statement
 //
 // We would need to track that we just parsed a line number (isLine), that
-// we're parsing the very first command, and that we're parsing an expression
+// we're parsing the very first instruction, and that we're parsing an expression
 // statement. That's a boatload of state, but I think it's doable.
 t.test('bare expression starting with an integer', async (t: Test) => {
   throws(t, () => {

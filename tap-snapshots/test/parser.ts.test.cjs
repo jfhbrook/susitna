@@ -74,13 +74,13 @@ exports[`test/parser.ts > TAP > out of order program > must match snapshot 1`] =
   ^
 `
 
-exports[`test/parser.ts > TAP > print command > non-numbered, without arguments > must match snapshot 1`] = `
+exports[`test/parser.ts > TAP > print instruction > non-numbered, without arguments > must match snapshot 1`] = `
 <input>:<R1>:5 (at the beginning): error: Unexpected token <EOF>
   print
        ^
 `
 
-exports[`test/parser.ts > TAP > print command > numbered, without arguments > must match snapshot 1`] = `
+exports[`test/parser.ts > TAP > print instruction > numbered, without arguments > must match snapshot 1`] = `
 <input>:100:9: error: Unexpected token <EOF>
   100 print
            ^

@@ -1,4 +1,4 @@
-import { List } from '../ast/cmd';
+import { List } from '../ast/instr';
 import { CommandRunner, ReturnValue } from './base';
 
 /**

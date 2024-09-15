@@ -14,10 +14,10 @@ type Expr in './expr' {
   NilLiteral!
 }
 
-type Cmd in './cmd' {
+type Instr in './instr' {
   import { Expr, Variable } from './expr'
 
-  Cmd        => offsetStart: number = -1, offsetEnd: number = -1
+  Instr      => offsetStart: number = -1, offsetEnd: number = -1
   Let        => variable: Variable, value: Expr | null
   Assign     => variable: Variable, value: Expr
   Expression => expression: Expr
@@ -34,10 +34,10 @@ type Cmd in './cmd' {
 }
 
 type Tree in './index' {
-  import { Cmd } from './cmd'
+  import { Instr } from './instr'
 
-  CommandGroup => cmdNo: number, row: number, source: string, commands: Cmd[]
-  Line         => lineNo: number, row: number, source: string, commands: Cmd[]
-  Input        => input: Array<CommandGroup | Line>
+  InstrGroup => instrNo: number, row: number, source: string, instructions: Instr[]
+  Line         => lineNo: number, row: number, source: string, instructions: Instr[]
+  Input        => input: Array<InstrGroup | Line>
   Program      => filename: string, lines: Line[]
 }

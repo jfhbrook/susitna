@@ -26,7 +26,7 @@ import {
   NilLiteral,
 } from './ast/expr';
 import {
-  Cmd,
+  Instr,
   Assign,
   Print,
   Expression,
@@ -40,8 +40,8 @@ import {
   End,
   Exit,
   Let,
-} from './ast/cmd';
-import { CommandGroup, Line, Input, Program } from './ast';
+} from './ast/instr';
+import { InstrGroup, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
@@ -59,7 +59,7 @@ export interface ArgumentsSpec {
 }
 
 export type ParseResult<T> = [T, ParseWarning | null];
-export type Row = Line | CommandGroup;
+export type Row = Line | InstrGroup;
 
 // The alternative to using exceptions is to set a panicMode flag to ignore
 // emitted errors until we can synchronize. This might be worth trying out
@@ -286,12 +286,12 @@ export class Parser {
     return tracer.spanSync('row', () => {
       const rowNo = this.current.row;
 
-      let cmds: Cmd[];
+      let cmds: Instr[];
       let source: string;
       try {
         this.lineNumber();
 
-        cmds = this.commands();
+        cmds = this.instructions();
 
         source = this.rowEnding();
       } catch (err) {
@@ -306,7 +306,7 @@ export class Parser {
         return new Line(this.lineNo, rowNo, source, cmds);
       }
       this.cmdNo += 10;
-      return new CommandGroup(this.cmdNo, rowNo, source, cmds);
+      return new InstrGroup(this.cmdNo, rowNo, source, cmds);
     });
   }
 
@@ -377,8 +377,8 @@ export class Parser {
     });
   }
 
-  private syncNextCommand() {
-    return tracer.spanSync('syncNextCommand', () => {
+  private syncNextInstr() {
+    return tracer.spanSync('syncNextInstr', () => {
       // Remarks can be handled in the next attempt at parsing a command
       while (
         ![
@@ -409,100 +409,100 @@ export class Parser {
     });
   }
 
-  private commands(): Cmd[] {
-    return tracer.spanSync('commands', () => {
+  private instructions(): Instr[] {
+    return tracer.spanSync('instructions', () => {
       if (this.done || this.current.kind === TokenKind.LineEnding) {
         return [];
       }
 
-      let cmd: Cmd | null = this.command();
-      const cmds: Cmd[] = cmd ? [cmd] : [];
+      let instr: Instr | null = this.instruction();
+      const instrs: Instr[] = instr ? [instr] : [];
 
       // A remark doesn't need to be separated from a prior command by a
       // colon
       while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
         try {
-          cmd = this.command();
-          if (cmd) {
-            cmds.push(cmd);
+          instr = this.instruction();
+          if (instr) {
+            instrs.push(instr);
           }
         } catch (err) {
           if (err instanceof Synchronize) {
-            this.syncNextCommand();
+            this.syncNextInstr();
           }
           throw err;
         }
       }
 
-      return cmds;
+      return instrs;
     });
   }
 
-  private command(): Cmd | null {
-    return tracer.spanSync('command', () => {
+  private instruction(): Instr | null {
+    return tracer.spanSync('instruction', () => {
       const { offsetStart } = this.current;
 
-      let cmd: Cmd;
+      let instr: Instr;
 
       // Remarks are treated like commands - the scanner handles the fact
       // that they include all text to the end of the line
       if (this.match(TokenKind.Rem)) {
-        cmd = new Rem(this.previous!.value as string);
+        instr = new Rem(this.previous!.value as string);
       } else if (this.match(TokenKind.Semicolon)) {
-        cmd = new Rem('');
+        instr = new Rem('');
       } else if (this.match(TokenKind.Print)) {
-        cmd = this.print();
+        instr = this.print();
         // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
       } else if (this.match(TokenKind.New)) {
-        cmd = this.new();
+        instr = this.new();
       } else if (this.match(TokenKind.Load)) {
-        cmd = this.load();
+        instr = this.load();
       } else if (this.match(TokenKind.List)) {
-        cmd = this.list();
+        instr = this.list();
       } else if (this.match(TokenKind.Renum)) {
-        cmd = this.renum();
+        instr = this.renum();
       } else if (this.match(TokenKind.Save)) {
-        cmd = this.save();
+        instr = this.save();
       } else if (this.match(TokenKind.Run)) {
-        cmd = this.run();
+        instr = this.run();
       } else if (this.match(TokenKind.End)) {
-        cmd = this.end();
+        instr = this.end();
       } else if (this.match(TokenKind.Exit)) {
-        cmd = this.exit();
+        instr = this.exit();
       } else if (this.match(TokenKind.Let)) {
-        cmd = this.let();
+        instr = this.let();
       } else {
         const assign = this.assign();
         if (assign) {
-          cmd = assign;
+          instr = assign;
         } else {
-          cmd = this.expressionStatement();
+          instr = this.expressionStatement();
         }
       }
 
       const { offsetEnd } = this.previous!;
 
-      cmd.offsetStart = offsetStart;
-      cmd.offsetEnd = offsetEnd;
+      instr.offsetStart = offsetStart;
+      instr.offsetEnd = offsetEnd;
 
-      return cmd;
+      return instr;
     });
   }
 
   // TODO: What's the syntax of print? lol
-  private print(): Cmd {
+  private print(): Instr {
     return tracer.spanSync('print', () => {
       return new Print(this.expression());
     });
   }
 
-  private new(): Cmd {
+  private new(): Instr {
     return tracer.spanSync('new', () => {
       return new New(this.optionalExpression());
     });
   }
 
-  private load(): Cmd {
+  private load(): Instr {
     return tracer.spanSync('load', () => {
       const { parameters, flags } = this.arguments({
         parameters: ['filename'],
@@ -514,38 +514,38 @@ export class Parser {
     });
   }
 
-  private list(): Cmd {
+  private list(): Instr {
     return tracer.spanSync('list', () => {
       return new List();
     });
   }
 
-  private renum(): Cmd {
+  private renum(): Instr {
     return tracer.spanSync('renum', () => {
       return new Renum();
     });
   }
 
-  private save(): Cmd {
+  private save(): Instr {
     return tracer.spanSync('save', () => {
       return new Save(this.optionalExpression());
     });
   }
 
-  private run(): Cmd {
+  private run(): Instr {
     return tracer.spanSync('run', () => {
       return new Run();
     });
   }
 
-  private end(): Cmd {
+  private end(): Instr {
     // TODO: Should end take an exit code?
     return tracer.spanSync('end', () => {
       return new End();
     });
   }
 
-  private exit(): Cmd {
+  private exit(): Instr {
     return tracer.spanSync('exit', () => {
       const expr = this.optionalExpression();
       if (expr) {
@@ -555,13 +555,13 @@ export class Parser {
     });
   }
 
-  private expressionStatement(): Cmd {
+  private expressionStatement(): Instr {
     return tracer.spanSync('expressionStatement', () => {
       return new Expression(this.expression());
     });
   }
 
-  private let(): Cmd {
+  private let(): Instr {
     return tracer.spanSync('let', () => {
       let variable: Variable;
       if (
@@ -585,7 +585,7 @@ export class Parser {
     });
   }
 
-  private assign(): Cmd | null {
+  private assign(): Instr | null {
     return tracer.spanSync('assign', () => {
       // We can't match here because we need to check the *next* token
       // before advancing...

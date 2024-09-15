@@ -14,7 +14,7 @@ t.test('operator precedence', async (t: Test) => {
       FILENAME,
     );
 
-    t.matchSnapshot((ast.lines[0].commands[0] as any).expression);
+    t.matchSnapshot((ast.lines[0].instructions[0] as any).expression);
     t.matchSnapshot(warning);
   });
 });

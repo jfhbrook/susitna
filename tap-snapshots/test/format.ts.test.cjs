@@ -5,35 +5,35 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 1`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 1`] = `
 Exit(0)
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 2`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 2`] = `
 Rem(a witty remark)
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 3`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 3`] = `
 New(null)
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 4`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 4`] = `
 Load('./examples/001-hello-world.bas', run=true)
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 5`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 5`] = `
 List
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 6`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 6`] = `
 New(null)
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 7`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 7`] = `
 Run
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > commands > must match snapshot 8`] = `
+exports[`test/format.ts > TAP > given a DefaultFormatter > instructions > must match snapshot 8`] = `
 Let(i%, 1)
 `
 
@@ -83,10 +83,6 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a BoolLite
 true
 `
 
-exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Cmd > must match snapshot 1`] = `
-Print('hello')
-`
-
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Exception > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
@@ -106,6 +102,10 @@ Traceback:
 FileError EACCES: message
   Source File: /home/josh/script.bas
   Destination File: another.bas
+`
+
+exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Instr > must match snapshot 1`] = `
+Print('hello')
 `
 
 exports[`test/format.ts > TAP > given a DefaultFormatter > it formats a Line > must match snapshot 1`] = `
@@ -333,35 +333,35 @@ exports[`test/format.ts > TAP > given a DefaultFormatter > when it is not a line
                         ^
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 1`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 1`] = `
 Exit(0)
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 2`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 2`] = `
 Rem(a witty remark)
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 3`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 3`] = `
 New([1mnull[22m)
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 4`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 4`] = `
 Load('./examples/001-hello-world.bas', run=true)
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 5`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 5`] = `
 List
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 6`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 6`] = `
 New([1mnull[22m)
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 7`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 7`] = `
 Run
 `
 
-exports[`test/format.ts > TAP > given a Inspector > commands > must match snapshot 8`] = `
+exports[`test/format.ts > TAP > given a Inspector > instructions > must match snapshot 8`] = `
 Let(i%, 1)
 `
 
@@ -411,10 +411,6 @@ exports[`test/format.ts > TAP > given a Inspector > it formats a BoolLiteral > m
 true
 `
 
-exports[`test/format.ts > TAP > given a Inspector > it formats a Cmd > must match snapshot 1`] = `
-Print('hello')
-`
-
 exports[`test/format.ts > TAP > given a Inspector > it formats a Exception > must match snapshot 1`] = `
 Traceback:
   File '/home/josh/script.bas', line 100
@@ -434,6 +430,10 @@ Traceback:
 FileError EACCES: message
   Source File: /home/josh/script.bas
   Destination File: another.bas
+`
+
+exports[`test/format.ts > TAP > given a Inspector > it formats a Instr > must match snapshot 1`] = `
+Print('hello')
 `
 
 exports[`test/format.ts > TAP > given a Inspector > it formats a Line > must match snapshot 1`] = `

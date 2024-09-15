@@ -4,13 +4,13 @@ import { Executor } from '../executor';
 import { Host } from '../host';
 import { Value } from '../value';
 
-import visitExpressionCmd from './expression';
-import visitNewCmd from './new';
-import visitLoadCmd from './load';
-import visitListCmd from './list';
-import visitRenumCmd from './renum';
-import visitSaveCmd from './save';
-import visitRunCmd from './run';
+import visitExpressionInstr from './expression';
+import visitNewInstr from './new';
+import visitLoadInstr from './load';
+import visitListInstr from './list';
+import visitRenumInstr from './renum';
+import visitSaveInstr from './save';
+import visitRunInstr from './run';
 
 export function commandRunner(
   executor: Executor,
@@ -24,19 +24,19 @@ export function commandRunner(
     program: editor.program,
     host,
     args,
-    visitExpressionCmd,
-    visitPrintCmd: invalid('print'),
-    visitRemCmd: noop,
-    visitNewCmd,
-    visitLoadCmd,
-    visitListCmd,
-    visitRenumCmd,
-    visitSaveCmd,
-    visitRunCmd,
-    visitEndCmd: invalid('end'),
-    visitExitCmd: invalid('exit'),
-    visitLetCmd: invalid('let'),
-    visitAssignCmd: invalid('assign'),
+    visitExpressionInstr,
+    visitPrintInstr: invalid('print'),
+    visitRemInstr: noop,
+    visitNewInstr,
+    visitLoadInstr,
+    visitListInstr,
+    visitRenumInstr,
+    visitSaveInstr,
+    visitRunInstr,
+    visitEndInstr: invalid('end'),
+    visitExitInstr: invalid('exit'),
+    visitLetInstr: invalid('let'),
+    visitAssignInstr: invalid('assign'),
   };
 }
 

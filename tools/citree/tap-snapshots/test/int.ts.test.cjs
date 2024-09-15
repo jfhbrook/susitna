@@ -68,13 +68,14 @@ export class Exit extends Cmd {
 `
 
 exports[`test/int.ts > TAP > integration > must match snapshot 2`] = `
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitUnaryExpr(node: Unary): R;
   visitBinaryExpr(node: Binary): R;
   visitLogicalExpr(node: Logical): R;
   visitGroupExpr(node: Group): R;
+  visitVariableExpr(node: Variable): R;
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
@@ -135,6 +136,16 @@ export class Group extends Expr {
 
   accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitGroupExpr(this);
+  }
+}
+
+export class Variable extends Expr {
+  constructor(public ident: Token) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitVariableExpr(this);
   }
 }
 
@@ -201,10 +212,10 @@ export class NilLiteral extends Expr {
 `
 
 exports[`test/int.ts > TAP > integration > must match snapshot 3`] = `
-import { Cmd } from './cmd';
+import { Instr } from './instr';
 
 export interface TreeVisitor<R> {
-  visitCommandGroupTree(node: CommandGroup): R;
+  visitInstrGroupTree(node: InstrGroup): R;
   visitLineTree(node: Line): R;
   visitInputTree(node: Input): R;
   visitProgramTree(node: Program): R;
@@ -214,17 +225,18 @@ export abstract class Tree {
   abstract accept<R>(visitor: TreeVisitor<R>): R;
 }
 
-export class CommandGroup extends Tree {
+export class InstrGroup extends Tree {
   constructor(
+    public instrNo: number,
     public row: number,
     public source: string,
-    public commands: Cmd[],
+    public instructions: Instr[],
   ) {
     super();
   }
 
   accept<R>(visitor: TreeVisitor<R>): R {
-    return visitor.visitCommandGroupTree(this);
+    return visitor.visitInstrGroupTree(this);
   }
 }
 
@@ -233,7 +245,7 @@ export class Line extends Tree {
     public lineNo: number,
     public row: number,
     public source: string,
-    public commands: Cmd[],
+    public instructions: Instr[],
   ) {
     super();
   }
@@ -244,7 +256,7 @@ export class Line extends Tree {
 }
 
 export class Input extends Tree {
-  constructor(public input: Array<CommandGroup | Line>) {
+  constructor(public input: Array<InstrGroup | Line>) {
     super();
   }
 
@@ -254,7 +266,10 @@ export class Input extends Tree {
 }
 
 export class Program extends Tree {
-  constructor(public lines: Line[]) {
+  constructor(
+    public filename: string,
+    public lines: Line[],
+  ) {
     super();
   }
 

@@ -7,7 +7,7 @@ import {
   mergeParseErrors,
   NotImplementedError,
 } from './exceptions';
-import { runtimeMethod } from './faults';
+import { RuntimeFault, runtimeMethod } from './faults';
 import { Token, TokenKind } from './tokens';
 import { Value } from './value';
 // import { Type } from './value/types';
@@ -51,13 +51,15 @@ import {
   NilLiteral,
 } from './ast/expr';
 
+import { Block, CommandBlock, ProgramBlock } from './block';
+
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
 
 const tracer = getTracer('compiler');
 
 export enum RoutineType {
-  Instruction,
+  Command,
   Program,
 }
 
@@ -88,7 +90,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   private currentLine: number = 0;
 
   private filename: string;
-  private routineType: RoutineType = RoutineType.Instruction;
+  private routineType: RoutineType = RoutineType.Command;
 
   // private stack: Stack<Type> = new Stack();
 
@@ -99,6 +101,8 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
+
+  public block: Block;
 
   constructor(
     lines: Line[],
@@ -113,6 +117,11 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.routineType = routineType;
     this.isError = false;
     this.errors = [];
+
+    this.block =
+      routineType === RoutineType.Program
+        ? new ProgramBlock(this)
+        : new CommandBlock(this);
   }
 
   /**
@@ -210,20 +219,29 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     return this.lines[this.currentLine].instructions[this.currentInstrNo];
   }
 
-  private syntaxError(instr: Instr, message: string): never {
-    const exc = new SyntaxError(message, {
+  private createSyntaxError(instr: Instr, message: string): SyntaxError {
+    return new SyntaxError(message, {
       filename: this.filename,
       row: this.rowNo,
-      isLine: this.routineType !== RoutineType.Instruction,
+      isLine: this.routineType !== RoutineType.Command,
       lineNo: this.lineNo,
-      cmdNo: this.routineType === RoutineType.Instruction ? null : this.lineNo,
+      cmdNo: this.routineType === RoutineType.Command ? null : this.lineNo,
       offsetStart: instr.offsetStart,
       offsetEnd: instr.offsetEnd,
       source: this.lineSource,
     });
+  }
+
+  public syntaxError(instr: Instr, message: string): never {
+    const exc = this.createSyntaxError(instr, message);
     this.isError = true;
     this.errors.push(exc);
     throw new Synchronize();
+  }
+
+  public syntaxFault(instr: Instr, message: string): never {
+    const exc = this.createSyntaxError(instr, message);
+    throw RuntimeFault.fromError(exc);
   }
 
   private interactive(name: string, instr: Instr): never {
@@ -306,7 +324,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     // NOTE: If/when implementing classes, I would need to detect when
     // compiling a constructor and return "this", not nil.
 
-    if (this.routineType !== RoutineType.Instruction || !this.isExpressionCmd) {
+    if (this.routineType !== RoutineType.Command || !this.isExpressionCmd) {
       this.emitByte(OpCode.Nil);
     }
     this.emitByte(OpCode.Return);
@@ -553,7 +571,7 @@ export function compileInstruction(
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
   const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [instr])];
-  const compiler = new LineCompiler(lines, RoutineType.Instruction, options);
+  const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();
 }
 

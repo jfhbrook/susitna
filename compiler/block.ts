@@ -1,4 +1,3 @@
-import { NotImplementedFault } from './faults';
 import {
   Instr,
   InstrVisitor,
@@ -20,29 +19,45 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from './ast/instr';
-import { LineCompiler } from './compiler';
+} from '../ast/instr';
 
-// In general, a block's kind can be determined from its class. However,
-// there are times where we need its name as a string - for instance, when
-// reporting errors.
-enum BlockKind {
-  Unknown = 'unknown',
-  Program = 'program',
-  Command = 'command',
-  If = 'if',
-  Else = 'else',
-  ElseIf = 'else if',
+import { LineCompiler } from './base';
+
+//
+// A class to manage blocks in the LineCompiler. Subclassed for particular
+// kinds of blocks in the base, next to the LineCompiler.
+//
+
+// NOTE: Conceptually, BlockKind is enumerable. However, as the kinds are
+// for the most part defined in the base, setting this to a string allows us
+// to avoid a generic type. In practice, block kinds are only used for error
+// reporting.
+export type BlockKind = string;
+
+export type BlockParent = Block | null;
+
+export interface BlockClass {
+  new (compiler: LineCompiler, parent: Block | null): Block;
 }
 
-export abstract class Block implements InstrVisitor<Block> {
-  public kind: BlockKind = BlockKind.Unknown;
+export abstract class Block implements InstrVisitor<BlockParent> {
+  public kind: BlockKind = '<unknown>';
 
-  constructor(private compiler: LineCompiler) {}
+  constructor(
+    private compiler: LineCompiler,
+    public parent: BlockParent = null,
+  ) {}
 
+  // Open a new block, maintaining a reference to the parent block.
+  public start(cls: BlockClass): void {
+    const parent = this.compiler.block;
+    this.compiler.block = new cls(this.compiler, parent);
+  }
+
+  // End the current block by setting the compiler's block to the next block.
   public end(instr: Instr): void {
     const block = instr.accept(this);
-    this.compiler.block = block;
+    this.compiler.block = block || this.parent;
   }
 
   // Most instructions do not end any kind of block. This code should never
@@ -127,37 +142,5 @@ export abstract class Block implements InstrVisitor<Block> {
 
   visitEndIfInstr(endIf: EndIf): Block {
     this.mismatched(endIf, 'endif');
-  }
-}
-
-export class ProgramBlock extends Block {
-  kind = BlockKind.Program;
-}
-
-export class CommandBlock extends Block {
-  kind = BlockKind.Command;
-}
-
-export class IfBlock extends Block {
-  kind = BlockKind.If;
-
-  visitEndIfInstr(_endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
-  }
-}
-
-export class ElseIfBlock extends Block {
-  kind = BlockKind.ElseIf;
-
-  visitEndIfInstr(_endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
-  }
-}
-
-export class ElseBlock extends Block {
-  kind = BlockKind.Else;
-
-  visitEndIfInstr(_endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
   }
 }

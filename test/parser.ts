@@ -23,10 +23,10 @@ import {
   Let,
   Assign,
   ShortIf,
-  // If,
-  // Else,
-  // ElseIf,
-  // EndIf,
+  If,
+  Else,
+  ElseIf,
+  EndIf,
 } from '../ast/instr';
 import { Cmd, Line, Input, Program } from '../ast';
 import { Token, TokenKind } from '../tokens';
@@ -726,6 +726,79 @@ t.test('short if', async (t: Test) => {
             80,
           ),
         ]),
+      ]),
+    );
+  });
+});
+
+t.test('long if', async (t: Test) => {
+  await t.test('if/endif', async (t: Test) => {
+    const source = ['10 if true then', '20   print "true"', '30 endif'];
+    const result = parseProgram(source.join('\n'), FILENAME);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Program(FILENAME, [
+        new Line(10, 1, source[0], [new If(new BoolLiteral(true), 3, 15)]),
+        new Line(20, 2, source[1], [
+          new Print(new StringLiteral('true'), 5, 17),
+        ]),
+        new Line(30, 3, source[2], [new EndIf(3, 8)]),
+      ]),
+    );
+  });
+
+  await t.test('if/else/endif', async (t: Test) => {
+    const source = [
+      '10 if true then',
+      '20   print "true"',
+      '30 else',
+      '40   print "false"',
+      '50 endif',
+    ];
+    const result = parseProgram(source.join('\n'), FILENAME);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Program(FILENAME, [
+        new Line(10, 1, source[0], [new If(new BoolLiteral(true), 3, 15)]),
+        new Line(20, 2, source[1], [
+          new Print(new StringLiteral('true'), 5, 17),
+        ]),
+        new Line(30, 3, source[2], [new Else(3, 7)]),
+        new Line(40, 4, source[3], [
+          new Print(new StringLiteral('false'), 5, 18),
+        ]),
+        new Line(50, 5, source[4], [new EndIf(3, 8)]),
+      ]),
+    );
+  });
+
+  await t.test('if/elseif/endif', async (t: Test) => {
+    const source = [
+      '10 if true then',
+      '20   print "true"',
+      '30 else if false then',
+      '40   print "false"',
+      '50 endif',
+    ];
+    const result = parseProgram(source.join('\n'), FILENAME);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Program(FILENAME, [
+        new Line(10, 1, source[0], [new If(new BoolLiteral(true), 3, 15)]),
+        new Line(20, 2, source[1], [
+          new Print(new StringLiteral('true'), 5, 17),
+        ]),
+        new Line(30, 3, source[2], [new ElseIf(new BoolLiteral(false), 3, 21)]),
+        new Line(40, 4, source[3], [
+          new Print(new StringLiteral('false'), 5, 18),
+        ]),
+        new Line(50, 5, source[4], [new EndIf(3, 8)]),
       ]),
     );
   });

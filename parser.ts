@@ -77,12 +77,10 @@ class Synchronize extends Error {
   }
 }
 
-// Short if parsing needs to exclude certain instructions, particularly bare
-// else and endif. I'm currently accomplishing this by throwing an exception.
-@errorType('EndInstrs')
-class EndInstrs extends Error {
-  constructor() {
-    super('EndInstrs');
+@errorType('StopInstrs')
+class StopInstrs extends Error {
+  constructor(public instr: Instr | null) {
+    super('StopInstrs');
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
@@ -106,6 +104,7 @@ export class Parser {
   private cmdNo: number = 0;
   private line: string = '';
   private isShortIf: boolean = false;
+  private expectThen: boolean = false;
 
   constructor() {}
 
@@ -432,31 +431,45 @@ export class Parser {
 
   private instructions(): Instr[] {
     return tracer.spanSync('instructions', () => {
+      if (this.expectThen) {
+        this.consume(TokenKind.Then, 'Expected then');
+        this.expectThen = false;
+      }
+
       if (this.isLineEnding) {
         return [];
       }
 
-      let instr: Instr | null = this.instruction();
-      const instrs: Instr[] = instr ? [instr] : [];
+      let instr: Instr | null = null;
+      let instrs: Instr[] = [];
+      try {
+        instr = this.instruction();
+        instrs = instr ? [instr] : [];
 
-      // A remark doesn't need to be separated from a prior command by a
-      // colon
-      while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
-        try {
-          instr = this.instruction();
-          if (instr) {
-            instrs.push(instr);
+        // A remark doesn't need to be separated from a prior command by a
+        // colon
+        while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
+          try {
+            instr = this.instruction();
+            if (instr) {
+              instrs.push(instr);
+            }
+          } catch (err) {
+            if (err instanceof Synchronize) {
+              this.syncNextInstr();
+            }
+            throw err;
           }
-        } catch (err) {
-          if (err instanceof EndInstrs) {
-            return instrs;
-          }
-
-          if (err instanceof Synchronize) {
-            this.syncNextInstr();
-          }
-          throw err;
         }
+      } catch (err) {
+        if (err instanceof StopInstrs) {
+          if (err.instr) {
+            instrs.push(err.instr);
+          }
+          return instrs;
+        }
+
+        throw err;
       }
 
       return instrs;
@@ -469,52 +482,63 @@ export class Parser {
 
       let instr: Instr;
 
-      // Remarks are treated like commands - the scanner handles the fact
-      // that they include all text to the end of the line
-      if (this.match(TokenKind.Rem)) {
-        instr = new Rem(this.previous!.value as string);
-      } else if (this.match(TokenKind.Semicolon)) {
-        instr = new Rem('');
-      } else if (this.match(TokenKind.Print)) {
-        instr = this.print();
-        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-      } else if (this.match(TokenKind.New)) {
-        instr = this.new();
-      } else if (this.match(TokenKind.Load)) {
-        instr = this.load();
-      } else if (this.match(TokenKind.List)) {
-        instr = this.list();
-      } else if (this.match(TokenKind.Renum)) {
-        instr = this.renum();
-      } else if (this.match(TokenKind.Save)) {
-        instr = this.save();
-      } else if (this.match(TokenKind.Run)) {
-        instr = this.run();
-      } else if (this.match(TokenKind.End)) {
-        instr = this.end();
-      } else if (this.match(TokenKind.Exit)) {
-        instr = this.exit();
-      } else if (this.match(TokenKind.Let)) {
-        instr = this.let();
-      } else if (this.match(TokenKind.If)) {
-        instr = this.if_();
-      } else if (this.match(TokenKind.Else)) {
-        instr = this.else_();
-      } else if (this.match(TokenKind.EndIf)) {
-        instr = this.endIf();
-      } else {
-        const assign = this.assign();
-        if (assign) {
-          instr = assign;
+      const finalize = (instr: Instr): void => {
+        const { offsetEnd } = this.previous!;
+
+        instr.offsetStart = offsetStart;
+        instr.offsetEnd = offsetEnd;
+      };
+
+      try {
+        // Remarks are treated like commands - the scanner handles the fact
+        // that they include all text to the end of the line
+        if (this.match(TokenKind.Rem)) {
+          instr = new Rem(this.previous!.value as string);
+        } else if (this.match(TokenKind.Semicolon)) {
+          instr = new Rem('');
+        } else if (this.match(TokenKind.Print)) {
+          instr = this.print();
+          // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+        } else if (this.match(TokenKind.New)) {
+          instr = this.new();
+        } else if (this.match(TokenKind.Load)) {
+          instr = this.load();
+        } else if (this.match(TokenKind.List)) {
+          instr = this.list();
+        } else if (this.match(TokenKind.Renum)) {
+          instr = this.renum();
+        } else if (this.match(TokenKind.Save)) {
+          instr = this.save();
+        } else if (this.match(TokenKind.Run)) {
+          instr = this.run();
+        } else if (this.match(TokenKind.End)) {
+          instr = this.end();
+        } else if (this.match(TokenKind.Exit)) {
+          instr = this.exit();
+        } else if (this.match(TokenKind.Let)) {
+          instr = this.let();
+        } else if (this.match(TokenKind.If)) {
+          instr = this.if_();
+        } else if (this.match(TokenKind.Else)) {
+          instr = this.else_();
+        } else if (this.match(TokenKind.EndIf)) {
+          instr = this.endIf();
         } else {
-          instr = this.expressionStatement();
+          const assign = this.assign();
+          if (assign) {
+            instr = assign;
+          } else {
+            instr = this.expressionStatement();
+          }
         }
+      } catch (err) {
+        if (err instanceof StopInstrs && err.instr) {
+          finalize(err.instr);
+        }
+        throw err;
       }
 
-      const { offsetEnd } = this.previous!;
-
-      instr.offsetStart = offsetStart;
-      instr.offsetEnd = offsetEnd;
+      finalize(instr);
 
       return instr;
     });
@@ -622,7 +646,11 @@ export class Parser {
 
       // A bare "if" with a multi-line block
       if (!this.isShortIf && this.isLineEnding) {
-        return new If(condition);
+        const if_ = new If(condition);
+        if (this.expectThen) {
+          throw new StopInstrs(if_);
+        }
+        return if_;
       }
 
       return this.shortIf(condition);
@@ -632,8 +660,11 @@ export class Parser {
   private ifCondition(): Expr {
     const condition = this.expression();
 
-    // TODO: Allow 'then' on new line
-    this.consume(TokenKind.Then, 'Expected then');
+    if (this.isLineEnding) {
+      this.expectThen = true;
+    } else {
+      this.consume(TokenKind.Then, 'Expected then');
+    }
 
     return condition;
   }
@@ -663,7 +694,7 @@ export class Parser {
   private else_(): Instr {
     return tracer.spanSync('else', () => {
       if (this.isShortIf) {
-        throw new EndInstrs();
+        throw new StopInstrs(null);
       }
 
       if (this.match(TokenKind.If)) {
@@ -678,14 +709,19 @@ export class Parser {
     return tracer.spanSync('else if', () => {
       const condition = this.ifCondition();
 
-      return new ElseIf(condition);
+      const elseIf = new ElseIf(condition);
+
+      if (this.expectThen) {
+        throw new StopInstrs(elseIf);
+      }
+      return elseIf;
     });
   }
 
   private endIf(): Instr {
     return tracer.spanSync('endif', () => {
       if (this.isShortIf) {
-        throw new EndInstrs();
+        throw new StopInstrs(null);
       }
 
       return new EndIf();

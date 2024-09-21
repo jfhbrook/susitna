@@ -802,6 +802,37 @@ t.test('long if', async (t: Test) => {
       ]),
     );
   });
+
+  await t.test('with then on own line', async (t: Test) => {
+    const source = [
+      '10 if true',
+      '20 then',
+      '30   print "true"',
+      '40 else if false',
+      '50 then',
+      '60   print "false"',
+      '70 endif',
+    ];
+    const result = parseProgram(source.join('\n'), FILENAME);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Program(FILENAME, [
+        new Line(10, 1, source[0], [new If(new BoolLiteral(true), 3, 10)]),
+        new Line(20, 2, source[1], []),
+        new Line(30, 3, source[2], [
+          new Print(new StringLiteral('true'), 5, 17),
+        ]),
+        new Line(40, 4, source[3], [new ElseIf(new BoolLiteral(false), 3, 16)]),
+        new Line(50, 5, source[4], []),
+        new Line(60, 6, source[5], [
+          new Print(new StringLiteral('false'), 5, 18),
+        ]),
+        new Line(70, 7, source[6], [new EndIf(3, 8)]),
+      ]),
+    );
+  });
 });
 
 t.test('empty input', async (t: Test) => {

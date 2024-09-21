@@ -68,6 +68,12 @@ export enum TokenKind {
   Exit = 'exit',
 
   Let = 'let',
+
+  If = 'if',
+  Then = 'then',
+  Else = 'else',
+  EndIf = 'endif',
+
   /*
   Data = 'DATA',
   Def = 'DEF',
@@ -83,9 +89,6 @@ export enum TokenKind {
   GoSub = 'GOSUB',
   GoTo = 'GOTO',
   Return = 'RETURN',
-  If = 'IF',
-  Then = 'THEN',
-  Else = 'ELSE',
   Next = 'NEXT',
   While = 'WHILE',
 

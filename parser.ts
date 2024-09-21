@@ -40,6 +40,11 @@ import {
   End,
   Exit,
   Let,
+  ShortIf,
+  If,
+  Else,
+  ElseIf,
+  EndIf,
 } from './ast/instr';
 import { Cmd, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
@@ -72,6 +77,16 @@ class Synchronize extends Error {
   }
 }
 
+// Short if parsing needs to exclude certain instructions, particularly bare
+// else and endif. I'm currently accomplishing this by throwing an exception.
+@errorType('EndInstrs')
+class EndInstrs extends Error {
+  constructor() {
+    super('EndInstrs');
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
 export class Parser {
   private filename: string = '<unknown>';
   private scanner: Scanner;
@@ -90,6 +105,7 @@ export class Parser {
   private lineNo: number | null = null;
   private cmdNo: number = 0;
   private line: string = '';
+  private isShortIf: boolean = false;
 
   constructor() {}
 
@@ -110,6 +126,7 @@ export class Parser {
     this.isLine = false;
     this.lineNo = null;
     this.line = ws1 + this.current.text;
+    this.isShortIf = false;
 
     tracer.trace('current', this.current);
   }
@@ -409,9 +426,13 @@ export class Parser {
     });
   }
 
+  private get isLineEnding(): boolean {
+    return this.done || this.current.kind === TokenKind.LineEnding;
+  }
+
   private instructions(): Instr[] {
     return tracer.spanSync('instructions', () => {
-      if (this.done || this.current.kind === TokenKind.LineEnding) {
+      if (this.isLineEnding) {
         return [];
       }
 
@@ -427,6 +448,10 @@ export class Parser {
             instrs.push(instr);
           }
         } catch (err) {
+          if (err instanceof EndInstrs) {
+            return instrs;
+          }
+
           if (err instanceof Synchronize) {
             this.syncNextInstr();
           }
@@ -471,6 +496,12 @@ export class Parser {
         instr = this.exit();
       } else if (this.match(TokenKind.Let)) {
         instr = this.let();
+      } else if (this.match(TokenKind.If)) {
+        instr = this.if_();
+      } else if (this.match(TokenKind.Else)) {
+        instr = this.else_();
+      } else if (this.match(TokenKind.EndIf)) {
+        instr = this.endIf();
       } else {
         const assign = this.assign();
         if (assign) {
@@ -582,6 +613,82 @@ export class Parser {
         value = this.expression();
       }
       return new Let(variable, value);
+    });
+  }
+
+  private if_(): Instr {
+    return tracer.spanSync('if', () => {
+      const condition = this.ifCondition();
+
+      // A bare "if" with a multi-line block
+      if (!this.isShortIf && this.isLineEnding) {
+        return new If(condition);
+      }
+
+      return this.shortIf(condition);
+    });
+  }
+
+  private ifCondition(): Expr {
+    const condition = this.expression();
+
+    // TODO: Allow 'then' on new line
+    this.consume(TokenKind.Then, 'Expected then');
+
+    return condition;
+  }
+
+  private shortIf(condition: Expr): Instr {
+    return tracer.spanSync('shortIf', () => {
+      const prevShortIf = this.isShortIf;
+      this.isShortIf = true;
+
+      const then: Instr[] = this.instructions();
+      let else_: Instr[] = [];
+
+      if (this.match(TokenKind.Else)) {
+        else_ = this.instructions();
+      }
+
+      if (!this.isLineEnding) {
+        this.consume(TokenKind.EndIf, 'Expected either endif or line ending');
+      }
+
+      this.isShortIf = prevShortIf;
+
+      return new ShortIf(condition, then, else_);
+    });
+  }
+
+  private else_(): Instr {
+    return tracer.spanSync('else', () => {
+      if (this.isShortIf) {
+        throw new EndInstrs();
+      }
+
+      if (this.match(TokenKind.If)) {
+        return this.elseIf();
+      }
+
+      return new Else();
+    });
+  }
+
+  private elseIf(): Instr {
+    return tracer.spanSync('else if', () => {
+      const condition = this.ifCondition();
+
+      return new ElseIf(condition);
+    });
+  }
+
+  private endIf(): Instr {
+    return tracer.spanSync('endif', () => {
+      if (this.isShortIf) {
+        throw new EndInstrs();
+      }
+
+      return new EndIf();
     });
   }
 

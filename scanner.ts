@@ -47,6 +47,10 @@ export const KEYWORDS: Record<string, TokenKind> = {
   // TODO:  events and lifecycle
   // TODO: modules
   // TODO: contexts (with, using)
+  if: TokenKind.If,
+  then: TokenKind.Then,
+  else: TokenKind.Else,
+  endif: TokenKind.EndIf,
 };
 
 export const EOF = '\0';

@@ -37,15 +37,10 @@ gaps.
   - [X] Prototype of "block" abstraction in parser
   - [X] If in parser
   - [X] Instructions needed to implement ShortIf/If
-  - [ ] Tests for if in parser
-    - Short if with endif
-    - Short if without endif
-    - Short if with multiple instructions
-    - Broken short ifs
-    - Long if
-    - Broken long ifs
-  - [ ] ShortIf in compiler
-  - [ ] If in compiler
+  - [X] Tests for short if in parser
+  - [ ] Tests for long if in parser
+  - [ ] Short if in compiler
+  - [ ] Long if in compiler
 - fix renum
   - match number (include leading whitespace)
   - get number length

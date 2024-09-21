@@ -22,6 +22,11 @@ import {
   Load,
   Let,
   Assign,
+  ShortIf,
+  // If,
+  // Else,
+  // ElseIf,
+  // EndIf,
 } from '../ast/instr';
 import { Cmd, Line, Input, Program } from '../ast';
 import { Token, TokenKind } from '../tokens';
@@ -578,6 +583,152 @@ t.test('assign', async (t: Test) => {
       ]),
     ]),
   );
+});
+
+t.test('short if', async (t: Test) => {
+  await t.test('full terminated short if', async (t: Test) => {
+    const source = 'if true then print "true" else print "false" endif';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [new Print(new StringLiteral('true'), 13, 25)],
+            [new Print(new StringLiteral('false'), 31, 44)],
+            0,
+            50,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('full non-terminated short if', async (t: Test) => {
+    const source = 'if true then print "true" else print "false"';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [new Print(new StringLiteral('true'), 13, 25)],
+            [new Print(new StringLiteral('false'), 31, 44)],
+            0,
+            44,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('no-else terminated short if', async (t: Test) => {
+    const source = 'if true then print "true" endif';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [new Print(new StringLiteral('true'), 13, 25)],
+            [],
+            0,
+            31,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('no-else non-terminated short if', async (t: Test) => {
+    const source = 'if true then print "true"';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [new Print(new StringLiteral('true'), 13, 25)],
+            [],
+            0,
+            25,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('nested then/if in short if', async (t: Test) => {
+    const source =
+      'if true then if false then print "true and false" endif else print "false" endif';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [
+              new ShortIf(
+                new BoolLiteral(false),
+                [new Print(new StringLiteral('true and false'), 27, 49)],
+                [],
+                13,
+                55,
+              ),
+            ],
+            [new Print(new StringLiteral('false'), 61, 74)],
+            0,
+            80,
+          ),
+        ]),
+      ]),
+    );
+  });
+
+  await t.test('nested else/if in short if', async (t: Test) => {
+    const source =
+      'if true then print "true" else if false then print "false and false" endif endif';
+    const result = parseInput(source);
+
+    t.equal(result[1], null);
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, source, [
+          new ShortIf(
+            new BoolLiteral(true),
+            [new Print(new StringLiteral('true'), 13, 25)],
+            [
+              new ShortIf(
+                new BoolLiteral(false),
+                [new Print(new StringLiteral('false and false'), 45, 68)],
+                [],
+                31,
+                74,
+              ),
+            ],
+            0,
+            80,
+          ),
+        ]),
+      ]),
+    );
+  });
 });
 
 t.test('empty input', async (t: Test) => {

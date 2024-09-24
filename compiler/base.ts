@@ -89,15 +89,20 @@ class CommandBlock extends Block {
 class IfBlock extends Block {
   kind = 'if';
 
-  visitEndIfInstr(_endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
+  visitIfInstr(if_: If): Block {
+    throw new NotImplementedFault('if');
   }
-}
 
-class ElseIfBlock extends Block {
-  kind = 'else if';
+  visitElseInstr(else_: Else): Block {
+    throw new NotImplementedfault('elseif');
+  }
 
-  visitEndIfInstr(_endIf: EndIf): Block {
+  visitElseIfInstr(elseIf: ElseIf): Block {
+    // this.kind = 'else if'
+    throw new NotImplementedfault('elseif');
+  }
+
+  visitEndIfInstr(endIf: EndIf): Block {
     throw new NotImplementedFault('endif');
   }
 }

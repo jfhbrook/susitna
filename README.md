@@ -94,6 +94,7 @@ gaps.
 
 ### Up Next
 
+- Investigate [Node.js inspector](https://nodejs.org/en/learn/getting-started/debugging)
 - Escaped newlines
 - Arrays
   - Including array literals - BASIC assigns each index one at a time, or

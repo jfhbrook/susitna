@@ -307,6 +307,9 @@ export class Parser {
       try {
         this.lineNumber();
 
+        // If statements allow 'then' at beginning of next line
+        this.then();
+
         cmds = this.instructions();
 
         source = this.rowEnding();
@@ -431,11 +434,6 @@ export class Parser {
 
   private instructions(): Instr[] {
     return tracer.spanSync('instructions', () => {
-      if (this.expectThen) {
-        this.consume(TokenKind.Then, 'Expected then');
-        this.expectThen = false;
-      }
-
       if (this.isLineEnding) {
         return [];
       }
@@ -688,6 +686,15 @@ export class Parser {
       this.isShortIf = prevShortIf;
 
       return new ShortIf(condition, then, else_);
+    });
+  }
+
+  private then(): void {
+    return tracer.spanSync('then', () => {
+      if (this.expectThen) {
+        this.consume(TokenKind.Then, 'Expected then');
+        this.expectThen = false;
+      }
     });
   }
 

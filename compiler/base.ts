@@ -536,9 +536,8 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   else_(elseJump: Address): Address {
-    this.patchJump(elseJump);
-    this.emitByte(OpCode.Pop);
     const endJump = this.emitJump(OpCode.Jump);
+    this.patchJump(elseJump);
     this.emitByte(OpCode.Pop);
     return endJump;
   }

@@ -1,7 +1,16 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Instr, Print, Exit, Expression, Rem, Let, Assign } from '../ast/instr';
+import {
+  Instr,
+  Print,
+  Exit,
+  Expression,
+  Rem,
+  Let,
+  Assign,
+  ShortIf,
+} from '../ast/instr';
 import {
   Expr,
   Binary,
@@ -276,6 +285,10 @@ const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
   },
 );
 
+function offsetAsBytes(offset: number): [number, number] {
+  return [(offset >> 8) & 0xff, offset & 0xff];
+}
+
 let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('print', Print, OpCode.Print),
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
@@ -310,7 +323,6 @@ let COMMANDS: TestCase[] = [
       lines: [100, 100, 100, 100, 100, 100, 100, 100],
     }),
   ],
-
   [
     'i% = 1',
     new Assign(
@@ -340,6 +352,43 @@ let COMMANDS: TestCase[] = [
         OpCode.Return,
       ],
       lines: [100, 100, 100, 100, 100, 100, 100, 100],
+    }),
+  ],
+  [
+    'if true then print "true" else print "false" endif',
+    new ShortIf(
+      new BoolLiteral(true),
+      [new Print(new StringLiteral('true'))],
+      [new Print(new StringLiteral('false'))],
+    ),
+    chunk({
+      constants: [true, 'true', 'false'],
+      code: [
+        OpCode.Constant,
+        0,
+        // Jump to "else"
+        OpCode.JumpIfFalse,
+        ...offsetAsBytes(7),
+        // "then" block
+        OpCode.Pop,
+        OpCode.Constant,
+        1,
+        OpCode.Print,
+        // Jump to end
+        OpCode.Jump,
+        ...offsetAsBytes(4),
+        // "else" block
+        OpCode.Pop,
+        OpCode.Constant,
+        2,
+        OpCode.Print,
+        OpCode.Nil,
+        OpCode.Return,
+      ],
+      lines: [
+        100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+        100, 100, 100, 100,
+      ],
     }),
   ],
 ];

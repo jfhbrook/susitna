@@ -41,13 +41,16 @@ gaps.
   - [X] Tests for long if in parser
   - [X] Short if in compiler
   - [X] Long if in compiler
-  - [ ] Tests for short if in compiler
-  - [ ] Tests for long if in compiler
-  - [ ] else if in compiler
-  - [ ] Tests for else if in compiler
+  - [X] Tests for short if in compiler
+  - [X] Tests for long if in compiler
+  - [ ] Implement jump instrs in runtime
+  - [ ] Implement jump instrs in disassembler
   - [ ] Manually test short if in repl
   - [ ] Manually test long if in examples
   - [ ] Runtime tests for short/long if
+  - [ ] else if in compiler
+  - [ ] Tests for else if in compiler
+  - [ ] Tests for else if
 - fix renum
   - match number (include leading whitespace)
   - get number length

@@ -75,9 +75,12 @@ export abstract class Block implements InstrVisitor<void> {
   }
 
   // End the current block.
-  public end(instr: Instr): void {
-    instr.accept(this);
+  public end(): void {
     this.compiler.block = this.parent;
+  }
+
+  public visit(instr: Instr): void {
+    instr.accept(this);
   }
 
   // Most instructions do not end any kind of block. This code should never

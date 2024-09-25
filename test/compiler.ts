@@ -10,6 +10,9 @@ import {
   Let,
   Assign,
   ShortIf,
+  If,
+  Else,
+  EndIf,
 } from '../ast/instr';
 import {
   Expr,
@@ -443,6 +446,54 @@ const PROGRAMS: TestCase[] = [
         OpCode.Return,
       ],
       lines: [100, 100, 100, 100, 100, 100, 100, 100],
+    }),
+  ],
+  [
+    [
+      '10 if true then',
+      '20   print "true"',
+      '30 else',
+      '40   print "false"',
+      '50 endif',
+    ].join('\n'),
+    new Program(FILENAME, [
+      new Line(10, 1, '10 if true then', [new If(new BoolLiteral(true))]),
+      new Line(20, 2, '20   print "true"', [
+        new Print(new StringLiteral('true')),
+      ]),
+      new Line(30, 3, '30 else', [new Else()]),
+      new Line(40, 4, '40   print "false"', [
+        new Print(new StringLiteral('false')),
+      ]),
+      new Line(50, 5, '50 endif', [new EndIf()]),
+    ]),
+    chunk({
+      constants: [true, 'true', 'false'],
+      code: [
+        OpCode.Constant,
+        0,
+        // Jump to "else"
+        OpCode.JumpIfFalse,
+        ...offsetAsBytes(7),
+        // "then" block
+        OpCode.Pop,
+        OpCode.Constant,
+        1,
+        OpCode.Print,
+        // Jump to end
+        OpCode.Jump,
+        ...offsetAsBytes(4),
+        // "else" block
+        OpCode.Pop,
+        OpCode.Constant,
+        2,
+        OpCode.Print,
+        OpCode.Nil,
+        OpCode.Return,
+      ],
+      lines: [
+        10, 10, 10, 10, 10, 10, 20, 20, 20, 30, 30, 30, 30, 40, 40, 40, 50, 50,
+      ],
     }),
   ],
 ];

@@ -92,9 +92,9 @@ class IfBlock extends Block {
     super();
   }
 
-  visitElseInstr(_else: Else): Block {
+  visitElseInstr(_else: Else): void {
     const endJump = this.compiler.else_(this.elseJump);
-    return new ElseBlock(endJump);
+    this.next(new ElseBlock(endJump));
   }
 
   visitElseIfInstr(_elseIf: ElseIf): Block {
@@ -109,14 +109,12 @@ class IfBlock extends Block {
     */
   }
 
-  visitEndIfInstr(_endIf: EndIf): Block {
+  visitEndIfInstr(_endIf: EndIf): void {
     // Ending an if without an 'else'
     // TODO: This can be optimized
     const endJump = this.compiler.else_(this.elseJump);
-
     this.compiler.endIf(endJump);
-
-    return this.parent;
+    this.end();
   }
 }
 
@@ -129,6 +127,7 @@ class ElseBlock extends Block {
 
   visitEndIfInstr(_endIf: EndIf): void {
     this.compiler.endIf(this.endJump);
+    this.end();
   }
 }
 
@@ -532,7 +531,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   visitElseInstr(else_: Else): void {
-    this.block.end(else_);
+    this.block.visit(else_);
   }
 
   else_(elseJump: Address): Address {
@@ -543,11 +542,11 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   visitElseIfInstr(elseIf: ElseIf): void {
-    this.block.end(elseIf);
+    this.block.visit(elseIf);
   }
 
   visitEndIfInstr(endIf: EndIf): void {
-    this.block.end(endIf);
+    this.block.visit(endIf);
   }
 
   endIf(endJump: Address): void {

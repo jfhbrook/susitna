@@ -1,12 +1,7 @@
 import { getTracer, showChunk } from '../debug';
 import { errorType } from '../errors';
-import {
-  SyntaxError,
-  ParseError,
-  ParseWarning,
-  NotImplementedError,
-} from '../exceptions';
-import { RuntimeFault, runtimeMethod } from '../faults';
+import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
+import { NotImplementedFault, RuntimeFault, runtimeMethod } from '../faults';
 import { Token, TokenKind } from '../tokens';
 import { Value } from '../value';
 // import { Type } from './value/types';
@@ -35,6 +30,7 @@ import {
   EndIf,
 } from '../ast/instr';
 import {
+  Expr,
   ExprVisitor,
   Unary,
   Binary,
@@ -77,6 +73,10 @@ export type CompilerOptions = {
 
 export type CompileResult<T> = [T, ParseWarning | null];
 
+// TODO: Should these live in bytecode?
+export type Address = number;
+export type Pointer = Address | null;
+
 class ProgramBlock extends Block {
   kind = 'program';
 }
@@ -85,34 +85,56 @@ class CommandBlock extends Block {
   kind = 'command';
 }
 
-/*
 class IfBlock extends Block {
   kind = 'if';
 
-  visitIfInstr(if_: If): Block {
-    throw new NotImplementedFault('if');
+  constructor(public elseJump: Address) {
+    super();
   }
 
-  visitElseInstr(else_: Else): Block {
-    throw new NotImplementedfault('elseif');
+  visitElseInstr(_else: Else): Block {
+    const endJump = this.compiler.else_(this.elseJump);
+    return new ElseBlock(endJump);
   }
 
-  visitElseIfInstr(elseIf: ElseIf): Block {
-    // this.kind = 'else if'
-    throw new NotImplementedfault('elseif');
+  visitElseIfInstr(_elseIf: ElseIf): Block {
+    // else if can be compiled as a nested if, *but* on endif, all levels of
+    // nesting must be closed... challenging.
+    throw new NotImplementedFault('else if');
+    /*
+    const endJump = this.compiler.else_(this.elseJump);
+    this.compiler.block.next(new ElseBlock(endJump));
+    const elseJump = this.compiler.if_(elseIf.condition);
+    this.compiler.block.begin(new IfBlock(elseJump));
+    */
   }
 
-  visitEndIfInstr(endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
+  visitEndIfInstr(_endIf: EndIf): Block {
+    // Ending an if without an 'else'
+    // TODO: This can be optimized
+    const endJump = this.compiler.else_(this.elseJump);
+
+    this.compiler.endIf(endJump);
+
+    return this.parent;
   }
 }
 
 class ElseBlock extends Block {
   kind = 'else';
 
-  visitEndIfInstr(_endIf: EndIf): Block {
-    throw new NotImplementedFault('endif');
+  constructor(public endJump: Address) {
+    super();
   }
+
+  visitEndIfInstr(_endIf: EndIf): void {
+    this.compiler.endIf(this.endJump);
+  }
+}
+
+/*
+class ElseIfBlock extends IfBlock {
+  kind = 'else if';
 }
 */
 
@@ -157,8 +179,9 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
     this.block =
       routineType === RoutineType.Program
-        ? new ProgramBlock(this)
-        : new CommandBlock(this);
+        ? new ProgramBlock()
+        : new CommandBlock();
+    this.block.init(this, null);
   }
 
   /**
@@ -331,11 +354,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   private emitBytes(...bytes: number[]): void {
     for (const byte of bytes) {
-      try {
-        this.emitByte(byte);
-      } catch (err) {
-        throw err;
-      }
+      this.emitByte(byte);
     }
   }
 
@@ -346,13 +365,28 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private emitIdent(ident: Token): number {
+  private emitIdent(ident: Token): Address {
     return tracer.spanSync('emitIdent', () => {
       tracer.trace('ident:', ident.value);
       const constant = this.makeConstant(ident.value as Value);
       this.emitBytes(OpCode.Constant, constant);
       return constant;
     });
+  }
+
+  private emitJump(code: OpCode): Address {
+    this.emitByte(code);
+    // Emit jump address as two bytes
+    this.emitBytes(0xff, 0xff);
+    // Address of first byte of jump (?)
+    return this.chunk.code.length - 2;
+  }
+
+  private patchJump(jumpAddr: Address): void {
+    // Amount of instructions to jump over
+    const jump = this.chunk.code.length - jumpAddr - 2;
+    this.chunk.code[jumpAddr] = (jump >> 8) & 0xff;
+    this.chunk.code[jumpAddr + 1] = jump & 0xff;
   }
 
   // NOTE: This is only used to emit implicit and bare returns. Valued
@@ -469,27 +503,61 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  visitShortIfInstr(_if: ShortIf): void {
-    throw new NotImplementedError('ShortIf');
+  visitShortIfInstr(if_: ShortIf): void {
+    const elseJump = this.if_(if_.condition);
+
+    for (const instr of if_.then) {
+      this.instruction(instr);
+    }
+
+    const endJump = this.else_(elseJump);
+
+    for (const instr of if_.else_) {
+      this.instruction(instr);
+    }
+
+    this.endIf(endJump);
   }
 
-  visitIfInstr(_if: If): void {
-    throw new NotImplementedError('If');
+  visitIfInstr(if_: If): void {
+    const elseJump = this.if_(if_.condition);
+    this.block.begin(new IfBlock(elseJump));
   }
 
-  visitElseInstr(_else: Else): void {
-    throw new NotImplementedError('Else');
+  if_(cond: Expr): Address {
+    cond.accept(this);
+    const addr = this.emitJump(OpCode.JumpIfFalse);
+    this.emitByte(OpCode.Pop);
+    return addr;
   }
 
-  visitElseIfInstr(_elseIf: ElseIf): void {
-    throw new NotImplementedError('ElseIf');
+  visitElseInstr(else_: Else): void {
+    this.block.end(else_);
   }
 
-  visitEndIfInstr(_endif: EndIf): void {
-    throw new NotImplementedError('EndIf');
+  else_(elseJump: Address): Address {
+    this.patchJump(elseJump);
+    this.emitByte(OpCode.Pop);
+    const endJump = this.emitJump(OpCode.Jump);
+    this.emitByte(OpCode.Pop);
+    return endJump;
   }
 
+  visitElseIfInstr(elseIf: ElseIf): void {
+    this.block.end(elseIf);
+  }
+
+  visitEndIfInstr(endIf: EndIf): void {
+    this.block.end(endIf);
+  }
+
+  endIf(endJump: Address): void {
+    this.patchJump(endJump);
+  }
+
+  //
   // Expressions
+  //
 
   visitUnaryExpr(unary: Unary): void {
     tracer.spanSync('unary', () => {

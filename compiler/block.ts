@@ -1,3 +1,5 @@
+import { RuntimeError } from '../exceptions';
+import { RuntimeFault } from '../faults';
 import {
   Instr,
   InstrVisitor,
@@ -34,113 +36,133 @@ import { LineCompiler } from './base';
 // reporting.
 export type BlockKind = string;
 
-export type BlockParent = Block | null;
-
-export interface BlockClass {
-  new (compiler: LineCompiler, parent: Block | null): Block;
-}
-
-export abstract class Block implements InstrVisitor<BlockParent> {
+export abstract class Block implements InstrVisitor<void> {
   public kind: BlockKind = '<unknown>';
+  private _compiler: LineCompiler | null = null;
+  private _parent: Block | null = null;
 
-  constructor(
-    private compiler: LineCompiler,
-    public parent: BlockParent = null,
-  ) {}
-
-  // Open a new block, maintaining a reference to the parent block.
-  public start(cls: BlockClass): void {
-    const parent = this.compiler.block;
-    this.compiler.block = new cls(this.compiler, parent);
+  public init(compiler: LineCompiler, parent: Block | null) {
+    this._compiler = compiler;
+    this._parent = parent;
   }
 
-  // End the current block by setting the compiler's block to the next block.
+  public get compiler(): LineCompiler {
+    if (!this._compiler) {
+      throw RuntimeFault.fromError(
+        new RuntimeError(`Block ${this.kind} not initialized`),
+      );
+    }
+    return this._compiler;
+  }
+
+  public get parent(): Block {
+    if (!this._parent) {
+      return this;
+    }
+    return this._parent;
+  }
+
+  // Open a new block, maintaining a reference to the parent block.
+  public begin(block: Block): void {
+    block.init(this.compiler, this.compiler.block);
+    this.compiler.block = block;
+  }
+
+  // Go to the next block in a chain of blocks
+  public next(block: Block): void {
+    block.init(this.compiler, this.compiler.block.parent);
+    this.compiler.block = block;
+  }
+
+  // End the current block.
   public end(instr: Instr): void {
-    const block = instr.accept(this);
-    this.compiler.block = block || this.parent;
+    instr.accept(this);
+    this.compiler.block = this.parent;
   }
 
   // Most instructions do not end any kind of block. This code should never
   // be called by the compiler.
-  private invalid(instr: Instr, name: string): never {
+  // TODO: Shouldn't "never" work for the return type, since syntaxFault has
+  // a return type of never?
+  private invalid(instr: Instr, name: string): void {
     this.compiler.syntaxFault(instr, `${name} can not end blocks`);
   }
 
   // Some instructions end specific kinds of blocks. By default, such an
   // instruction does not close *this* kind of block.
-  public mismatched(instr: Instr, kind: string): never {
+  public mismatched(instr: Instr, kind: string): void {
     this.compiler.syntaxFault(instr, `${kind} can not end ${this.kind}`);
   }
 
-  visitPrintInstr(print: Print): Block {
+  visitPrintInstr(print: Print): void {
     this.invalid(print, 'print');
   }
 
-  visitExpressionInstr(expr: Expression): Block {
+  visitExpressionInstr(expr: Expression): void {
     this.invalid(expr, 'expr');
   }
 
-  visitRemInstr(rem: Rem): Block {
+  visitRemInstr(rem: Rem): void {
     this.invalid(rem, 'rem');
   }
 
-  visitNewInstr(new_: New): Block {
+  visitNewInstr(new_: New): void {
     this.invalid(new_, 'new');
   }
 
-  visitLoadInstr(load: Load): Block {
+  visitLoadInstr(load: Load): void {
     this.invalid(load, 'load');
   }
 
-  visitListInstr(list: List): Block {
+  visitListInstr(list: List): void {
     this.invalid(list, 'list');
   }
 
-  visitRenumInstr(renum: Renum): Block {
+  visitRenumInstr(renum: Renum): void {
     this.invalid(renum, 'renum');
   }
 
-  visitSaveInstr(save: Save): Block {
+  visitSaveInstr(save: Save): void {
     this.invalid(save, 'save');
   }
 
-  visitRunInstr(run: Run): Block {
+  visitRunInstr(run: Run): void {
     this.invalid(run, 'run');
   }
 
-  visitExitInstr(exit: Exit): Block {
+  visitExitInstr(exit: Exit): void {
     this.invalid(exit, 'exit');
   }
 
-  visitEndInstr(end: End): Block {
+  visitEndInstr(end: End): void {
     this.invalid(end, 'end');
   }
 
-  visitLetInstr(let_: Let): Block {
+  visitLetInstr(let_: Let): void {
     this.invalid(let_, 'let');
   }
 
-  visitAssignInstr(assign: Assign): Block {
+  visitAssignInstr(assign: Assign): void {
     this.invalid(assign, 'assign');
   }
 
-  visitShortIfInstr(shortIf: ShortIf): Block {
+  visitShortIfInstr(shortIf: ShortIf): void {
     this.invalid(shortIf, 'if');
   }
 
-  visitIfInstr(if_: If): Block {
+  visitIfInstr(if_: If): void {
     this.invalid(if_, 'if');
   }
 
-  visitElseInstr(else_: Else): Block {
+  visitElseInstr(else_: Else): void {
     this.mismatched(else_, 'else');
   }
 
-  visitElseIfInstr(elseIf: ElseIf): Block {
+  visitElseIfInstr(elseIf: ElseIf): void {
     this.mismatched(elseIf, 'else if');
   }
 
-  visitEndIfInstr(endIf: EndIf): Block {
+  visitEndIfInstr(endIf: EndIf): void {
     this.mismatched(endIf, 'endif');
   }
 }

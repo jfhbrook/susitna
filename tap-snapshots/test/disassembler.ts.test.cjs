@@ -115,6 +115,19 @@ exports[`test/disassembler.ts > TAP > print > i% = 1 > must match snapshot 1`] =
 100  8  RETURN
 `
 
+exports[`test/disassembler.ts > TAP > print > if true then print "true" else print "false" endif > must match snapshot 1`] = `
+=== Disassembly of <unknown>: ===
+100  1   CONSTANT       true
+100  3   JUMP_IF_FALSE  3 -> 13
+100  7   CONSTANT       true
+100  9   PRINT
+100  10  JUMP           10 -> 17
+100  14  CONSTANT       false
+100  16  PRINT
+100  17  NIL
+100  18  RETURN
+`
+
 exports[`test/disassembler.ts > TAP > print > let i% = 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1  CONSTANT       i%

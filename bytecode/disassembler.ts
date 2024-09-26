@@ -1,6 +1,7 @@
 import table from 'text-table';
 
 import { formatter } from '../format';
+import { bytesToAddr } from './address';
 import { OpCode } from './opcodes';
 import { Chunk } from './chunk';
 
@@ -32,6 +33,9 @@ export function disassemble(chunk: Chunk): string {
   return `${header}\n${table(data)}`;
 }
 
+const FORWARD = 1;
+// const BACKWARD = -1;
+
 export function disassembleInstruction(chunk: Chunk, offset: number): string {
   const row = _disassembleInstruction(chunk, offset)[1];
   return table([row]);
@@ -42,11 +46,15 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
   let code: number = 0xff;
   let row: Row;
 
-  function advance(): number {
-    offset++;
+  function advance(amount: number = 1): number {
+    offset += amount;
     code = chunk.code[offset - 1];
     lineNo = chunk.lines[offset - 1];
     return code;
+  }
+
+  function peek(n: number = 0): number {
+    return chunk.code[offset + n - 1];
   }
 
   function simple(code: string): Row {
@@ -60,6 +68,21 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
       code,
       formatter.format(chunk.constants[advance()]),
     ];
+  }
+
+  function jump(code: string, sign: number): Row {
+    const jump = bytesToAddr([peek(1), peek(2)]);
+
+    const row: Row = [
+      String(lineNo),
+      String(offset),
+      code,
+      `${offset} -> ${offset + 3 + sign * jump}`,
+    ];
+
+    advance(3);
+
+    return row;
   }
 
   switch (advance()) {
@@ -130,10 +153,10 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
       row = simple('EXIT');
       break;
     case OpCode.Jump:
-      row = simple('JUMP');
+      row = jump('JUMP', FORWARD);
       break;
     case OpCode.JumpIfFalse:
-      row = simple('JUMP_IF_FALSE');
+      row = jump('JUMP_IF_FALSE', FORWARD);
       break;
     case OpCode.Loop:
       row = simple('LOOP');

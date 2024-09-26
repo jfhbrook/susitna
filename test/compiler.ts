@@ -27,6 +27,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import { Program, Line } from '../ast';
+import { addrToBytes } from '../bytecode/address';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 import {
@@ -288,10 +289,6 @@ const EXPRESSION_COMMANDS = EXPRESSION_STATEMENTS.map(
   },
 );
 
-function offsetAsBytes(offset: number): [number, number] {
-  return [(offset >> 8) & 0xff, offset & 0xff];
-}
-
 let COMMANDS: TestCase[] = [
   ...commandExpr1Cases('print', Print, OpCode.Print),
   ...commandExpr1Cases('exit', Exit, OpCode.Exit),
@@ -371,7 +368,7 @@ let COMMANDS: TestCase[] = [
         0,
         // Jump to "else"
         OpCode.JumpIfFalse,
-        ...offsetAsBytes(7),
+        ...addrToBytes(7),
         // "then" block
         OpCode.Pop,
         OpCode.Constant,
@@ -379,7 +376,7 @@ let COMMANDS: TestCase[] = [
         OpCode.Print,
         // Jump to end
         OpCode.Jump,
-        ...offsetAsBytes(4),
+        ...addrToBytes(4),
         // "else" block
         OpCode.Pop,
         OpCode.Constant,
@@ -474,7 +471,7 @@ const PROGRAMS: TestCase[] = [
         0,
         // Jump to "else"
         OpCode.JumpIfFalse,
-        ...offsetAsBytes(7),
+        ...addrToBytes(7),
         // "then" block
         OpCode.Pop,
         OpCode.Constant,
@@ -482,7 +479,7 @@ const PROGRAMS: TestCase[] = [
         OpCode.Print,
         // Jump to end
         OpCode.Jump,
-        ...offsetAsBytes(4),
+        ...addrToBytes(4),
         // "else" block
         OpCode.Pop,
         OpCode.Constant,

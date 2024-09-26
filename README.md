@@ -43,8 +43,8 @@ gaps.
   - [X] Long if in compiler
   - [X] Tests for short if in compiler
   - [X] Tests for long if in compiler
+  - [X] Implement jump instrs in disassembler
   - [ ] Implement jump instrs in runtime
-  - [ ] Implement jump instrs in disassembler
   - [ ] Manually test short if in repl
   - [ ] Manually test long if in examples
   - [ ] Runtime tests for short/long if

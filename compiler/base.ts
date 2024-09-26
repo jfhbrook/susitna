@@ -47,6 +47,7 @@ import {
 
 import { Block } from './block';
 
+import { Address, addrToBytes } from '../bytecode/address';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 
@@ -72,10 +73,6 @@ export type CompilerOptions = {
 };
 
 export type CompileResult<T> = [T, ParseWarning | null];
-
-// TODO: Should these live in bytecode?
-export type Address = number;
-export type Pointer = Address | null;
 
 class ProgramBlock extends Block {
   kind = 'program';
@@ -384,8 +381,9 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   private patchJump(jumpAddr: Address): void {
     // Amount of instructions to jump over
     const jump = this.chunk.code.length - jumpAddr - 2;
-    this.chunk.code[jumpAddr] = (jump >> 8) & 0xff;
-    this.chunk.code[jumpAddr + 1] = jump & 0xff;
+    const [first, second] = addrToBytes(jump);
+    this.chunk.code[jumpAddr] = first;
+    this.chunk.code[jumpAddr + 1] = second;
   }
 
   // NOTE: This is only used to emit implicit and bare returns. Valued

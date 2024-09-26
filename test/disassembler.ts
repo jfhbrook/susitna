@@ -1,6 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { addrToBytes } from '../bytecode/address';
 import { OpCode } from '../bytecode/opcodes';
 import { disassemble } from '../bytecode/disassembler';
 
@@ -300,6 +301,45 @@ t.test('print', async (t: Test) => {
       ),
     );
   });
+
+  await t.test(
+    'if true then print "true" else print "false" endif',
+    async (t: Test) => {
+      t.matchSnapshot(
+        disassemble(
+          chunk({
+            constants: [true, 'true', 'false'],
+            code: [
+              OpCode.Constant,
+              0,
+              // Jump to "else"
+              OpCode.JumpIfFalse,
+              ...addrToBytes(7),
+              // "then" block
+              OpCode.Pop,
+              OpCode.Constant,
+              1,
+              OpCode.Print,
+              // Jump to end
+              OpCode.Jump,
+              ...addrToBytes(4),
+              // "else" block
+              OpCode.Pop,
+              OpCode.Constant,
+              2,
+              OpCode.Print,
+              OpCode.Nil,
+              OpCode.Return,
+            ],
+            lines: [
+              100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+              100, 100, 100, 100, 100,
+            ],
+          }),
+        ),
+      );
+    },
+  );
 });
 
 t.test('simple program', async (t: Test) => {

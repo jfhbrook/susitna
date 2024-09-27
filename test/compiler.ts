@@ -27,7 +27,7 @@ import {
   NilLiteral,
 } from '../ast/expr';
 import { Program, Line } from '../ast';
-import { addrToBytes } from '../bytecode/address';
+import { shortToBytes } from '../bytecode/short';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 import {
@@ -368,7 +368,7 @@ let COMMANDS: TestCase[] = [
         0,
         // Jump to "else"
         OpCode.JumpIfFalse,
-        ...addrToBytes(7),
+        ...shortToBytes(7),
         // "then" block
         OpCode.Pop,
         OpCode.Constant,
@@ -376,7 +376,7 @@ let COMMANDS: TestCase[] = [
         OpCode.Print,
         // Jump to end
         OpCode.Jump,
-        ...addrToBytes(4),
+        ...shortToBytes(4),
         // "else" block
         OpCode.Pop,
         OpCode.Constant,
@@ -471,7 +471,7 @@ const PROGRAMS: TestCase[] = [
         0,
         // Jump to "else"
         OpCode.JumpIfFalse,
-        ...addrToBytes(7),
+        ...shortToBytes(7),
         // "then" block
         OpCode.Pop,
         OpCode.Constant,
@@ -479,7 +479,7 @@ const PROGRAMS: TestCase[] = [
         OpCode.Print,
         // Jump to end
         OpCode.Jump,
-        ...addrToBytes(4),
+        ...shortToBytes(4),
         // "else" block
         OpCode.Pop,
         OpCode.Constant,

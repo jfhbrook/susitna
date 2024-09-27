@@ -47,7 +47,7 @@ import {
 
 import { Block } from './block';
 
-import { Address, addrToBytes } from '../bytecode/address';
+import { Short, shortToBytes } from '../bytecode/short';
 import { Chunk } from '../bytecode/chunk';
 import { OpCode } from '../bytecode/opcodes';
 
@@ -85,7 +85,7 @@ class CommandBlock extends Block {
 class IfBlock extends Block {
   kind = 'if';
 
-  constructor(public elseJump: Address) {
+  constructor(public elseJump: Short) {
     super();
   }
 
@@ -118,7 +118,7 @@ class IfBlock extends Block {
 class ElseBlock extends Block {
   kind = 'else';
 
-  constructor(public endJump: Address) {
+  constructor(public endJump: Short) {
     super();
   }
 
@@ -361,7 +361,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private emitIdent(ident: Token): Address {
+  private emitIdent(ident: Token): Short {
     return tracer.spanSync('emitIdent', () => {
       tracer.trace('ident:', ident.value);
       const constant = this.makeConstant(ident.value as Value);
@@ -370,18 +370,18 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     });
   }
 
-  private emitJump(code: OpCode): Address {
+  private emitJump(code: OpCode): Short {
     this.emitByte(code);
     // Emit jump address as two bytes
     this.emitBytes(0xff, 0xff);
-    // Address of first byte of jump (?)
+    // Short of first byte of jump (?)
     return this.chunk.code.length - 2;
   }
 
-  private patchJump(jumpAddr: Address): void {
+  private patchJump(jumpAddr: Short): void {
     // Amount of instructions to jump over
     const jump = this.chunk.code.length - jumpAddr - 2;
-    const [first, second] = addrToBytes(jump);
+    const [first, second] = shortToBytes(jump);
     this.chunk.code[jumpAddr] = first;
     this.chunk.code[jumpAddr + 1] = second;
   }
@@ -521,7 +521,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.block.begin(new IfBlock(elseJump));
   }
 
-  if_(cond: Expr): Address {
+  if_(cond: Expr): Short {
     cond.accept(this);
     const addr = this.emitJump(OpCode.JumpIfFalse);
     this.emitByte(OpCode.Pop);
@@ -532,7 +532,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.block.visit(else_);
   }
 
-  else_(elseJump: Address): Address {
+  else_(elseJump: Short): Short {
     const endJump = this.emitJump(OpCode.Jump);
     this.patchJump(elseJump);
     this.emitByte(OpCode.Pop);
@@ -547,7 +547,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.block.visit(endIf);
   }
 
-  endIf(endJump: Address): void {
+  endIf(endJump: Short): void {
     this.patchJump(endJump);
   }
 

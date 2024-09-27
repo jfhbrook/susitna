@@ -1,5 +1,6 @@
 import { Value } from '../value';
 
+import { Byte } from './byte';
 import { OpCode } from './opcodes';
 
 export class Chunk {
@@ -13,7 +14,7 @@ export class Chunk {
   // little challenging, though, and will require more research.
   //
   // For now, I'm using an Array to prototype.
-  public code: OpCode[] = [];
+  public code: Array<OpCode | Byte> = [];
 
   // The index is the same as the bytecode's. The value is the lineNo. Runtime
   // error reporting doesn't include the source line, just the line number

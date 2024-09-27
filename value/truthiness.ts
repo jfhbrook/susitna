@@ -9,7 +9,7 @@ import { formatter } from '../format';
 // operation.
 //
 
-export function truthy(value: Value, type: Type): boolean {
+export function truthy(value: Value, type: Type = Type.Any): boolean {
   if (type === Type.Any) {
     type = typeOf(value);
   }
@@ -36,7 +36,7 @@ export function truthy(value: Value, type: Type): boolean {
   }
 }
 
-export function falsey(value: Value, type: Type): boolean {
+export function falsey(value: Value, type: Type = Type.Any): boolean {
   if (type === Type.Any) {
     type = typeOf(value);
   }

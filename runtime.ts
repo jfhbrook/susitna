@@ -9,9 +9,11 @@ import { Host } from './host';
 import { Stack } from './stack';
 import { Traceback } from './traceback';
 import { Value, nil, Nil } from './value';
+import { falsey } from './value/truthiness';
 
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
+import { Short, bytesToShort } from './bytecode/short';
 
 import * as op from './operations';
 
@@ -55,6 +57,14 @@ export class Runtime {
 
   private readConstant(): Value {
     return this.chunk.constants[this.readByte()];
+  }
+
+  private readShort(): Short {
+    this.pc += 2;
+    return bytesToShort([
+      this.chunk.code[this.pc - 2],
+      this.chunk.code[this.pc - 1],
+    ]);
   }
 
   private readString(): string {
@@ -204,10 +214,15 @@ export class Runtime {
             this.host.exit(exitCode);
             return null;
           case OpCode.Jump:
-            this.notImplemented('Jump');
+            this.pc += this.readShort();
             break;
           case OpCode.JumpIfFalse:
-            this.notImplemented('JumpIfFalse');
+            a = this.readShort();
+            b = this.stack.peek();
+
+            if (b === null || falsey(b)) {
+              this.pc += a;
+            }
             break;
           case OpCode.Loop:
             this.notImplemented('Loop');

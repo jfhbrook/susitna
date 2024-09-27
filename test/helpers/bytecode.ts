@@ -1,10 +1,11 @@
+import { Byte } from '../../bytecode/byte';
 import { Chunk } from '../../bytecode/chunk';
 import { OpCode } from '../../bytecode/opcodes';
 import { Value } from '../../value';
 
 export interface ChunkProps {
   constants: Value[];
-  code: OpCode[];
+  code: Array<OpCode | Byte>;
   lines: number[];
 }
 

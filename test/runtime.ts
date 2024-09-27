@@ -371,7 +371,7 @@ t.test('something not implemented', async (t: Test) => {
     t,
     chunk({
       constants: [],
-      code: [OpCode.Jump],
+      code: [OpCode.Loop, 0xff, 0xff],
       lines: [100],
     }),
     {

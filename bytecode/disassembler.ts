@@ -1,7 +1,7 @@
 import table from 'text-table';
 
 import { formatter } from '../format';
-import { bytesToAddr } from './address';
+import { bytesToShort } from './short';
 import { OpCode } from './opcodes';
 import { Chunk } from './chunk';
 
@@ -71,7 +71,7 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
   }
 
   function jump(code: string, sign: number): Row {
-    const jump = bytesToAddr([peek(1), peek(2)]);
+    const jump = bytesToShort([peek(1), peek(2)]);
 
     const row: Row = [
       String(lineNo),

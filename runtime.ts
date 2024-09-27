@@ -11,6 +11,7 @@ import { Traceback } from './traceback';
 import { Value, nil, Nil } from './value';
 import { falsey } from './value/truthiness';
 
+import { Byte } from './bytecode/byte';
 import { Chunk } from './bytecode/chunk';
 import { OpCode } from './bytecode/opcodes';
 import { Short, bytesToShort } from './bytecode/short';
@@ -45,14 +46,14 @@ export class Runtime {
   // amount of inlining. But if I'm going down that road, I might want to
   // consider porting this to C++ anyway.
 
-  // NOTE: I'm calling this readByte to be consistent with clox, but in truth
-  // we're not reading bytes at all. See chunk.ts for more details.
-  //
-  // In the future, I might rename this.
-  private readByte(): OpCode {
-    const code = this.chunk.code[this.pc];
+  private readByte(): Byte {
+    const byte = this.chunk.code[this.pc];
     this.pc++;
-    return code;
+    return byte;
+  }
+
+  private readCode(): OpCode {
+    return this.readByte();
   }
 
   private readConstant(): Value {
@@ -60,11 +61,7 @@ export class Runtime {
   }
 
   private readShort(): Short {
-    this.pc += 2;
-    return bytesToShort([
-      this.chunk.code[this.pc - 2],
-      this.chunk.code[this.pc - 1],
-    ]);
+    return bytesToShort([this.readByte(), this.readByte()]);
   }
 
   private readString(): string {
@@ -90,7 +87,7 @@ export class Runtime {
     try {
       while (true) {
         traceExec(this);
-        const instruction = this.readByte();
+        const instruction = this.readCode();
 
         switch (instruction) {
           case OpCode.Constant:
@@ -214,7 +211,8 @@ export class Runtime {
             this.host.exit(exitCode);
             return null;
           case OpCode.Jump:
-            this.pc += this.readShort();
+            a = this.readShort();
+            this.pc += a;
             break;
           case OpCode.JumpIfFalse:
             a = this.readShort();

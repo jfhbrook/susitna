@@ -523,9 +523,9 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   if_(cond: Expr): Short {
     cond.accept(this);
-    const addr = this.emitJump(OpCode.JumpIfFalse);
+    const elseJump = this.emitJump(OpCode.JumpIfFalse);
     this.emitByte(OpCode.Pop);
-    return addr;
+    return elseJump;
   }
 
   visitElseInstr(else_: Else): void {

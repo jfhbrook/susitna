@@ -80,7 +80,7 @@ function _disassembleInstruction(chunk: Chunk, offset: number): [number, Row] {
       `${offset} -> ${offset + 3 + sign * jump}`,
     ];
 
-    advance(3);
+    advance(2);
 
     return row;
   }

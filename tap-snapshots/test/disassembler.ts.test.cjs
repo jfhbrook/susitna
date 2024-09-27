@@ -119,9 +119,11 @@ exports[`test/disassembler.ts > TAP > print > if true then print "true" else pri
 === Disassembly of <unknown>: ===
 100  1   CONSTANT       true
 100  3   JUMP_IF_FALSE  3 -> 13
+100  6   POP
 100  7   CONSTANT       true
 100  9   PRINT
 100  10  JUMP           10 -> 17
+100  13  POP
 100  14  CONSTANT       false
 100  16  PRINT
 100  17  NIL

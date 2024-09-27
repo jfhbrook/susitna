@@ -245,7 +245,8 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       return null;
     }
     this.currentInstrNo++;
-    if (
+    while (
+      !this.done &&
       this.currentInstrNo >= this.lines[this.currentLine].instructions.length
     ) {
       this.currentLine++;

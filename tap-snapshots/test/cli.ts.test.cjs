@@ -29,3 +29,17 @@ Object {
   "stdout": "",
 }
 `
+
+exports[`test/cli.ts > TAP > examples > 003-if.bas > must match snapshot 1`] = `
+Object {
+  "exitCode": 0,
+  "stderr": "",
+  "stdout": String(
+    1 + 1 is 2!
+    1 + 1 is still 2!
+    1 + 1 remains equal to 2!
+    still 2!
+    
+  ),
+}
+`

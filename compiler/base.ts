@@ -1,7 +1,7 @@
 import { getTracer, showChunk } from '../debug';
 import { errorType } from '../errors';
 import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
-import { NotImplementedFault, RuntimeFault, runtimeMethod } from '../faults';
+import { RuntimeFault, runtimeMethod } from '../faults';
 import { Token, TokenKind } from '../tokens';
 import { Value } from '../value';
 // import { Type } from './value/types';
@@ -82,6 +82,10 @@ class CommandBlock extends Block {
   kind = 'command';
 }
 
+//
+// if, else, else if and endif
+//
+
 class IfBlock extends Block {
   kind = 'if';
 
@@ -94,21 +98,14 @@ class IfBlock extends Block {
     this.next(new ElseBlock(endJump));
   }
 
-  visitElseIfInstr(_elseIf: ElseIf): Block {
-    // else if can be compiled as a nested if, *but* on endif, all levels of
-    // nesting must be closed... challenging.
-    throw new NotImplementedFault('else if');
-    /*
+  visitElseIfInstr(elseIf: ElseIf): void {
     const endJump = this.compiler.else_(this.elseJump);
-    this.compiler.block.next(new ElseBlock(endJump));
     const elseJump = this.compiler.if_(elseIf.condition);
-    this.compiler.block.begin(new IfBlock(elseJump));
-    */
+    this.next(new ElseIfBlock(elseJump, endJump));
   }
 
   visitEndIfInstr(_endIf: EndIf): void {
-    // Ending an if without an 'else'
-    // TODO: This can be optimized
+    // TODO: Optimize for no 'else'
     const endJump = this.compiler.else_(this.elseJump);
     this.compiler.endIf(endJump);
     this.end();
@@ -125,14 +122,55 @@ class ElseBlock extends Block {
   visitEndIfInstr(_endIf: EndIf): void {
     this.compiler.endIf(this.endJump);
     this.end();
+
+    // Handle when we're in an 'else if' chain
+    let block: Block = this.parent;
+    while (block instanceof ElseIfBlock) {
+      // const endJump = this.compiler.else_(block.elseJump);
+      block.compiler.endIf(block.endJump);
+      block.end();
+      block = block.parent;
+    }
   }
 }
 
-/*
 class ElseIfBlock extends IfBlock {
   kind = 'else if';
+
+  constructor(
+    elseJump: Short,
+    public endJump: Short,
+  ) {
+    super(elseJump);
+  }
+
+  // These are the same as in a vanilla if, except the current ElseIf is
+  // retained as a parent so it may be closed later
+  visitElseInstr(_else: Else): void {
+    const endJump = this.compiler.else_(this.elseJump);
+    this.begin(new ElseBlock(endJump));
+  }
+
+  visitElseIfInstr(elseIf: ElseIf): void {
+    const endJump = this.compiler.else_(this.elseJump);
+    const elseJump = this.compiler.if_(elseIf.condition);
+    this.begin(new ElseIfBlock(endJump, elseJump));
+  }
+
+  // Ending an 'else if' chain
+  visitEndIfInstr(_endIf: EndIf): void {
+    const endJump = this.compiler.else_(this.elseJump);
+    this.compiler.endIf(endJump);
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let block: Block = this;
+    while (block instanceof ElseIfBlock) {
+      block.compiler.endIf(block.endJump);
+      block.end();
+      block = block.parent;
+    }
+  }
 }
-*/
 
 //
 // Compile a series of lines. These lines may be from an entire program,
@@ -203,6 +241,9 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
           throw err;
         }
       }
+
+      // TODO: If program ended without all its blocks being closed, create
+      // an error
 
       if (this.isError) {
         throw new ParseError(this.errors);

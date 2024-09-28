@@ -47,9 +47,11 @@ gaps.
   - [X] Implement jump instrs in runtime
   - [X] Manually test short if in repl
   - [X] Manually test long if in examples
-  - [ ] else if in compiler
+  - [X] else if in compiler
+  - [X] Manually test else if in examples
+  - [X] Assert pc within bounds
   - [ ] Tests for else if in compiler
-  - [ ] Tests for else if
+  - [ ] Error if non-terminal block
 - fix renum
   - match number (include leading whitespace)
   - get number length

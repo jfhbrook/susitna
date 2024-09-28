@@ -231,6 +231,10 @@ export class Runtime {
             // done with the main program.
             return a;
           default:
+            assert.ok(
+              this.pc < this.chunk.code.length,
+              'Program counter out of bounds',
+            );
             this.notImplemented(`Unknown opcode: ${instruction}`);
         }
       }

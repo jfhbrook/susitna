@@ -51,7 +51,8 @@ gaps.
   - [X] Manually test else if in examples
   - [X] Assert pc within bounds
   - [X] Error if non-terminal block
-  - [ ] Tests for else if in compiler
+  - [X] Tests for else if in compiler
+  - [ ] Short if always ends in an endif
   - [ ] Complete if/else syntax ADR
 - fix renum
   - match number (include leading whitespace)

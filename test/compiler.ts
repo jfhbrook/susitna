@@ -12,6 +12,7 @@ import {
   ShortIf,
   If,
   Else,
+  ElseIf,
   EndIf,
 } from '../ast/instr';
 import {
@@ -490,6 +491,69 @@ const PROGRAMS: TestCase[] = [
       ],
       lines: [
         10, 10, 10, 10, 10, 10, 20, 20, 20, 30, 30, 30, 30, 40, 40, 40, 50, 50,
+      ],
+    }),
+  ],
+  [
+    [
+      '10 if true then',
+      '20   print "true"',
+      '30 else if false then',
+      '40   print "false"',
+      '50 endif',
+    ].join('\n'),
+    new Program(FILENAME, [
+      new Line(10, 1, '10 if true then', [new If(new BoolLiteral(true))]),
+      new Line(20, 2, '20   print "true"', [
+        new Print(new StringLiteral('true')),
+      ]),
+      new Line(30, 3, '30 else if false then', [
+        new ElseIf(new BoolLiteral(false)),
+      ]),
+      new Line(40, 4, '40   print "false"', [
+        new Print(new StringLiteral('false')),
+      ]),
+      new Line(50, 5, '50 endif', [new EndIf()]),
+    ]),
+    chunk({
+      constants: [true, 'true', false, 'false'],
+      code: [
+        OpCode.Constant,
+        0,
+        // Jump to "else if"
+        OpCode.JumpIfFalse,
+        ...shortToBytes(7),
+        // outer "then" block
+        OpCode.Pop,
+        OpCode.Constant,
+        1,
+        OpCode.Print,
+        // Jump to end
+        OpCode.Jump,
+        ...shortToBytes(14),
+        // "else if" block
+        OpCode.Pop,
+        OpCode.Constant,
+        2,
+        // Jump to inner implicit "else"
+        OpCode.JumpIfFalse,
+        ...shortToBytes(7),
+        // inner "then" block"
+        OpCode.Pop,
+        OpCode.Constant,
+        3,
+        OpCode.Print,
+        // Jump to outer implicit "else"
+        OpCode.Jump,
+        ...shortToBytes(1),
+        // "else" block
+        OpCode.Pop,
+        OpCode.Nil,
+        OpCode.Return,
+      ],
+      lines: [
+        10, 10, 10, 10, 10, 10, 20, 20, 20, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+        30, 40, 40, 40, 50, 50, 50, 50, 50, 50,
       ],
     }),
   ],

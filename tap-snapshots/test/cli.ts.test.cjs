@@ -39,7 +39,6 @@ Object {
     1 + 1 is still 2!
     1 + 1 remains equal to 2!
     still 2!
-    thank goodness, 1 + 1 is still 2!
     
   ),
 }
@@ -50,5 +49,18 @@ Object {
   "exitCode": 0,
   "stderr": "",
   "stdout": "else if\\n",
+}
+`
+
+exports[`test/cli.ts > TAP > examples > 005-open-block.bas > must match snapshot 1`] = `
+Object {
+  "exitCode": 0,
+  "stderr": String(
+    /home/josh/matanuska/examples/005-open-block.bas:40:4: error: else has not been closed
+      40  else
+          ^
+    
+  ),
+  "stdout": "",
 }
 `

@@ -86,6 +86,14 @@ class CommandBlock extends Block {
   kind = 'command';
 }
 
+export function isRootBlock(block: Block): boolean {
+  return (
+    block instanceof ProgramBlock ||
+    block instanceof CommandBlock ||
+    block instanceof GlobalBlock
+  );
+}
+
 //
 // if, else, else if and endif
 //
@@ -97,15 +105,15 @@ class IfBlock extends Block {
     super();
   }
 
-  visitElseInstr(_else: Else): void {
+  visitElseInstr(else_: Else): void {
     const endJump = this.compiler.else_(this.elseJump);
-    this.next(new ElseBlock(endJump));
+    this.next(else_, new ElseBlock(endJump));
   }
 
   visitElseIfInstr(elseIf: ElseIf): void {
     const endJump = this.compiler.else_(this.elseJump);
     const elseJump = this.compiler.if_(elseIf.condition);
-    this.next(new ElseIfBlock(elseJump, endJump));
+    this.next(elseIf, new ElseIfBlock(elseJump, endJump));
   }
 
   visitEndIfInstr(_endIf: EndIf): void {
@@ -146,7 +154,6 @@ class ElseIfBlock extends IfBlock {
     super(elseJump);
   }
 
-  // Ending an 'else if' chain
   visitEndIfInstr(_endIf: EndIf): void {
     const endJump = this.compiler.else_(this.elseJump);
     this.compiler.endIf(endJump);
@@ -202,13 +209,13 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.errors = [];
 
     this.global = new GlobalBlock();
-    this.global.init(this, null, this.global);
+    this.global.init(this, null, null, this.global);
 
     this.block =
       routineType === RoutineType.Program
         ? new ProgramBlock()
         : new CommandBlock();
-    this.block.init(this, null, this.global);
+    this.block.init(this, null, null, this.global);
   }
 
   /**
@@ -235,8 +242,13 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
         }
       }
 
-      // TODO: If program ended without all its blocks being closed, create
-      // an error
+      try {
+        this.checkBlocksClosed();
+      } catch (err) {
+        if (!(err instanceof Synchronize)) {
+          throw err;
+        }
+      }
 
       if (this.isError) {
         throw new ParseError(this.errors);
@@ -373,6 +385,15 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     }
 
     return this.lines[this.currentLine].source;
+  }
+
+  private checkBlocksClosed(): void {
+    if (!isRootBlock(this.block)) {
+      this.syntaxError(
+        this.block.instr!,
+        `${this.block.kind} has not been closed`,
+      );
+    }
   }
 
   private emitByte(byte: number): void {
@@ -553,7 +574,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitIfInstr(if_: If): void {
     const elseJump = this.if_(if_.condition);
-    this.block.begin(new IfBlock(elseJump));
+    this.block.begin(if_, new IfBlock(elseJump));
   }
 
   if_(cond: Expr): Short {

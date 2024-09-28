@@ -41,15 +41,18 @@ export type BlockKind = string;
 export abstract class Block implements InstrVisitor<void> {
   public kind: BlockKind = '<unknown>';
   private _compiler: LineCompiler | null = null;
+  public instr: Instr | null = null;
   public previous: Block | null = null;
   public parent: Block | null = null;
 
   public init(
     compiler: LineCompiler,
+    instr: Instr | null,
     previous: Block | null,
     parent: Block | null,
   ) {
     this._compiler = compiler;
+    this.instr = instr;
     this.previous = previous;
     this.parent = parent;
   }
@@ -64,14 +67,19 @@ export abstract class Block implements InstrVisitor<void> {
   }
 
   // Open a new block, maintaining a reference to the parent block.
-  public begin(block: Block): void {
-    block.init(this.compiler, null, this.compiler.block);
+  public begin(instr: Instr, block: Block): void {
+    block.init(this.compiler, instr, null, this.compiler.block);
     this.compiler.block = block;
   }
 
   // Go to the next block in a chain of blocks
-  public next(block: Block): void {
-    block.init(this.compiler, this.compiler.block, this.compiler.block.parent);
+  public next(instr: Instr, block: Block): void {
+    block.init(
+      this.compiler,
+      instr,
+      this.compiler.block,
+      this.compiler.block.parent,
+    );
     this.compiler.block = block;
   }
 

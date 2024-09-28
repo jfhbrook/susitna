@@ -20,12 +20,3 @@
 210
 220 rem one-liners are also supported
 230 if 1 + 1 == 2 then print "still 2!" endif
-240
-250 rem else if works too
-260 if 1 + 1 < 2 then
-270   print "1 + 1 is less than 2!"
-280 else if 1 + 1 > 2 then
-290   print "1 + 1 is greater than 2!"
-300 else
-310   print "thank goodness, 1 + 1 is still 2!"
-320 end

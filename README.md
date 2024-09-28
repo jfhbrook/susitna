@@ -50,8 +50,9 @@ gaps.
   - [X] else if in compiler
   - [X] Manually test else if in examples
   - [X] Assert pc within bounds
+  - [X] Error if non-terminal block
   - [ ] Tests for else if in compiler
-  - [ ] Error if non-terminal block
+  - [ ] Complete if/else syntax ADR
 - fix renum
   - match number (include leading whitespace)
   - get number length

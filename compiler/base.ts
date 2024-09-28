@@ -127,10 +127,8 @@ class ElseBlock extends Block {
     this.compiler.endIf(this.endJump);
     this.end();
 
-    // Handle when we're in an 'else if' chain
-    let block: Block | null = this.parent;
+    let block: Block | null = this.previous;
     while (block instanceof ElseIfBlock) {
-      // const endJump = this.compiler.else_(block.elseJump);
       block.compiler.endIf(block.endJump);
       block.end();
       block = block.parent;
@@ -148,19 +146,6 @@ class ElseIfBlock extends IfBlock {
     super(elseJump);
   }
 
-  // These are the same as in a vanilla if, except the current ElseIf is
-  // retained as a parent so it may be closed later
-  visitElseInstr(_else: Else): void {
-    const endJump = this.compiler.else_(this.elseJump);
-    this.begin(new ElseBlock(endJump));
-  }
-
-  visitElseIfInstr(elseIf: ElseIf): void {
-    const endJump = this.compiler.else_(this.elseJump);
-    const elseJump = this.compiler.if_(elseIf.condition);
-    this.begin(new ElseIfBlock(endJump, elseJump));
-  }
-
   // Ending an 'else if' chain
   visitEndIfInstr(_endIf: EndIf): void {
     const endJump = this.compiler.else_(this.elseJump);
@@ -171,7 +156,7 @@ class ElseIfBlock extends IfBlock {
     while (block instanceof ElseIfBlock) {
       block.compiler.endIf(block.endJump);
       block.end();
-      block = block.parent;
+      block = block.previous;
     }
   }
 }

@@ -1,3 +1,5 @@
+import * as assert from 'node:assert';
+
 import { RuntimeError } from '../exceptions';
 import { RuntimeFault } from '../faults';
 import {
@@ -39,11 +41,17 @@ export type BlockKind = string;
 export abstract class Block implements InstrVisitor<void> {
   public kind: BlockKind = '<unknown>';
   private _compiler: LineCompiler | null = null;
-  private _parent: Block | null = null;
+  public previous: Block | null = null;
+  public parent: Block | null = null;
 
-  public init(compiler: LineCompiler, parent: Block | null) {
+  public init(
+    compiler: LineCompiler,
+    previous: Block | null,
+    parent: Block | null,
+  ) {
     this._compiler = compiler;
-    this._parent = parent;
+    this.previous = previous;
+    this.parent = parent;
   }
 
   public get compiler(): LineCompiler {
@@ -55,31 +63,25 @@ export abstract class Block implements InstrVisitor<void> {
     return this._compiler;
   }
 
-  public get parent(): Block {
-    if (!this._parent) {
-      return this;
-    }
-    return this._parent;
-  }
-
   // Open a new block, maintaining a reference to the parent block.
   public begin(block: Block): void {
-    block.init(this.compiler, this.compiler.block);
+    block.init(this.compiler, null, this.compiler.block);
     this.compiler.block = block;
   }
 
   // Go to the next block in a chain of blocks
   public next(block: Block): void {
-    block.init(this.compiler, this.compiler.block.parent);
+    block.init(this.compiler, this.compiler.block, this.compiler.block.parent);
     this.compiler.block = block;
   }
 
   // End the current block.
   public end(): void {
+    assert.ok(this.parent);
     this.compiler.block = this.parent;
   }
 
-  public visit(instr: Instr): void {
+  public handle(instr: Instr): void {
     instr.accept(this);
   }
 

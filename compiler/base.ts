@@ -74,6 +74,10 @@ export type CompilerOptions = {
 
 export type CompileResult<T> = [T, ParseWarning | null];
 
+class GlobalBlock extends Block {
+  kind = 'global';
+}
+
 class ProgramBlock extends Block {
   kind = 'program';
 }
@@ -124,7 +128,7 @@ class ElseBlock extends Block {
     this.end();
 
     // Handle when we're in an 'else if' chain
-    let block: Block = this.parent;
+    let block: Block | null = this.parent;
     while (block instanceof ElseIfBlock) {
       // const endJump = this.compiler.else_(block.elseJump);
       block.compiler.endIf(block.endJump);
@@ -163,7 +167,7 @@ class ElseIfBlock extends IfBlock {
     this.compiler.endIf(endJump);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let block: Block = this;
+    let block: Block | null = this;
     while (block instanceof ElseIfBlock) {
       block.compiler.endIf(block.endJump);
       block.end();
@@ -195,6 +199,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   private isError: boolean = false;
   private errors: SyntaxError[] = [];
 
+  public global: Block;
   public block: Block;
 
   constructor(
@@ -211,11 +216,14 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.isError = false;
     this.errors = [];
 
+    this.global = new GlobalBlock();
+    this.global.init(this, null, this.global);
+
     this.block =
       routineType === RoutineType.Program
         ? new ProgramBlock()
         : new CommandBlock();
-    this.block.init(this, null);
+    this.block.init(this, null, this.global);
   }
 
   /**
@@ -571,7 +579,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   visitElseInstr(else_: Else): void {
-    this.block.visit(else_);
+    this.block.handle(else_);
   }
 
   else_(elseJump: Short): Short {
@@ -582,11 +590,11 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   visitElseIfInstr(elseIf: ElseIf): void {
-    this.block.visit(elseIf);
+    this.block.handle(elseIf);
   }
 
   visitEndIfInstr(endIf: EndIf): void {
-    this.block.visit(endIf);
+    this.block.handle(endIf);
   }
 
   endIf(endJump: Short): void {

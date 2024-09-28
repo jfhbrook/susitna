@@ -53,7 +53,7 @@ gaps.
   - [X] Error if non-terminal block
   - [X] Tests for else if in compiler
   - [X] Short if always ends in an endif
-  - [ ] Complete if/else syntax ADR
+  - [X] Complete if/else syntax ADR
 - fix renum
   - match number (include leading whitespace)
   - get number length

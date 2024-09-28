@@ -30,30 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- if/else
-  - [X] ADR for if/else syntax
-  - [X] ShortIf and If in AST
-  - [X] Update the AST and ADR to not use nesting
-  - [X] Prototype of "block" abstraction in parser
-  - [X] If in parser
-  - [X] Instructions needed to implement ShortIf/If
-  - [X] Tests for short if in parser
-  - [X] Tests for long if in parser
-  - [X] Short if in compiler
-  - [X] Long if in compiler
-  - [X] Tests for short if in compiler
-  - [X] Tests for long if in compiler
-  - [X] Implement jump instrs in disassembler
-  - [X] Implement jump instrs in runtime
-  - [X] Manually test short if in repl
-  - [X] Manually test long if in examples
-  - [X] else if in compiler
-  - [X] Manually test else if in examples
-  - [X] Assert pc within bounds
-  - [X] Error if non-terminal block
-  - [X] Tests for else if in compiler
-  - [X] Short if always ends in an endif
-  - [X] Complete if/else syntax ADR
 - fix renum
   - match number (include leading whitespace)
   - get number length

@@ -586,7 +586,7 @@ t.test('assign', async (t: Test) => {
 });
 
 t.test('short if', async (t: Test) => {
-  await t.test('full terminated short if', async (t: Test) => {
+  await t.test('full short if', async (t: Test) => {
     const source = 'if true then print "true" else print "false" endif';
     const result = parseInput(source);
 
@@ -607,28 +607,7 @@ t.test('short if', async (t: Test) => {
     );
   });
 
-  await t.test('full non-terminated short if', async (t: Test) => {
-    const source = 'if true then print "true" else print "false"';
-    const result = parseInput(source);
-
-    t.equal(result[1], null);
-    t.same(
-      result[0],
-      new Input([
-        new Cmd(10, 1, source, [
-          new ShortIf(
-            new BoolLiteral(true),
-            [new Print(new StringLiteral('true'), 13, 25)],
-            [new Print(new StringLiteral('false'), 31, 44)],
-            0,
-            44,
-          ),
-        ]),
-      ]),
-    );
-  });
-
-  await t.test('no-else terminated short if', async (t: Test) => {
+  await t.test('no-else short if', async (t: Test) => {
     const source = 'if true then print "true" endif';
     const result = parseInput(source);
 
@@ -643,27 +622,6 @@ t.test('short if', async (t: Test) => {
             [],
             0,
             31,
-          ),
-        ]),
-      ]),
-    );
-  });
-
-  await t.test('no-else non-terminated short if', async (t: Test) => {
-    const source = 'if true then print "true"';
-    const result = parseInput(source);
-
-    t.equal(result[1], null);
-    t.same(
-      result[0],
-      new Input([
-        new Cmd(10, 1, source, [
-          new ShortIf(
-            new BoolLiteral(true),
-            [new Print(new StringLiteral('true'), 13, 25)],
-            [],
-            0,
-            25,
           ),
         ]),
       ]),

@@ -679,9 +679,7 @@ export class Parser {
         else_ = this.instructions();
       }
 
-      if (!this.isLineEnding) {
-        this.consume(TokenKind.EndIf, 'Expected either endif or line ending');
-      }
+      this.consume(TokenKind.EndIf, 'Expected endif');
 
       this.isShortIf = prevShortIf;
 

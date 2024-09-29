@@ -36,7 +36,6 @@ Object {
   "stderr": "",
   "stdout": String(
     1 + 1 is 2!
-    1 + 1 is still 2!
     1 + 1 remains equal to 2!
     still 2!
     

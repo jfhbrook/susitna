@@ -109,7 +109,6 @@ export class Parser {
   private cmdNo: number = 0;
   private line: string = '';
   private isShortIf: boolean = false;
-  private expectThen: boolean = false;
 
   constructor() {}
 
@@ -311,9 +310,6 @@ export class Parser {
       let source: string;
       try {
         this.lineNumber();
-
-        // If statements allow 'then' at beginning of next line
-        this.then();
 
         cmds = this.instructions();
 
@@ -650,9 +646,6 @@ export class Parser {
       // A bare "if" with a multi-line block
       if (!this.isShortIf && this.isLineEnding) {
         const if_ = new If(condition);
-        if (this.expectThen) {
-          throw new StopInstrs(if_);
-        }
         return if_;
       }
 
@@ -663,11 +656,7 @@ export class Parser {
   private ifCondition(): Expr {
     const condition = this.expression();
 
-    if (this.isLineEnding) {
-      this.expectThen = true;
-    } else {
-      this.consume(TokenKind.Then, 'Expected then');
-    }
+    this.consume(TokenKind.Then, 'Expected then');
 
     return condition;
   }
@@ -692,15 +681,6 @@ export class Parser {
     });
   }
 
-  private then(): void {
-    return tracer.spanSync('then', () => {
-      if (this.expectThen) {
-        this.consume(TokenKind.Then, "Expected 'then' after 'if' condition");
-        this.expectThen = false;
-      }
-    });
-  }
-
   private else_(): Instr {
     return tracer.spanSync('else', () => {
       if (this.isShortIf) {
@@ -719,12 +699,7 @@ export class Parser {
     return tracer.spanSync('else if', () => {
       const condition = this.ifCondition();
 
-      const elseIf = new ElseIf(condition);
-
-      if (this.expectThen) {
-        throw new StopInstrs(elseIf);
-      }
-      return elseIf;
+      return new ElseIf(condition);
     });
   }
 

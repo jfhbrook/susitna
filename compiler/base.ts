@@ -291,6 +291,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       return null;
     }
     this.currentInstrNo++;
+    // Move to the next non-empty line if current line has no instructions
     while (
       !this.done &&
       this.currentInstrNo >= this.lines[this.currentLine].instructions.length
@@ -430,7 +431,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.emitByte(code);
     // Emit jump address as two bytes
     this.emitBytes(0xff, 0xff);
-    // Short of first byte of jump (?)
+    // Address of first byte of jump (?)
     return this.chunk.code.length - 2;
   }
 

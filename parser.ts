@@ -77,6 +77,11 @@ class Synchronize extends Error {
   }
 }
 
+// While parsing instructions, certain situations indicate what must be a
+// final instruction. For instance, `if <condition>` without a trailing "then"
+// may not be followed by any instructions. In those cases, we throw an
+// exception to stop parsing of instructions and force going to the next
+// line.
 @errorType('StopInstrs')
 class StopInstrs extends Error {
   constructor(public instr: Instr | null) {
@@ -679,7 +684,7 @@ export class Parser {
         else_ = this.instructions();
       }
 
-      this.consume(TokenKind.EndIf, 'Expected endif');
+      this.consume(TokenKind.EndIf, "Expected 'endif' after 'if' instruction");
 
       this.isShortIf = prevShortIf;
 
@@ -690,7 +695,7 @@ export class Parser {
   private then(): void {
     return tracer.spanSync('then', () => {
       if (this.expectThen) {
-        this.consume(TokenKind.Then, 'Expected then');
+        this.consume(TokenKind.Then, "Expected 'then' after 'if' condition");
         this.expectThen = false;
       }
     });
@@ -699,7 +704,7 @@ export class Parser {
   private else_(): Instr {
     return tracer.spanSync('else', () => {
       if (this.isShortIf) {
-        throw new StopInstrs(null);
+        this.syntaxError(this.previous!, "Unexpected 'else'");
       }
 
       if (this.match(TokenKind.If)) {
@@ -726,7 +731,7 @@ export class Parser {
   private endIf(): Instr {
     return tracer.spanSync('endif', () => {
       if (this.isShortIf) {
-        throw new StopInstrs(null);
+        this.syntaxError(this.previous!, "Unexpected 'endif'");
       }
 
       return new EndIf();

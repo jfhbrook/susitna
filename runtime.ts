@@ -211,6 +211,8 @@ export class Runtime {
             this.host.exit(exitCode);
             return null;
           case OpCode.Jump:
+            // Note, readShort increments the pc. If we didn't assign before,
+            // we would need to add extra to skip over those bytes!
             a = this.readShort();
             this.pc += a;
             break;
@@ -218,7 +220,7 @@ export class Runtime {
             a = this.readShort();
             b = this.stack.peek();
 
-            if (b === null || falsey(b)) {
+            if (falsey(b!)) {
               this.pc += a;
             }
             break;

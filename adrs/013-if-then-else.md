@@ -70,14 +70,14 @@ Multi-line if blocks will support forms such as the following:
 Note that these forms don't support line numbers for `goto`. That decision
 will be made in the future, when `goto` is existing functionality.
 
-Also not supported are an unterminated short if, as in MSX BASIC:
+Also not supported are an unterminated short if, as in MSX BASIC and BBC BASIC:
 
 ```basic
 if <condition> then <instructions>
 ```
 
 and a long if supporting "then" instructions on the first line, which is not
-supported by MSX BASIC *nor* BBC BASIC:
+supported by MSX BASIC nor BBC BASIC:
 
 ```basic
 <line_no> if <condition> then <instructions>

@@ -17,8 +17,7 @@ MSX BASIC supports the following forms:
 - `IF <condition> GOTO <lineNo> ELSE <lineNo | instructions>`
 
 When supplied a lineNo, BASIC will jump to that line. Otherwise, it will run
-the listed instructions. Note that `Instructions` is what MSX BASIC calls the
-equivalents to Matanuska's "commands", and are likewise colon-separated.
+the listed instructions.
 
 Notable is that MSX BASIC does *not* support multi-line if statements.
 For an example of a BASIC which *does* support them, we can look to BBC BASIC.
@@ -37,9 +36,6 @@ it likely parses `if <cond> then <ins> else if <cond> then <ins> else <ins>` as
 `If(cond, ins, If(cond, ins, ins))`, where the second `if` is simply another
 instruction.
 
-In the case of single-line if statements, we can parse them as single commands,
-something 
-
 ## Decision
 
 We will support two kinds of "if"s: single-line instructions (called `ShortIf`
@@ -53,7 +49,9 @@ Single-line if statements will initially support the following forms:
 - `if <condition> then <instructions> else <instructions> endif`
 
 In these forms, `instructions` may not contain if/else/endif instructions
-used in a multi-line context.
+used in a multi-line context. They may, however, support nested short ifs -
+that is, `if` and `else` are allowed if they're closed with an `endif` on the
+same line.
 
 Multi-line if blocks will support forms such as the following:
 
@@ -61,20 +59,6 @@ Multi-line if blocks will support forms such as the following:
 <line_no> if <condition> then
   <lines>
 <line_now> else if <condition> then
-  <lines>
-<line_no> else
-  <lines>
-<line_no> endif
-```
-
-along with variants allowing `then` on the following line:
-
-```
-<line_no> if <condition>
-<line_no>   then <instructions>
-  <lines>
-<line_now> else if <condition>
-<line_no>    then <instructions>
   <lines>
 <line_no> else
   <lines>
@@ -92,7 +76,8 @@ Also not supported are an unterminated short if, as in MSX BASIC:
 if <condition> then <instructions>
 ```
 
-and a long if supporting "then" instructions on the first line:
+and a long if supporting "then" instructions on the first line, which is not
+supported by MSX BASIC *nor* BBC BASIC:
 
 ```basic
 <line_no> if <condition> then <instructions>
@@ -109,3 +94,34 @@ straightforward. This means that, while implementing one of them would be
 easy, it would make it much more difficult to implement the other.
 
 By implementing neither, we leave the door open on this issue.
+
+Finally, a feature for which support was considered but dropped is starting
+`then` on the following line, like so:
+
+```
+<line_no> if <condition>
+<line_no>   then <instructions>
+  <lines>
+<line_now> else if <condition>
+<line_no>    then <instructions>
+  <lines>
+<line_no> else
+  <lines>
+<line_no> endif
+```
+
+There are aesthetic reasons to support this form. However, allowing it also
+complicates the parser by introducing a new form for lines:
+
+```
+line_with_then := <line_no> then <instructions>
+```
+
+with this form only being valid if the *previous* line contains an `if`
+statement ending before the `then`. Practically speaking, parsing this form
+requires maintaining an extra piece of state in the parser - "should we expect
+a `then`" - and matching it prior to parsing other instructions in those cases.
+This isn't a heavy lift, but it's *enough* of a complication that BBC BASIC
+did not implement it. In our case, we're deciding to leave it out *for now*, so
+as to not immediately commit to the additional complexity in our parser. It
+may, however, be introduced in the future.

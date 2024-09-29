@@ -85,9 +85,6 @@ gaps.
 ### Up Next
 
 - Investigate [Node.js inspector](https://nodejs.org/en/learn/getting-started/debugging)
-- Allow long if with then instrs on first line
-  - We currently commit to parsing a short "if" when there are instructions
-  - We should fall back to a long if when no "endif" is found
 - Escaped newlines
 - Arrays
   - Including array literals - BASIC assigns each index one at a time, or
@@ -124,7 +121,6 @@ gaps.
 - Performance tests
   - Benchmarks
   - Profile slow benchmarks
-- Support for long blocks in commands
 - Editor plugins
 - Generated "exceedingly large" script tests
 

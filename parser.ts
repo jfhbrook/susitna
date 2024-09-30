@@ -11,6 +11,7 @@ import { runtimeMethod } from './faults';
 import { Scanner } from './scanner';
 import { Token, TokenKind } from './tokens';
 
+import { LineSource } from './ast/source';
 import {
   Expr,
   Binary,
@@ -83,6 +84,7 @@ export class Parser {
 
   private previous: Token | null;
   private current: Token;
+  private prevWs: string = '';
   private next: Token;
   private nextWs: string = '';
 
@@ -95,6 +97,7 @@ export class Parser {
   private lineNo: number | null = null;
   private cmdNo: number = 0;
   private line: string = '';
+  private lineSource: LineSource | null = null;
   private isShortIf: boolean = false;
 
   constructor() {}
@@ -106,6 +109,7 @@ export class Parser {
     const [ws1, current] = this.nextToken();
     this.current = current;
     const [ws2, next] = this.nextToken();
+    this.prevWs = ws1;
     this.next = next;
     this.nextWs = ws2;
     this.lineErrors = [];
@@ -116,6 +120,7 @@ export class Parser {
     this.isLine = false;
     this.lineNo = null;
     this.line = ws1 + this.current.text;
+    this.lineSource = null;
     this.isShortIf = false;
 
     tracer.trace('current', this.current);
@@ -220,7 +225,11 @@ export class Parser {
     this.previous = this.current;
     this.current = this.next;
     this.line += this.nextWs + this.current.text;
+    if (this.lineSource) {
+      this.lineSource.rest += this.nextWs + this.current.text;
+    }
     const [ws, next] = this.nextToken();
+    this.prevWs = this.nextWs;
     this.nextWs = ws;
     this.next = next;
 
@@ -321,6 +330,11 @@ export class Parser {
     return tracer.spanSync('lineNumber', () => {
       const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
+        this.lineSource = new LineSource(
+          this.prevWs,
+          this.previous!.text,
+          this.nextWs,
+        );
         this.lineNo = this.previous!.value as number;
         this.isLine = true;
       } else if (this.isProgram) {

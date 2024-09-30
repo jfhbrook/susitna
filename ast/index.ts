@@ -1,3 +1,4 @@
+import { LineSource } from './source';
 import { Instr } from './instr';
 
 export interface TreeVisitor<R> {
@@ -30,7 +31,7 @@ export class Line extends Tree {
   constructor(
     public lineNo: number,
     public row: number,
-    public source: string,
+    public source: LineSource,
     public instructions: Instr[],
   ) {
     super();

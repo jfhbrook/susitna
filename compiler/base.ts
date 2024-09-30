@@ -70,7 +70,7 @@ class Synchronize extends Error {
 export type CompilerOptions = {
   filename?: string;
   cmdNo?: number;
-  cmdSource?: string;
+  cmdSource?: Source;
 };
 
 export type CompileResult<T> = [T, ParseWarning | null];
@@ -333,7 +333,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       cmdNo: this.routineType === RoutineType.Command ? null : this.lineNo,
       offsetStart: instr.offsetStart,
       offsetEnd: instr.offsetEnd,
-      source: this.lineSource,
+      source: this.lineSource.toString(),
     });
   }
 
@@ -381,12 +381,12 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     return this.lines[this.currentLine].row;
   }
 
-  private get lineSource(): string {
+  private get lineSource(): Source {
     if (this.currentLine >= this.lines.length) {
-      return this.lines[this.lines.length - 1].source.toString();
+      return this.lines[this.lines.length - 1].source;
     }
 
-    return this.lines[this.currentLine].source.toString();
+    return this.lines[this.currentLine].source;
   }
 
   private checkBlocksClosed(): void {
@@ -730,7 +730,7 @@ export function compileInstruction(
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
   const lines = [
-    new Line(cmdNo || 100, 1, new Source('', '', '', cmdSource || ''), [instr]),
+    new Line(cmdNo || 100, 1, cmdSource || Source.UNKNOWN, [instr]),
   ];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();

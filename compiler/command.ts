@@ -5,6 +5,7 @@ import {
   ParseWarning,
   mergeParseErrors,
 } from '../exceptions';
+import { Source } from '../ast/source';
 import {
   Instr,
   InstrVisitor,
@@ -83,7 +84,7 @@ export class CommandCompiler
       cmdNo: cmdNo || 100,
       offsetStart: instr.offsetStart,
       offsetEnd: instr.offsetEnd,
-      source: cmdSource || '<unknown>',
+      source: (cmdSource || Source.UNKNOWN).toString(),
     });
 
     throw new ParseError([exc]);

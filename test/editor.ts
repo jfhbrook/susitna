@@ -2,7 +2,7 @@ import t from 'tap';
 import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
-import { Editor } from '../editor';
+import { Editor, Justify } from '../editor';
 import { Line } from '../ast';
 
 import { parseInput } from './helpers/parser';
@@ -54,7 +54,7 @@ t.test('editor renum', async (t: Test) => {
     });
   });
 
-  await t.test('left justified', async (t: Test) => {
+  await t.test('left justified to left justified', async (t: Test) => {
     await topic.swear(async ([editor, insert]) => {
       insert('10  print "foo"');
       insert('50  print "foo"');
@@ -73,7 +73,28 @@ t.test('editor renum', async (t: Test) => {
     });
   });
 
-  await t.test('right justified', async (t: Test) => {
+  await t.test('left justified to right justified', async (t: Test) => {
+    await topic.swear(async ([editor, insert]) => {
+      editor.justify = Justify.Right;
+
+      insert('10  print "foo"');
+      insert('50  print "foo"');
+      insert('100 print "foo"');
+      insert('150 print "foo"');
+      insert('200 print "foo"');
+      insert('250 print "foo"');
+      insert('300 print "foo"');
+      insert('350 print "foo"');
+      insert('400 print "foo"');
+      insert('450 print "foo"');
+
+      editor.renum();
+
+      t.matchSnapshot(editor.list());
+    });
+  });
+
+  await t.test('right justified to left justified', async (t: Test) => {
     await topic.swear(async ([editor, insert]) => {
       insert(' 10 print "foo"');
       insert(' 50 print "foo"');

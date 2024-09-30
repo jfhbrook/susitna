@@ -20,9 +20,11 @@ export class Source {
     );
   }
 
+  public get prefix(): string {
+    return this.leadingWs + this.lineNo + this.separatingWs;
+  }
+
   public toString(): string {
-    return [this.leadingWs, this.lineNo, this.separatingWs, this.source].join(
-      '',
-    );
+    return this.prefix + this.source;
   }
 }

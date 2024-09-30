@@ -6,8 +6,44 @@ import {
   removeFromParseError,
 } from './exceptions';
 import { Host } from './host';
+import { Token } from './tokens';
 import { Line, Program } from './ast';
-import { Rem } from './ast/instr';
+import {
+  ExprVisitor,
+  Unary,
+  Binary,
+  Logical,
+  Group,
+  Variable,
+  IntLiteral,
+  RealLiteral,
+  BoolLiteral,
+  StringLiteral,
+  PromptLiteral,
+  NilLiteral,
+} from './ast/expr';
+import {
+  Instr,
+  InstrVisitor,
+  Rem,
+  Let,
+  Assign,
+  Expression,
+  Print,
+  Exit,
+  End,
+  New,
+  Load,
+  List,
+  Renum,
+  Run,
+  Save,
+  ShortIf,
+  If,
+  Else,
+  ElseIf,
+  EndIf,
+} from './ast/instr';
 
 type LineNo = number;
 
@@ -32,6 +68,121 @@ type Renumbering = Record<LineNo, Numbering>;
 export enum Justify {
   Left,
   Right,
+}
+
+class InstrShifter implements InstrVisitor<void>, ExprVisitor<void> {
+  constructor(public shift: number) {}
+
+  private shiftInstr(instr: Instr): void {
+    instr.offsetStart += this.shift;
+    instr.offsetEnd += this.shift;
+  }
+
+  private shiftToken(tok: Token): void {
+    tok.offsetStart += this.shift;
+    tok.offsetEnd += this.shift;
+  }
+
+  visitRemInstr(rem: Rem): void {
+    this.shiftInstr(rem);
+  }
+
+  visitLetInstr(let_: Let): void {
+    this.shiftInstr(let_);
+  }
+
+  visitAssignInstr(assign: Assign): void {
+    this.shiftInstr(assign);
+  }
+
+  visitExpressionInstr(expr: Expression): void {
+    this.shiftInstr(expr);
+  }
+
+  visitPrintInstr(print: Print): void {
+    this.shiftInstr(print);
+  }
+
+  visitExitInstr(exit: Exit): void {
+    this.shiftInstr(exit);
+  }
+
+  visitEndInstr(end: End): void {
+    this.shiftInstr(end);
+  }
+
+  visitNewInstr(new_: New): void {
+    this.shiftInstr(new_);
+  }
+
+  visitLoadInstr(load: Load): void {
+    this.shiftInstr(load);
+  }
+
+  visitListInstr(list: List): void {
+    this.shiftInstr(list);
+  }
+
+  visitRenumInstr(renum: Renum): void {
+    this.shiftInstr(renum);
+  }
+
+  visitRunInstr(run: Run): void {
+    this.shiftInstr(run);
+  }
+
+  visitSaveInstr(save: Save): void {
+    this.shiftInstr(save);
+  }
+
+  visitShortIfInstr(shortIf: ShortIf): void {
+    this.shiftInstr(shortIf);
+  }
+
+  visitIfInstr(if_: If): void {
+    this.shiftInstr(if_);
+  }
+
+  visitElseInstr(else_: Else): void {
+    this.shiftInstr(else_);
+  }
+
+  visitElseIfInstr(elseIf: ElseIf): void {
+    this.shiftInstr(elseIf);
+  }
+
+  visitEndIfInstr(endIf: EndIf): void {
+    this.shiftInstr(endIf);
+  }
+
+  visitUnaryExpr(unary: Unary): void {
+    unary.expr.accept(this);
+  }
+
+  visitBinaryExpr(binary: Binary): void {
+    binary.left.accept(this);
+    binary.right.accept(this);
+  }
+
+  visitLogicalExpr(logical: Logical): void {
+    logical.left.accept(this);
+    logical.right.accept(this);
+  }
+
+  visitGroupExpr(group: Group): void {
+    group.expr.accept(this);
+  }
+
+  visitVariableExpr(variable: Variable): void {
+    this.shiftToken(variable.ident);
+  }
+
+  visitIntLiteralExpr(_int: IntLiteral): void {}
+  visitRealLiteralExpr(_real: RealLiteral): void {}
+  visitBoolLiteralExpr(_bool: BoolLiteral): void {}
+  visitStringLiteralExpr(_str: StringLiteral): void {}
+  visitPromptLiteralExpr(_prompt: PromptLiteral): void {}
+  visitNilLiteralExpr(_nil: NilLiteral): void {}
 }
 
 @Injectable()
@@ -115,7 +266,7 @@ export class Editor {
         source: '',
       };
 
-      // Track max lengths
+      // Track max length
       maxToLength = Math.max(maxToLength, toStr.length);
     }
 
@@ -149,8 +300,7 @@ export class Editor {
       renumbering[from].source = line.source.toString();
 
       for (const instr of line.instructions) {
-        instr.offsetStart += shift;
-        instr.offsetEnd += shift;
+        instr.accept(new InstrShifter(shift));
       }
     }
 

@@ -172,8 +172,8 @@ export class Token implements Formattable {
   readonly kind: TokenKind;
   readonly index: number;
   readonly row: number;
-  readonly offsetStart: number;
-  readonly offsetEnd: number;
+  public offsetStart: number;
+  public offsetEnd: number;
   readonly text: string;
   readonly value: Value | null;
 

@@ -86,7 +86,7 @@ export class Parser {
   private current: Token;
   private leadingWs: string = '';
   private next: Token;
-  private nextWs: string = '';
+  private trailingWs: string = '';
 
   private lineErrors: Array<SyntaxError | SyntaxWarning> = [];
   private errors: Array<SyntaxError | SyntaxWarning> = [];
@@ -110,7 +110,7 @@ export class Parser {
     const [ws2, next] = this.nextToken();
     this.leadingWs = ws1;
     this.next = next;
-    this.nextWs = ws2;
+    this.trailingWs = ws2;
     this.lineErrors = [];
     this.errors = [];
     this.isError = false;
@@ -223,11 +223,11 @@ export class Parser {
     this.previous = this.current;
     this.current = this.next;
 
-    this.line.rest += this.nextWs + this.current.text;
+    this.line.source += this.trailingWs + this.current.text;
 
     const [ws, next] = this.nextToken();
-    this.leadingWs = this.nextWs;
-    this.nextWs = ws;
+    this.leadingWs = this.trailingWs;
+    this.trailingWs = ws;
     this.next = next;
 
     if (this.current.kind === TokenKind.Illegal) {
@@ -329,8 +329,8 @@ export class Parser {
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
         this.line.lineNo = this.previous!.text;
-        this.line.trailingWhitespace = this.leadingWs;
-        this.line.rest = this.current.text;
+        this.line.separatingWs = this.leadingWs;
+        this.line.source = this.current.text;
         this.isLine = true;
       } else if (this.isProgram) {
         this.syntaxError(this.current, 'Expected line number');
@@ -363,8 +363,8 @@ export class Parser {
   private rowEnding(): Source {
     return tracer.spanSync('rowEnding', () => {
       const line = this.line.clone();
-      if (line.rest.endsWith('\n')) {
-        line.rest = line.rest.slice(0, -1);
+      if (line.source.endsWith('\n')) {
+        line.source = line.source.slice(0, -1);
       }
 
       for (const error of this.lineErrors) {

@@ -96,7 +96,7 @@ export class Parser {
   private isLine: boolean = false;
   private lineNo: number | null = null;
   private cmdNo: number = 0;
-  private line: string = '';
+  private line: Source = new Source('', '', '', '');
   private lineSource: Source | null = null;
   private isShortIf: boolean = false;
 
@@ -119,8 +119,7 @@ export class Parser {
     this.isProgram = isProgram;
     this.isLine = false;
     this.lineNo = null;
-    this.line = ws1 + this.current.text;
-    this.lineSource = null;
+    this.line = new Source(ws1, '', '', this.current.text);
     this.isShortIf = false;
 
     tracer.trace('current', this.current);
@@ -224,10 +223,14 @@ export class Parser {
   private advance(): Token {
     this.previous = this.current;
     this.current = this.next;
-    this.line += this.nextWs + this.current.text;
-    if (this.lineSource) {
-      this.lineSource.rest += this.nextWs + this.current.text;
+
+    if (this.line.lineNo.length && !this.line.rest.length) {
+      this.line.trailingWhitespace = this.nextWs;
+    } else {
+      this.line.rest += this.nextWs;
     }
+    this.line.rest += this.current.text;
+
     const [ws, next] = this.nextToken();
     this.prevWs = this.nextWs;
     this.nextWs = ws;
@@ -303,7 +306,7 @@ export class Parser {
       const rowNo = this.current.row;
 
       let cmds: Instr[];
-      let source: string;
+      let source: Source;
       try {
         this.lineNumber();
 
@@ -330,12 +333,10 @@ export class Parser {
     return tracer.spanSync('lineNumber', () => {
       const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
-        this.lineSource = new Source(
-          this.prevWs,
-          this.previous!.text,
-          this.nextWs,
-        );
         this.lineNo = this.previous!.value as number;
+        this.line.lineNo = this.previous!.text;
+        this.line.trailingWhitespace = this.prevWs;
+        this.line.rest = this.current.text;
         this.isLine = true;
       } else if (this.isProgram) {
         this.syntaxError(this.current, 'Expected line number');
@@ -365,16 +366,16 @@ export class Parser {
     });
   }
 
-  private rowEnding(): string {
+  private rowEnding(): Source {
     return tracer.spanSync('rowEnding', () => {
       let line = this.line;
-      if (line.endsWith('\n')) {
-        line = line.slice(0, -1);
+      if (line.rest.endsWith('\n')) {
+        line.rest = line.rest.slice(0, -1);
       }
 
       for (const error of this.lineErrors) {
         tracer.trace('set source to line', line);
-        error.source = line;
+        error.source = line.toString();
         this.errors.push(error);
       }
 
@@ -388,9 +389,10 @@ export class Parser {
         );
       }
 
-      const nextLine = this.current.text;
+      const nextLine = new Source('', '', '', this.current.text);
+      // const nextLine = new Source('', '', '', '');
 
-      tracer.trace('reset line', nextLine);
+      tracer.trace('reset line', nextLine.toString());
       this.line = nextLine;
       this.isLine = false;
 

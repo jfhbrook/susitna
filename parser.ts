@@ -383,7 +383,7 @@ export class Parser {
         );
       }
 
-      const nextLine = new Source('', '', '', this.current.text);
+      const nextLine = new Source(this.leadingWs, '', '', this.current.text);
 
       tracer.trace('reset line', nextLine.toString());
       this.line = nextLine;

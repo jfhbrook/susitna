@@ -4,12 +4,18 @@
 //
 
 export class Source {
+  public static UNKNOWN = new Source('', '', '', '<unknown>');
+
   constructor(
     public leadingWs: string,
     public lineNo: string,
     public separatingWs: string,
     public source: string,
   ) {}
+
+  public static command(source: string): Source {
+    return new Source('', '', '', source);
+  }
 
   public clone(): Source {
     return new Source(

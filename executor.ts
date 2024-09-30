@@ -318,7 +318,7 @@ export class Executor {
       const result = compileCommands(cmds.instructions, {
         filename: '<input>',
         cmdNo: cmds.cmdNo,
-        cmdSource: cmds.source.toString(),
+        cmdSource: cmds.source,
       });
       const commands = result[0];
       warning = result[1];

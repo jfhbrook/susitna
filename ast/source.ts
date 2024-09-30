@@ -1,4 +1,4 @@
-export class LineSource {
+export class Source {
   constructor(
     public leadingWhitespace: string,
     public lineNo: string,

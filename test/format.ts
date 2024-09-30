@@ -30,7 +30,7 @@ import {
 import { Exit, ExitCode } from '../exit';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults';
 import { Token, TokenKind } from '../tokens';
-import { LineSource } from '../ast/source';
+import { Source } from '../ast/source';
 import {
   Binary,
   Unary,
@@ -372,12 +372,9 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     t.test('it formats a Line', async (t: Test) => {
       t.matchSnapshot(
         formatter.format(
-          new Line(
-            100,
-            1,
-            new LineSource('', '100', ' ', 'print "hello world"'),
-            [new Print(new StringLiteral('hello world'))],
-          ),
+          new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
+            new Print(new StringLiteral('hello world')),
+          ]),
         ),
       );
     });
@@ -389,7 +386,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
             new Line(
               100,
               1,
-              new LineSource('', '100', ' ', 'print "hello world"'),
+              new Source('', '100', ' ', 'print "hello world"'),
               [new Print(new StringLiteral('hello world'))],
             ),
           ]),

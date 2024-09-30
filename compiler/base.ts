@@ -7,7 +7,7 @@ import { Value } from '../value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
 import { Line, Program } from '../ast';
-import { LineSource } from '../ast/source';
+import { Source } from '../ast/source';
 import {
   Instr,
   InstrVisitor,
@@ -730,7 +730,7 @@ export function compileInstruction(
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
   const lines = [
-    new Line(cmdNo || 100, 1, new LineSource('', '', '', cmdSource), [instr]),
+    new Line(cmdNo || 100, 1, new Source('', '', '', cmdSource), [instr]),
   ];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();

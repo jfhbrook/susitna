@@ -35,6 +35,15 @@ t.test('editor inserts', async (t: Test) => {
   });
 });
 
+// TODO: Test that editor.program has been shifted as expected. This will
+// involve a full traversal of editor.program, twice, in order to calculate
+// how each element shifted. Remember, expressions and tokens inside the
+// program are also shifted!
+//
+// TODO: Test that editor.warnings has been shifted as expected. This will
+// involve scanning editor.warnings, twice, in order to calcualte how each
+// element shifted. It will also involve constructing lines which create
+// warnings!
 t.test('editor renum', async (t: Test) => {
   await t.test('mixed double/triple to all double', async (t: Test) => {
     await topic.swear(async ([editor, insert]) => {

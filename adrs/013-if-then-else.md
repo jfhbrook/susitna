@@ -32,8 +32,8 @@ ENDIF
 ```
 
 Also notable is that neither MSX BASIC nor BBC BASIC has an `else if` - though,
-it likely parses `if <cond> then <ins> else if <cond> then <ins> else <ins>` as
-`If(cond, ins, If(cond, ins, ins))`, where the second `if` is simply another
+MSX BASIC likely parses `if <cond> then <ins> else if <cond> then <ins> else <ins>`
+as `If(cond, ins, If(cond, ins, ins))`, where the second `if` is simply another
 instruction.
 
 ## Decision
@@ -65,10 +65,40 @@ Multi-line if blocks will support forms such as the following:
 <line_no> endif
 ```
 
+`else if` will be treated the same as in JavaScript, or like `elif` in Python.
+
 ### What's Not Supported
 
-Note that these forms don't support line numbers for `goto`. That decision
-will be made in the future, when `goto` is existing functionality.
+#### GOTOs
+
+These forms don't support line numbers for `goto`. That decision will be made
+in the future, when `goto` is existing functionality.
+
+#### Else If in Short If
+
+As noted, "long if" supports `else if`. However, "short if" currently parses
+`if <cond_a> then <then_a> else if <cond_b> then <then_b> endif endif` as
+containing a nested "short if" within an "else" block, and
+`if <cond_a> then <then_a> else if <cond_b> then <then_b> endif` is considered
+unterminated. This is because the whitespace in a "long if" is significant!
+
+This issue reveals a wart in Matanuska BASIC's syntax - and, in fact, BBC
+BASIC does not support an analogous construction.
+
+One way to address this may be to introduce a new keyword, `elif`, that
+operates like the corresponding keyword in Python. In fact, if that were the
+case, we would likely deprecate `else if` in long ifs in favor of `elif`.
+
+There's an argument to be made for not supporting "else if" in Matanuska
+BASIC at this time, in order to avoid such a deprecation. That would be
+consistent with other decisions made in this ADR. However, unlike those
+decisions, this one doesn't significantly complicate the parser. Moreover,
+there isn't a strong motivation to use `else if` on its own line to
+represent a discrete `if` inside a `else` block, therefore deprecation is
+anticipation of such a deprecation. That would 
+not expected to be painful.
+
+#### Unterminated "Short If" and Multi-Line with Then on Same Line
 
 Also not supported are an unterminated short if, as in MSX BASIC and BBC BASIC:
 
@@ -94,6 +124,8 @@ straightforward. This means that, while implementing one of them would be
 easy, it would make it much more difficult to implement the other.
 
 By implementing neither, we leave the door open on this issue.
+
+#### Then on Following Line
 
 Finally, a feature for which support was considered but dropped is starting
 `then` on the following line, like so:

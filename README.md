@@ -157,4 +157,5 @@ gaps.
 - [MSX-BASIC Instructions - MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions)
 - [An Introduction to Programming BBC BASIC](https://www.bbcbasic.co.uk/bbcwin/tutorial/index.html)
 - [BBC BASIC Reference Manual](http://www.riscos.com/support/developers/bbcbasic/index.html)
+- [GW-BASIC User's Guide](http://www.antonis.de/qbebooks/gwbasman/)
 - [BASIC Computer Games Microcomputer Edition](https://annarchive.com/files/Basic_Computer_Games_Microcomputer_Edition.pdf)

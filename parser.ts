@@ -77,19 +77,6 @@ class Synchronize extends Error {
   }
 }
 
-// While parsing instructions, certain situations indicate what must be a
-// final instruction. For instance, `if <condition>` without a trailing "then"
-// may not be followed by any instructions. In those cases, we throw an
-// exception to stop parsing of instructions and force going to the next
-// line.
-@errorType('StopInstrs')
-class StopInstrs extends Error {
-  constructor(public instr: Instr | null) {
-    super('StopInstrs');
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-}
-
 export class Parser {
   private filename: string = '<unknown>';
   private scanner: Scanner;
@@ -439,36 +426,23 @@ export class Parser {
         return [];
       }
 
-      let instr: Instr | null = null;
-      let instrs: Instr[] = [];
-      try {
-        instr = this.instruction();
-        instrs = instr ? [instr] : [];
+      let instr: Instr | null = this.instruction();
+      const instrs: Instr[] = instr ? [instr] : [];
 
-        // A remark doesn't need to be separated from a prior command by a
-        // colon
-        while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
-          try {
-            instr = this.instruction();
-            if (instr) {
-              instrs.push(instr);
-            }
-          } catch (err) {
-            if (err instanceof Synchronize) {
-              this.syncNextInstr();
-            }
-            throw err;
+      // A remark doesn't need to be separated from a prior command by a
+      // colon
+      while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
+        try {
+          instr = this.instruction();
+          if (instr) {
+            instrs.push(instr);
           }
-        }
-      } catch (err) {
-        if (err instanceof StopInstrs) {
-          if (err.instr) {
-            instrs.push(err.instr);
+        } catch (err) {
+          if (err instanceof Synchronize) {
+            this.syncNextInstr();
           }
-          return instrs;
+          throw err;
         }
-
-        throw err;
       }
 
       return instrs;
@@ -481,63 +455,52 @@ export class Parser {
 
       let instr: Instr;
 
-      const finalize = (instr: Instr): void => {
-        const { offsetEnd } = this.previous!;
-
-        instr.offsetStart = offsetStart;
-        instr.offsetEnd = offsetEnd;
-      };
-
-      try {
-        // Remarks are treated like commands - the scanner handles the fact
-        // that they include all text to the end of the line
-        if (this.match(TokenKind.Rem)) {
-          instr = new Rem(this.previous!.value as string);
-        } else if (this.match(TokenKind.Semicolon)) {
-          instr = new Rem('');
-        } else if (this.match(TokenKind.Print)) {
-          instr = this.print();
-          // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-        } else if (this.match(TokenKind.New)) {
-          instr = this.new();
-        } else if (this.match(TokenKind.Load)) {
-          instr = this.load();
-        } else if (this.match(TokenKind.List)) {
-          instr = this.list();
-        } else if (this.match(TokenKind.Renum)) {
-          instr = this.renum();
-        } else if (this.match(TokenKind.Save)) {
-          instr = this.save();
-        } else if (this.match(TokenKind.Run)) {
-          instr = this.run();
-        } else if (this.match(TokenKind.End)) {
-          instr = this.end();
-        } else if (this.match(TokenKind.Exit)) {
-          instr = this.exit();
-        } else if (this.match(TokenKind.Let)) {
-          instr = this.let();
-        } else if (this.match(TokenKind.If)) {
-          instr = this.if_();
-        } else if (this.match(TokenKind.Else)) {
-          instr = this.else_();
-        } else if (this.match(TokenKind.EndIf)) {
-          instr = this.endIf();
+      // Remarks are treated like commands - the scanner handles the fact
+      // that they include all text to the end of the line
+      if (this.match(TokenKind.Rem)) {
+        instr = new Rem(this.previous!.value as string);
+      } else if (this.match(TokenKind.Semicolon)) {
+        instr = new Rem('');
+      } else if (this.match(TokenKind.Print)) {
+        instr = this.print();
+        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+      } else if (this.match(TokenKind.New)) {
+        instr = this.new();
+      } else if (this.match(TokenKind.Load)) {
+        instr = this.load();
+      } else if (this.match(TokenKind.List)) {
+        instr = this.list();
+      } else if (this.match(TokenKind.Renum)) {
+        instr = this.renum();
+      } else if (this.match(TokenKind.Save)) {
+        instr = this.save();
+      } else if (this.match(TokenKind.Run)) {
+        instr = this.run();
+      } else if (this.match(TokenKind.End)) {
+        instr = this.end();
+      } else if (this.match(TokenKind.Exit)) {
+        instr = this.exit();
+      } else if (this.match(TokenKind.Let)) {
+        instr = this.let();
+      } else if (this.match(TokenKind.If)) {
+        instr = this.if_();
+      } else if (this.match(TokenKind.Else)) {
+        instr = this.else_();
+      } else if (this.match(TokenKind.EndIf)) {
+        instr = this.endIf();
+      } else {
+        const assign = this.assign();
+        if (assign) {
+          instr = assign;
         } else {
-          const assign = this.assign();
-          if (assign) {
-            instr = assign;
-          } else {
-            instr = this.expressionStatement();
-          }
+          instr = this.expressionStatement();
         }
-      } catch (err) {
-        if (err instanceof StopInstrs && err.instr) {
-          finalize(err.instr);
-        }
-        throw err;
       }
 
-      finalize(instr);
+      const { offsetEnd } = this.previous!;
+
+      instr.offsetStart = offsetStart;
+      instr.offsetEnd = offsetEnd;
 
       return instr;
     });

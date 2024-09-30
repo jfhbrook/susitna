@@ -118,7 +118,7 @@ export class Parser {
     this.isProgram = isProgram;
     this.isLine = false;
     this.lineNo = null;
-    this.line = new Source(ws1, '', '', this.current.text);
+    this.line = new Source('', '', '', ws1 + this.current.text);
     this.isShortIf = false;
 
     tracer.trace('current', this.current);
@@ -223,12 +223,7 @@ export class Parser {
     this.previous = this.current;
     this.current = this.next;
 
-    if (this.line.lineNo.length && !this.line.rest.length) {
-      this.line.trailingWhitespace = this.nextWs;
-    } else {
-      this.line.rest += this.nextWs;
-    }
-    this.line.rest += this.current.text;
+    this.line.rest += this.nextWs + this.current.text;
 
     const [ws, next] = this.nextToken();
     this.leadingWs = this.nextWs;
@@ -333,9 +328,6 @@ export class Parser {
       const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
-        this.line.lineNo = this.previous!.text;
-        this.line.trailingWhitespace = this.leadingWs;
-        this.line.rest = this.current.text;
         this.isLine = true;
       } else if (this.isProgram) {
         this.syntaxError(this.current, 'Expected line number');
@@ -389,7 +381,6 @@ export class Parser {
       }
 
       const nextLine = new Source('', '', '', this.current.text);
-      // const nextLine = new Source('', '', '', '');
 
       tracer.trace('reset line', nextLine.toString());
       this.line = nextLine;

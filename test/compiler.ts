@@ -1,6 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
+import { LineSource } from '../ast/source';
 import {
   Instr,
   Print,
@@ -400,7 +401,9 @@ const PROGRAMS: TestCase[] = [
       return [
         `100 ${source}`,
         new Program(FILENAME, [
-          new Line(100, 1, `100 ${source}`, [ast as Instr]),
+          new Line(100, 1, new LineSource('', '100', ' ', source), [
+            ast as Instr,
+          ]),
         ]),
         chunk({
           constants,
@@ -414,7 +417,9 @@ const PROGRAMS: TestCase[] = [
     return [
       `100 ${source}`,
       new Program(FILENAME, [
-        new Line(100, 1, `100 ${source}`, [ast as Instr]),
+        new Line(100, 1, new LineSource('', '100', ' ', source), [
+          ast as Instr,
+        ]),
       ]),
       chunk({
         constants,
@@ -426,7 +431,7 @@ const PROGRAMS: TestCase[] = [
   [
     '100 1 : 1',
     new Program(FILENAME, [
-      new Line(100, 1, '100 1 : 1', [
+      new Line(100, 1, new LineSource('', '100', ' ', '1 : 1'), [
         new Expression(new IntLiteral(1)),
         new Expression(new IntLiteral(255)),
       ]),
@@ -455,15 +460,17 @@ const PROGRAMS: TestCase[] = [
       '50 endif',
     ].join('\n'),
     new Program(FILENAME, [
-      new Line(10, 1, '10 if true then', [new If(new BoolLiteral(true))]),
-      new Line(20, 2, '20   print "true"', [
+      new Line(10, 1, new LineSource('', '10', ' ', 'if true then'), [
+        new If(new BoolLiteral(true)),
+      ]),
+      new Line(20, 2, new LineSource('', '20', '   ', 'print "true"'), [
         new Print(new StringLiteral('true')),
       ]),
-      new Line(30, 3, '30 else', [new Else()]),
-      new Line(40, 4, '40   print "false"', [
+      new Line(30, 3, new LineSource('', '30', ' ', 'else'), [new Else()]),
+      new Line(40, 4, new LineSource('', '40', '   ', 'print "false"'), [
         new Print(new StringLiteral('false')),
       ]),
-      new Line(50, 5, '50 endif', [new EndIf()]),
+      new Line(50, 5, new LineSource('', '50', ' ', 'endif'), [new EndIf()]),
     ]),
     chunk({
       constants: [true, 'true', 'false'],
@@ -503,17 +510,19 @@ const PROGRAMS: TestCase[] = [
       '50 endif',
     ].join('\n'),
     new Program(FILENAME, [
-      new Line(10, 1, '10 if true then', [new If(new BoolLiteral(true))]),
-      new Line(20, 2, '20   print "true"', [
+      new Line(10, 1, new LineSource('', '10', ' ', 'if true then'), [
+        new If(new BoolLiteral(true)),
+      ]),
+      new Line(20, 2, new LineSource('', '20', '   ', 'print "true"'), [
         new Print(new StringLiteral('true')),
       ]),
-      new Line(30, 3, '30 else if false then', [
+      new Line(30, 3, new LineSource('', '30', ' ', 'else if false then'), [
         new ElseIf(new BoolLiteral(false)),
       ]),
-      new Line(40, 4, '40   print "false"', [
+      new Line(40, 4, new LineSource('', '40', '   ', 'print "false"'), [
         new Print(new StringLiteral('false')),
       ]),
-      new Line(50, 5, '50 endif', [new EndIf()]),
+      new Line(50, 5, new LineSource('', '50', ' ', 'endif'), [new EndIf()]),
     ]),
     chunk({
       constants: [true, 'true', false, 'false'],

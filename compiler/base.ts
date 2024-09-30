@@ -7,6 +7,7 @@ import { Value } from '../value';
 // import { Type } from './value/types';
 // import { Stack } from './stack';
 import { Line, Program } from '../ast';
+import { LineSource } from '../ast/source';
 import {
   Instr,
   InstrVisitor,
@@ -382,10 +383,10 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
   private get lineSource(): string {
     if (this.currentLine >= this.lines.length) {
-      return this.lines[this.lines.length - 1].source;
+      return this.lines[this.lines.length - 1].source.toString();
     }
 
-    return this.lines[this.currentLine].source;
+    return this.lines[this.currentLine].source.toString();
   }
 
   private checkBlocksClosed(): void {
@@ -728,7 +729,9 @@ export function compileInstruction(
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
-  const lines = [new Line(cmdNo || 100, 1, cmdSource || '<unknown>', [instr])];
+  const lines = [
+    new Line(cmdNo || 100, 1, new LineSource('', '', '', cmdSource), [instr]),
+  ];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();
 }

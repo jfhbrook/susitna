@@ -39,10 +39,11 @@ type Instr in './instr' {
 }
 
 type Tree in './index' {
+  import { LineSource } from './source'
   import { Instr } from './instr'
 
   Cmd          => cmdNo: number, row: number, source: string, instructions: Instr[]
-  Line         => lineNo: number, row: number, source: string, instructions: Instr[]
+  Line         => lineNo: number, row: number, source: LineSource, instructions: Instr[]
   Input        => input: Array<Cmd | Line>
   Program      => filename: string, lines: Line[]
 }

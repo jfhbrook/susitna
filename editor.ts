@@ -9,19 +9,36 @@ import { Host } from './host';
 import { Line, Program } from './ast';
 import { Rem } from './ast/instr';
 
+type LineNo = number;
+
 interface Index {
   i: number;
-  lineNo: number | null;
+  lineNo: LineNo | null;
   match: boolean;
 }
 
 // An index corresponding to inserting the line at the very front
 const HEAD: number = -1;
 
+type Numbering = {
+  to: number;
+  toStr: string;
+  shift: number;
+  source: string;
+};
+
+type Renumbering = Record<LineNo, Numbering>;
+
+export enum Justify {
+  Left,
+  Right,
+}
+
 @Injectable()
 export class Editor {
   public program: Program;
   public warning: ParseWarning | null;
+  public justify: Justify = Justify.Left;
 
   constructor(@Inject('Host') public host: Host) {
     this.program = new Program('untitled.bas', []);
@@ -79,29 +96,72 @@ export class Editor {
    * Renumber the current program.
    */
   renum(): void {
-    const renumbering: Record<number, [number, number]> = {};
+    const renumbering: Renumbering = {};
+
+    // Used to calculate padding
+    let maxToLength: number = 0;
 
     for (let i = 0; i < this.program.lines.length; i++) {
       const line = this.program.lines[i];
+
+      // Calculate new line number
       const from = line.lineNo;
       const to = (i + 1) * 10;
       const toStr = String(to);
-      const shift = toStr.length - line.source.lineNo.length;
+      renumbering[from] = {
+        to,
+        toStr,
+        shift: 0,
+        source: '',
+      };
+
+      // Track max lengths
+      maxToLength = Math.max(maxToLength, toStr.length);
+    }
+
+    for (const line of this.program.lines) {
+      const from = line.lineNo;
+      const { to, toStr } = renumbering[from];
+
+      // Justification
+      const leftPadding =
+        this.justify === Justify.Left
+          ? ''
+          : ' '.repeat(maxToLength - toStr.length);
+      const rightPadding =
+        this.justify === Justify.Left
+          ? ' '.repeat(maxToLength - toStr.length + 1)
+          : ' ';
+      const fromWidth = line.source.prefix.length;
+      const toWidth = leftPadding.length + toStr.length + rightPadding.length;
+      const shift = toWidth - fromWidth;
+
+      // Renumber the line
       line.lineNo = to;
       line.source.lineNo = toStr;
-      for (let instr of line.instructions) {
+
+      // Justify the new numbering
+      line.source.leadingWs = leftPadding;
+      line.source.separatingWs = rightPadding;
+
+      // For use with renumbering/formatting warnings
+      renumbering[from].shift = shift;
+      renumbering[from].source = line.source.toString();
+
+      for (const instr of line.instructions) {
         instr.offsetStart += shift;
         instr.offsetEnd += shift;
       }
-      renumbering[from] = [to, shift];
     }
 
+    // Renumber/format warnings
     if (this.warning) {
       for (let i = 0; i < this.warning.warnings.length; i++) {
         const warning = this.warning.warnings[i];
-        const [to, shift] = renumbering[warning.lineNo];
+        const { to, shift, source } = renumbering[warning.lineNo];
         if (to) {
           warning.lineNo = to;
+          warning.source = source;
           warning.offsetStart += shift;
           warning.offsetEnd += shift;
         }

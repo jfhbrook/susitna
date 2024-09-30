@@ -328,6 +328,9 @@ export class Parser {
       const prevLineNo = this.lineNo;
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
+        this.line.lineNo = this.previous!.text;
+        this.line.trailingWhitespace = this.leadingWs;
+        this.line.rest = this.current.text;
         this.isLine = true;
       } else if (this.isProgram) {
         this.syntaxError(this.current, 'Expected line number');
@@ -359,7 +362,7 @@ export class Parser {
 
   private rowEnding(): Source {
     return tracer.spanSync('rowEnding', () => {
-      let line = this.line;
+      const line = this.line.clone();
       if (line.rest.endsWith('\n')) {
         line.rest = line.rest.slice(0, -1);
       }

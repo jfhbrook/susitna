@@ -1,26 +1,28 @@
+//
+// A tuple-like class to store source code. This is needed so we can easily
+// renumber source lines without having to use regular expressions.
+//
+
 export class Source {
   constructor(
-    public leadingWhitespace: string,
+    public leadingWs: string,
     public lineNo: string,
-    public trailingWhitespace: string,
-    public rest: string = '',
+    public separatingWs: string,
+    public source: string,
   ) {}
 
   public clone(): Source {
     return new Source(
-      this.leadingWhitespace,
+      this.leadingWs,
       this.lineNo,
-      this.trailingWhitespace,
-      this.rest,
+      this.separatingWs,
+      this.source,
     );
   }
 
   public toString(): string {
-    return [
-      this.leadingWhitespace,
-      this.lineNo,
-      this.trailingWhitespace,
-      this.rest,
-    ].join('');
+    return [this.leadingWs, this.lineNo, this.separatingWs, this.source].join(
+      '',
+    );
   }
 }

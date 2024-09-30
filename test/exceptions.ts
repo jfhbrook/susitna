@@ -26,6 +26,7 @@ import {
   splitParseError,
   removeFromParseError,
 } from '../exceptions';
+import { Source } from '../ast/source';
 import { FILENAME } from './helpers/files';
 import { TRACEBACK } from './helpers/traceback';
 
@@ -231,7 +232,7 @@ t.test('FileError', async (t: Test) => {
 
 t.test('ParseError', async (t: Test) => {
   t.test('it can construct a ParseError', async (t: Test) => {
-    const line = '100 print someFn(ident';
+    const line = new Source('', '100', ' ', 'print someFn(ident');
 
     const exc = new ParseError([
       new SyntaxError('expected )', {
@@ -278,7 +279,7 @@ t.test('ParseError', async (t: Test) => {
 
 t.test('ParseWarning', async (t: Test) => {
   t.test('it can construct a ParseWarning', async (t: Test) => {
-    const line = '100 print someFn(ident)';
+    const line = new Source('', '100', ' ', 'print someFn(ident)');
 
     const exc = new ParseWarning([
       new SyntaxWarning('identifier has no sigil', {
@@ -316,7 +317,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '100 print someFn(ident)',
+      source: new Source('', '100', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -326,7 +327,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '500 print someFn(ident)',
+      source: new Source('', '500', ' ', 'print someFn(ident)'),
     }),
   ]);
 
@@ -339,7 +340,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '200 print someFn(ident)',
+      source: new Source('', '200', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -349,7 +350,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '600 print someFn(ident)',
+      source: new Source('', '600', ' ', 'print someFn(ident)'),
     }),
   ]);
 
@@ -362,7 +363,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '300 print someFn(ident',
+      source: new Source('', '300', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -372,7 +373,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '700 print someFn(ident',
+      source: new Source('', '700', ' ', 'print someFn(ident'),
     }),
   ]);
 
@@ -385,7 +386,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '400 print someFn(ident',
+      source: new Source('', '400', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -395,7 +396,7 @@ t.test('mergeParseErrors', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '800 print someFn(ident',
+      source: new Source('', '800', ' ', 'print someFn(ident'),
     }),
   ]);
 
@@ -436,7 +437,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '100 print someFn(ident)',
+      source: new Source('', '100', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -446,7 +447,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '200 print someFn(ident)',
+      source: new Source('', '200', ' ', 'print someFn(ident)'),
     }),
 
     new SyntaxError('expected )', {
@@ -457,7 +458,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '300 print someFn(ident',
+      source: new Source('', '300', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -467,7 +468,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '400 print someFn(ident',
+      source: new Source('', '400', ' ', 'print someFn(ident'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -477,7 +478,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '500 print someFn(ident)',
+      source: new Source('', '500', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -487,7 +488,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '600 print someFn(ident)',
+      source: new Source('', '600', ' ', 'print someFn(ident)'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -497,7 +498,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '700 print someFn(ident',
+      source: new Source('', '700', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -507,7 +508,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '800 print someFn(ident',
+      source: new Source('', '800', ' ', 'print someFn(ident'),
     }),
   ]);
 
@@ -520,7 +521,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '100 print someFn(ident)',
+      source: new Source('', '100', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -530,7 +531,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '200 print someFn(ident)',
+      source: new Source('', '200', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -540,7 +541,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '500 print someFn(ident)',
+      source: new Source('', '500', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -550,7 +551,7 @@ t.test('splitParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '600 print someFn(ident)',
+      source: new Source('', '600', ' ', 'print someFn(ident)'),
     }),
   ]);
 
@@ -580,7 +581,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '100 print someFn(ident)',
+      source: new Source('', '100', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -590,7 +591,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '200 print someFn(ident)',
+      source: new Source('', '200', ' ', 'print someFn(ident)'),
     }),
 
     new SyntaxError('expected )', {
@@ -601,7 +602,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '300 print someFn(ident',
+      source: new Source('', '300', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -611,7 +612,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '400 print someFn(ident',
+      source: new Source('', '400', ' ', 'print someFn(ident'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -621,7 +622,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '500 print someFn(ident)',
+      source: new Source('', '500', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -631,7 +632,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '600 print someFn(ident)',
+      source: new Source('', '600', ' ', 'print someFn(ident)'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -641,7 +642,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '700 print someFn(ident',
+      source: new Source('', '700', ' ', 'print someFn(ident'),
     }),
     new SyntaxError('expected )', {
       filename: FILENAME,
@@ -651,7 +652,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 22,
       offsetEnd: 23,
-      source: '800 print someFn(ident',
+      source: new Source('', '800', ' ', 'print someFn(ident)'),
     }),
   ]);
 
@@ -664,7 +665,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '100 print someFn(ident)',
+      source: new Source('', '100', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -674,7 +675,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '200 print someFn(ident)',
+      source: new Source('', '200', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -684,7 +685,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '500 print someFn(ident)',
+      source: new Source('', '500', ' ', 'print someFn(ident)'),
     }),
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -694,7 +695,7 @@ t.test('removeFromParseError', async (t: Test) => {
       cmdNo: null,
       offsetStart: 17,
       offsetEnd: 18,
-      source: '600 print someFn(ident)',
+      source: new Source('', '600', ' ', 'print someFn(ident)'),
     }),
   ]);
 

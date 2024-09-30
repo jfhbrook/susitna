@@ -84,7 +84,7 @@ export class CommandCompiler
       cmdNo: cmdNo || 100,
       offsetStart: instr.offsetStart,
       offsetEnd: instr.offsetEnd,
-      source: (cmdSource || Source.UNKNOWN).toString(),
+      source: cmdSource || Source.UNKNOWN,
     });
 
     throw new ParseError([exc]);

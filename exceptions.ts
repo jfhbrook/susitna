@@ -3,6 +3,7 @@ import { errorType, ErrorCode } from './errors';
 import { Formattable, Formatter, formatter } from './format';
 import { Traceable, Traceback } from './traceback';
 import { Value } from './value';
+import { Source } from './ast/source';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.
@@ -451,7 +452,7 @@ export interface SourceLocation {
    * The referenced source code. Will typically be a line or interactive
    * command.
    */
-  source: string;
+  source: Source;
 
   // TODO: Add this when there are multi-line sytax structures.
   // endLineNo: number | null,
@@ -493,7 +494,7 @@ export class SyntaxError extends BaseException implements SourceLocation {
   public cmdNo: number;
   public offsetStart: number;
   public offsetEnd: number;
-  public source: string;
+  public source: Source;
 
   /**
    * @param message The message for the exception.
@@ -553,7 +554,7 @@ export class SyntaxWarning extends BaseWarning implements SourceLocation {
   public cmdNo: number;
   public offsetStart: number;
   public offsetEnd: number;
-  public source: string;
+  public source: Source;
 
   /**
    * @param message The message for the exception.

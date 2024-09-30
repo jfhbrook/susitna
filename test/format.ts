@@ -183,7 +183,9 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
 
     for (const isLine of IS_LINE) {
       t.test(`when it ${isLine ? 'is' : 'is not'} a line`, async (t: Test) => {
-        const line = isLine ? LINE : LINE.replace(/^\d+ /, '');
+        const line = isLine
+          ? Source.command(LINE)
+          : Source.command(LINE.replace(/^\d+ /, ''));
         t.test('it formats a SyntaxError', async (t: Test) => {
           t.matchSnapshot(
             formatter.format(

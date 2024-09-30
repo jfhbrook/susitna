@@ -84,7 +84,7 @@ export class Parser {
 
   private previous: Token | null;
   private current: Token;
-  private prevWs: string = '';
+  private leadingWs: string = '';
   private next: Token;
   private nextWs: string = '';
 
@@ -97,7 +97,6 @@ export class Parser {
   private lineNo: number | null = null;
   private cmdNo: number = 0;
   private line: Source = new Source('', '', '', '');
-  private lineSource: Source | null = null;
   private isShortIf: boolean = false;
 
   constructor() {}
@@ -109,7 +108,7 @@ export class Parser {
     const [ws1, current] = this.nextToken();
     this.current = current;
     const [ws2, next] = this.nextToken();
-    this.prevWs = ws1;
+    this.leadingWs = ws1;
     this.next = next;
     this.nextWs = ws2;
     this.lineErrors = [];
@@ -232,7 +231,7 @@ export class Parser {
     this.line.rest += this.current.text;
 
     const [ws, next] = this.nextToken();
-    this.prevWs = this.nextWs;
+    this.leadingWs = this.nextWs;
     this.nextWs = ws;
     this.next = next;
 
@@ -335,7 +334,7 @@ export class Parser {
       if (this.match(TokenKind.DecimalLiteral)) {
         this.lineNo = this.previous!.value as number;
         this.line.lineNo = this.previous!.text;
-        this.line.trailingWhitespace = this.prevWs;
+        this.line.trailingWhitespace = this.leadingWs;
         this.line.rest = this.current.text;
         this.isLine = true;
       } else if (this.isProgram) {

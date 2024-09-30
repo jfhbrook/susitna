@@ -89,22 +89,29 @@ class InstrShifter implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitLetInstr(let_: Let): void {
     this.shiftInstr(let_);
+    let_.variable.accept(this);
   }
 
   visitAssignInstr(assign: Assign): void {
     this.shiftInstr(assign);
+    assign.variable.accept(this);
   }
 
   visitExpressionInstr(expr: Expression): void {
     this.shiftInstr(expr);
+    expr.expression.accept(this);
   }
 
   visitPrintInstr(print: Print): void {
     this.shiftInstr(print);
+    print.expression.accept(this);
   }
 
   visitExitInstr(exit: Exit): void {
     this.shiftInstr(exit);
+    if (exit.expression) {
+      exit.expression.accept(this);
+    }
   }
 
   visitEndInstr(end: End): void {
@@ -113,10 +120,16 @@ class InstrShifter implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitNewInstr(new_: New): void {
     this.shiftInstr(new_);
+    if (new_.filename) {
+      new_.filename.accept(this);
+    }
   }
 
   visitLoadInstr(load: Load): void {
     this.shiftInstr(load);
+    if (load.filename) {
+      load.filename.accept(this);
+    }
   }
 
   visitListInstr(list: List): void {
@@ -133,14 +146,25 @@ class InstrShifter implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitSaveInstr(save: Save): void {
     this.shiftInstr(save);
+    if (save.filename) {
+      save.filename.accept(this);
+    }
   }
 
   visitShortIfInstr(shortIf: ShortIf): void {
     this.shiftInstr(shortIf);
+    shortIf.condition.accept(this);
+    for (const instr of shortIf.then) {
+      instr.accept(this);
+    }
+    for (const instr of shortIf.else_) {
+      instr.accept(this);
+    }
   }
 
   visitIfInstr(if_: If): void {
     this.shiftInstr(if_);
+    if_.condition.accept(this);
   }
 
   visitElseInstr(else_: Else): void {
@@ -149,6 +173,7 @@ class InstrShifter implements InstrVisitor<void>, ExprVisitor<void> {
 
   visitElseIfInstr(elseIf: ElseIf): void {
     this.shiftInstr(elseIf);
+    elseIf.condition.accept(this);
   }
 
   visitEndIfInstr(endIf: EndIf): void {

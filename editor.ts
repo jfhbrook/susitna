@@ -79,23 +79,31 @@ export class Editor {
    * Renumber the current program.
    */
   renum(): void {
-    const renumbering: Record<number, number> = {};
+    const renumbering: Record<number, [number, number]> = {};
 
     for (let i = 0; i < this.program.lines.length; i++) {
       const line = this.program.lines[i];
       const from = line.lineNo;
       const to = (i + 1) * 10;
+      const toStr = String(to);
+      const shift = toStr.length - line.source.lineNo.length;
       line.lineNo = to;
-      line.source.lineNo = String(to);
-      renumbering[from] = to;
+      line.source.lineNo = toStr;
+      for (let instr of line.instructions) {
+        instr.offsetStart += shift;
+        instr.offsetEnd += shift;
+      }
+      renumbering[from] = [to, shift];
     }
 
     if (this.warning) {
       for (let i = 0; i < this.warning.warnings.length; i++) {
         const warning = this.warning.warnings[i];
-        const to = renumbering[warning.lineNo];
+        const [to, shift] = renumbering[warning.lineNo];
         if (to) {
           warning.lineNo = to;
+          warning.offsetStart += shift;
+          warning.offsetEnd += shift;
         }
       }
     }

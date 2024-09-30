@@ -209,7 +209,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
     this.errors = [];
 
     this.global = new GlobalBlock();
-    this.global.init(this, null, null, this.global);
+    this.global.init(this, null, null, null);
 
     this.block =
       routineType === RoutineType.Program

@@ -333,7 +333,7 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       cmdNo: this.routineType === RoutineType.Command ? null : this.lineNo,
       offsetStart: instr.offsetStart,
       offsetEnd: instr.offsetEnd,
-      source: this.lineSource.toString(),
+      source: this.lineSource,
     });
   }
 

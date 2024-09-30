@@ -8,6 +8,7 @@ import {
 import { Host } from './host';
 import { Token } from './tokens';
 import { Line, Program } from './ast';
+import { Source } from './ast/source';
 import {
   ExprVisitor,
   Unary,
@@ -60,7 +61,7 @@ type Numbering = {
   to: number;
   toStr: string;
   shift: number;
-  source: string;
+  source: Source;
 };
 
 type Renumbering = Record<LineNo, Numbering>;
@@ -288,7 +289,7 @@ export class Editor {
         to,
         toStr,
         shift: 0,
-        source: '',
+        source: Source.UNKNOWN,
       };
 
       // Track max length
@@ -322,7 +323,7 @@ export class Editor {
 
       // For use with renumbering/formatting warnings
       renumbering[from].shift = shift;
-      renumbering[from].source = line.source.toString();
+      renumbering[from].source = line.source;
 
       for (const instr of line.instructions) {
         instr.accept(new InstrShifter(shift));

@@ -96,7 +96,7 @@ export class Parser {
   private isLine: boolean = false;
   private lineNo: number | null = null;
   private cmdNo: number = 0;
-  private line: Source = new Source('', '', '', '');
+  private line: Source = Source.empty();
   private isShortIf: boolean = false;
 
   constructor() {}

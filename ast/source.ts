@@ -13,6 +13,10 @@ export class Source {
     public source: string,
   ) {}
 
+  public static empty(): Source {
+    return new Source('', '', '', '');
+  }
+
   public static command(source: string): Source {
     return new Source('', '', '', source);
   }

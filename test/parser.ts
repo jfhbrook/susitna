@@ -176,7 +176,7 @@ for (const [source, instr] of EXPRESSIONS) {
 
     t.same(
       result[0],
-      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+      new Input([new Cmd(10, 1, Source.command(source), [instr])]),
     );
   });
 
@@ -209,7 +209,7 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
 
     t.same(
       result[0],
-      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+      new Input([new Cmd(10, 1, Source.command(source), [instr])]),
     );
   });
 
@@ -242,7 +242,7 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
 
     t.same(
       result[0],
-      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+      new Input([new Cmd(10, 1, Source.command(source), [instr])]),
     );
   });
 
@@ -283,7 +283,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, new Source('', '', '', source), [
+      new Cmd(10, 1, Source.command(source), [
         new Expression(new StringLiteral('\\q'), 0, 4),
       ]),
     ]),
@@ -320,7 +320,7 @@ t.test('print instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Print(new StringLiteral('hello world'), 0, 19),
         ]),
       ]),
@@ -366,7 +366,7 @@ t.test('exit instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Exit(new IntLiteral(0), 0, 6),
         ]),
       ]),
@@ -398,7 +398,7 @@ t.test('exit instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [new Exit(null, 0, 4)]),
+        new Cmd(10, 1, Source.command(source), [new Exit(null, 0, 4)]),
       ]),
     );
   });
@@ -430,7 +430,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Rem('this is a comment', 0, 21),
         ]),
       ]),
@@ -445,9 +445,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [new Rem('', 0, 3)]),
-      ]),
+      new Input([new Cmd(10, 1, Source.command(source), [new Rem('', 0, 3)])]),
     );
   });
 
@@ -459,9 +457,7 @@ t.test('remarks', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [new Rem('', 0, 1)]),
-      ]),
+      new Input([new Cmd(10, 1, Source.command(source), [new Rem('', 0, 1)])]),
     );
   });
 
@@ -474,7 +470,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 8, 29),
         ]),
@@ -491,7 +487,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 10, 31),
         ]),
@@ -509,7 +505,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -529,7 +525,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             true,
@@ -549,7 +545,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -584,7 +580,7 @@ t.test('let', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, new Source('', '', '', source), [
+      new Cmd(10, 1, Source.command(source), [
         new Let(
           new Variable(
             new Token({
@@ -614,7 +610,7 @@ t.test('assign', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, new Source('', '', '', source), [
+      new Cmd(10, 1, Source.command(source), [
         new Assign(
           new Variable(
             new Token({
@@ -645,7 +641,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -666,7 +662,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -688,7 +684,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new ShortIf(
             new BoolLiteral(true),
             [
@@ -718,7 +714,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, new Source('', '', '', source), [
+        new Cmd(10, 1, Source.command(source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -853,7 +849,7 @@ t.test('multiple inputs', async (t: Test) => {
       new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new Cmd(10, 2, new Source('', '', '', '"foo"'), [
+      new Cmd(10, 2, Source.command('"foo"'), [
         new Expression(new StringLiteral('foo'), 0, 5),
       ]),
       new Line(200, 3, new Source('', '200', ' ', 'print "goodbye"'), [

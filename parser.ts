@@ -118,7 +118,7 @@ export class Parser {
     this.isProgram = isProgram;
     this.isLine = false;
     this.lineNo = null;
-    this.line = new Source('', '', '', ws1 + this.current.text);
+    this.line = new Source(ws1, '', '', this.current.text);
     this.isShortIf = false;
 
     tracer.trace('current', this.current);

@@ -302,7 +302,7 @@ t.test('numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Line(100, 1, new Source('', '100', ' ', '\\q'), [
+      new Line(100, 1, new Source('', '100', ' ', "'\\q'"), [
         new Expression(new StringLiteral('\\q'), 4, 8),
       ]),
     ]),

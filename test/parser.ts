@@ -3,7 +3,7 @@ import { Test } from 'tap';
 
 import { ParseWarning } from '../exceptions';
 import { formatter } from '../format';
-import { LineSource } from '../ast/source';
+import { Source } from '../ast/source';
 import {
   Binary,
   Group,
@@ -174,7 +174,10 @@ for (const [source, instr] of EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
+    t.same(
+      result[0],
+      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+    );
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -188,7 +191,7 @@ for (const [source, instr] of EXPRESSIONS) {
     t.same(
       result[0],
       new Input([
-        new Line(100, 1, new LineSource('', '100', ' ', source), [instr]),
+        new Line(100, 1, new Source('', '100', ' ', source), [instr]),
       ]),
     );
 
@@ -204,7 +207,10 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
     t.ok(result[1]);
     t.matchSnapshot(formatter.format(result[1]));
 
-    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
+    t.same(
+      result[0],
+      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+    );
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -219,7 +225,7 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
     t.same(
       result[0],
       new Input([
-        new Line(100, 1, new LineSource('', '100', ' ', source), [instr]),
+        new Line(100, 1, new Source('', '100', ' ', source), [instr]),
       ]),
     );
 
@@ -234,7 +240,10 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Cmd(10, 1, source, [instr])]));
+    t.same(
+      result[0],
+      new Input([new Cmd(10, 1, new Source('', '', '', source), [instr])]),
+    );
   });
 
   t.test(`numbered expression ${source}`, async (t: Test) => {
@@ -251,7 +260,7 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
     t.same(
       result[0],
       new Input([
-        new Line(100, 1, new LineSource('', '100', ' ', source), [instr]),
+        new Line(100, 1, new Source('', '100', ' ', source), [instr]),
       ]),
     );
 
@@ -274,7 +283,9 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, source, [new Expression(new StringLiteral('\\q'), 0, 4)]),
+      new Cmd(10, 1, new Source('', '', '', source), [
+        new Expression(new StringLiteral('\\q'), 0, 4),
+      ]),
     ]),
   );
   t.matchSnapshot(formatter.format(warning));
@@ -291,7 +302,7 @@ t.test('numbered invalid string escape', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Line(100, 1, new LineSource('', '100', ' ', '\\q'), [
+      new Line(100, 1, new Source('', '100', ' ', '\\q'), [
         new Expression(new StringLiteral('\\q'), 4, 8),
       ]),
     ]),
@@ -309,7 +320,7 @@ t.test('print instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Print(new StringLiteral('hello world'), 0, 19),
         ]),
       ]),
@@ -325,12 +336,9 @@ t.test('print instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Line(
-          100,
-          1,
-          new LineSource('', '100', ' ', 'print "hello world"'),
-          [new Print(new StringLiteral('hello world'), 4, 23)],
-        ),
+        new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
+          new Print(new StringLiteral('hello world'), 4, 23),
+        ]),
       ]),
     );
   });
@@ -357,7 +365,11 @@ t.test('exit instruction', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new Cmd(10, 1, source, [new Exit(new IntLiteral(0), 0, 6)])]),
+      new Input([
+        new Cmd(10, 1, new Source('', '', '', source), [
+          new Exit(new IntLiteral(0), 0, 6),
+        ]),
+      ]),
     );
   });
 
@@ -370,7 +382,7 @@ t.test('exit instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Line(100, 1, new LineSource('', '100', ' ', 'exit 0'), [
+        new Line(100, 1, new Source('', '100', ' ', 'exit 0'), [
           new Exit(new IntLiteral(0), 4, 10),
         ]),
       ]),
@@ -385,7 +397,9 @@ t.test('exit instruction', async (t: Test) => {
 
     t.same(
       result[0],
-      new Input([new Cmd(10, 1, source, [new Exit(null, 0, 4)])]),
+      new Input([
+        new Cmd(10, 1, new Source('', '', '', source), [new Exit(null, 0, 4)]),
+      ]),
     );
   });
 
@@ -398,7 +412,7 @@ t.test('exit instruction', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Line(100, 1, new LineSource('', '100', ' ', 'exit'), [
+        new Line(100, 1, new Source('', '100', ' ', 'exit'), [
           new Exit(null, 4, 8),
         ]),
       ]),
@@ -416,7 +430,9 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [new Rem('this is a comment', 0, 21)]),
+        new Cmd(10, 1, new Source('', '', '', source), [
+          new Rem('this is a comment', 0, 21),
+        ]),
       ]),
     );
   });
@@ -427,7 +443,12 @@ t.test('remarks', async (t: Test) => {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Cmd(10, 1, source, [new Rem('', 0, 3)])]));
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, new Source('', '', '', source), [new Rem('', 0, 3)]),
+      ]),
+    );
   });
 
   await t.test('bare semicolong', async (t: Test) => {
@@ -436,7 +457,12 @@ t.test('remarks', async (t: Test) => {
 
     t.equal(result[1], null);
 
-    t.same(result[0], new Input([new Cmd(10, 1, source, [new Rem('', 0, 1)])]));
+    t.same(
+      result[0],
+      new Input([
+        new Cmd(10, 1, new Source('', '', '', source), [new Rem('', 0, 1)]),
+      ]),
+    );
   });
 
   await t.test('remark following a instruction', async (t: Test) => {
@@ -448,7 +474,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 8, 29),
         ]),
@@ -465,7 +491,7 @@ t.test('remarks', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Print(new IntLiteral(1), 0, 7),
           new Rem('this is a comment', 10, 31),
         ]),
@@ -483,7 +509,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -503,7 +529,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             true,
@@ -523,7 +549,7 @@ t.test('load', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new Load(
             new StringLiteral('./examples/001-hello-world.bas'),
             false,
@@ -558,7 +584,7 @@ t.test('let', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, source, [
+      new Cmd(10, 1, new Source('', '', '', source), [
         new Let(
           new Variable(
             new Token({
@@ -588,7 +614,7 @@ t.test('assign', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Cmd(10, 1, source, [
+      new Cmd(10, 1, new Source('', '', '', source), [
         new Assign(
           new Variable(
             new Token({
@@ -619,7 +645,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -640,7 +666,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -662,7 +688,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new ShortIf(
             new BoolLiteral(true),
             [
@@ -692,7 +718,7 @@ t.test('short if', async (t: Test) => {
     t.same(
       result[0],
       new Input([
-        new Cmd(10, 1, source, [
+        new Cmd(10, 1, new Source('', '', '', source), [
           new ShortIf(
             new BoolLiteral(true),
             [new Print(new StringLiteral('true'), 13, 25)],
@@ -723,15 +749,13 @@ t.test('long if', async (t: Test) => {
     t.same(
       result[0],
       new Program(FILENAME, [
-        new Line(10, 1, new LineSource('', '10', ' ', 'if true then'), [
+        new Line(10, 1, new Source('', '10', ' ', 'if true then'), [
           new If(new BoolLiteral(true), 3, 15),
         ]),
-        new Line(20, 2, new LineSource('', '20', '   ', 'print "true"'), [
+        new Line(20, 2, new Source('', '20', '   ', 'print "true"'), [
           new Print(new StringLiteral('true'), 5, 17),
         ]),
-        new Line(30, 3, new LineSource('', '30', ' ', 'endif'), [
-          new EndIf(3, 8),
-        ]),
+        new Line(30, 3, new Source('', '30', ' ', 'endif'), [new EndIf(3, 8)]),
       ]),
     );
   });
@@ -750,21 +774,17 @@ t.test('long if', async (t: Test) => {
     t.same(
       result[0],
       new Program(FILENAME, [
-        new Line(10, 1, new LineSource('', '10', ' ', 'if true then'), [
+        new Line(10, 1, new Source('', '10', ' ', 'if true then'), [
           new If(new BoolLiteral(true), 3, 15),
         ]),
-        new Line(20, 2, new LineSource('', '20', '   ', 'print "true"'), [
+        new Line(20, 2, new Source('', '20', '   ', 'print "true"'), [
           new Print(new StringLiteral('true'), 5, 17),
         ]),
-        new Line(30, 3, new LineSource('', '30', ' ', 'else'), [
-          new Else(3, 7),
-        ]),
-        new Line(40, 4, new LineSource('', '40', '   ', 'print "false"'), [
+        new Line(30, 3, new Source('', '30', ' ', 'else'), [new Else(3, 7)]),
+        new Line(40, 4, new Source('', '40', '   ', 'print "false"'), [
           new Print(new StringLiteral('false'), 5, 18),
         ]),
-        new Line(50, 5, new LineSource('', '50', ' ', 'endif'), [
-          new EndIf(3, 8),
-        ]),
+        new Line(50, 5, new Source('', '50', ' ', 'endif'), [new EndIf(3, 8)]),
       ]),
     );
   });
@@ -783,21 +803,19 @@ t.test('long if', async (t: Test) => {
     t.same(
       result[0],
       new Program(FILENAME, [
-        new Line(10, 1, new LineSource('', '10', ' ', 'if true then'), [
+        new Line(10, 1, new Source('', '10', ' ', 'if true then'), [
           new If(new BoolLiteral(true), 3, 15),
         ]),
-        new Line(20, 2, new LineSource('', '20', '   ', 'print "true"'), [
+        new Line(20, 2, new Source('', '20', '   ', 'print "true"'), [
           new Print(new StringLiteral('true'), 5, 17),
         ]),
-        new Line(30, 3, new LineSource('', '30', ' ', 'else if false then'), [
+        new Line(30, 3, new Source('', '30', ' ', 'else if false then'), [
           new ElseIf(new BoolLiteral(false), 3, 21),
         ]),
-        new Line(40, 4, new LineSource('', '40', '   ', 'print "false"'), [
+        new Line(40, 4, new Source('', '40', '   ', 'print "false"'), [
           new Print(new StringLiteral('false'), 5, 18),
         ]),
-        new Line(50, 5, new LineSource('', '50', ' ', 'endif'), [
-          new EndIf(3, 8),
-        ]),
+        new Line(50, 5, new Source('', '50', ' ', 'endif'), [new EndIf(3, 8)]),
       ]),
     );
   });
@@ -819,7 +837,7 @@ t.test('empty line', async (t: Test) => {
 
   t.same(
     result[0],
-    new Input([new Line(100, 1, new LineSource('', '100', '', ''), [])]),
+    new Input([new Line(100, 1, new Source('', '100', '', ''), [])]),
   );
 });
 
@@ -832,13 +850,13 @@ t.test('multiple inputs', async (t: Test) => {
   t.same(
     result[0],
     new Input([
-      new Line(100, 1, new LineSource('', '100', ' ', 'print "hello world"'), [
+      new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new Cmd(10, 2, source[1], [
+      new Cmd(10, 2, new Source('', '', '', '"foo"'), [
         new Expression(new StringLiteral('foo'), 0, 5),
       ]),
-      new Line(200, 3, new LineSource('', '200', ' ', 'print "goodbye"'), [
+      new Line(200, 3, new Source('', '200', ' ', 'print "goodbye"'), [
         new Print(new StringLiteral('goodbye'), 4, 19),
       ]),
     ]),
@@ -873,10 +891,10 @@ t.test('simple program', async (t: Test) => {
   t.same(
     result[0],
     new Program(FILENAME, [
-      new Line(100, 1, new LineSource('', '100', ' ', 'print "hello world"'), [
+      new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
-      new Line(200, 2, new LineSource('', '200', ' ', 'print "goodbye"'), [
+      new Line(200, 2, new Source('', '200', ' ', 'print "goodbye"'), [
         new Print(new StringLiteral('goodbye'), 4, 19),
       ]),
     ]),
@@ -892,10 +910,10 @@ t.test('out of order program', async (t: Test) => {
   t.same(
     result[0],
     new Program(FILENAME, [
-      new Line(100, 2, new LineSource('', '100', ' ', 'print "goodbye"'), [
+      new Line(100, 2, new Source('', '100', ' ', 'print "goodbye"'), [
         new Print(new StringLiteral('goodbye'), 4, 19),
       ]),
-      new Line(200, 1, new LineSource('', '200', ' ', 'print "hello world"'), [
+      new Line(200, 1, new Source('', '200', ' ', 'print "hello world"'), [
         new Print(new StringLiteral('hello world'), 4, 23),
       ]),
     ]),

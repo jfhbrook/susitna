@@ -93,6 +93,7 @@ export class Config {
     eval_: string | null,
     public readonly script: string | null,
     public readonly level: Level,
+    public readonly historySize: number,
     public readonly argv: Argv,
     public readonly env: Env,
   ) {
@@ -111,6 +112,7 @@ export class Config {
     let eval_: string | null = null;
     let script: string | null = null;
     let level = Level.Info;
+    let historySize = 30;
     const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
     if (env.MATBAS_LOG_LEVEL) {
@@ -147,6 +149,13 @@ export class Config {
           }
           level = parseLevel(args.shift() as string);
           break;
+        case '--history-size':
+          args.shift();
+          if (!args.length) {
+            throw usage('No history size provided');
+          }
+          historySize = parseInt(args.shift() as string);
+          break;
         case '-v':
         case '--version':
           throw version();
@@ -167,7 +176,15 @@ export class Config {
       }
     }
 
-    return new Config(command, eval_, script, level, scriptArgv, env);
+    return new Config(
+      command,
+      eval_,
+      script,
+      level,
+      historySize,
+      scriptArgv,
+      env,
+    );
   }
 
   /**
@@ -180,6 +197,7 @@ export class Config {
         eval: this.eval,
         script: this.script,
         logLevel: this.level,
+        historySize: this.historySize,
         argv: this.argv,
       },
       null,

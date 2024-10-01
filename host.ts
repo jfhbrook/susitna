@@ -437,7 +437,7 @@ export class ConsoleHost implements Host {
     try {
       return await readFile(this.resolvePath(filename), 'utf8');
     } catch (err) {
-      throw FileError.fromError(null, err);
+      throw FileError.fromReadError(null, err);
     }
   }
 
@@ -445,7 +445,7 @@ export class ConsoleHost implements Host {
     try {
       await writeFile(this.resolvePath(filename), contents, 'utf8');
     } catch (err) {
-      throw FileError.fromError(null, err);
+      throw FileError.fromWriteError(null, err);
     }
   }
 }

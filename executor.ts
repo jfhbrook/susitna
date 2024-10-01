@@ -1,4 +1,5 @@
 import * as readline from 'node:readline/promises';
+import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
 
@@ -31,19 +32,19 @@ export class Executor {
   private parser: Parser;
   private runtime: Runtime;
   private _readline: readline.Interface | null;
+  private history: string[];
 
   private ps1: string = '\\u@\\h:\\w\\$';
 
-  private cmdSource: string = '';
-
   constructor(
-    private _config: Config,
+    private config: Config,
     private editor: Editor,
     @Inject('Host') private host: Host,
   ) {
     this.parser = new Parser();
     this.runtime = new Runtime(host);
     this._readline = null;
+    this.history = [];
   }
 
   /**
@@ -52,11 +53,11 @@ export class Executor {
   async init(): Promise<void> {
     tracer.open('Executor#init');
     // Ensure the commander's state is clean before initializing.
-    await this.close();
+    await this.close(false);
 
-    // TODO: Support for tab-completion and history. Note:
-    // - Tab complete will only apply for source input.
-    // - History will be different between user and source input.
+    await this.loadHistory();
+
+    // TODO: Support for tab-completion
     this.readline = this.createInterface();
 
     // TODO: Node's behavior on first press is to print:
@@ -86,13 +87,16 @@ export class Executor {
       this.host.writeDebug('Received SIGINT (ctrl-c)');
       this.close();
     });
+    this.readline.on('history', (history) => {
+      this.history = history;
+    });
     tracer.close();
   }
 
   /**
    * Close the commander.
    */
-  async close(): Promise<void> {
+  async close(saveHistory: boolean = true): Promise<void> {
     tracer.open('Executor#close');
     let p: Promise<void> = Promise.resolve();
 
@@ -108,7 +112,10 @@ export class Executor {
       this._readline.close();
     }
 
-    return p;
+    return Promise.all([
+      p,
+      saveHistory ? this.saveHistory() : Promise.resolve(),
+    ]).then(() => {});
   }
 
   /**
@@ -142,7 +149,32 @@ export class Executor {
       input: this.host.inputStream,
       output: this.host.outputStream,
       terminal: true,
+      history: this.history,
+      historySize: this.config.historySize,
     });
+  }
+
+  private get historyFile(): string {
+    return path.join(this.host.homedir(), '.matbas_history');
+  }
+
+  private async loadHistory(): Promise<void> {
+    try {
+      this.history = (await this.host.readFile(this.historyFile)).split('\n');
+    } catch (err) {
+      // TODO: Why is this not logging?
+      // if (err.code !== 'ENOENT') {
+      this.host.writeWarn(err);
+      // }
+    }
+  }
+
+  private async saveHistory(): Promise<void> {
+    try {
+      await this.host.writeFile(this.historyFile, this.history.join('\n'));
+    } catch (err) {
+      this.host.writeWarn(err);
+    }
   }
 
   /**

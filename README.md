@@ -30,13 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- fix renum
-  - match number (include leading whitespace)
-  - get number length
-  - traverse and re-number elements/tokens based on changed length
-  - test where `100` gets renumbered to `10`
-  - test where `10` gets renumbered to `100`
-- consider using runtimeMethod decorator elsewhere
 - rename "arguments" to "params"?
 - for/while/goto
   - [ ] ADR for for/while/goto
@@ -84,6 +77,9 @@ gaps.
 
 ### Up Next
 
+- Assert module
+  - Wrap 'node:assert'
+  - Throw RuntimeFault
 - Investigate [Node.js inspector](https://nodejs.org/en/learn/getting-started/debugging)
 - Escaped newlines
 - Arrays

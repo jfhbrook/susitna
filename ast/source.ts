@@ -4,8 +4,6 @@
 //
 
 export class Source {
-  public static UNKNOWN = new Source('', '', '', '<unknown>');
-
   constructor(
     public leadingWs: string,
     public lineNo: string,
@@ -19,6 +17,10 @@ export class Source {
 
   public static command(source: string): Source {
     return new Source('', '', '', source);
+  }
+
+  public static unknown(): Source {
+    return new Source('', '', '', '<unknown>');
   }
 
   public clone(): Source {

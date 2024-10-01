@@ -289,7 +289,7 @@ export class Editor {
         to,
         toStr,
         shift: 0,
-        source: Source.UNKNOWN,
+        source: line.source,
       };
 
       // Track max length
@@ -315,19 +315,17 @@ export class Editor {
 
       // Renumber the line
       line.lineNo = to;
-      line.source.lineNo = toStr;
-
-      // Justify the new numbering
       line.source.leadingWs = leftPadding;
+      line.source.lineNo = toStr;
       line.source.separatingWs = rightPadding;
 
-      // For use with renumbering/formatting warnings
-      renumbering[from].shift = shift;
-      renumbering[from].source = line.source;
-
+      // Shift the instructions
       for (const instr of line.instructions) {
         instr.accept(new InstrShifter(shift));
       }
+
+      // Store for shifting the warnings
+      renumbering[from].shift = shift;
     }
 
     // Renumber/format warnings
@@ -337,6 +335,9 @@ export class Editor {
         const { to, shift, source } = renumbering[warning.lineNo];
         if (to) {
           warning.lineNo = to;
+          // TODO: If the warning's source is known to be the same object
+          // as line.source, this assignment is unnecessary. But I'd need to
+          // look and confirm.
           warning.source = source;
           warning.offsetStart += shift;
           warning.offsetEnd += shift;

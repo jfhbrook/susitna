@@ -52,14 +52,14 @@ import { sortLines } from './ast/util';
 
 const tracer = getTracer('parser');
 
-export interface Arguments {
-  parameters: Expr[];
+export interface Params {
+  arguments: Expr[];
   flags: Record<string, boolean>;
   options: Record<string, Expr>;
 }
 
-export interface ArgumentsSpec {
-  parameters?: string[];
+export interface ParamsSpec {
+  arguments?: string[];
   flags?: string[];
   options?: string[];
 }
@@ -138,7 +138,7 @@ export class Parser {
 
     // NOTE: errors and warnings are *almost* sorted, but there are
     // certain cases where an error is only known after its expression is
-    // parsed - for example, parameter length validation in arguments
+    // parsed - for example, parameter length validation in params
     // parsing.
     let warning: ParseWarning | null = null;
     if (this.isError) {
@@ -530,12 +530,12 @@ export class Parser {
 
   private load(): Instr {
     return tracer.spanSync('load', () => {
-      const { parameters, flags } = this.arguments({
-        parameters: ['filename'],
+      const { arguments: args, flags } = this.params({
+        arguments: ['filename'],
         flags: ['run'],
       });
 
-      const filename = parameters[0];
+      const filename = args[0];
       return new Load(filename, flags.run || false);
     });
   }
@@ -708,10 +708,10 @@ export class Parser {
     });
   }
 
-  private arguments(spec: ArgumentsSpec): Arguments {
-    return tracer.spanSync('arguments', () => {
-      const parameters = spec.parameters || [];
-      const argv: Arguments = { parameters: [], flags: {}, options: {} };
+  private params(spec: ParamsSpec): Params {
+    return tracer.spanSync('params', () => {
+      const args = spec.arguments || [];
+      const argv: Params = { arguments: [], flags: {}, options: {} };
       const flagNames: Set<string> = new Set(spec.flags || []);
       const noFlagNames: Set<string> = new Set(
         (spec.flags || []).map((f) => `no-${f}`),
@@ -738,17 +738,17 @@ export class Parser {
         } else {
           prevParamToken = currParamToken;
           currParamToken = this.current;
-          argv.parameters.push(this.expression());
+          argv.arguments.push(this.expression());
         }
       }
 
-      if (argv.parameters.length < parameters.length) {
+      if (argv.arguments.length < args.length) {
         this.syntaxError(
           currParamToken,
-          `Missing parameter '${parameters[argv.parameters.length]}'`,
+          `Missing argument '${args[argv.arguments.length]}'`,
         );
-      } else if (argv.parameters.length > parameters.length) {
-        this.syntaxError(prevParamToken, 'Unexpected parameter');
+      } else if (argv.arguments.length > args.length) {
+        this.syntaxError(prevParamToken, 'Unexpected argument');
       }
 
       return argv;

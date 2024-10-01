@@ -21,13 +21,13 @@ exports[`test/parser.ts > TAP > bare expression starting with an integer > must 
 `
 
 exports[`test/parser.ts > TAP > load > load with no filename > must match snapshot 1`] = `
-<input>:<R1>:4 (at the beginning): error: Missing parameter 'filename'
+<input>:<R1>:4 (at the beginning): error: Missing argument 'filename'
   load
       ^
 `
 
 exports[`test/parser.ts > TAP > load > load with two positional arguments > must match snapshot 1`] = `
-<input>:<R1>:5 (at the beginning): error: Unexpected parameter
+<input>:<R1>:5 (at the beginning): error: Unexpected argument
   load "./examples/001-hello-world.bas" "extra"
        ^
 `

@@ -30,7 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- rename "arguments" to "params"?
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

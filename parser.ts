@@ -260,7 +260,7 @@ export class Parser {
       cmdNo: this.isLine ? null : this.cmdNo,
       offsetStart: token.offsetStart,
       offsetEnd: token.offsetEnd,
-      source: Source.UNKNOWN,
+      source: Source.unknown(),
     });
     this.isError = true;
     this.lineErrors.push(exc);
@@ -276,7 +276,7 @@ export class Parser {
       cmdNo: this.isLine ? null : this.cmdNo,
       offsetStart: token.offsetStart,
       offsetEnd: token.offsetEnd,
-      source: Source.UNKNOWN,
+      source: Source.unknown(),
     });
     this.isWarning = true;
     this.lineErrors.push(exc);
@@ -1029,7 +1029,7 @@ export class Parser {
                 cmdNo: this.isLine ? null : this.cmdNo,
                 offsetStart: offset,
                 offsetEnd: offset + 2,
-                source: Source.UNKNOWN,
+                source: Source.unknown(),
               }),
             );
             this.isWarning = true;

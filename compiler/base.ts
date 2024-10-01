@@ -730,7 +730,7 @@ export function compileInstruction(
 ): CompileResult<Chunk> {
   const { cmdNo, cmdSource } = options;
   const lines = [
-    new Line(cmdNo || 100, 1, cmdSource || Source.UNKNOWN, [instr]),
+    new Line(cmdNo || 100, 1, cmdSource || Source.unknown(), [instr]),
   ];
   const compiler = new LineCompiler(lines, RoutineType.Command, options);
   return compiler.compile();

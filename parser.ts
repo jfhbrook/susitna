@@ -209,14 +209,14 @@ export class Parser {
     return this.next.kind === kind;
   }
 
-  private nextToken(line: string = ''): [string, Token] {
+  private nextToken(ws: string = ''): [string, Token] {
     const token = this.scanner.nextToken();
 
     if (token.kind === TokenKind.Whitespace) {
-      return this.nextToken(line + token.text);
+      return this.nextToken(ws + token.text);
     }
 
-    return [line, token];
+    return [ws, token];
   }
 
   private advance(): Token {

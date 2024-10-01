@@ -301,7 +301,7 @@ export class FileError extends OsError {
     message: any | null,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null = null,
-  ) {
+  ): FileError {
     if (message === null) {
       const split = err.message.split(': ');
       if (split.length === 2) {
@@ -330,8 +330,8 @@ export class FileError extends OsError {
   static fromReadError(
     message: any | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback | null,
-  ) {
+    traceback: Traceback | null = null,
+  ): FileError {
     const code = err.code;
     let exitCode: ExitCode | null = null;
 
@@ -359,8 +359,8 @@ export class FileError extends OsError {
   static fromWriteError(
     message: any | null,
     err: NodeJS.ErrnoException,
-    traceback: Traceback | null,
-  ) {
+    traceback: Traceback | null = null,
+  ): FileError {
     const code = err.code;
     let exitCode: ExitCode | null = null;
 

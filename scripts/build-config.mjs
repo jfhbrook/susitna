@@ -10,7 +10,7 @@ const testExclude = ['test'];
 const baseUrl = './';
 const outDir = './dist';
 const target = 'es2022';
-const moduleType = 'commonjs';
+const moduleType = 'nodenext';
 
 const sourceMaps = true;
 // Necessary for NestJS to work
@@ -23,7 +23,7 @@ const strictBindCallApply = false;
 const forceConsistentCasingInFileNames = true;
 const noFallthroughCasesInSwitch = false;
 
-const minify = true; // swc only
+const minify = false; // swc only
 const declaration = true; // tsc only
 const removeComments = true; // tsc only
 

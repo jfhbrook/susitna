@@ -7,7 +7,7 @@
     "*.njk.ts"
   ],
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
     "baseUrl": "./",
     "outDir": "./dist",
     "target": "es2022",

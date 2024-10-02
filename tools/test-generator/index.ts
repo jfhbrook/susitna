@@ -17,7 +17,7 @@ export async function main(
   const config = loadConfig(argv, env);
 
   for (const [name, generator] of GENERATORS) {
-    const scriptPath = path.resolve(path.join(config.directory, name));
+    const scriptPath = `${path.resolve(path.join(config.directory, name))}.mts`;
 
     let script: string;
     if (config.activate) {

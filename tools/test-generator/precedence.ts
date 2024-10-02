@@ -40,8 +40,8 @@ export function generatePrecedenceTest({ precedenceCount }: Config): string {
 
 import { describe, test, expect } from 'vitest';
 
-import { FILENAME } from './helpers/files';
-import { parseProgram } from './helpers/parser';
+import { FILENAME } from './helpers/files.mjs';
+import { parseProgram } from './helpers/parser.mjs';
 
 describe('operator precedence', () => {
 `;

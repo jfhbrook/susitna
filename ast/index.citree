@@ -1,5 +1,5 @@
 type Expr in './expr' {
-  import { Token, TokenKind } from '../tokens'
+  import { Token, TokenKind } from '../tokens.mjs'
 
   Unary          => op: TokenKind, expr: Expr
   Binary         => left: Expr, op: TokenKind, right: Expr
@@ -15,7 +15,7 @@ type Expr in './expr' {
 }
 
 type Instr in './instr' {
-  import { Expr, Variable } from './expr'
+  import { Expr, Variable } from './expr.mjs'
 
   Instr      => offsetStart: number = -1, offsetEnd: number = -1
   Rem        => remark: string
@@ -39,8 +39,8 @@ type Instr in './instr' {
 }
 
 type Tree in './index' {
-  import { Source } from './source'
-  import { Instr } from './instr'
+  import { Source } from './source.mjs'
+  import { Instr } from './instr.mjs'
 
   Cmd          => cmdNo: number, row: number, source: Source, instructions: Instr[]
   Line         => lineNo: number, row: number, source: Source, instructions: Instr[]

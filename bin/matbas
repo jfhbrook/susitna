@@ -8,6 +8,6 @@
 # In a C++ version, we could probably use getenv/setenv for this.
 export __MATBAS_DOLLAR_ZERO="${0}"
 
-SCRIPT="$(dirname "$(dirname "${BASH_SOURCE[0]}")")/dist/main.js"
+SCRIPT="$(dirname "$(dirname "${BASH_SOURCE[0]}")")/dist/main.mjs"
 
 exec node --enable-source-maps "${SCRIPT}" "$@"

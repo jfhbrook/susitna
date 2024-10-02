@@ -2,8 +2,8 @@
 .env
 
 # compiled output
-constants.ts
-debug.ts
+constants.mts
+debug.mts
 /dist
 /node_modules
 

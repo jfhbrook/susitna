@@ -35,6 +35,11 @@ export class Executor {
   private history: string[];
 
   private ps1: string = '\\u@\\h:\\w\\$';
+  // The number of commands which have been run in the current session.
+  // In the PS1, \# shows the number of the not-yet-run command (so cmdNo + 1),
+  // and \! shows the *history* number of the not-yet-run command. This is the
+  // same as the command number + the size of the history file.
+  private cmdNo: number = 0;
 
   constructor(
     private config: Config,
@@ -171,8 +176,11 @@ export class Executor {
   }
 
   private async saveHistory(): Promise<void> {
+    const history = this.history.slice(
+      Math.max(this.config.historyFileSize - this.history.length, 0),
+    );
     try {
-      await this.host.writeFile(this.historyFile, this.history.join('\n'));
+      await this.host.writeFile(this.historyFile, history.join('\n'));
     } catch (err) {
       this.host.writeWarn(err);
     }
@@ -194,8 +202,12 @@ export class Executor {
    * @param prompt The prompt to display.
    * @returns A promise that resolves to the source line.
    */
-  prompt(): Promise<string> {
-    return this.readline.question(`${renderPrompt(this.ps1, this.host)} `);
+  async prompt(): Promise<string> {
+    const ans = await this.readline.question(
+      `${renderPrompt(this.ps1, this.host)} `,
+    );
+    this.cmdNo++;
+    return ans;
   }
 
   /**

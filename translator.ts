@@ -51,6 +51,8 @@ export class Translator {
     const { host, exit, config, executor } = this;
     let error: any = null;
 
+    host.setLevel(config.level);
+
     function errorExit(error: any): void {
       tracer.close();
       exit(

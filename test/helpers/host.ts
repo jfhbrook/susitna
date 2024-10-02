@@ -67,6 +67,13 @@ export interface MockConsoleHostOptions {
   files?: Record<string, string>;
 }
 
+const FILES = Object.assign(
+  {
+    '/home/josh/.matbas_history': '',
+  },
+  EXAMPLES,
+);
+
 /**
  * A subclass of ConsoleHost with test streams.
  */
@@ -77,7 +84,7 @@ export class MockConsoleHost extends ConsoleHost {
   public files: Record<string, string>;
   private expectStart: number;
 
-  constructor({ files }: MockConsoleHostOptions = { files: EXAMPLES }) {
+  constructor({ files }: MockConsoleHostOptions = { files: FILES }) {
     super();
     this.inputStream = new MockInputStream();
     this.outputStream = new MockOutputStream();
@@ -152,7 +159,7 @@ export class MockConsoleHost extends ConsoleHost {
 
   async readFile(filename: string): Promise<string> {
     const contents = this.files[this.resolvePath(filename)];
-    assert.ok(contents);
+    assert.notEqual(contents, undefined);
     return contents;
   }
 

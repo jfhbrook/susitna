@@ -246,7 +246,7 @@ export class ConsoleHost implements Host {
   inputStream: Readable;
   outputStream: Writable;
   errorStream: Writable;
-  level: Level;
+  level: Level = Level.Info;
 
   private _tty: string | null | undefined = undefined;
 

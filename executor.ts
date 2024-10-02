@@ -162,10 +162,11 @@ export class Executor {
     try {
       this.history = (await this.host.readFile(this.historyFile)).split('\n');
     } catch (err) {
-      // TODO: Why is this not logging?
-      // if (err.code !== 'ENOENT') {
-      this.host.writeWarn(err);
-      // }
+      if (err.code !== 'ENOENT') {
+        this.host.writeWarn(err);
+      } else {
+        this.host.writeDebug(err);
+      }
     }
   }
 

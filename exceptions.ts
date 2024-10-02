@@ -264,6 +264,14 @@ export class OsError extends Exception implements ExitCoded {
  */
 export type FileErrorPaths = [string] | [string, string];
 
+function getFileErrorMessage(err: NodeJS.ErrnoException): string {
+  const split = err.message.split(': ');
+  if (split.length === 2) {
+    return split[1];
+  }
+  return err.message;
+}
+
 /**
  * An error raised when a known file operation fails. Includes the target
  * filename(s) and a more specific exit code.
@@ -298,20 +306,13 @@ export class FileError extends OsError {
    * @param traceback The traceback for the error.
    */
   static fromError(
-    message: any | null,
+    message: any,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null = null,
   ): FileError {
-    if (message === null) {
-      const split = err.message.split(': ');
-      if (split.length === 2) {
-        message = split[1];
-      } else {
-        message = err.message;
-      }
-    }
+    const msg = message || getFileErrorMessage(err);
     return new FileError(
-      message,
+      msg,
       err.code || '<unknown>',
       null,
       [err.path || '<unknown>'],
@@ -328,10 +329,11 @@ export class FileError extends OsError {
    * @param traceback The traceback for the error.
    */
   static fromReadError(
-    message: any | null,
+    message: any,
     err: NodeJS.ErrnoException,
     traceback: Traceback | null = null,
   ): FileError {
+    const msg = message || getFileErrorMessage(err);
     const code = err.code;
     let exitCode: ExitCode | null = null;
 
@@ -340,7 +342,7 @@ export class FileError extends OsError {
     }
 
     return new FileError(
-      message || err.message,
+      msg,
       code || '<unknown>',
       exitCode,
       [err.path || '<unknown>'],
@@ -361,6 +363,7 @@ export class FileError extends OsError {
     err: NodeJS.ErrnoException,
     traceback: Traceback | null = null,
   ): FileError {
+    const msg = message || getFileErrorMessage(err);
     const code = err.code;
     let exitCode: ExitCode | null = null;
 
@@ -369,7 +372,7 @@ export class FileError extends OsError {
     }
 
     return new FileError(
-      message || err.message,
+      msg,
       code || '<unknown>',
       exitCode,
       [err.path || '<unknown>'],

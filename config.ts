@@ -132,8 +132,8 @@ export class Config {
     let eval_: string | null = null;
     let script: string | null = null;
     let level = Level.Info;
-    let historySize: number | null = null;
-    let historyFileSize: number | null = null;
+    let historySize: number = 500;
+    let historyFileSize: number = 500;
     const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
     if (env.MATBAS_LOG_LEVEL) {
@@ -212,19 +212,13 @@ export class Config {
       }
     }
 
-    const histSize = historySize === null ? 500 : historySize;
-    const histFileSize = Math.min(
-      histSize,
-      historyFileSize === null ? 500 : historyFileSize,
-    );
-
     return new Config(
       command,
       eval_,
       script,
       level,
-      histSize,
-      histFileSize,
+      historySize,
+      Math.min(historySize, historyFileSize),
       scriptArgv,
       env,
     );

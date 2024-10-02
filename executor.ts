@@ -21,7 +21,7 @@ import { inspector } from './format';
 import { Host } from './host';
 import { Parser, ParseResult } from './parser';
 import { Runtime } from './runtime';
-import { renderPrompt } from './shell';
+import { Prompt } from './shell';
 
 import { Line, Cmd, Program } from './ast';
 
@@ -34,7 +34,7 @@ export class Executor {
   private _readline: readline.Interface | null;
   private history: string[];
 
-  private ps1: string = '\\u@\\h:\\w\\$';
+  private ps1: Prompt;
   // The number of commands which have been run in the current session.
   // In the PS1, \# shows the number of the not-yet-run command (so cmdNo + 1),
   // and \! shows the *history* number of the not-yet-run command. This is the
@@ -50,6 +50,7 @@ export class Executor {
     this.runtime = new Runtime(host);
     this._readline = null;
     this.history = [];
+    this.ps1 = new Prompt('\\u@\\h:\\w\\$', this.config.historyFileSize, host);
   }
 
   /**
@@ -203,9 +204,7 @@ export class Executor {
    * @returns A promise that resolves to the source line.
    */
   async prompt(): Promise<string> {
-    const ans = await this.readline.question(
-      `${renderPrompt(this.ps1, this.host)} `,
-    );
+    const ans = await this.readline.question(`${this.ps1.render(this.cmdNo)} `);
     this.cmdNo++;
     return ans;
   }

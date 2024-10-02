@@ -2,16 +2,32 @@ import t from 'tap';
 import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
-import { abbreviateHome, renderPrompt } from '../shell';
+import { Host } from '../host';
+import { abbreviateHome, Prompt } from '../shell';
 
 import { MockConsoleHost } from './helpers/host';
 
-const topic = discuss(async () => {
+const hostTopic = discuss(async () => {
   return new MockConsoleHost();
 });
 
+const rootHostTopic = hostTopic.discuss<MockConsoleHost>(async (host) => {
+  (host as any).uid = () => 0;
+  return host;
+});
+
+async function renderer(host: Host) {
+  return function renderPrompt(ps1: string): string {
+    const prompt = new Prompt(ps1, 500, host);
+    return prompt.render(0);
+  };
+}
+
+const promptTopic = hostTopic.discuss(renderer);
+const rootPromptTopic = rootHostTopic.discuss(renderer);
+
 t.test('abbreviateHome', async (t: Test) => {
-  await topic.swear(async (host) => {
+  await hostTopic.swear(async (host) => {
     t.test("when it's in the home directory", async (t: Test) => {
       t.equal(abbreviateHome('/home/josh/matanuska', host), '~/matanuska');
     });
@@ -27,108 +43,103 @@ t.test('abbreviateHome', async (t: Test) => {
 });
 
 t.test('renderPrompt', async (t: Test) => {
-  await topic.swear(async (host) => {
+  await promptTopic.swear(async (renderPrompt) => {
     t.test('empty prompt', async (t: Test) => {
-      t.equal(renderPrompt('', host), '');
+      t.equal(renderPrompt(''), '');
     });
 
     t.test('escape with no following', async (t: Test) => {
-      t.equal(renderPrompt('\\', host), '\\');
+      t.equal(renderPrompt('\\'), '\\');
     });
 
     t.test('weekday month date', async (t: Test) => {
-      t.equal(renderPrompt('\\d', host), 'Sun Jun 23');
+      t.equal(renderPrompt('\\d'), 'Sun Jun 23');
     });
 
     t.test('strftime format', async (t: Test) => {
-      t.equal(renderPrompt('\\D{%o of %B}', host), '23rd of June');
+      t.equal(renderPrompt('\\D{%o of %B}'), '23rd of June');
     });
 
     t.test('non-terminated strftime format', async (t: Test) => {
-      t.equal(renderPrompt('\\D{%o of %B', host), '23rd of June');
+      t.equal(renderPrompt('\\D{%o of %B'), '23rd of June');
     });
 
     t.test('non-initialized strftime format', async (t: Test) => {
-      t.equal(renderPrompt('\\D%o of %B', host), '\\D%o of %B');
+      t.equal(renderPrompt('\\D%o of %B'), '\\D%o of %B');
     });
 
     t.test('short hostname', async (t: Test) => {
-      t.equal(renderPrompt('\\h', host), 'gibson');
+      t.equal(renderPrompt('\\h'), 'gibson');
     });
 
     t.test('long hostname', async (t: Test) => {
-      t.equal(renderPrompt('\\H', host), 'gibson.local');
+      t.equal(renderPrompt('\\H'), 'gibson.local');
     });
 
     t.todo('jobs', async (t: Test) => {
-      t.equal(renderPrompt('\\j', host), '1');
+      t.equal(renderPrompt('\\j'), '1');
     });
 
     t.test('tty', async (t: Test) => {
-      t.equal(renderPrompt('\\l', host), 'tty0');
+      t.equal(renderPrompt('\\l'), 'tty0');
     });
 
     t.test('shell', async (t: Test) => {
-      t.equal(renderPrompt('\\s', host), 'matbas');
+      t.equal(renderPrompt('\\s'), 'matbas');
     });
 
     t.test('24 hr HH:MM:SS', async (t: Test) => {
-      t.equal(renderPrompt('\\t', host), '13:00:00');
+      t.equal(renderPrompt('\\t'), '13:00:00');
     });
 
     t.test('12 hr HH:MM:SS', async (t: Test) => {
-      t.equal(renderPrompt('\\T', host), '01:00:00');
+      t.equal(renderPrompt('\\T'), '01:00:00');
     });
 
     t.test('12 hr AM/PM', async (t: Test) => {
-      t.equal(renderPrompt('\\@', host), '01:00 PM');
+      t.equal(renderPrompt('\\@'), '01:00 PM');
     });
 
     t.test('24 hr HH:MM', async (t: Test) => {
-      t.equal(renderPrompt('\\A', host), '13:00');
+      t.equal(renderPrompt('\\A'), '13:00');
     });
 
     t.test('username', async (t: Test) => {
-      t.equal(renderPrompt('\\u', host), 'josh');
+      t.equal(renderPrompt('\\u'), 'josh');
     });
 
     t.test('short version', async (t: Test) => {
-      t.match(renderPrompt('\\v', host), /^\d+\.\d+$/);
+      t.match(renderPrompt('\\v'), /^\d+\.\d+$/);
     });
 
     t.test('full version', async (t: Test) => {
-      t.match(renderPrompt('\\V', host), /^\d+\.\d+\.\d+$/);
+      t.match(renderPrompt('\\V'), /^\d+\.\d+\.\d+$/);
     });
 
     t.test('pwd', async (t: Test) => {
-      t.equal(renderPrompt('\\w', host), '~/matanuska');
+      t.equal(renderPrompt('\\w'), '~/matanuska');
     });
 
     t.todo('history number', async (t: Test) => {
-      t.equal(renderPrompt('\\!', host), '1');
+      t.equal(renderPrompt('\\!'), '1');
     });
 
     t.todo('command number', async (t: Test) => {
-      t.equal(renderPrompt('\\#', host), '1');
+      t.equal(renderPrompt('\\#'), '1');
     });
 
     t.test('$ normally', async (t: Test) => {
-      t.equal(renderPrompt('\\$', host), '$');
-    });
-
-    const rootTopic = topic.discuss<MockConsoleHost>(async (host) => {
-      (host as any).uid = () => 0;
-      return host;
+      t.equal(renderPrompt('\\$'), '$');
     });
 
     t.test('$ for root', async (t: Test) => {
-      await rootTopic.swear(async (host) => {
-        t.equal(renderPrompt('\\$', host), '#');
+      await rootPromptTopic.swear(async (renderPrompt) => {
+        t.equal(renderPrompt('\\$'), '#');
       });
     });
 
     t.test('plain octal ascii character', async (t: Test) => {
-      t.equal(renderPrompt('\\141', host), 'a');
+      t.equal(renderPrompt('\\141'), 'a');
     });
 
     // Google says this character is Korean. I picked it randomly
@@ -137,41 +148,41 @@ t.test('renderPrompt', async (t: Test) => {
     // a la emojis.
 
     t.test('plain octal high-point unicode character', async (t: Test) => {
-      t.equal(renderPrompt('\\533161', host), '뙱');
+      t.equal(renderPrompt('\\533161'), '뙱');
     });
 
     t.test(
       'octal high-point unicode character with trailing octal digits',
       async (t: Test) => {
-        t.equal(renderPrompt('\\53316143', host), '뙱43');
+        t.equal(renderPrompt('\\53316143'), '뙱43');
       },
     );
 
     t.test(
       'octal ascii character with trailing decimal digits',
       async (t: Test) => {
-        t.equal(renderPrompt('\\14199', host), 'a99');
+        t.equal(renderPrompt('\\14199'), 'a99');
       },
     );
 
     t.test('too short octal ascii character', async (t: Test) => {
-      t.equal(renderPrompt('\\14', host), '\\14');
+      t.equal(renderPrompt('\\14'), '\\14');
     });
 
     t.test('cheeky little backslash', async (t: Test) => {
-      t.equal(renderPrompt('\\\\', host), '\\');
+      t.equal(renderPrompt('\\\\'), '\\');
     });
 
     t.test('stop counting characters', async (t: Test) => {
-      t.equal(renderPrompt('\\[', host), '');
+      t.equal(renderPrompt('\\['), '');
     });
 
     t.test('start counting characters', async (t: Test) => {
-      t.equal(renderPrompt('\\]', host), '');
+      t.equal(renderPrompt('\\]'), '');
     });
 
     t.test('unknown escape code', async (t: Test) => {
-      t.equal(renderPrompt('\\q', host), '\\q');
+      t.equal(renderPrompt('\\q'), '\\q');
     });
   });
 });

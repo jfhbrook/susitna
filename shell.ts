@@ -57,11 +57,9 @@ export function abbreviateHome(path: string, host: Host): string {
  *     \v: The Matanuska BASIC version without the patch.
  *     \V: The full Matanuska BASIC version *with* the patch.
  *     \w: The current working directory, where $HOME is abbreviated with a tilde.
- *     \!: When I have history and feel like keeping count, the history number
- *       of the command.
- *     \#: When I can run commands and feel like keeping count, the command
- *       number. This is different from history in that history carries
- *       across sessions.
+ *     \!: The history number of the command. History starts based on the
+ *         size of the history file.
+ *     \#: The command number. History starts at 1.
  *     \$: If the uid is 0 (ie, you're root), a #. Otherwise a $.
  *     \nnn: When a backslash is followed by some amount of octal digits, use
  *       those digits to represent a unicode character by code. In Bash, this is
@@ -120,151 +118,154 @@ export function abbreviateHome(path: string, host: Host): string {
  * @param promptString The prompt string to render.
  * @param host a Host.
  */
-export function renderPrompt(promptString: string, host: Host): string {
-  const cmdNo = 0;
-  const historySize = 500;
-  let ps: string = '';
-  let curr: number = 0;
+export class Prompt {
+  constructor(
+    public ps1: string,
+    public historyFileSize: number,
+    private host: Host,
+  ) {}
 
-  let _now: Date | null = null;
-  function now(): Date {
-    if (!_now) {
-      _now = host.now();
-    }
-    return _now;
-  }
+  public render(cmdNo: number): string {
+    let ps: string = '';
+    let curr: number = 0;
 
-  function advance(): string {
-    curr++;
-    return promptString[curr - 1];
-  }
+    let _now: Date | null = null;
+    const now = (): Date => {
+      const now = _now || this.host.now();
+      _now = now;
+      return now;
+    };
 
-  function done(): boolean {
-    return curr >= promptString.length;
-  }
+    const advance = (): string => {
+      curr++;
+      return this.ps1[curr - 1];
+    };
 
-  while (curr < promptString.length) {
-    const c = advance();
-    if (c === '\\') {
-      if (done()) {
-        return ps + '\\';
-      }
-      const esc = advance();
-      switch (esc) {
-        // \a is handled in standard strings.
-        case 'd':
-          ps += strftime('%a %b %d', now());
-          break;
-        case 'D':
-          if (promptString[curr] !== '{') {
-            ps += `\\D${advance()}`;
+    const done = (): boolean => {
+      return curr >= this.ps1.length;
+    };
+
+    while (curr < this.ps1.length) {
+      const c = advance();
+      if (c === '\\') {
+        if (done()) {
+          return ps + '\\';
+        }
+        const esc = advance();
+        switch (esc) {
+          // \a is handled in standard strings.
+          case 'd':
+            ps += strftime('%a %b %d', now());
             break;
-          }
-          advance();
-          let fmt: string = '';
-          while (!done() && promptString[curr] !== '}') {
-            fmt += advance();
-          }
-          if (!done()) {
-            advance();
-          }
-          if (!fmt.length) {
-            fmt = '%H:%M:%S';
-          }
-          ps += strftime(fmt, now());
-          break;
-        // \e is handled in standard strings.
-        case 'h':
-          ps += host.hostname().split('.')[0];
-          break;
-        case 'H':
-          ps += host.hostname();
-          break;
-        case 'j':
-          ps += '0';
-          break;
-        case 'l':
-          const tty = host.tty();
-          if (tty) {
-            ps += basename(tty);
-          } else {
-            // git bash shows this as cons0 in Windows. That's probably an
-            // acceptable stand-in, nobody's using this for maintaining
-            // the nukes or anything.
-            ps += 'cons0';
-          }
-          break;
-        case 's':
-          ps += host.shell();
-          break;
-        case 't':
-          ps += strftime('%H:%M:%S', now());
-          break;
-        case 'T':
-          ps += strftime('%I:%M:%S', now());
-          break;
-        case '@':
-          ps += strftime('%I:%M %p', now());
-          break;
-        case 'A':
-          ps += strftime('%H:%M', now());
-          break;
-        case 'u':
-          ps += host.username();
-          break;
-        case 'v':
-          ps += shortVersion;
-          break;
-        case 'V':
-          ps += MATBAS_VERSION;
-          break;
-        case 'w':
-          ps += abbreviateHome(host.cwd, host);
-          break;
-        case 'W':
-          ps += abbreviateHome(basename(host.cwd), host);
-          break;
-        case '!':
-          // History number. Starts at history size + 1.
-          ps += cmdNo + historySize + 1;
-          break;
-        case '#':
-          // Command number. Starts at 1.
-          ps += cmdNo + 1;
-          break;
-        case '$':
-          ps += host.uid() === 0 ? '#' : '$';
-          break;
-        case '\\':
-          ps += '\\';
-          break;
-        case '[':
-        case ']':
-          break;
-        default:
-          if (OCTAL_DIGITS.has(esc)) {
-            let digits = esc;
-            let i = 1;
-            while (OCTAL_DIGITS.has(promptString[curr]) && i < LONGEST_OCTAL) {
-              digits += advance();
-              i++;
-            }
-            if (digits.length < 3) {
-              ps += `\\${digits}`;
+          case 'D':
+            if (this.ps1[curr] !== '{') {
+              ps += `\\D${advance()}`;
               break;
             }
-            const code = parseInt(digits, 8);
-            ps += String.fromCharCode(code);
+            advance();
+            let fmt: string = '';
+            while (!done() && this.ps1[curr] !== '}') {
+              fmt += advance();
+            }
+            if (!done()) {
+              advance();
+            }
+            if (!fmt.length) {
+              fmt = '%H:%M:%S';
+            }
+            ps += strftime(fmt, now());
             break;
-          }
+          // \e is handled in standard strings.
+          case 'h':
+            ps += this.host.hostname().split('.')[0];
+            break;
+          case 'H':
+            ps += this.host.hostname();
+            break;
+          case 'j':
+            ps += '0';
+            break;
+          case 'l':
+            const tty = this.host.tty();
+            if (tty) {
+              ps += basename(tty);
+            } else {
+              // git bash shows this as cons0 in Windows. That's probably an
+              // acceptable stand-in, nobody's using this for maintaining
+              // the nukes or anything.
+              ps += 'cons0';
+            }
+            break;
+          case 's':
+            ps += this.host.shell();
+            break;
+          case 't':
+            ps += strftime('%H:%M:%S', now());
+            break;
+          case 'T':
+            ps += strftime('%I:%M:%S', now());
+            break;
+          case '@':
+            ps += strftime('%I:%M %p', now());
+            break;
+          case 'A':
+            ps += strftime('%H:%M', now());
+            break;
+          case 'u':
+            ps += this.host.username();
+            break;
+          case 'v':
+            ps += shortVersion;
+            break;
+          case 'V':
+            ps += MATBAS_VERSION;
+            break;
+          case 'w':
+            ps += abbreviateHome(this.host.cwd, this.host);
+            break;
+          case 'W':
+            ps += abbreviateHome(basename(this.host.cwd), this.host);
+            break;
+          case '!':
+            ps += cmdNo + this.historyFileSize + 1;
+            break;
+          case '#':
+            ps += cmdNo + 1;
+            break;
+          case '$':
+            ps += this.host.uid() === 0 ? '#' : '$';
+            break;
+          case '\\':
+            ps += '\\';
+            break;
+          case '[':
+          case ']':
+            break;
+          default:
+            if (OCTAL_DIGITS.has(esc)) {
+              let digits = esc;
+              let i = 1;
+              while (OCTAL_DIGITS.has(this.ps1[curr]) && i < LONGEST_OCTAL) {
+                digits += advance();
+                i++;
+              }
+              if (digits.length < 3) {
+                ps += `\\${digits}`;
+                break;
+              }
+              const code = parseInt(digits, 8);
+              ps += String.fromCharCode(code);
+              break;
+            }
 
-          // If the escape code is invalid, ignore the escape code.
-          ps += `\\${esc}`;
+            // If the escape code is invalid, ignore the escape code.
+            ps += `\\${esc}`;
+        }
+      } else {
+        ps += c;
       }
-    } else {
-      ps += c;
     }
-  }
 
-  return ps;
+    return ps;
+  }
 }

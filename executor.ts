@@ -164,7 +164,7 @@ export class Executor {
     return path.join(this.host.homedir(), '.matbas_history');
   }
 
-  private async loadHistory(): Promise<void> {
+  public async loadHistory(): Promise<void> {
     try {
       this.history = (await this.host.readFile(this.historyFile)).split('\n');
     } catch (err) {
@@ -176,10 +176,12 @@ export class Executor {
     }
   }
 
-  private async saveHistory(): Promise<void> {
-    const history = this.history.slice(
-      Math.max(this.config.historyFileSize - this.history.length, 0),
+  public async saveHistory(): Promise<void> {
+    const sliceAt = Math.max(
+      this.history.length - this.config.historyFileSize,
+      0,
     );
+    const history = this.history.slice(sliceAt);
     try {
       await this.host.writeFile(this.historyFile, history.join('\n'));
     } catch (err) {

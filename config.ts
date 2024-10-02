@@ -81,6 +81,17 @@ function parseLevel(arg: string): Level {
   return level;
 }
 
+function parseSize(arg: string): number {
+  let size = parseInt(arg);
+  if (Number.isNaN(size)) {
+    throw usage('Invalid size (must be an integer)');
+  }
+  if (size < 1) {
+    size = Number.MAX_SAFE_INTEGER;
+  }
+  return size;
+}
+
 /**
  * Basic configuration for Matanuska BASIC.
  */
@@ -121,12 +132,20 @@ export class Config {
     let eval_: string | null = null;
     let script: string | null = null;
     let level = Level.Info;
-    let historySize = 500;
+    let historySize: number | null = null;
     let historyFileSize: number | null = null;
     const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
     if (env.MATBAS_LOG_LEVEL) {
       level = parseLevel(env.MATBAS_LOG_LEVEL);
+    }
+
+    if (env.HISTSIZE) {
+      historySize = parseSize(env.HISTSIZE);
+    }
+
+    if (env.HISTFILESIZE) {
+      historyFileSize = parseSize(env.HISTFILESIZE);
     }
 
     const args = Array.from(argv);
@@ -164,20 +183,14 @@ export class Config {
           if (!args.length) {
             throw usage('No history size provided');
           }
-          historySize = parseInt(args.shift() as string);
-          if (historySize < 1) {
-            historySize = Number.MAX_SAFE_INTEGER;
-          }
+          historySize = parseSize(args.shift() as string);
           break;
         case '--history-file-size':
           args.shift();
           if (!args.length) {
             throw usage('No history file size provided');
           }
-          historyFileSize = parseInt(args.shift() as string);
-          if (historyFileSize < 1) {
-            historyFileSize = Number.MAX_SAFE_INTEGER;
-          }
+          historyFileSize = parseSize(args.shift() as string);
           break;
         case '-v':
         case '--version':
@@ -199,13 +212,19 @@ export class Config {
       }
     }
 
+    const histSize = historySize === null ? 500 : historySize;
+    const histFileSize = Math.min(
+      histSize,
+      historyFileSize === null ? 500 : historyFileSize,
+    );
+
     return new Config(
       command,
       eval_,
       script,
       level,
-      historySize,
-      historyFileSize === null ? historySize : historyFileSize,
+      histSize,
+      histFileSize,
       scriptArgv,
       env,
     );
@@ -222,6 +241,7 @@ export class Config {
         script: this.script,
         logLevel: this.level,
         historySize: this.historySize,
+        historyFileSize: this.historyFileSize,
         argv: this.argv,
       },
       null,

@@ -200,3 +200,140 @@ t.test('level', async (t: Test) => {
     });
   });
 });
+
+t.test('historySize', async (t: Test) => {
+  await t.test('when no history size is passed', async (t: Test) => {
+    await t.test('and there is no environment variable', async (t: Test) => {
+      await t.test('the size is set to 500', async (t: Test) => {
+        const config = Config.load([], {});
+        t.equal(config.historySize, 500);
+        t.equal(config.historyFileSize, 500);
+      });
+    });
+
+    await t.test(
+      'but there is a valid HISTSIZE environment variable',
+      async (t: Test) => {
+        await t.test('the history size gets set', async (t: Test) => {
+          const config = Config.load([], { HISTSIZE: '1000' });
+          t.equal(config.historySize, 1000);
+          t.equal(config.historyFileSize, 500);
+        });
+      },
+    );
+
+    await t.test(
+      'but there is an invalid HISTSIZE environment variable',
+      async (t: Test) => {
+        await t.test('it exits with a usage fault', async (t: Test) => {
+          t.plan(2);
+          try {
+            Config.load([], { HISTSIZE: 'pony' });
+          } catch (err) {
+            t.type(err, UsageFault);
+            t.match(err.message, /Usage:/);
+          }
+        });
+      },
+    );
+  });
+
+  await t.test('when a valid history size is passed', async (t: Test) => {
+    await t.test('the history size gets set', async (t: Test) => {
+      const config = Config.load(['--history-size', '1000'], {});
+      t.equal(config.historySize, 1000);
+      t.equal(config.historyFileSize, 500);
+    });
+  });
+
+  await t.test('when an invalid history size is passed', async (t: Test) => {
+    await t.test('it exits with a usage fault', async (t: Test) => {
+      t.plan(2);
+      try {
+        Config.load(['--history-size', 'pony'], {});
+      } catch (err) {
+        t.type(err, UsageFault);
+        t.match(err.message, /Usage:/);
+      }
+    });
+  });
+});
+
+t.test('historyFileSize', async (t: Test) => {
+  await t.test('when no history file size is passed', async (t: Test) => {
+    await t.test(
+      'but there is a valid HISTFILESIZE environment variable',
+      async (t: Test) => {
+        await t.test("that's less than the history size", async (t: Test) => {
+          await t.test('the history size gets set', async (t: Test) => {
+            const config = Config.load([], { HISTFILESIZE: '100' });
+            t.equal(config.historySize, 500);
+            t.equal(config.historyFileSize, 100);
+          });
+        });
+
+        await t.test(
+          "that's greater than the history size",
+          async (t: Test) => {
+            await t.test(
+              'the history size defaults to history size',
+              async (t: Test) => {
+                const config = Config.load([], { HISTFILESIZE: '1000' });
+                t.equal(config.historySize, 500);
+                t.equal(config.historyFileSize, 500);
+              },
+            );
+          },
+        );
+      },
+    );
+
+    await t.test(
+      'but there is an invalid HISTFILESIZE environment variable',
+      async (t: Test) => {
+        await t.test('it exits with a usage fault', async (t: Test) => {
+          t.plan(2);
+          try {
+            Config.load([], { HISTFILESIZE: 'pony' });
+          } catch (err) {
+            t.type(err, UsageFault);
+            t.match(err.message, /Usage:/);
+          }
+        });
+      },
+    );
+  });
+
+  await t.test('when a valid history file size is passed', async (t: Test) => {
+    await t.test("that's less than the history size", async (t: Test) => {
+      await t.test('the history size gets set', async (t: Test) => {
+        const config = Config.load(['--history-file-size', '100'], {});
+        t.equal(config.historySize, 500);
+        t.equal(config.historyFileSize, 100);
+      });
+    });
+
+    await t.test("that's greater than the history size", async (t: Test) => {
+      await t.test(
+        'the history size defaults to history size',
+        async (t: Test) => {
+          const config = Config.load(['--history-file-size', '1000'], {});
+          t.equal(config.historySize, 500);
+          t.equal(config.historyFileSize, 500);
+        },
+      );
+    });
+  });
+
+  await t.test('when an invalid history size is passed', async (t: Test) => {
+    await t.test('it exits with a usage fault', async (t: Test) => {
+      t.plan(2);
+      try {
+        Config.load(['--history-size', 'pony'], {});
+      } catch (err) {
+        t.type(err, UsageFault);
+        t.match(err.message, /Usage:/);
+      }
+    });
+  });
+});

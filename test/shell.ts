@@ -120,11 +120,11 @@ t.test('renderPrompt', async (t: Test) => {
       t.equal(renderPrompt('\\w'), '~/matanuska');
     });
 
-    t.todo('history number', async (t: Test) => {
-      t.equal(renderPrompt('\\!'), '1');
+    t.test('history number', async (t: Test) => {
+      t.equal(renderPrompt('\\!'), '501');
     });
 
-    t.todo('command number', async (t: Test) => {
+    t.test('command number', async (t: Test) => {
       t.equal(renderPrompt('\\#'), '1');
     });
 

@@ -31,3 +31,20 @@ t.test('when input is requested', async (t: Test) => {
     });
   });
 });
+
+t.test('when history is saved', async (t: Test) => {
+  await t.test('and the history is long', async (t: Test) => {
+    await t.test('history is saved', async (t: Test) => {
+      await topic.swear(async ({ executor, host }) => {
+        (executor as any).history = [];
+        for (let i = 0; i < 1000; i++) {
+          (executor as any).history.push(`print ${i}`);
+        }
+
+        await executor.saveHistory();
+
+        t.matchSnapshot(host.files['/home/josh/.matbas_history']);
+      });
+    });
+  });
+});

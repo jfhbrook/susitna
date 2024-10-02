@@ -57,8 +57,6 @@ gaps.
   - Core library
   - Host support
   - (Language support can come later)
-- REPL history support
-  - Support \# and \! in prompt rendering
 - Shell commands
   - Will need to research jobs in Bash
   - Scanner and parser support for shell commands and "shell tokens"

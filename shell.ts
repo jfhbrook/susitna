@@ -121,6 +121,8 @@ export function abbreviateHome(path: string, host: Host): string {
  * @param host a Host.
  */
 export function renderPrompt(promptString: string, host: Host): string {
+  const cmdNo = 0;
+  const historySize = 500;
   let ps: string = '';
   let curr: number = 0;
 
@@ -223,10 +225,12 @@ export function renderPrompt(promptString: string, host: Host): string {
           ps += abbreviateHome(basename(host.cwd), host);
           break;
         case '!':
-          ps += '0';
+          // History number. Starts at history size + 1.
+          ps += cmdNo + historySize + 1;
           break;
         case '#':
-          ps += '0';
+          // Command number. Starts at 1.
+          ps += cmdNo + 1;
           break;
         case '$':
           ps += host.uid() === 0 ? '#' : '$';

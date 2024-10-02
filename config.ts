@@ -21,14 +21,22 @@ DEBUG_TRACE_GC        enable tracing garbage collection`;
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]
 
 Options:
-  -h, --help               print matbas command line options
-  -c, --command <command>  evaluate command
-  -e, --eval <script>      evaluate script
-  -v, --version            print matbas version
-  --log-level <level>      set log level (debug, info, warn, error)
+  -h, --help                  print matbas command line options
+  -c, --command <command>     evaluate command
+  -e, --eval <script>         evaluate script
+  -v, --version               print matbas version
+  --log-level <level>         set log level (debug, info, warn, error)
+  --history-size <size>       set the in-memory history size. defaults to 500.
+                              set to -1 for an unlimited history size
+  --history-file-size <size>  set the size of the history file. defaults to
+                              history size.
   
 Environment variables:
-MATBAS_LOG_LEVEL      set log level (debug, info, warn, error)${TRACE_USAGE}
+MATBAS_LOG_LEVEL      set log level (debug, info, warn, error)
+HISTSIZE              set the in-memory history size. defaults to 500. set to
+                      -1 for an unlimited history size.
+HISTFILESIZE          set the maximum size of the history file. defaults to
+                      history size.${TRACE_USAGE}
 `;
 
 /**
@@ -94,6 +102,7 @@ export class Config {
     public readonly script: string | null,
     public readonly level: Level,
     public readonly historySize: number,
+    public readonly historyFileSize: number,
     public readonly argv: Argv,
     public readonly env: Env,
   ) {
@@ -112,7 +121,8 @@ export class Config {
     let eval_: string | null = null;
     let script: string | null = null;
     let level = Level.Info;
-    let historySize = 30;
+    let historySize = 500;
+    let historyFileSize: number | null = null;
     const scriptArgv: string[] = [process.env.__MATBAS_DOLLAR_ZERO || 'matbas'];
 
     if (env.MATBAS_LOG_LEVEL) {
@@ -155,6 +165,19 @@ export class Config {
             throw usage('No history size provided');
           }
           historySize = parseInt(args.shift() as string);
+          if (historySize < 1) {
+            historySize = Number.MAX_SAFE_INTEGER;
+          }
+          break;
+        case '--history-file-size':
+          args.shift();
+          if (!args.length) {
+            throw usage('No history file size provided');
+          }
+          historyFileSize = parseInt(args.shift() as string);
+          if (historyFileSize < 1) {
+            historyFileSize = Number.MAX_SAFE_INTEGER;
+          }
           break;
         case '-v':
         case '--version':
@@ -182,6 +205,7 @@ export class Config {
       script,
       level,
       historySize,
+      historyFileSize === null ? historySize : historyFileSize,
       scriptArgv,
       env,
     );

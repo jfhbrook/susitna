@@ -6,7 +6,8 @@ export const CONFIG = new Config(
   null,
   null,
   Level.Info,
-  30,
+  500,
+  500,
   ['matbas'],
   {},
 );

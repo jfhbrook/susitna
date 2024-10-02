@@ -68,6 +68,7 @@ gaps.
 - Shell variable export
 - PS1/PS2 support
   - `SET PS1` and `SET PS2`?
+  - also `HISTSIZE` and `HISTFILESIZE`
 - Type-checking compiler
   - Implement type analogues to operations
   - Simulated stack in the compiler

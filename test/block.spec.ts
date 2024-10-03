@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { formatter } from '../format';
 
@@ -70,69 +69,63 @@ const MISMATCHED_INSTRS = [
   new EndIf(),
 ];
 
-t.test('Block', async (t: Test) => {
-  await t.test('begin/end', async (t: Test) => {
+describe('Block', () => {
+  test('begin/end', () => {
     const compiler = createCompiler();
     const root = compiler.block;
     const block = createBlock(compiler, 'b');
 
-    t.equal(compiler.block, root, 'Current block is root');
+    expect(compiler.block, 'Current block is root').toBe(root);
 
     compiler.block.begin(PRINT, block);
 
-    t.equal(compiler.block, block, 'Current block is block');
-    t.equal(block.instr, PRINT, 'instr is set by begin');
-    t.equal(block.previous, null, 'b has no previous block');
-    t.equal(block.parent, root, "b's parent block is root");
+    expect(compiler.block, 'Current block is block').toBe(block);
+    expect(block.instr, 'instr is set by begin').toBe(PRINT);
+    expect(block.previous, 'b has no previous block').toBe(null);
+    expect(block.parent, "b's parent block is root").toBe(root);
 
     block.end();
 
-    t.equal(compiler.block, root, 'Current block is root');
+    expect(compiler.block, 'Current block is root').toBe(root);
   });
 
-  await t.test('next', async (t: Test) => {
+  test('next', () => {
     const compiler = createCompiler();
     const root = compiler.block;
     const a = createBlock(compiler, 'a');
     compiler.block.begin(PRINT, a);
     const b = createBlock(compiler, 'b');
 
-    t.equal(compiler.block, a, 'Current block is a');
+    expect(compiler.block, 'Current block is a').toBe(a);
 
     a.next(PRINT, b);
 
-    t.equal(compiler.block, b, 'Current block is b');
-    t.equal(b.instr, PRINT, 'instr is set by begin');
-    t.equal(b.previous, a, 'a is the previous block');
-    t.equal(b.parent, root, "b's parent block is root");
+    expect(compiler.block, 'Current block is b').toBe(b);
+    expect(b.instr, 'instr is set by begin').toBe(PRINT);
+    expect(b.previous, 'a is the previous block').toBe(a);
+    expect(b.parent, "b's parent block is root").toBe(root);
   });
 
   // TODO: Assert the error messages...
-  await t.test('handle', async (t: Test) => {
+  describe('handle', () => {
     for (const instr of INVALID_INSTRS) {
-      await t.test(
-        `invalid instruction ${formatter.format(instr)}`,
-        async (t: Test) => {
-          const compiler = createCompiler();
-          const block = createBlock(compiler, 'block');
-          t.throws(() => {
-            block.handle(instr);
-          });
-        },
-      );
+      test(`invalid instruction ${formatter.format(instr)}`, () => {
+        const compiler = createCompiler();
+        const block = createBlock(compiler, 'block');
+        expect(() => {
+          block.handle(instr);
+        }).toThrow();
+      });
     }
 
     for (const instr of MISMATCHED_INSTRS) {
-      await t.test(
-        `mismatched instruction ${formatter.format(instr)}`,
-        async (t: Test) => {
-          const compiler = createCompiler();
-          const block = createBlock(compiler, 'block');
-          t.throws(() => {
-            block.handle(instr);
-          });
-        },
-      );
+      test(`mismatched instruction ${formatter.format(instr)}`, () => {
+        const compiler = createCompiler();
+        const block = createBlock(compiler, 'block');
+        expect(() => {
+          block.handle(instr);
+        }).toThrow();
+      });
     }
   });
 });

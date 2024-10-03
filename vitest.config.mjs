@@ -4,7 +4,9 @@ export default defineConfig({
   test: {
     exclude: ['tools/**', 'node_modules/**', 'tap-snapshots/**', 'dist'],
     coverage: {
-      enabled: true,
+      // Coverage isn't useful yet, since most tests are still being run
+      // with tap
+      enabled: false,
       exclude: ['tools/**', 'node_modules/**', 'tap-snapshots/**', 'dist'],
     },
   },

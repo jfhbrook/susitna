@@ -26,7 +26,7 @@ import {
   removeFromParseError,
 } from '../exceptions.mjs';
 
-import { Source } from '../ast/source.js';
+import { Source } from '../ast/source.mjs';
 
 import { FILENAME } from './helpers/files.mjs';
 import { TRACEBACK } from './helpers/traceback.mjs';

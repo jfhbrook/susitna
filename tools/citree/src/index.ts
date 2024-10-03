@@ -21,10 +21,12 @@ const USAGE = `Usage: citree [ spec.astree ]
 Options:
   -h, --help               print citree command line options
   -v, --version            print citree version
+  -e, --extension          set the extension of the generated files (default: ts)
 `;
 
 export interface Args {
   filename: string;
+  extension: string;
 }
 
 function help() {
@@ -53,8 +55,13 @@ export function parseArgs(argv: typeof process.argv): Args {
     alias: {
       h: 'help',
       v: 'version',
+      e: 'extension',
     },
     boolean: ['help', 'version'],
+    string: ['extension'],
+    default: {
+      extension: 'ts',
+    },
     unknown(opt: string): boolean {
       if (opt.startsWith('-')) {
         usage(`Unknown option: ${opt}`);
@@ -82,7 +89,7 @@ export function parseArgs(argv: typeof process.argv): Args {
 
   const filename: string = args._[0];
 
-  return { filename };
+  return { filename, extension: args.extension };
 }
 
 async function read(filename: string): Promise<string> {
@@ -98,7 +105,7 @@ async function read(filename: string): Promise<string> {
 export default async function main(
   argv: typeof process.argv = process.argv.slice(2),
 ): Promise<void> {
-  const { filename } = parseArgs(argv);
+  const { filename, extension } = parseArgs(argv);
 
   const contents = await read(filename);
 
@@ -108,8 +115,8 @@ export default async function main(
 
   try {
     spec = parseSpec(contents);
-    imports = resolveImports(filename, spec);
-    types = resolveTypes(filename, spec);
+    imports = resolveImports(filename, spec, extension);
+    types = resolveTypes(filename, spec, extension);
   } catch (err: any) {
     error(err, EXIT_SOFTWARE);
   }

@@ -1,4 +1,4 @@
-import { Renum } from '../ast/instr.js';
+import { Renum } from '../ast/instr.mjs';
 
 import { CommandRunner, ReturnValue } from './base.mjs';
 

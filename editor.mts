@@ -8,8 +8,8 @@ import {
 import { Host } from './host.mjs';
 import { Token } from './tokens.mjs';
 
-import { Line, Program } from './ast/index.js';
-import { Source } from './ast/source.js';
+import { Line, Program } from './ast/index.mjs';
+import { Source } from './ast/source.mjs';
 import {
   ExprVisitor,
   Unary,
@@ -23,7 +23,7 @@ import {
   StringLiteral,
   PromptLiteral,
   NilLiteral,
-} from './ast/expr.js';
+} from './ast/expr.mjs';
 import {
   Instr,
   InstrVisitor,
@@ -45,7 +45,7 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from './ast/instr.js';
+} from './ast/instr.mjs';
 
 type LineNo = number;
 

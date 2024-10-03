@@ -1,4 +1,4 @@
-import { Expr, Variable } from './expr.js';
+import { Expr, Variable } from './expr.mjs';
 
 export interface InstrVisitor<R> {
   visitRemInstr(node: Rem): R;

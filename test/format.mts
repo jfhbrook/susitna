@@ -30,7 +30,7 @@ import { Exit, ExitCode } from '../exit.mjs';
 import { BaseFault, RuntimeFault, UsageFault } from '../faults.mjs';
 import { Token, TokenKind } from '../tokens.mjs';
 
-import { Source } from '../ast/source.js';
+import { Source } from '../ast/source.mjs';
 import {
   Binary,
   Unary,
@@ -41,7 +41,7 @@ import {
   StringLiteral,
   PromptLiteral,
   NilLiteral,
-} from '../ast/expr.js';
+} from '../ast/expr.mjs';
 import {
   Print,
   Exit as ExitInstr,
@@ -57,8 +57,8 @@ import {
   Else,
   ElseIf,
   End,
-} from '../ast/instr.js';
-import { Line, Program } from '../ast/index.js';
+} from '../ast/instr.mjs';
+import { Line, Program } from '../ast/index.mjs';
 
 import { FILENAME } from './helpers/files.mjs';
 import { scrubNodeVersion } from './helpers/format.mjs';

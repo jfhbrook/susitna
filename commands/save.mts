@@ -1,7 +1,7 @@
 import { ValueError } from '../exceptions.mjs';
 import { formatter } from '../format.mjs';
 
-import { Save } from '../ast/instr.js';
+import { Save } from '../ast/instr.mjs';
 
 import { CommandRunner, ReturnValue } from './base.mjs';
 

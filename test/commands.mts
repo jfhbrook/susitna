@@ -4,8 +4,8 @@ import { Test } from 'tap';
 import { commandRunner } from '../commands/index.mjs';
 import { RuntimeFault } from '../faults.mjs';
 
-import { IntLiteral, StringLiteral } from '../ast/expr.js';
-import { Instr, Expression, Print, Exit, Rem } from '../ast/instr.js';
+import { IntLiteral, StringLiteral } from '../ast/expr.mjs';
+import { Instr, Expression, Print, Exit, Rem } from '../ast/instr.mjs';
 
 import { executorTopic as topic } from './helpers/executor.mjs';
 

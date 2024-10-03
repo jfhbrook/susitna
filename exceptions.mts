@@ -4,7 +4,7 @@ import { Formattable, Formatter, formatter } from './format.mjs';
 import { Traceable, Traceback } from './traceback.mjs';
 import { Value } from './value/index.mjs';
 
-import { Source } from './ast/source.js';
+import { Source } from './ast/source.mjs';
 
 /**
  * The base class for all Exceptions, including fatal exceptions.

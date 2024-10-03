@@ -7,8 +7,8 @@ import { Value } from '../value/index.mjs';
 // import { Type } from './value/types.mjs';
 // import { Stack } from './stack.mjs';
 
-import { Line, Program } from '../ast/index.js';
-import { Source } from '../ast/source.js';
+import { Line, Program } from '../ast/index.mjs';
+import { Source } from '../ast/source.mjs';
 import {
   Instr,
   InstrVisitor,
@@ -30,7 +30,7 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from '../ast/instr.js';
+} from '../ast/instr.mjs';
 import {
   Expr,
   ExprVisitor,
@@ -45,7 +45,7 @@ import {
   StringLiteral,
   PromptLiteral,
   NilLiteral,
-} from '../ast/expr.js';
+} from '../ast/expr.mjs';
 
 import { Block } from './block.mjs';
 

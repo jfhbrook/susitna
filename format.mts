@@ -37,7 +37,7 @@ import {
   StringLiteral,
   PromptLiteral,
   NilLiteral,
-} from './ast/expr.js';
+} from './ast/expr.mjs';
 import {
   Instr,
   InstrVisitor,
@@ -59,8 +59,8 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from './ast/instr.js';
-import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast/index.js';
+} from './ast/instr.mjs';
+import { Tree, TreeVisitor, Cmd, Line, Input, Program } from './ast/index.mjs';
 
 /**
  * Objects implementing this interface can be formatted.

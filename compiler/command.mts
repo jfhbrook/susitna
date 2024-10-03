@@ -5,7 +5,8 @@ import {
   ParseWarning,
   mergeParseErrors,
 } from '../exceptions.mjs';
-import { Source } from '../ast/source.js';
+
+import { Source } from '../ast/source.mjs';
 import {
   Instr,
   InstrVisitor,
@@ -27,8 +28,8 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from '../ast/instr.js';
-import { Expr } from '../ast/expr.js';
+} from '../ast/instr.mjs';
+import { Expr } from '../ast/expr.mjs';
 
 import { Chunk } from '../bytecode/chunk.mjs';
 

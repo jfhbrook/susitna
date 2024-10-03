@@ -1,6 +1,6 @@
 import { Parser, ParseResult } from '../../parser.mjs';
 
-import { Input, Program } from '../../ast/index.js';
+import { Input, Program } from '../../ast/index.mjs';
 
 export function parseInput(source: string): ParseResult<Input> {
   const parser = new Parser();

@@ -11,7 +11,7 @@ import { runtimeMethod } from './faults.mjs';
 import { Scanner } from './scanner.mjs';
 import { Token, TokenKind } from './tokens.mjs';
 
-import { Source } from './ast/source.js';
+import { Source } from './ast/source.mjs';
 import {
   Expr,
   Binary,
@@ -25,7 +25,7 @@ import {
   StringLiteral,
   PromptLiteral,
   NilLiteral,
-} from './ast/expr.js';
+} from './ast/expr.mjs';
 import {
   Instr,
   Assign,
@@ -46,9 +46,9 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from './ast/instr.js';
-import { Cmd, Line, Input, Program } from './ast/index.js';
-import { sortLines } from './ast/util.js';
+} from './ast/instr.mjs';
+import { Cmd, Line, Input, Program } from './ast/index.mjs';
+import { sortLines } from './ast/util.mjs';
 
 const tracer = getTracer('parser');
 

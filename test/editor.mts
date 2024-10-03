@@ -4,7 +4,7 @@ import { discuss } from '@jfhbrook/swears';
 
 import { Editor, Justify } from '../editor.mjs';
 
-import { Line } from '../ast/index.js';
+import { Line } from '../ast/index.mjs';
 
 import { parseInput } from './helpers/parser.mjs';
 import { MockConsoleHost } from './helpers/host.mjs';

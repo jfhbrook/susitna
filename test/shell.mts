@@ -2,7 +2,7 @@ import t from 'tap';
 import { Test } from 'tap';
 import { discuss } from '@jfhbrook/swears';
 
-import { Host } from '../host.mts';
+import { Host } from '../host.mjs';
 import { abbreviateHome, Prompt } from '../shell.mjs';
 
 import { MockConsoleHost } from './helpers/host.mjs';

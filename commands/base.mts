@@ -6,8 +6,8 @@ import { RuntimeFault } from '../faults.mjs';
 import { Host } from '../host.mjs';
 import { Value } from '../value/index.mjs';
 
-import { Program } from '../ast/index.js';
-import { Instr, InstrVisitor } from '../ast/instr.js';
+import { Program } from '../ast/index.mjs';
+import { Instr, InstrVisitor } from '../ast/instr.mjs';
 
 const tracer = getTracer('main');
 

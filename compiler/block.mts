@@ -23,7 +23,7 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from '../ast/instr.js';
+} from '../ast/instr.mjs';
 
 import { LineCompiler } from './base.mjs';
 

@@ -52,12 +52,12 @@ export function resolveNodes(
   return [commonFields, resolved];
 }
 
-export function resolveTypes(filename: string, spec: Spec): Types {
+export function resolveTypes(filename: string, spec: Spec, ext: string): Types {
   const ts: Types = {};
 
   for (const t of spec.types) {
     // for each type definition
-    const p = resolvePath(filename, t.path);
+    const p = resolvePath(filename, t.path, ext);
     if (!ts[p]) {
       ts[p] = {};
     }

@@ -3,7 +3,7 @@ import { LoggerService, Injectable } from '@nestjs/common';
 import { Chunk } from './bytecode/chunk.mjs';
 import { Runtime } from './runtime.mjs';
 
-import { Tree } from './ast/index.js';
+import { Tree } from './ast/index.mjs';
 
 `{% if matbas_build == 'debug' %}`;
 import c from 'ansi-colors';

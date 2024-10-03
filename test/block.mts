@@ -1,9 +1,9 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { formatter } from '../format.mts';
+import { formatter } from '../format.mjs';
 
-import { StringLiteral } from '../ast/expr.js';
+import { StringLiteral } from '../ast/expr.mjs';
 import {
   Print,
   Expression,
@@ -21,7 +21,7 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from '../ast/instr.js';
+} from '../ast/instr.mjs';
 
 import { Block } from '../compiler/block.mjs';
 import { LineCompiler, RoutineType } from '../compiler/base.mjs';

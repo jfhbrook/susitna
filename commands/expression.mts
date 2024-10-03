@@ -1,4 +1,4 @@
-import { Expression } from '../ast/instr.js';
+import { Expression } from '../ast/instr.mjs';
 
 import { CommandRunner, ReturnValue } from './base.mjs';
 

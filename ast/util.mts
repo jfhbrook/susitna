@@ -1,4 +1,4 @@
-import { Line } from './';
+import { Line } from './index.mjs';
 
 function compareLines(a: Line, b: Line): number {
   return a.lineNo - b.lineNo;

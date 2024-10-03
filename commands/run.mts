@@ -1,4 +1,4 @@
-import { Run } from '../ast/instr.js';
+import { Run } from '../ast/instr.mjs';
 
 import { CommandRunner, ReturnValue } from './base.mjs';
 

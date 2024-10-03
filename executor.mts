@@ -23,7 +23,7 @@ import { Parser, ParseResult } from './parser.mjs';
 import { Runtime } from './runtime.mjs';
 import { Prompt } from './shell.mjs';
 
-import { Line, Cmd, Program } from './ast/index.js';
+import { Line, Cmd, Program } from './ast/index.mjs';
 
 const tracer = getTracer('main');
 

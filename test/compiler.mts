@@ -1,7 +1,7 @@
 import t from 'tap';
 import { Test } from 'tap';
 
-import { Source } from '../ast/source.js';
+import { Source } from '../ast/source.mjs';
 import {
   Instr,
   Print,
@@ -15,7 +15,7 @@ import {
   Else,
   ElseIf,
   EndIf,
-} from '../ast/instr.js';
+} from '../ast/instr.mjs';
 import {
   Expr,
   Binary,
@@ -27,8 +27,8 @@ import {
   StringLiteral,
   Unary,
   NilLiteral,
-} from '../ast/expr.js';
-import { Program, Line } from '../ast/index.js';
+} from '../ast/expr.mjs';
+import { Program, Line } from '../ast/index.mjs';
 
 import { shortToBytes } from '../bytecode/short.mjs';
 import { Chunk } from '../bytecode/chunk.mjs';

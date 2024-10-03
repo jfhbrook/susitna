@@ -28,7 +28,7 @@
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run && dotenv -e test.env tap ./test/*.tap.ts",
     "test:citree": "cd tools/citree && npm test",
-    "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test/*.tap.ts --snapshot",
+    "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run --update && dotenv -e test.env -- tap ./test/*.tap.ts --snapshot",
     "console": "npm run build && ts-node",
     "prepare": "husky",
     "linecount": "./scripts/linecount.sh",

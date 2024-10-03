@@ -7,7 +7,7 @@ import { generatePrecedenceTest } from './precedence';
 import { activate } from './activate';
 
 export const GENERATORS: Array<[string, (c: Config) => string]> = [
-  ['precedence.ts', generatePrecedenceTest],
+  ['precedence.spec.ts', generatePrecedenceTest],
 ];
 
 export async function main(

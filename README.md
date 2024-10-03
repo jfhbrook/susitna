@@ -70,6 +70,7 @@ gaps.
 
 ### Up Next
 
+- [swc build](https://github.com/jfhbrook/matanuska/pull/33)
 - Assert module
   - Wrap 'node:assert'
   - Throw RuntimeFault

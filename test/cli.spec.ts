@@ -1,24 +1,23 @@
-import { basename } from 'path';
+import { basename } from 'node:path';
 
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { run } from './helpers/cli';
 import { EXAMPLES } from './helpers/files';
 
-t.test('examples', async (t: Test) => {
+describe('examples', () => {
   for (const path of Object.keys(EXAMPLES)) {
     const name = basename(path);
     switch (name) {
       // TODO: Some scripts will need mocked input
       default:
-        await t.test(name, async (t: Test) => {
+        test(name, async () => {
           const { exitCode, host } = await run([path], process.env);
-          t.matchSnapshot({
+          expect({
             exitCode,
             stdout: host.outputStream.output,
             stderr: host.errorStream.output,
-          });
+          }).toMatchSnapshot();
         });
     }
   }

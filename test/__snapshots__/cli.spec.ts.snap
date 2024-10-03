@@ -1,0 +1,53 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`examples > 001-hello-world.bas 1`] = `
+{
+  "exitCode": 0,
+  "stderr": "",
+  "stdout": "hello world
+goodbye world
+",
+}
+`;
+
+exports[`examples > 002-invalid-line-number.bas 1`] = `
+{
+  "exitCode": 70,
+  "stderr": "/home/josh/matanuska/examples/002-invalid-line-number.bas:<R3>:0 (after line 20): error: Expected line number
+  "foo"
+  ^
+",
+  "stdout": "",
+}
+`;
+
+exports[`examples > 003-if.bas 1`] = `
+{
+  "exitCode": 0,
+  "stderr": "",
+  "stdout": "1 + 1 is 2!
+1 + 1 remains equal to 2!
+still 2!
+",
+}
+`;
+
+exports[`examples > 004-if-else.bas 1`] = `
+{
+  "exitCode": 0,
+  "stderr": "",
+  "stdout": "else if
+",
+}
+`;
+
+exports[`examples > 005-open-block.bas 1`] = `
+{
+  "exitCode": 0,
+  "stderr": "/home/josh/matanuska/examples/005-open-block.bas:40:4: error: else has not been closed
+  40  else
+      ^
+",
+  "stdout": "",
+}
+`;

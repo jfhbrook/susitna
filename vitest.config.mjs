@@ -1,3 +1,4 @@
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -10,4 +11,9 @@ export default defineConfig({
       exclude: ['tools/**', 'node_modules/**', 'tap-snapshots/**', 'dist'],
     },
   },
+  plugins: [
+    swc.vite({
+      module: { type: 'es6' },
+    }),
+  ],
 });

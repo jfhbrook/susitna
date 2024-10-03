@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { parseBoolEnv } from '../env';
 
@@ -24,16 +23,16 @@ const ENV_TRUE: Array<string | undefined> = [
   'anything',
 ];
 
-t.test('parseBoolEnv', async (t: Test) => {
+describe('parseBoolEnv', () => {
   for (const value of ENV_FALSE) {
-    t.test(`the string \`${value}\` parses to \`false\``, async (t: Test) => {
-      t.equal(parseBoolEnv(value), false);
+    test(`the string \`${value}\` parses to \`false\``, () => {
+      expect(parseBoolEnv(value)).toBe(false);
     });
   }
 
   for (const value of ENV_TRUE) {
-    t.test(`the string \`${value}\` parses to \`true\``, async (t: Test) => {
-      t.equal(parseBoolEnv(value), true);
+    test(`the string \`${value}\` parses to \`true\``, () => {
+      expect(parseBoolEnv(value)).toBe(true);
     });
   }
 });

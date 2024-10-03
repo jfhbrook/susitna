@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/compiler.ts > TAP > interactive compiler > expression > has the expected arguments 1`] = `
+exports[`test/compiler.tap.ts > TAP > interactive compiler > expression > has the expected arguments 1`] = `
 Array [
   Expression {
     "expression": StringLiteral {
@@ -35,13 +35,13 @@ Array [
 ]
 `
 
-exports[`test/compiler.ts > TAP > syntax errors > *1 > must match snapshot 1`] = `
+exports[`test/compiler.tap.ts > TAP > syntax errors > *1 > must match snapshot 1`] = `
 <input>:<R1>:0 (after line 100): error: Invalid unary operator
   *1
   ^
 `
 
-exports[`test/compiler.ts > TAP > syntax errors > 1 $ 1 > must match snapshot 1`] = `
+exports[`test/compiler.tap.ts > TAP > syntax errors > 1 $ 1 > must match snapshot 1`] = `
 <input>:<R1>:0 (after line 100): error: Invalid binary operator
   1 $ 1
   ^

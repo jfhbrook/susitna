@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/disassembler.ts > TAP > expressions > -1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > -1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  NEG
@@ -14,7 +14,7 @@ exports[`test/disassembler.ts > TAP > expressions > -1 > must match snapshot 1`]
 -1  6  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > "hello world" > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > "hello world" > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  hello world
 -1  3  POP
@@ -22,7 +22,7 @@ exports[`test/disassembler.ts > TAP > expressions > "hello world" > must match s
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > (1) > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > (1) > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  POP
@@ -30,7 +30,7 @@ exports[`test/disassembler.ts > TAP > expressions > (1) > must match snapshot 1`
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > 1 : 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > 1 : 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  POP
@@ -40,7 +40,7 @@ exports[`test/disassembler.ts > TAP > expressions > 1 : 1 > must match snapshot 
 -1  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > 1 + 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > 1 + 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  CONSTANT  1
@@ -50,7 +50,7 @@ exports[`test/disassembler.ts > TAP > expressions > 1 + 1 > must match snapshot 
 -1  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > 123.456 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > 123.456 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  123.456
 -1  3  POP
@@ -58,7 +58,7 @@ exports[`test/disassembler.ts > TAP > expressions > 123.456 > must match snapsho
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > 255 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > 255 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  255
 -1  3  POP
@@ -66,7 +66,7 @@ exports[`test/disassembler.ts > TAP > expressions > 255 > must match snapshot 1`
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > false > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > false > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  false
 -1  3  POP
@@ -74,7 +74,7 @@ exports[`test/disassembler.ts > TAP > expressions > false > must match snapshot 
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > nil > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > nil > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  NIL
 -1  2  POP
@@ -82,7 +82,7 @@ exports[`test/disassembler.ts > TAP > expressions > nil > must match snapshot 1`
 -1  4  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > expressions > true > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > expressions > true > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  true
 -1  3  POP
@@ -90,7 +90,7 @@ exports[`test/disassembler.ts > TAP > expressions > true > must match snapshot 1
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > malformed lines > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > malformed lines > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 undefined  1  CONSTANT  hello world
 undefined  3  POP
@@ -98,7 +98,7 @@ undefined  4  NIL
 undefined  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > missing constants > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > missing constants > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  undefined
 -1  3  POP
@@ -106,7 +106,7 @@ exports[`test/disassembler.ts > TAP > missing constants > must match snapshot 1`
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > i% = 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > i% = 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1  CONSTANT    i%
 100  3  CONSTANT    1
@@ -115,7 +115,7 @@ exports[`test/disassembler.ts > TAP > print > i% = 1 > must match snapshot 1`] =
 100  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > if true then print "true" else print "false" endif > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > if true then print "true" else print "false" endif > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1   CONSTANT       true
 100  3   JUMP_IF_FALSE  3 -> 13
@@ -130,7 +130,7 @@ exports[`test/disassembler.ts > TAP > print > if true then print "true" else pri
 100  18  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > let i% = 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > let i% = 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1  CONSTANT       i%
 100  3  CONSTANT       1
@@ -139,7 +139,7 @@ exports[`test/disassembler.ts > TAP > print > let i% = 1 > must match snapshot 1
 100  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print "hello world" > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print "hello world" > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  hello world
 -1  3  PRINT
@@ -147,7 +147,7 @@ exports[`test/disassembler.ts > TAP > print > print "hello world" > must match s
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print (1) > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print (1) > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  PRINT
@@ -155,7 +155,7 @@ exports[`test/disassembler.ts > TAP > print > print (1) > must match snapshot 1`
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print 1 + 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print 1 + 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  1
 -1  3  CONSTANT  1
@@ -165,7 +165,7 @@ exports[`test/disassembler.ts > TAP > print > print 1 + 1 > must match snapshot 
 -1  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print 123.456 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print 123.456 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  123.456
 -1  3  PRINT
@@ -173,7 +173,7 @@ exports[`test/disassembler.ts > TAP > print > print 123.456 > must match snapsho
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print 255 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print 255 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  255
 -1  3  PRINT
@@ -181,7 +181,7 @@ exports[`test/disassembler.ts > TAP > print > print 255 > must match snapshot 1`
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print false > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print false > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  false
 -1  3  PRINT
@@ -189,7 +189,7 @@ exports[`test/disassembler.ts > TAP > print > print false > must match snapshot 
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print i% + 1 > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print i% + 1 > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1  CONSTANT    i%
 100  3  GET_GLOBAL  i%
@@ -197,7 +197,7 @@ exports[`test/disassembler.ts > TAP > print > print i% + 1 > must match snapshot
 100  7  ADD
 `
 
-exports[`test/disassembler.ts > TAP > print > print nil > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print nil > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  NIL
 -1  2  PRINT
@@ -205,7 +205,7 @@ exports[`test/disassembler.ts > TAP > print > print nil > must match snapshot 1`
 -1  4  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > print > print true > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > print > print true > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  CONSTANT  true
 -1  3  PRINT
@@ -213,7 +213,7 @@ exports[`test/disassembler.ts > TAP > print > print true > must match snapshot 1
 -1  5  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > simple program > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > simple program > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 100  1  CONSTANT  hello world
 100  3  PRINT
@@ -223,7 +223,7 @@ exports[`test/disassembler.ts > TAP > simple program > must match snapshot 1`] =
 200  8  RETURN
 `
 
-exports[`test/disassembler.ts > TAP > unknown opcode > must match snapshot 1`] = `
+exports[`test/disassembler.tap.ts > TAP > unknown opcode > must match snapshot 1`] = `
 === Disassembly of <unknown>: ===
 -1  1  Unknown opcode  0x2329
 `

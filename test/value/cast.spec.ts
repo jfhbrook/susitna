@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, RuntimeFault } from '../../faults';
@@ -65,52 +64,45 @@ const CASES: TestCase[] = [
   [nil, Type.Nil, Type.Any, RuntimeFault],
 ];
 
-function testCast(t: Test, [value, from_, to_, expected]: TestCase): void {
+function testCast([value, from_, to_, expected]: TestCase): void {
   const proto = (expected as any).prototype;
   const isError = proto instanceof BaseException || proto instanceof BaseFault;
 
   if (isError) {
-    t.test(
-      `cast(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`,
-      async (t: Test) => {
-        t.throws(
-          () => cast(value, from_, to_),
-          expected as BaseException | RuntimeFault,
-        );
-      },
-    );
+    test(`cast(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`, () => {
+      expect(() => cast(value, from_, to_)).toThrowError(expected);
+    });
   } else {
-    t.test(
-      `cast(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`,
-      async (t: Test) => {
-        t.same(cast(value, from_, to_), expected);
-      },
-    );
+    test(`cast(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`, () => {
+      expect(cast(value, from_, to_)).toEqual(expected);
+    });
   }
 
   if (from_ === Type.Any || to_ === Type.Any) {
-    t.test(`castType(${from_}, ${to_}) -> any`, async (t: Test) => {
-      t.equal(castType(from_, to_), Type.Any);
+    test(`castType(${from_}, ${to_}) -> any`, () => {
+      expect(castType(from_, to_)).toBe(Type.Any);
     });
   } else if (isError) {
-    t.test(`castType(${from_}, ${to_}) -> invalid`, async (t: Test) => {
-      t.equal(castType(from_, to_), Type.Invalid);
+    test(`castType(${from_}, ${to_}) -> invalid`, () => {
+      expect(castType(from_, to_)).toBe(Type.Invalid);
     });
   } else {
-    t.test(`castType(${from_}, ${to_}) -> ${to_}`, async (t: Test) => {
-      t.equal(castType(from_, to_), to_);
+    test(`castType(${from_}, ${to_}) -> ${to_}`, () => {
+      expect(castType(from_, to_)).toBe(to_);
     });
   }
 }
 
-function testCastFromAny(t: Test, [value, _, to_, expected]: TestCase): void {
-  return testCast(t, [value, Type.Any, to_, expected]);
+function testCastFromAny([value, _, to_, expected]: TestCase): void {
+  return testCast([value, Type.Any, to_, expected]);
 }
 
-for (const case_ of CASES) {
-  testCast(t, case_);
-}
+describe('cast', () => {
+  for (const case_ of CASES) {
+    testCast(case_);
+  }
 
-for (const case_ of CASES) {
-  testCastFromAny(t, case_);
-}
+  for (const case_ of CASES) {
+    testCastFromAny(case_);
+  }
+});

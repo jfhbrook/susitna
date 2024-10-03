@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/precedence.ts > TAP > operator precedence > 9 + 8 * -7 > 6 / 5 and 4 == 3 or 2 - 1 > must match snapshot 1`] = `
+exports[`test/precedence.tap.ts > TAP > operator precedence > 9 + 8 * -7 > 6 / 5 and 4 == 3 or 2 - 1 > must match snapshot 1`] = `
 Logical {
   "left": Logical {
     "left": Binary {
@@ -62,6 +62,6 @@ Logical {
 }
 `
 
-exports[`test/precedence.ts > TAP > operator precedence > 9 + 8 * -7 > 6 / 5 and 4 == 3 or 2 - 1 > must match snapshot 2`] = `
+exports[`test/precedence.tap.ts > TAP > operator precedence > 9 + 8 * -7 > 6 / 5 and 4 == 3 or 2 - 1 > must match snapshot 2`] = `
 null
 `

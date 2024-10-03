@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { BaseException, TypeError } from '../../exceptions';
 import { BaseFault, NotImplementedFault, RuntimeFault } from '../../faults';
@@ -68,7 +67,7 @@ const CASES: TestCase[] = [
   [nil, Type.Nil, Type.Any, RuntimeFault],
 ];
 
-function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
+function testInto([value, from_, to_, expected]: TestCase): void {
   const proto = (expected as any).prototype;
   const isError = proto instanceof BaseException || proto instanceof BaseFault;
   const isUnimplemented = isError
@@ -76,57 +75,50 @@ function testInto(t: Test, [value, from_, to_, expected]: TestCase): void {
     : false;
 
   if (isError) {
-    t.test(
-      `into(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`,
-      async (t: Test) => {
-        t.throws(
-          () => into(value, from_, to_),
-          expected as BaseException | RuntimeFault,
-        );
-      },
-    );
+    test(`into(${formatter.format(value)}, ${from_}, ${to_}) throws a ${proto.name}`, () => {
+      expect(() => into(value, from_, to_)).toThrowError(expected);
+    });
   } else {
-    t.test(
-      `into(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`,
-      async (t: Test) => {
-        t.same(into(value, from_, to_), expected);
-      },
-    );
+    test(`into(${formatter.format(value)}, ${from_}, ${to_}) -> ${expected}`, () => {
+      expect(into(value, from_, to_)).toBe(expected);
+    });
 
     if (expected === true || expected === false) {
-      t.test(
+      test(
         `into(${formatter.format(value)}, ${from_}, ${to_}) == ` +
           `truthy(${formatter.format(value)}, ${from_})`,
-        async (t: Test) => {
-          t.same(into(value, from_, to_), truthy(value, from_));
+        () => {
+          expect(into(value, from_, to_)).toBe(truthy(value, from_));
         },
       );
     }
   }
 
   if (from_ === Type.Any || to_ === Type.Any) {
-    t.test(`intoType(${from_}, ${to_}) -> any`, async (t: Test) => {
-      t.equal(intoType(from_, to_), Type.Any);
+    test(`intoType(${from_}, ${to_}) -> any`, () => {
+      expect(intoType(from_, to_)).toBe(Type.Any);
     });
   } else if (isError && !isUnimplemented) {
-    t.test(`intoType(${from_}, ${to_}) -> invalid`, async (t: Test) => {
-      t.equal(intoType(from_, to_), Type.Invalid);
+    test(`intoType(${from_}, ${to_}) -> invalid`, () => {
+      expect(intoType(from_, to_)).toBe(Type.Invalid);
     });
   } else {
-    t.test(`intoType(${from_}, ${to_}) -> ${to_}`, async (t: Test) => {
-      t.equal(intoType(from_, to_), to_);
+    test(`intoType(${from_}, ${to_}) -> ${to_}`, () => {
+      expect(intoType(from_, to_)).toBe(to_);
     });
   }
 }
 
-function testIntoFromAny(t: Test, [value, _, to_, expected]: TestCase): void {
-  return testInto(t, [value, Type.Any, to_, expected]);
+function testIntoFromAny([value, _, to_, expected]: TestCase): void {
+  return testInto([value, Type.Any, to_, expected]);
 }
 
-for (const case_ of CASES) {
-  testInto(t, case_);
-}
+describe('convert', () => {
+  for (const case_ of CASES) {
+    testInto(case_);
+  }
 
-for (const case_ of CASES) {
-  testIntoFromAny(t, case_);
-}
+  for (const case_ of CASES) {
+    testIntoFromAny(case_);
+  }
+});

@@ -1,4 +1,4 @@
-import t from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { BaseException } from '../../exceptions';
 
@@ -20,6 +20,10 @@ const CASES: TestCase[] = [
   [UNKNOWN, Type.Unknown],
 ];
 
-for (const [value, type] of CASES) {
-  t.equal(typeOf(value as Value), type, `${value} -> ${type}`);
-}
+describe('typeof', () => {
+  for (const [value, type] of CASES) {
+    test(`${value} -> ${type}`, () => {
+      expect(typeOf(value as Value)).toBe(type);
+    });
+  }
+});

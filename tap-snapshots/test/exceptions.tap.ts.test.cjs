@@ -5,11 +5,11 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a few nulls 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge a few nulls 1`] = `
 null
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a warning and an error 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge a warning and an error 1`] = `
 Exception {
   "errors": Array [
     SyntaxWarning: identifier has no sigil {
@@ -87,7 +87,7 @@ Exception {
 }
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a warning and null 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge a warning and null 1`] = `
 ParseWarning {
   "message": "",
   "traceback": null,
@@ -130,7 +130,7 @@ ParseWarning {
 }
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge a warning, an error and null 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge a warning, an error and null 1`] = `
 Exception {
   "errors": Array [
     SyntaxWarning: identifier has no sigil {
@@ -208,7 +208,7 @@ Exception {
 }
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge an error and null 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge an error and null 1`] = `
 ParseWarning {
   "message": "",
   "traceback": null,
@@ -251,7 +251,7 @@ ParseWarning {
 }
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge two errors 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge two errors 1`] = `
 Exception {
   "errors": Array [
     SyntaxError: expected ) {
@@ -329,7 +329,7 @@ Exception {
 }
 `
 
-exports[`test/exceptions.ts > TAP > mergeParseErrors > merge two warnings 1`] = `
+exports[`test/exceptions.tap.ts > TAP > mergeParseErrors > merge two warnings 1`] = `
 ParseWarning {
   "message": "",
   "traceback": null,

@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/cli.ts > TAP > examples > 001-hello-world.bas > must match snapshot 1`] = `
+exports[`test/cli.tap.ts > TAP > examples > 001-hello-world.bas > must match snapshot 1`] = `
 Object {
   "exitCode": 0,
   "stderr": "",
@@ -17,7 +17,7 @@ Object {
 }
 `
 
-exports[`test/cli.ts > TAP > examples > 002-invalid-line-number.bas > must match snapshot 1`] = `
+exports[`test/cli.tap.ts > TAP > examples > 002-invalid-line-number.bas > must match snapshot 1`] = `
 Object {
   "exitCode": 70,
   "stderr": String(
@@ -30,7 +30,7 @@ Object {
 }
 `
 
-exports[`test/cli.ts > TAP > examples > 003-if.bas > must match snapshot 1`] = `
+exports[`test/cli.tap.ts > TAP > examples > 003-if.bas > must match snapshot 1`] = `
 Object {
   "exitCode": 0,
   "stderr": "",
@@ -43,7 +43,7 @@ Object {
 }
 `
 
-exports[`test/cli.ts > TAP > examples > 004-if-else.bas > must match snapshot 1`] = `
+exports[`test/cli.tap.ts > TAP > examples > 004-if-else.bas > must match snapshot 1`] = `
 Object {
   "exitCode": 0,
   "stderr": "",
@@ -51,7 +51,7 @@ Object {
 }
 `
 
-exports[`test/cli.ts > TAP > examples > 005-open-block.bas > must match snapshot 1`] = `
+exports[`test/cli.tap.ts > TAP > examples > 005-open-block.bas > must match snapshot 1`] = `
 Object {
   "exitCode": 0,
   "stderr": String(

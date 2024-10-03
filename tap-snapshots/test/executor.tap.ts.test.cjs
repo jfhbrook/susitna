@@ -5,7 +5,7 @@
  * Make sure to inspect the output below.  Do not ignore changes!
  */
 'use strict'
-exports[`test/executor.ts > TAP > when history is saved > and the history is long > history is saved > must match snapshot 1`] = `
+exports[`test/executor.tap.ts > TAP > when history is saved > and the history is long > history is saved > must match snapshot 1`] = `
 print 500
 print 501
 print 502

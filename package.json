@@ -26,9 +26,9 @@
     "lint": "dotenv -e test.env -- npm run build && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/* ./.husky/pre-commit",
     "lint:staged": "lint-staged",
-    "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test",
+    "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run && dotenv -e test.env tap ./test/*.tap.ts",
     "test:citree": "cd tools/citree && npm test",
-    "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test --snapshot",
+    "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- tap ./test/*.tap.ts --snapshot",
     "console": "npm run build && ts-node",
     "prepare": "husky",
     "linecount": "./scripts/linecount.sh",
@@ -79,6 +79,8 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.1.2"
   }
 }

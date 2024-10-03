@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { BaseException } from '../../exceptions';
 
@@ -23,32 +22,32 @@ const CASES: TestCase[] = [
   [new BaseException('test'), true],
 ];
 
-t.test('truthy', async (t: Test) => {
-  await t.test('when the type is known', async (t: Test) => {
+describe('truthy', () => {
+  test('when the type is known', () => {
     for (const [value, isTruthy] of CASES) {
       const type = typeOf(value);
-      t.equal(truthy(value, type), isTruthy, `${value} is truthy`);
+      expect(truthy(value, type), `${value} is truthy`).toBe(isTruthy);
     }
   });
 
-  await t.test('when the type is unknown', async (t: Test) => {
+  test('when the type is unknown', () => {
     for (const [value, isTruthy] of CASES) {
-      t.equal(truthy(value, Type.Any), isTruthy, `${value} is truthy`);
+      expect(truthy(value, Type.Any), `${value} is truthy`).toBe(isTruthy);
     }
   });
 });
 
-t.test('falsey', async (t: Test) => {
-  await t.test('when the type is known', async (t: Test) => {
+describe('falsey', () => {
+  test('when the type is known', () => {
     for (const [value, isTruthy] of CASES) {
       const type = typeOf(value);
-      t.equal(falsey(value, type), !isTruthy, `${value} is falsey`);
+      expect(falsey(value, type), `${value} is falsey`).toBe(!isTruthy);
     }
   });
 
-  await t.test('when the type is unknown', async (t: Test) => {
+  test('when the type is unknown', () => {
     for (const [value, isTruthy] of CASES) {
-      t.equal(falsey(value, Type.Any), !isTruthy, `${value} is falsey`);
+      expect(falsey(value, Type.Any), `${value} is falsey`).toBe(!isTruthy);
     }
   });
 });

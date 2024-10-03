@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: dotenv -f ./test.env -- npm run 'build:templates' && tsc -p tsconfig.build.json
       - name: Vitest tests
-        run: dotenv -f ./test.env -- ./node_modules/.bin/vitest
+        run: dotenv -f ./test.env -- ./node_modules/.bin/vitest --run
       - name: Tap tests
         run: dotenv -f ./test.env -- ./node_modules/.bin/tap --reporter=base --allow-incomplete-coverage ./test/*.tap.ts
       - name: Lint

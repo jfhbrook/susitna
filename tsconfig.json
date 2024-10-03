@@ -2,6 +2,7 @@
   "exclude": ["node_modules", "bin", "dist", "tools"],
   "compilerOptions": {
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,

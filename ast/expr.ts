@@ -1,4 +1,4 @@
-import { Token, TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens.mjs';
 
 export interface ExprVisitor<R> {
   visitUnaryExpr(node: Unary): R;

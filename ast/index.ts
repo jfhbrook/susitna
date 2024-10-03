@@ -1,5 +1,5 @@
-import { Source } from './source';
-import { Instr } from './instr';
+import { Source } from './source.js';
+import { Instr } from './instr.js';
 
 export interface TreeVisitor<R> {
   visitCmdTree(node: Cmd): R;

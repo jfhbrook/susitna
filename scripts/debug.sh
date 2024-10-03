@@ -9,4 +9,4 @@ exercise-bike \
   --show_chunk "${DEBUG_SHOW_CHUNK:-0}" \
   --trace_runtime "${DEBUG_TRACE_RUNTIME:-0}" \
   --trace_gc "${DEBUG_TRACE_GC:-0}" \
-  debug.njk.ts debug.ts
+  debug.njk.mts debug.mts

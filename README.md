@@ -37,11 +37,6 @@ gaps.
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config
-- Switch typescript to `module: "nodenext"`
-  - use require() for node modules
-  - use mjs for own modules
-  - upgrade strip-ansi
-  - switch to 'node:{}' style requires
 - Expanded list
   - `list 10`
   - `list 10-20`
@@ -120,6 +115,11 @@ gaps.
 
 ### The Future
 
+- Switch typescript to `module: "nodenext"`
+  - POC PR here: <https://github.com/jfhbrook/matanuska/pull/31>
+  - Failing tests here: <https://github.com/jfhbrook/matanuska/actions/runs/11154361580/job/31003507631?pr=31>
+  - node-tap bug report here: <https://github.com/tapjs/tapjs/issues/1040>
+  - Possibly revisit after [switching to vitest](https://github.com/jfhbrook/matanuska/pull/32/files)
 - String templates
 - Module system
 - Package manager

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 which tap
 npm ls tap
 tap versions

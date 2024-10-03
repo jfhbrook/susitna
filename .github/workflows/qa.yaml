@@ -21,8 +21,10 @@ jobs:
         run: npm install
       - name: Build
         run: dotenv -f ./test.env -- npm run 'build:templates' && tsc -p tsconfig.build.json
-      - name: Test
-        run: dotenv -f ./test.env -- ./node_modules/.bin/tap --reporter=base --allow-incomplete-coverage ./test
+      - name: Vitest tests
+        run: dotenv -f ./test.env -- ./node_modules/.bin/vitest
+      - name: Tap tests
+        run: dotenv -f ./test.env -- ./node_modules/.bin/tap --reporter=base --allow-incomplete-coverage ./test/*.tap.ts
       - name: Lint
         run: './node_modules/.bin/prettier --list-different "**.ts" && ./node_modules/.bin/eslint --fix "**.ts"'
       - name: Shellcheck

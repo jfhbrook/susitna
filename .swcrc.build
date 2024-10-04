@@ -12,13 +12,13 @@
     "parser": {
       "syntax": "typescript",
       "jsx": false,
+      "decorators": true,
+      "decoratorsBeforeExport": true,
       "dynamicImport": true,
       "privateMethod": true,
       "functionBind": true,
-      "exportDefaultFrom": false,
-      "exportNamespaceFrom": false,
-      "decorators": true,
-      "decoratorsBeforeExport": true,
+      "exportDefaultFrom": true,
+      "exportNamespaceFrom": true,
       "topLevelAwait": false,
       "importMeta": false
     },
@@ -34,5 +34,7 @@
   "module": {
     "type": "commonjs"
   },
-  "minify": false
+  "sourceMaps": true,
+  "inlineSourcesContent": true,
+  "minify": true
 }

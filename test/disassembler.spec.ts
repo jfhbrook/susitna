@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 
 import { shortToBytes } from '../bytecode/short';
 import { OpCode } from '../bytecode/opcodes';
@@ -7,9 +6,9 @@ import { disassemble } from '../bytecode/disassembler';
 
 import { chunk } from './helpers/bytecode';
 
-t.test('expressions', async (t: Test) => {
-  await t.test('255', async (t: Test) => {
-    t.matchSnapshot(
+describe('expressions', () => {
+  test('255', () => {
+    expect(
       disassemble(
         chunk({
           constants: [255],
@@ -17,11 +16,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('123.456', async (t: Test) => {
-    t.matchSnapshot(
+  test('123.456', () => {
+    expect(
       disassemble(
         chunk({
           constants: [123.456],
@@ -29,12 +28,12 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
   for (const bool of [true, false]) {
-    await t.test(`${bool}`, async (t: Test) => {
-      t.matchSnapshot(
+    test(`${bool}`, () => {
+      expect(
         disassemble(
           chunk({
             constants: [bool],
@@ -42,12 +41,12 @@ t.test('expressions', async (t: Test) => {
             lines: [-1, -1, -1, -1, -1],
           }),
         ),
-      );
+      ).toMatchSnapshot();
     });
   }
 
-  await t.test('nil', async (t: Test) => {
-    t.matchSnapshot(
+  test('nil', () => {
+    expect(
       disassemble(
         chunk({
           constants: [],
@@ -55,11 +54,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('"hello world"', async (t: Test) => {
-    t.matchSnapshot(
+  test('"hello world"', () => {
+    expect(
       disassemble(
         chunk({
           constants: ['hello world'],
@@ -67,11 +66,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('(1)', async (t: Test) => {
-    t.matchSnapshot(
+  test('(1)', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1],
@@ -79,11 +78,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('1 + 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('1 + 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1, 1],
@@ -100,11 +99,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('-1', async (t: Test) => {
-    t.matchSnapshot(
+  test('-1', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1],
@@ -119,11 +118,11 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('1 : 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('1 : 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1, 1],
@@ -140,13 +139,13 @@ t.test('expressions', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 });
 
-t.test('print', async (t: Test) => {
-  await t.test('print 255', async (t: Test) => {
-    t.matchSnapshot(
+describe('print', () => {
+  test('print 255', () => {
+    expect(
       disassemble(
         chunk({
           constants: [255],
@@ -154,11 +153,11 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('print 123.456', async (t: Test) => {
-    t.matchSnapshot(
+  test('print 123.456', () => {
+    expect(
       disassemble(
         chunk({
           constants: [123.456],
@@ -166,12 +165,12 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
   for (const bool of [true, false]) {
-    await t.test(`print ${bool}`, async (t: Test) => {
-      t.matchSnapshot(
+    test(`print ${bool}`, () => {
+      expect(
         disassemble(
           chunk({
             constants: [bool],
@@ -179,12 +178,12 @@ t.test('print', async (t: Test) => {
             lines: [-1, -1, -1, -1, -1],
           }),
         ),
-      );
+      ).toMatchSnapshot();
     });
   }
 
-  await t.test('print nil', async (t: Test) => {
-    t.matchSnapshot(
+  test('print nil', () => {
+    expect(
       disassemble(
         chunk({
           constants: [],
@@ -192,11 +191,11 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('print "hello world"', async (t: Test) => {
-    t.matchSnapshot(
+  test('print "hello world"', () => {
+    expect(
       disassemble(
         chunk({
           constants: ['hello world'],
@@ -204,11 +203,11 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('print (1)', async (t: Test) => {
-    t.matchSnapshot(
+  test('print (1)', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1],
@@ -216,11 +215,11 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('print 1 + 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('print 1 + 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: [1, 1],
@@ -237,11 +236,11 @@ t.test('print', async (t: Test) => {
           lines: [-1, -1, -1, -1, -1, -1, -1, -1],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('print i% + 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('print i% + 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: ['i%', 1],
@@ -257,11 +256,11 @@ t.test('print', async (t: Test) => {
           lines: [100, 100, 100, 100, 100, 100, 100],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('let i% = 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('let i% = 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: ['i%', 1],
@@ -278,11 +277,11 @@ t.test('print', async (t: Test) => {
           lines: [100, 100, 100, 100, 100, 100, 100, 100],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test('i% = 1', async (t: Test) => {
-    t.matchSnapshot(
+  test('i% = 1', () => {
+    expect(
       disassemble(
         chunk({
           constants: ['i%', 1],
@@ -299,51 +298,48 @@ t.test('print', async (t: Test) => {
           lines: [100, 100, 100, 100, 100, 100, 100, 100],
         }),
       ),
-    );
+    ).toMatchSnapshot();
   });
 
-  await t.test(
-    'if true then print "true" else print "false" endif',
-    async (t: Test) => {
-      t.matchSnapshot(
-        disassemble(
-          chunk({
-            constants: [true, 'true', 'false'],
-            code: [
-              OpCode.Constant,
-              0,
-              // Jump to "else"
-              OpCode.JumpIfFalse,
-              ...shortToBytes(7),
-              // "then" block
-              OpCode.Pop,
-              OpCode.Constant,
-              1,
-              OpCode.Print,
-              // Jump to end
-              OpCode.Jump,
-              ...shortToBytes(4),
-              // "else" block
-              OpCode.Pop,
-              OpCode.Constant,
-              2,
-              OpCode.Print,
-              OpCode.Nil,
-              OpCode.Return,
-            ],
-            lines: [
-              100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-              100, 100, 100, 100, 100,
-            ],
-          }),
-        ),
-      );
-    },
-  );
+  test('if true then print "true" else print "false" endif', () => {
+    expect(
+      disassemble(
+        chunk({
+          constants: [true, 'true', 'false'],
+          code: [
+            OpCode.Constant,
+            0,
+            // Jump to "else"
+            OpCode.JumpIfFalse,
+            ...shortToBytes(7),
+            // "then" block
+            OpCode.Pop,
+            OpCode.Constant,
+            1,
+            OpCode.Print,
+            // Jump to end
+            OpCode.Jump,
+            ...shortToBytes(4),
+            // "else" block
+            OpCode.Pop,
+            OpCode.Constant,
+            2,
+            OpCode.Print,
+            OpCode.Nil,
+            OpCode.Return,
+          ],
+          lines: [
+            100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+            100, 100, 100, 100, 100,
+          ],
+        }),
+      ),
+    ).toMatchSnapshot();
+  });
 });
 
-t.test('simple program', async (t: Test) => {
-  t.matchSnapshot(
+test('simple program', () => {
+  expect(
     disassemble(
       chunk({
         constants: ['hello world', 'goodbye'],
@@ -360,11 +356,11 @@ t.test('simple program', async (t: Test) => {
         lines: [100, 100, 100, 200, 200, 200, 200, 200],
       }),
     ),
-  );
+  ).toMatchSnapshot();
 });
 
-t.test('malformed lines', async (t: Test) => {
-  t.matchSnapshot(
+test('malformed lines', () => {
+  expect(
     disassemble(
       chunk({
         constants: ['hello world'],
@@ -372,11 +368,11 @@ t.test('malformed lines', async (t: Test) => {
         lines: [],
       }),
     ),
-  );
+  ).toMatchSnapshot();
 });
 
-t.test('missing constants', async (t: Test) => {
-  t.matchSnapshot(
+test('missing constants', () => {
+  expect(
     disassemble(
       chunk({
         constants: [],
@@ -384,11 +380,11 @@ t.test('missing constants', async (t: Test) => {
         lines: [-1, -1, -1, -1, -1],
       }),
     ),
-  );
+  ).toMatchSnapshot();
 });
 
-t.test('unknown opcode', async (t: Test) => {
-  t.matchSnapshot(
+test('unknown opcode', () => {
+  expect(
     disassemble(
       chunk({
         constants: [],
@@ -397,5 +393,5 @@ t.test('unknown opcode', async (t: Test) => {
         lines: [-1],
       }),
     ),
-  );
+  ).toMatchSnapshot();
 });

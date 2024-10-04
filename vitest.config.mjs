@@ -6,7 +6,7 @@ export default defineConfig({
     exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
     coverage: {
       enabled: true,
-      exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
+      exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist', 'test'],
     },
   },
   plugins: [

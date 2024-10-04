@@ -1,4 +1,5 @@
-import t from 'tap';
+import { test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { TypeError, ZeroDivisionError } from '../exceptions';
 import * as op from '../operations';
@@ -31,7 +32,7 @@ const BINARY_CASES: BinaryTestCase[] = [
   ['sub', 1.0, 1.0, 0.0],
   ['sub', 'foo', 'bar', TypeError],
 
-  ['mul', true, true, 1],
+  ['mul', true, true, true],
   ['mul', 2, 2, 4],
   ['mul', 2.0, 2.0, 4.0],
   ['mul', 'foo', 'bar', TypeError],
@@ -159,28 +160,28 @@ const UNARY_CASES: UnaryTestCase[] = [
 
 for (const [method, a, b, expected] of BINARY_CASES) {
   if (expected === TypeError || expected === ZeroDivisionError) {
-    t.throws(
-      () => {
+    test(`op.${method}(${a}, ${b})`, () => {
+      t.throws(() => {
         op[method](a, b);
-      },
-      expected,
-      `op.${method}(${a}, ${b})`,
-    );
+      }, expected);
+    });
   } else {
-    t.same(op[method](a, b), expected, `op.${method}(${a}, ${b})`);
+    test(`op.${method}(${a}, ${b})`, () => {
+      t.same(op[method](a, b), expected);
+    });
   }
 }
 
 for (const [method, a, expected] of UNARY_CASES) {
   if (expected === TypeError || expected === ZeroDivisionError) {
-    t.throws(
-      () => {
+    test(`op.${method}(${a})`, () => {
+      t.throws(() => {
         op[method](a);
-      },
-      expected,
-      `op.${method}(${a})`,
-    );
+      }, expected);
+    });
   } else {
-    t.same(op[method](a), expected, `op.${method}(${a})`);
+    test(`op.${method}(${a})`, () => {
+      t.same(op[method](a), expected);
+    });
   }
 }

@@ -1,5 +1,4 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, expect, test } from 'vitest';
 import { discuss } from '@jfhbrook/swears';
 
 import { Editor, Justify } from '../editor';
@@ -14,16 +13,16 @@ const topic = discuss(async (): Promise<[Editor, InsertFn]> => {
   const editor = new Editor(new MockConsoleHost());
   function insert(source: string) {
     const [result] = parseInput(source);
-    t.equal(result.input.length, 1);
+    expect(result.input.length).toBe(1);
     const line = result.input[0];
-    t.type(line, Line);
+    expect(line).toBeInstanceOf(Line);
     editor.setLine(line as Line, null);
   }
 
   return [editor, insert];
 });
 
-t.test('editor inserts', async (t: Test) => {
+test('editor inserts', async () => {
   await topic.swear(async ([editor, insert]) => {
     insert('10 print "hello"');
     insert('30 print "world"');
@@ -31,7 +30,7 @@ t.test('editor inserts', async (t: Test) => {
     insert('15 rem');
     insert('20');
 
-    t.matchSnapshot(editor.list());
+    expect(editor.list()).toMatchSnapshot();
   });
 });
 
@@ -44,8 +43,8 @@ t.test('editor inserts', async (t: Test) => {
 // involve scanning editor.warnings, twice, in order to calcualte how each
 // element shifted. It will also involve constructing lines which create
 // warnings!
-t.test('editor renum', async (t: Test) => {
-  await t.test('mixed double/triple to all double', async (t: Test) => {
+describe('editor renum', async () => {
+  test('mixed double/triple to all double', async () => {
     await topic.swear(async ([editor, insert]) => {
       insert('10 print "foo"');
       insert('50 print "foo"');
@@ -59,11 +58,11 @@ t.test('editor renum', async (t: Test) => {
 
       editor.renum();
 
-      t.matchSnapshot(editor.list());
+      expect(editor.list()).toMatchSnapshot();
     });
   });
 
-  await t.test('left justified to left justified', async (t: Test) => {
+  test('left justified to left justified', async () => {
     await topic.swear(async ([editor, insert]) => {
       insert('10  print "foo"');
       insert('50  print "foo"');
@@ -78,11 +77,11 @@ t.test('editor renum', async (t: Test) => {
 
       editor.renum();
 
-      t.matchSnapshot(editor.list());
+      expect(editor.list()).toMatchSnapshot();
     });
   });
 
-  await t.test('left justified to right justified', async (t: Test) => {
+  test('left justified to right justified', async () => {
     await topic.swear(async ([editor, insert]) => {
       editor.justify = Justify.Right;
 
@@ -99,11 +98,11 @@ t.test('editor renum', async (t: Test) => {
 
       editor.renum();
 
-      t.matchSnapshot(editor.list());
+      expect(editor.list()).toMatchSnapshot();
     });
   });
 
-  await t.test('right justified to left justified', async (t: Test) => {
+  test('right justified to left justified', async () => {
     await topic.swear(async ([editor, insert]) => {
       insert(' 10 print "foo"');
       insert(' 50 print "foo"');
@@ -118,7 +117,7 @@ t.test('editor renum', async (t: Test) => {
 
       editor.renum();
 
-      t.matchSnapshot(editor.list());
+      expect(editor.list()).toMatchSnapshot();
     });
   });
 });

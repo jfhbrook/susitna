@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mergeParseErrors 1`] = `[ParseWarning]`;
+
+exports[`mergeParseErrors 2`] = `[Exception]`;
+
+exports[`mergeParseErrors 3`] = `[Exception]`;
+
+exports[`mergeParseErrors 4`] = `[ParseWarning]`;
+
+exports[`mergeParseErrors 5`] = `[ParseWarning]`;
+
+exports[`mergeParseErrors 6`] = `[Exception]`;
+
+exports[`mergeParseErrors 7`] = `null`;

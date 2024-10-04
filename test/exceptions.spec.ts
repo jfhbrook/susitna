@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { ExitCode } from '../exit';
 import { ErrorCode } from '../errors';
@@ -47,8 +47,8 @@ const SIMPLE_WARNINGS: Array<typeof BaseWarning> = [
   DeprecationWarning,
 ];
 
-function simpleTest(t: Test, ctor: typeof BaseException): void {
-  t.test(`Can construct a ${ctor.name} with a traceback`, async (t: Test) => {
+function simpleTest(ctor: typeof BaseException): void {
+  test(`Can construct a ${ctor.name} with a traceback`, () => {
     const exc = new ctor('Some exception', TRACEBACK);
 
     t.ok(exc);
@@ -56,27 +56,24 @@ function simpleTest(t: Test, ctor: typeof BaseException): void {
     t.same(exc.traceback, TRACEBACK);
   });
 
-  t.test(
-    `Can construct a ${ctor.name} without a traceback`,
-    async (t: Test) => {
-      const exc = new ctor('Some exception', null);
+  test(`Can construct a ${ctor.name} without a traceback`, () => {
+    const exc = new ctor('Some exception', null);
 
-      t.ok(exc);
-      t.equal(exc.message, 'Some exception');
-      t.same(exc.traceback, null);
-    },
-  );
+    t.ok(exc);
+    t.equal(exc.message, 'Some exception');
+    t.same(exc.traceback, null);
+  });
 }
 
-t.test('For simple exceptions', async (t: Test) => {
+describe('For simple exceptions', () => {
   for (const ctor of SIMPLE_EXCEPTIONS) {
-    simpleTest(t, ctor);
+    simpleTest(ctor);
   }
 });
 
-t.test('For simple warnings', async (t: Test) => {
+describe('For simple warnings', () => {
   for (const ctor of SIMPLE_WARNINGS) {
-    simpleTest(t, ctor);
+    simpleTest(ctor);
   }
 });
 
@@ -100,8 +97,8 @@ const DEFAULT_EXIT_CODES: Array<[ErrorCode | string, ExitCode]> = [
 
 const EXIT_CODES: Array<ExitCode> = DEFAULT_EXIT_CODES.map(([_, code]) => code);
 
-function testDefaultExitCode(t: Test, code: string, exitCode: number): void {
-  t.test(`it has a default exit code ${exitCode}`, async (t: Test) => {
+function testDefaultExitCode(code: string, exitCode: number): void {
+  test(`it has a default exit code ${exitCode}`, () => {
     const exc = new OsError('Some OS error', code, null, null);
 
     t.ok(exc);
@@ -110,8 +107,8 @@ function testDefaultExitCode(t: Test, code: string, exitCode: number): void {
   });
 }
 
-function testOverriddenExitCode(t: Test, code: string, exitCode: number): void {
-  t.test(`it has an overridden exit code ${exitCode}`, async (t: Test) => {
+function testOverriddenExitCode(code: string, exitCode: number): void {
+  test(`it has an overridden exit code ${exitCode}`, () => {
     const exc = new OsError('Some OS error', code, exitCode, null);
 
     t.ok(exc);
@@ -120,28 +117,27 @@ function testOverriddenExitCode(t: Test, code: string, exitCode: number): void {
   });
 }
 
-t.test('OsError', async (t: Test) => {
+describe('OsError', () => {
   for (const [code, defaultExitCode] of DEFAULT_EXIT_CODES) {
-    t.test(`with error code ${code}`, async (t: Test) => {
-      t.test('when the exit code is overridden', async (t: Test) => {
+    describe(`with error code ${code}`, () => {
+      describe('when the exit code is overridden', () => {
         for (const overriddenExitCode of EXIT_CODES) {
-          testOverriddenExitCode(t, code, overriddenExitCode);
+          testOverriddenExitCode(code, overriddenExitCode);
         }
       });
 
-      t.test('when the exit code is set to null', async (t: Test) => {
-        testDefaultExitCode(t, code, defaultExitCode);
+      describe('when the exit code is set to null', () => {
+        testDefaultExitCode(code, defaultExitCode);
       });
     });
   }
 });
 
 function fileErrorTest(
-  t: Test,
   method: 'fromError' | 'fromReadError' | 'fromWriteError',
   exitCode: ExitCode,
 ): void {
-  t.test('without a custom message', async (t: Test) => {
+  test('without a custom message', () => {
     const exc = FileError[method](
       null,
       {
@@ -160,7 +156,7 @@ function fileErrorTest(
     t.equal(exc.traceback, null);
   });
 
-  t.test('with a custom message', async (t: Test) => {
+  test('with a custom message', () => {
     const exc = FileError[method](
       'Some custom file error',
       {
@@ -179,7 +175,7 @@ function fileErrorTest(
     t.equal(exc.traceback, null);
   });
 
-  t.test('with a non-access error code', async (t: Test) => {
+  test('with a non-access error code', () => {
     const exc = FileError[method](
       null,
       {
@@ -199,8 +195,8 @@ function fileErrorTest(
   });
 }
 
-t.test('FileError', async (t: Test) => {
-  t.test('when constructed directly', async (t: Test) => {
+describe('FileError', () => {
+  test('when constructed directly', () => {
     const exc = new FileError(
       'Some file error',
       ErrorCode.Access,
@@ -217,21 +213,21 @@ t.test('FileError', async (t: Test) => {
     t.equal(exc.traceback, null);
   });
 
-  t.test('when created from a naive error', async (t: Test) => {
-    fileErrorTest(t, 'fromError', ExitCode.OsError);
+  describe('when created from a naive error', () => {
+    fileErrorTest('fromError', ExitCode.OsError);
   });
 
-  t.test('when created from a read error', async (t: Test) => {
-    fileErrorTest(t, 'fromReadError', ExitCode.NoInput);
+  describe('when created from a read error', () => {
+    fileErrorTest('fromReadError', ExitCode.NoInput);
   });
 
-  t.test('when created from a write error', async (t: Test) => {
-    fileErrorTest(t, 'fromWriteError', ExitCode.CantCreate);
+  describe('when created from a write error', () => {
+    fileErrorTest('fromWriteError', ExitCode.CantCreate);
   });
 });
 
-t.test('ParseError', async (t: Test) => {
-  t.test('it can construct a ParseError', async (t: Test) => {
+describe('ParseError', () => {
+  test('it can construct a ParseError', () => {
     const line = new Source('', '100', ' ', 'print someFn(ident');
 
     const exc = new ParseError([
@@ -277,8 +273,8 @@ t.test('ParseError', async (t: Test) => {
   });
 });
 
-t.test('ParseWarning', async (t: Test) => {
-  t.test('it can construct a ParseWarning', async (t: Test) => {
+describe('ParseWarning', () => {
+  test('it can construct a ParseWarning', () => {
     const line = new Source('', '100', ' ', 'print someFn(ident)');
 
     const exc = new ParseWarning([
@@ -307,7 +303,7 @@ t.test('ParseWarning', async (t: Test) => {
   });
 });
 
-t.test('mergeParseErrors', async (t: Test) => {
+test('mergeParseErrors', () => {
   const PARSE_WARNING_1 = new ParseWarning([
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -427,7 +423,7 @@ t.test('mergeParseErrors', async (t: Test) => {
   t.matchSnapshot(mergeParseErrors([null, null, null]), 'merge a few nulls');
 });
 
-t.test('splitParseError', async (t: Test) => {
+test('splitParseError', () => {
   const ERROR = new ParseError([
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -555,23 +551,23 @@ t.test('splitParseError', async (t: Test) => {
     }),
   ]);
 
-  function test(error: Record<number, any>, key: string) {
+  function testSplit(error: Record<number, any>, key: string) {
     for (const [k, err] of Object.entries(error)) {
       const errs = err.errors ? err.errors : err.warnings;
       for (const e of errs) {
-        t.same(k, e[key]);
+        t.equal(String(k), String(e[key]));
       }
     }
   }
 
-  test(splitParseError(ERROR, 'row'), 'row');
-  test(splitParseError(WARN, 'row'), 'row');
-  test(splitParseError(ERROR, 'lineNo'), 'lineNo');
-  test(splitParseError(WARN, 'lineNo'), 'lineNo');
+  testSplit(splitParseError(ERROR, 'row'), 'row');
+  testSplit(splitParseError(WARN, 'row'), 'row');
+  testSplit(splitParseError(ERROR, 'lineNo'), 'lineNo');
+  testSplit(splitParseError(WARN, 'lineNo'), 'lineNo');
   t.same(splitParseError(null, 'row'), {});
 });
 
-t.test('removeFromParseError', async (t: Test) => {
+test('removeFromParseError', () => {
   const ERROR = new ParseError([
     new SyntaxWarning('identifier has no sigil', {
       filename: FILENAME,
@@ -699,17 +695,17 @@ t.test('removeFromParseError', async (t: Test) => {
     }),
   ]);
 
-  function test(error: any, key: string, value: number) {
+  function testRemove(error: any, key: string, value: number) {
     const errs = error.errors ? error.errors : error.warnings;
     for (const e of errs) {
-      e[key] !== value;
+      t.notEqual(String(e[key]), String(value));
     }
   }
 
-  test(removeFromParseError(ERROR, 'row', 2), 'row', 2);
-  test(removeFromParseError(WARN, 'row', 2), 'row', 2);
+  testRemove(removeFromParseError(ERROR, 'row', 2), 'row', 2);
+  testRemove(removeFromParseError(WARN, 'row', 2), 'row', 2);
   t.same(removeFromParseError(null, 'row', 2), null);
-  test(removeFromParseError(ERROR, 'lineNo', 400), 'lineNo', 400);
-  test(removeFromParseError(WARN, 'lineNo', 400), 'lineNo', 400);
+  testRemove(removeFromParseError(ERROR, 'lineNo', 400), 'lineNo', 400);
+  testRemove(removeFromParseError(WARN, 'lineNo', 400), 'lineNo', 400);
   t.same(removeFromParseError(null, 'lineNo', 400), null);
 });

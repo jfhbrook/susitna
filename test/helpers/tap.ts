@@ -29,6 +29,10 @@ export const test = {
     expect(actual, message).toBe(expected);
   },
 
+  notEqual(actual: any, expected: any, message?: string): void {
+    expect(actual, message).not.toBe(expected);
+  },
+
   same(actual: any, expected: any, message?: string): void {
     expect(actual, message).toEqual(expected);
   },

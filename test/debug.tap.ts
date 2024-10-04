@@ -1,10 +1,11 @@
-import { expect, test } from 'vitest';
+import t from 'tap';
+import { Test } from 'tap';
 
 import { MockTracer } from './helpers/debug';
 
 const TRACER = new MockTracer('main');
 
-test('tracer', async () => {
+t.test('tracer', async (t: Test) => {
   TRACER.trace('before span');
   await TRACER.span('span', async () => {
     TRACER.trace('inside span');
@@ -15,5 +16,5 @@ test('tracer', async () => {
   });
   TRACER.trace('after sync span');
 
-  expect(TRACER.messages).toMatchSnapshot();
+  t.matchSnapshot(TRACER.messages);
 });

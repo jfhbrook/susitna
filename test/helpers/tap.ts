@@ -1,5 +1,7 @@
 import { expect } from 'vitest';
 
+import { expectSnapshotWithStack } from './stack';
+
 //
 // Some tests are running with vitest, but are still using node-tap assert
 // APIs. This is especially true for test helpers which take a tap.Test object
@@ -32,6 +34,10 @@ export const test = {
   },
 
   matchSnapshot(actual: any): void {
+    if (typeof actual === 'string') {
+      expectSnapshotWithStack(actual);
+      return;
+    }
     expect(actual).toMatchSnapshot();
   },
 };

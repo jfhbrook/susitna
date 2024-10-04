@@ -41,16 +41,16 @@ exports[`given a DefaultFormatter > it formats a BaseFault 1`] = `
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at {CWD}/test/format.spec.ts:277:10
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:146:14
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:533:11
-    at runWithTimeout (file://{CWD}/node_modules/@vitest/runner/dist/index.js:61:7)
-    at runTest (file://{CWD}/node_modules/@vitest/runner/dist/index.js:986:17)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runFiles (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1199:5)
-    at startTests (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1208:3)
-    at file://{CWD}/node_modules/vitest/dist/chunks/runBaseTests.D-Gcin7G.js:130:11"
+    at {{CWD}}/test/format.spec.ts:277:10
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
+    at runTest (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:986:17)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runFiles (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1199:5)
+    at startTests (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1208:3)
+    at file://{{CWD}}/node_modules/vitest/dist/chunks/runBaseTests.D-Gcin7G.js:130:11"
 `;
 
 exports[`given a DefaultFormatter > it formats a BaseWarning 1`] = `"/home/josh/script.bas:100: BaseWarning: message"`;
@@ -127,15 +127,15 @@ exports[`given a DefaultFormatter > it formats a RuntimeFault 1`] = `
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at {CWD}/test/format.spec.ts:279:18
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:146:14
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:533:11
-    at runWithTimeout (file://{CWD}/node_modules/@vitest/runner/dist/index.js:61:7)
-    at runTest (file://{CWD}/node_modules/@vitest/runner/dist/index.js:986:17)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runFiles (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1199:5)
-    at startTests (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1208:3)
+    at {{CWD}}/test/format.spec.ts:279:18
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
+    at runTest (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:986:17)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runFiles (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1199:5)
+    at startTests (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1208:3)
 
 --- Traceback ---
 Traceback:
@@ -331,16 +331,16 @@ exports[`given a Inspector > it formats a BaseFault 1`] = `
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at {CWD}/test/format.spec.ts:277:10
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:146:14
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:533:11
-    at runWithTimeout (file://{CWD}/node_modules/@vitest/runner/dist/index.js:61:7)
-    at runTest (file://{CWD}/node_modules/@vitest/runner/dist/index.js:986:17)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runFiles (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1199:5)
-    at startTests (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1208:3)
-    at file://{CWD}/node_modules/vitest/dist/chunks/runBaseTests.D-Gcin7G.js:130:11"
+    at {{CWD}}/test/format.spec.ts:277:10
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
+    at runTest (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:986:17)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runFiles (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1199:5)
+    at startTests (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1208:3)
+    at file://{{CWD}}/node_modules/vitest/dist/chunks/runBaseTests.D-Gcin7G.js:130:11"
 `;
 
 exports[`given a Inspector > it formats a BaseWarning 1`] = `"/home/josh/script.bas:100: BaseWarning: message"`;
@@ -417,15 +417,15 @@ exports[`given a Inspector > it formats a RuntimeFault 1`] = `
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at {CWD}/test/format.spec.ts:279:18
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:146:14
-    at file://{CWD}/node_modules/@vitest/runner/dist/index.js:533:11
-    at runWithTimeout (file://{CWD}/node_modules/@vitest/runner/dist/index.js:61:7)
-    at runTest (file://{CWD}/node_modules/@vitest/runner/dist/index.js:986:17)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runSuite (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1142:15)
-    at runFiles (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1199:5)
-    at startTests (file://{CWD}/node_modules/@vitest/runner/dist/index.js:1208:3)
+    at {{CWD}}/test/format.spec.ts:279:18
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
+    at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
+    at runTest (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:986:17)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runSuite (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1142:15)
+    at runFiles (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1199:5)
+    at startTests (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:1208:3)
 
 --- Traceback ---
 Traceback:

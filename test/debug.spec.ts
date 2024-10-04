@@ -1,6 +1,7 @@
-import { expect, test } from 'vitest';
+import { test } from 'vitest';
 
 import { MockTracer } from './helpers/debug';
+import { expectSnapshotWithStack } from './helpers/stack';
 
 const TRACER = new MockTracer('main');
 
@@ -15,5 +16,5 @@ test('tracer', async () => {
   });
   TRACER.trace('after sync span');
 
-  expect(TRACER.messages).toMatchSnapshot();
+  expectSnapshotWithStack(TRACER.messages.join('\n'));
 });

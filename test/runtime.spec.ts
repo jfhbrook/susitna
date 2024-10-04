@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { NotImplementedError } from '../exceptions';
 import { OpCode } from '../bytecode/opcodes';
@@ -7,8 +7,8 @@ import { OpCode } from '../bytecode/opcodes';
 import { chunk } from './helpers/bytecode';
 import { testChunk } from './helpers/runtime';
 
-t.test('expressions', async (t: Test) => {
-  await t.test('255', async (t: Test) => {
+describe('expressions', () => {
+  test('255', () => {
     testChunk(
       t,
       chunk({
@@ -19,7 +19,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('123.456', async (t: Test) => {
+  test('123.456', () => {
     testChunk(
       t,
       chunk({
@@ -31,7 +31,7 @@ t.test('expressions', async (t: Test) => {
   });
 
   for (const bool of [true, false]) {
-    await t.test(`${bool}`, async (t: Test) => {
+    test(`${bool}`, () => {
       testChunk(
         t,
         chunk({
@@ -43,7 +43,7 @@ t.test('expressions', async (t: Test) => {
     });
   }
 
-  await t.test('nil', async (t: Test) => {
+  test('nil', () => {
     testChunk(
       t,
       chunk({
@@ -54,7 +54,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('"hello world"', async (t: Test) => {
+  test('"hello world"', () => {
     testChunk(
       t,
       chunk({
@@ -65,7 +65,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('(1)', async (t: Test) => {
+  test('(1)', () => {
     testChunk(
       t,
       chunk({
@@ -76,7 +76,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('1 + 1', async (t: Test) => {
+  test('1 + 1', () => {
     testChunk(
       t,
       chunk({
@@ -96,7 +96,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('-1', async (t: Test) => {
+  test('-1', () => {
     testChunk(
       t,
       chunk({
@@ -114,7 +114,7 @@ t.test('expressions', async (t: Test) => {
     );
   });
 
-  await t.test('1 : 1', async (t: Test) => {
+  test('1 : 1', () => {
     testChunk(
       t,
       chunk({
@@ -133,8 +133,8 @@ t.test('expressions', async (t: Test) => {
   });
 });
 
-t.test('print', async (t: Test) => {
-  await t.test('print 255', async (t: Test) => {
+describe('print', () => {
+  test('print 255', () => {
     testChunk(
       t,
       chunk({
@@ -145,7 +145,7 @@ t.test('print', async (t: Test) => {
     );
   });
 
-  await t.test('print 123.456', async (t: Test) => {
+  test('print 123.456', () => {
     testChunk(
       t,
       chunk({
@@ -157,7 +157,7 @@ t.test('print', async (t: Test) => {
   });
 
   for (const bool of [true, false]) {
-    await t.test(`print ${bool}`, async (t: Test) => {
+    test(`print ${bool}`, () => {
       testChunk(
         t,
         chunk({
@@ -169,7 +169,7 @@ t.test('print', async (t: Test) => {
     });
   }
 
-  await t.test('print nil', async (t: Test) => {
+  test('print nil', () => {
     testChunk(
       t,
       chunk({
@@ -180,7 +180,7 @@ t.test('print', async (t: Test) => {
     );
   });
 
-  await t.test('print "hello world"', async (t: Test) => {
+  test('print "hello world"', () => {
     testChunk(
       t,
       chunk({
@@ -191,7 +191,7 @@ t.test('print', async (t: Test) => {
     );
   });
 
-  await t.test('print (1)', async (t: Test) => {
+  test('print (1)', () => {
     testChunk(
       t,
       chunk({
@@ -202,7 +202,7 @@ t.test('print', async (t: Test) => {
     );
   });
 
-  await t.test('print 1 + 1', async (t: Test) => {
+  test('print 1 + 1', () => {
     testChunk(
       t,
       chunk({
@@ -223,8 +223,8 @@ t.test('print', async (t: Test) => {
   });
 });
 
-t.test('exit', async (t: Test) => {
-  await t.test('exit 1', async (t: Test) => {
+describe('exit', () => {
+  test('exit 1', () => {
     testChunk(
       t,
       chunk({
@@ -238,7 +238,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit 100', async (t: Test) => {
+  test('exit 100', () => {
     testChunk(
       t,
       chunk({
@@ -252,7 +252,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit "banana"', async (t: Test) => {
+  test('exit "banana"', () => {
     testChunk(
       t,
       chunk({
@@ -266,7 +266,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit 123.456', async (t: Test) => {
+  test('exit 123.456', () => {
     testChunk(
       t,
       chunk({
@@ -280,7 +280,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit true', async (t: Test) => {
+  test('exit true', () => {
     testChunk(
       t,
       chunk({
@@ -294,7 +294,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit false', async (t: Test) => {
+  test('exit false', () => {
     testChunk(
       t,
       chunk({
@@ -308,7 +308,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit nil', async (t: Test) => {
+  test('exit nil', () => {
     testChunk(
       t,
       chunk({
@@ -322,7 +322,7 @@ t.test('exit', async (t: Test) => {
     );
   });
 
-  await t.test('exit 1 + 1', async (t: Test) => {
+  test('exit 1 + 1', () => {
     testChunk(
       t,
       chunk({
@@ -346,7 +346,7 @@ t.test('exit', async (t: Test) => {
   });
 });
 
-t.test('simple program', async (t: Test) => {
+test('simple program', () => {
   testChunk(
     t,
     chunk({
@@ -366,7 +366,7 @@ t.test('simple program', async (t: Test) => {
   );
 });
 
-t.test('something not implemented', async (t: Test) => {
+test('something not implemented', () => {
   testChunk(
     t,
     chunk({

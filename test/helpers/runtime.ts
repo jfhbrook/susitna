@@ -1,4 +1,9 @@
-import { Test } from 'tap';
+interface Test {
+  throws(fn: () => any, err: any): any;
+  equal(actual: any, expected: any, message?: string): any;
+  matchSnapshot(actual: any): any;
+  same(actual: any, expected: any): any;
+}
 
 import { Exit } from '../../exit';
 import { Chunk } from '../../bytecode/chunk';

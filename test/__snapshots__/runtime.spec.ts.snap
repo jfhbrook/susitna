@@ -1,0 +1,143 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`exit > exit "banana" 1`] = `""`;
+
+exports[`exit > exit "banana" 2`] = `""`;
+
+exports[`exit > exit 1 + 1 1`] = `""`;
+
+exports[`exit > exit 1 + 1 2`] = `""`;
+
+exports[`exit > exit 1 1`] = `""`;
+
+exports[`exit > exit 1 2`] = `""`;
+
+exports[`exit > exit 100 1`] = `""`;
+
+exports[`exit > exit 100 2`] = `""`;
+
+exports[`exit > exit 123.456 1`] = `""`;
+
+exports[`exit > exit 123.456 2`] = `""`;
+
+exports[`exit > exit false 1`] = `""`;
+
+exports[`exit > exit false 2`] = `""`;
+
+exports[`exit > exit nil 1`] = `""`;
+
+exports[`exit > exit nil 2`] = `""`;
+
+exports[`exit > exit true 1`] = `""`;
+
+exports[`exit > exit true 2`] = `""`;
+
+exports[`expressions > "hello world" 1`] = `""`;
+
+exports[`expressions > "hello world" 2`] = `""`;
+
+exports[`expressions > (1) 1`] = `""`;
+
+exports[`expressions > (1) 2`] = `""`;
+
+exports[`expressions > -1 1`] = `""`;
+
+exports[`expressions > -1 2`] = `""`;
+
+exports[`expressions > 1 + 1 1`] = `""`;
+
+exports[`expressions > 1 + 1 2`] = `""`;
+
+exports[`expressions > 1 : 1 1`] = `""`;
+
+exports[`expressions > 1 : 1 2`] = `""`;
+
+exports[`expressions > 123.456 1`] = `""`;
+
+exports[`expressions > 123.456 2`] = `""`;
+
+exports[`expressions > 255 1`] = `""`;
+
+exports[`expressions > 255 2`] = `""`;
+
+exports[`expressions > false 1`] = `""`;
+
+exports[`expressions > false 2`] = `""`;
+
+exports[`expressions > nil 1`] = `""`;
+
+exports[`expressions > nil 2`] = `""`;
+
+exports[`expressions > true 1`] = `""`;
+
+exports[`expressions > true 2`] = `""`;
+
+exports[`print > print "hello world" 1`] = `
+"hello world
+"
+`;
+
+exports[`print > print "hello world" 2`] = `""`;
+
+exports[`print > print (1) 1`] = `
+"1
+"
+`;
+
+exports[`print > print (1) 2`] = `""`;
+
+exports[`print > print 1 + 1 1`] = `
+"2
+"
+`;
+
+exports[`print > print 1 + 1 2`] = `""`;
+
+exports[`print > print 123.456 1`] = `
+"123.456
+"
+`;
+
+exports[`print > print 123.456 2`] = `""`;
+
+exports[`print > print 255 1`] = `
+"255
+"
+`;
+
+exports[`print > print 255 2`] = `""`;
+
+exports[`print > print false 1`] = `
+"false
+"
+`;
+
+exports[`print > print false 2`] = `""`;
+
+exports[`print > print nil 1`] = `
+"nil
+"
+`;
+
+exports[`print > print nil 2`] = `""`;
+
+exports[`print > print true 1`] = `
+"true
+"
+`;
+
+exports[`print > print true 2`] = `""`;
+
+exports[`simple program 1`] = `
+"hello world
+goodbye
+"
+`;
+
+exports[`simple program 2`] = `""`;
+
+exports[`something not implemented 1`] = `
+"Traceback:
+  File '<unknown>', line 100
+NotImplementedError: Loop"
+`;

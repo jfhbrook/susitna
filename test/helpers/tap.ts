@@ -25,12 +25,20 @@ export const test = {
     expect(actual, message).toBe(expected);
   },
 
+  same(actual: any, expected: any, message?: string): void {
+    expect(actual, message).toEqual(expected);
+  },
+
   rejects(fn: () => any, errType: any, message?: string): void {
     expect(fn(), message).rejects.toBeInstanceOf(errType);
   },
 
   match(actual: any, expected: any, message?: string): void {
     expect(actual, message).toMatch(expected);
+  },
+
+  throws(fn: () => any, err: any): any {
+    expect(fn).toThrowError(err);
   },
 
   matchSnapshot(actual: any): void {

@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { Source } from '../ast/source';
 import {
@@ -567,7 +567,7 @@ const PROGRAMS: TestCase[] = [
 COMMANDS = COMMANDS.concat(EXPRESSION_COMMANDS);
 
 function runTest([source, ast, ch]: TestCase): void {
-  t.test(source, async (t: Test) => {
+  test(source, () => {
     t.same(compile(ast)[0], ch);
   });
 }
@@ -580,8 +580,8 @@ for (const prog of PROGRAMS) {
   runTest(prog);
 }
 
-t.test('syntax errors', async (t: Test) => {
-  await t.test('*1', async (t: Test) => {
+describe('syntax errors', () => {
+  test('*1', () => {
     t.plan(2);
     t.throws(() => {
       try {
@@ -596,7 +596,7 @@ t.test('syntax errors', async (t: Test) => {
     });
   });
 
-  await t.test('1 $ 1', async (t: Test) => {
+  test('1 $ 1', () => {
     t.plan(2);
     t.throws(() => {
       try {
@@ -616,29 +616,21 @@ t.test('syntax errors', async (t: Test) => {
   });
 });
 
-async function isCompiled(
-  t: Test,
-  name: string,
-  [cmd, chunks]: CompiledCmd,
-): Promise<void> {
-  await t.test(name, async (t: Test) => {
+function isCompiled(name: string, [cmd, chunks]: CompiledCmd): void {
+  test(name, () => {
     t.equal(cmd, null, 'is a runtime instruction');
     t.equal(chunks.length, 1, 'chunk is compiled');
   });
 }
 
-async function isInteractive(
-  t: Test,
-  name: string,
-  cmd: CompiledCmd,
-): Promise<void> {
-  await t.test(name, async (t: Test) => {
+function isInteractive(name: string, cmd: CompiledCmd): void {
+  test(name, () => {
     t.ok(cmd, 'is an interactive command');
     t.matchSnapshot(cmd, 'has the expected arguments');
   });
 }
 
-t.test('interactive compiler', async (t: Test) => {
+describe('interactive compiler', () => {
   const [cmds, warning] = compileCommands([
     new Print(new StringLiteral('Hello')),
     new Exit(null),
@@ -652,7 +644,7 @@ t.test('interactive compiler', async (t: Test) => {
 
   t.equal(warning, null, 'has no warnings');
 
-  await isCompiled(t, 'print', print);
-  await isCompiled(t, 'exit', exit);
-  await isInteractive(t, 'expression', expr);
+  isCompiled('print', print);
+  isCompiled('exit', exit);
+  isInteractive('expression', expr);
 });

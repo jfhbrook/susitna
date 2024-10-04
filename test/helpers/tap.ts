@@ -17,8 +17,12 @@ import { expectSnapshotWithStack } from './stack';
 // vitest.
 //
 export const test = {
-  ok(o: any): void {
-    expect(o).toBeTruthy();
+  plan(n: number): void {
+    expect.assertions(n);
+  },
+
+  ok(o: any, message?: string): void {
+    expect(o, message).toBeTruthy();
   },
 
   equal(actual: any, expected: any, message?: string): void {
@@ -41,16 +45,20 @@ export const test = {
     expect(o).toBeInstanceOf(type);
   },
 
-  throws(fn: () => any, err: any): any {
+  throws(fn: () => any, err?: any): any {
+    if (typeof err === 'undefined') {
+      expect(fn).toThrow();
+      return;
+    }
     expect(fn).toThrowError(err);
   },
 
-  matchSnapshot(actual: any): void {
+  matchSnapshot(actual: any, message?: string): void {
     if (typeof actual === 'string') {
-      expectSnapshotWithStack(actual);
+      expectSnapshotWithStack(actual, message);
       return;
     }
-    expect(actual).toMatchSnapshot();
+    expect(actual, message).toMatchSnapshot();
   },
 };
 

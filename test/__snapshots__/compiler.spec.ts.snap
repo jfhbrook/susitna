@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`interactive compiler > expression 1`] = `
+[
+  Expression {
+    "expression": StringLiteral {
+      "value": "Hello",
+    },
+    "offsetEnd": -1,
+    "offsetStart": -1,
+  },
+  [
+    Chunk {
+      "code": [
+        0,
+        0,
+        25,
+      ],
+      "constants": [
+        "Hello",
+      ],
+      "filename": "<unknown>",
+      "lines": [
+        100,
+        100,
+        100,
+      ],
+    },
+  ],
+]
+`;
+
+exports[`syntax errors > *1 1`] = `
+"<input>:<R1>:0 (after line 100): error: Invalid unary operator
+  *1
+  ^"
+`;
+
+exports[`syntax errors > 1 $ 1 1`] = `
+"<input>:<R1>:0 (after line 100): error: Invalid binary operator
+  1 $ 1
+  ^"
+`;

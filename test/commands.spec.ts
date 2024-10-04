@@ -56,15 +56,9 @@ test('editing', async () => {
     t.equal(editor.filename, 'examples/001-hello-world.bas');
     t.equal(editor.program.lines.length, 3);
 
-    await host.expect(
-      t,
-      executor.eval('run'),
-      null,
-      'hello world\ngoodbye world',
-    );
+    await host.expect(executor.eval('run'), null, 'hello world\ngoodbye world');
 
     await host.expect(
-      t,
       executor.eval('list'),
       null,
       [
@@ -78,7 +72,6 @@ test('editing', async () => {
     await executor.eval('renum');
 
     await host.expect(
-      t,
       executor.eval('list'),
       null,
       [

@@ -1,9 +1,4 @@
-interface Test {
-  throws(fn: () => any, err: any): any;
-  equal(actual: any, expected: any, message?: string): any;
-  matchSnapshot(actual: any): any;
-  same(actual: any, expected: any): any;
-}
+import { t } from './tap';
 
 import { Exit } from '../../exit';
 import { Chunk } from '../../bytecode/chunk';
@@ -19,7 +14,7 @@ export interface ChunkTests {
   exitCode?: number;
 }
 
-export function testChunk(t: Test, chunk: Chunk, tests: ChunkTests = {}): void {
+export function testChunk(chunk: Chunk, tests: ChunkTests = {}): void {
   const [stackBefore, stackAfter] = tests.effect || [[], []];
   const host = new MockConsoleHost();
   const runtime = new Runtime(host);

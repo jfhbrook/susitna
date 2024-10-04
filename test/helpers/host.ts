@@ -1,8 +1,4 @@
-import * as assert from 'assert';
-
-interface Test {
-  match(actual: any, expected: any, ...[msg, extra]: any[]): void;
-}
+import { expect } from 'vitest';
 
 // TODO: strip-ansi v7+ uses .mjs, which completely breaks in typescript if
 // you're compiling imports to commonjs, lolsob
@@ -102,7 +98,6 @@ export class MockConsoleHost extends ConsoleHost {
   }
 
   async expect<T>(
-    t: Test,
     action: Promise<T>,
     input: string | null = null,
     expected: string,
@@ -121,7 +116,7 @@ export class MockConsoleHost extends ConsoleHost {
     this.expectStart = output.length;
     output = output.slice(expectStart);
 
-    t.match(output, expected, `expect: ${expected}`);
+    expect(output, `expect: ${expected}`).toMatch(expected);
 
     return rv;
   }
@@ -162,7 +157,7 @@ export class MockConsoleHost extends ConsoleHost {
 
   async readFile(filename: string): Promise<string> {
     const contents = this.files[this.resolvePath(filename)];
-    assert.notEqual(contents, undefined);
+    expect(contents).not.toBeUndefined();
     return contents;
   }
 

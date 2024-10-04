@@ -10,7 +10,6 @@ import { testChunk } from './helpers/runtime';
 describe('expressions', () => {
   test('255', () => {
     testChunk(
-      t,
       chunk({
         constants: [255],
         code: [OpCode.Constant, 0, OpCode.Return],
@@ -21,7 +20,6 @@ describe('expressions', () => {
 
   test('123.456', () => {
     testChunk(
-      t,
       chunk({
         constants: [123.456],
         code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
@@ -33,7 +31,6 @@ describe('expressions', () => {
   for (const bool of [true, false]) {
     test(`${bool}`, () => {
       testChunk(
-        t,
         chunk({
           constants: [bool],
           code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
@@ -45,7 +42,6 @@ describe('expressions', () => {
 
   test('nil', () => {
     testChunk(
-      t,
       chunk({
         constants: [],
         code: [OpCode.Nil, OpCode.Pop, OpCode.Nil, OpCode.Return],
@@ -56,7 +52,6 @@ describe('expressions', () => {
 
   test('"hello world"', () => {
     testChunk(
-      t,
       chunk({
         constants: ['hello world'],
         code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
@@ -67,7 +62,6 @@ describe('expressions', () => {
 
   test('(1)', () => {
     testChunk(
-      t,
       chunk({
         constants: [1],
         code: [OpCode.Constant, 0, OpCode.Pop, OpCode.Nil, OpCode.Return],
@@ -78,7 +72,6 @@ describe('expressions', () => {
 
   test('1 + 1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1, 1],
         code: [
@@ -98,7 +91,6 @@ describe('expressions', () => {
 
   test('-1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1],
         code: [
@@ -116,7 +108,6 @@ describe('expressions', () => {
 
   test('1 : 1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1, 1],
         code: [
@@ -136,7 +127,6 @@ describe('expressions', () => {
 describe('print', () => {
   test('print 255', () => {
     testChunk(
-      t,
       chunk({
         constants: [255],
         code: [OpCode.Constant, 0, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -147,7 +137,6 @@ describe('print', () => {
 
   test('print 123.456', () => {
     testChunk(
-      t,
       chunk({
         constants: [123.456],
         code: [OpCode.Constant, 0, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -159,7 +148,6 @@ describe('print', () => {
   for (const bool of [true, false]) {
     test(`print ${bool}`, () => {
       testChunk(
-        t,
         chunk({
           constants: [bool],
           code: [OpCode.Constant, 0, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -171,7 +159,6 @@ describe('print', () => {
 
   test('print nil', () => {
     testChunk(
-      t,
       chunk({
         constants: [],
         code: [OpCode.Nil, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -182,7 +169,6 @@ describe('print', () => {
 
   test('print "hello world"', () => {
     testChunk(
-      t,
       chunk({
         constants: ['hello world'],
         code: [OpCode.Constant, 0, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -193,7 +179,6 @@ describe('print', () => {
 
   test('print (1)', () => {
     testChunk(
-      t,
       chunk({
         constants: [1],
         code: [OpCode.Constant, 0, OpCode.Print, OpCode.Nil, OpCode.Return],
@@ -204,7 +189,6 @@ describe('print', () => {
 
   test('print 1 + 1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1, 1],
         code: [
@@ -226,7 +210,6 @@ describe('print', () => {
 describe('exit', () => {
   test('exit 1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -240,7 +223,6 @@ describe('exit', () => {
 
   test('exit 100', () => {
     testChunk(
-      t,
       chunk({
         constants: [100],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -254,7 +236,6 @@ describe('exit', () => {
 
   test('exit "banana"', () => {
     testChunk(
-      t,
       chunk({
         constants: ['banana'],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -268,7 +249,6 @@ describe('exit', () => {
 
   test('exit 123.456', () => {
     testChunk(
-      t,
       chunk({
         constants: [123.456],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -282,7 +262,6 @@ describe('exit', () => {
 
   test('exit true', () => {
     testChunk(
-      t,
       chunk({
         constants: [true],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -296,7 +275,6 @@ describe('exit', () => {
 
   test('exit false', () => {
     testChunk(
-      t,
       chunk({
         constants: [false],
         code: [OpCode.Constant, 0, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -310,7 +288,6 @@ describe('exit', () => {
 
   test('exit nil', () => {
     testChunk(
-      t,
       chunk({
         constants: [],
         code: [OpCode.Nil, OpCode.Exit, OpCode.Nil, OpCode.Return],
@@ -324,7 +301,6 @@ describe('exit', () => {
 
   test('exit 1 + 1', () => {
     testChunk(
-      t,
       chunk({
         constants: [1, 1],
         code: [
@@ -348,7 +324,6 @@ describe('exit', () => {
 
 test('simple program', () => {
   testChunk(
-    t,
     chunk({
       constants: ['hello world', 'goodbye'],
       code: [
@@ -368,7 +343,6 @@ test('simple program', () => {
 
 test('something not implemented', () => {
   testChunk(
-    t,
     chunk({
       constants: [],
       code: [OpCode.Loop, 0xff, 0xff],

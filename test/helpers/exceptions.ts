@@ -1,14 +1,16 @@
-import { Test } from 'tap';
+import { expect } from 'vitest';
 
 import { formatter } from '../../format';
 
-export async function throws(t: Test, fn: () => any) {
+import { expectSnapshotWithStack } from './stack';
+
+export async function throws(fn: () => any) {
   let error: any = null;
   try {
     await fn();
   } catch (err) {
     error = err;
   }
-  t.ok(error);
-  t.matchSnapshot(formatter.format(error));
+  expect(error).toBeTruthy();
+  expectSnapshotWithStack(formatter.format(error));
 }

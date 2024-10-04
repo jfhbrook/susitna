@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { ParseWarning } from '../exceptions';
 import { formatter } from '../format';
@@ -169,7 +169,7 @@ const IDENT_EXPRESSIONS: Array<[string, Expression]> = [
 ];
 
 for (const [source, instr] of EXPRESSIONS) {
-  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+  test(`non-numbered expression ${source}`, () => {
     const result = parseInput(source);
 
     t.equal(result[1], null);
@@ -180,7 +180,7 @@ for (const [source, instr] of EXPRESSIONS) {
     );
   });
 
-  t.test(`numbered expression ${source}`, async (t: Test) => {
+  test(`numbered expression ${source}`, () => {
     const result = parseInput(`100 ${source}`);
 
     t.equal(result[1], null);
@@ -201,7 +201,7 @@ for (const [source, instr] of EXPRESSIONS) {
 }
 
 for (const [source, instr] of WARNED_EXPRESSIONS) {
-  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+  test(`non-numbered expression ${source}`, () => {
     const result = parseInput(source);
 
     t.ok(result[1]);
@@ -213,7 +213,7 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
     );
   });
 
-  t.test(`numbered expression ${source}`, async (t: Test) => {
+  test(`numbered expression ${source}`, () => {
     const result = parseInput(`100 ${source}`);
 
     t.ok(result[1]);
@@ -235,7 +235,7 @@ for (const [source, instr] of WARNED_EXPRESSIONS) {
 }
 
 for (const [source, instr] of IDENT_EXPRESSIONS) {
-  t.test(`non-numbered expression ${source}`, async (t: Test) => {
+  test(`non-numbered expression ${source}`, () => {
     const result = parseInput(source);
 
     t.equal(result[1], null);
@@ -246,7 +246,7 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
     );
   });
 
-  t.test(`numbered expression ${source}`, async (t: Test) => {
+  test(`numbered expression ${source}`, () => {
     const result = parseInput(`100 ${source}`);
 
     t.equal(result[1], null);
@@ -272,7 +272,7 @@ for (const [source, instr] of IDENT_EXPRESSIONS) {
   });
 }
 
-t.test('non-numbered invalid string escape', async (t: Test) => {
+test('non-numbered invalid string escape', () => {
   const source = "'\\q'";
   const result = parseInput(source);
 
@@ -291,7 +291,7 @@ t.test('non-numbered invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
-t.test('numbered invalid string escape', async (t: Test) => {
+test('numbered invalid string escape', () => {
   const source = "100 '\\q'";
   const result = parseInput(source);
 
@@ -310,8 +310,8 @@ t.test('numbered invalid string escape', async (t: Test) => {
   t.matchSnapshot(formatter.format(warning));
 });
 
-t.test('print instruction', async (t: Test) => {
-  await t.test('non-numbered', async (t: Test) => {
+describe('print instruction', () => {
+  test('non-numbered', () => {
     const source = 'print "hello world"';
     const result = parseInput(source);
 
@@ -327,7 +327,7 @@ t.test('print instruction', async (t: Test) => {
     );
   });
 
-  await t.test('numbered', async (t: Test) => {
+  test('numbered', () => {
     const source = '100 print "hello world"';
     const result = parseInput(source);
 
@@ -343,21 +343,21 @@ t.test('print instruction', async (t: Test) => {
     );
   });
 
-  await t.test('non-numbered, without arguments', async (t: Test) => {
-    throws(t, () => {
+  test('non-numbered, without arguments', () => {
+    throws(() => {
       parseInput('print');
     });
   });
 
-  await t.test('numbered, without arguments', async (t: Test) => {
-    throws(t, () => {
+  test('numbered, without arguments', () => {
+    throws(() => {
       parseInput('100 print');
     });
   });
 });
 
-t.test('exit instruction', async (t: Test) => {
-  await t.test('non-numbered', async (t: Test) => {
+describe('exit instruction', () => {
+  test('non-numbered', () => {
     const source = 'exit 0';
     const result = parseInput(source);
 
@@ -373,7 +373,7 @@ t.test('exit instruction', async (t: Test) => {
     );
   });
 
-  await t.test('numbered', async (t: Test) => {
+  test('numbered', () => {
     const source = '100 exit 0';
     const result = parseInput(source);
 
@@ -389,7 +389,7 @@ t.test('exit instruction', async (t: Test) => {
     );
   });
 
-  await t.test('non-numbered, without arguments', async (t: Test) => {
+  test('non-numbered, without arguments', () => {
     const source = 'exit';
     const result = parseInput(source);
 
@@ -403,7 +403,7 @@ t.test('exit instruction', async (t: Test) => {
     );
   });
 
-  await t.test('numbered, without arguments', async (t: Test) => {
+  test('numbered, without arguments', () => {
     const source = '100 exit';
     const result = parseInput(source);
 
@@ -420,8 +420,8 @@ t.test('exit instruction', async (t: Test) => {
   });
 });
 
-t.test('remarks', async (t: Test) => {
-  await t.test('bare remark', async (t: Test) => {
+describe('remarks', () => {
+  test('bare remark', () => {
     const source = 'rem this is a comment';
     const result = parseInput(source);
 
@@ -437,7 +437,7 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
-  await t.test('bare, empty remark', async (t: Test) => {
+  test('bare, empty remark', () => {
     const source = 'rem';
     const result = parseInput(source);
 
@@ -449,7 +449,7 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
-  await t.test('bare semicolong', async (t: Test) => {
+  test('bare semicolong', () => {
     const source = ';';
     const result = parseInput(source);
 
@@ -461,7 +461,7 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
-  await t.test('remark following a instruction', async (t: Test) => {
+  test('remark following a instruction', () => {
     const source = 'print 1 rem this is a comment';
     const result = parseInput(source);
 
@@ -478,7 +478,7 @@ t.test('remarks', async (t: Test) => {
     );
   });
 
-  await t.test('remark as a second instruction', async (t: Test) => {
+  test('remark as a second instruction', () => {
     const source = 'print 1 : rem this is a comment';
     const result = parseInput(source);
 
@@ -496,8 +496,8 @@ t.test('remarks', async (t: Test) => {
   });
 });
 
-t.test('load', async (t: Test) => {
-  await t.test('load with filename', async (t: Test) => {
+describe('load', () => {
+  test('load with filename', () => {
     const source = 'load "./examples/001-hello-world.bas"';
     const result = parseInput(source);
 
@@ -517,7 +517,7 @@ t.test('load', async (t: Test) => {
     );
   });
 
-  await t.test('load with filename and --run', async (t: Test) => {
+  test('load with filename and --run', () => {
     const source = 'load "./examples/001-hello-world.bas" --run';
     const result = parseInput(source);
 
@@ -537,7 +537,7 @@ t.test('load', async (t: Test) => {
     );
   });
 
-  await t.test('load with filename and --no-run', async (t: Test) => {
+  test('load with filename and --no-run', () => {
     const source = 'load "./examples/001-hello-world.bas" --no-run';
     const result = parseInput(source);
 
@@ -557,22 +557,22 @@ t.test('load', async (t: Test) => {
     );
   });
 
-  await t.test('load with no filename', async (t: Test) => {
+  test('load with no filename', () => {
     const source = 'load';
-    throws(t, () => {
+    throws(() => {
       parseInput(source);
     });
   });
 
-  await t.test('load with two positional arguments', async (t: Test) => {
+  test('load with two positional arguments', () => {
     const source = 'load "./examples/001-hello-world.bas" "extra"';
-    throws(t, () => {
+    throws(() => {
       parseInput(source);
     });
   });
 });
 
-t.test('let', async (t: Test) => {
+test('let', () => {
   const source = 'let i% = 1';
   const result = parseInput(source);
 
@@ -602,7 +602,7 @@ t.test('let', async (t: Test) => {
   );
 });
 
-t.test('assign', async (t: Test) => {
+test('assign', () => {
   const source = 'i% = 1';
   const result = parseInput(source);
 
@@ -632,8 +632,8 @@ t.test('assign', async (t: Test) => {
   );
 });
 
-t.test('short if', async (t: Test) => {
-  await t.test('full short if', async (t: Test) => {
+describe('short if', () => {
+  test('full short if', () => {
     const source = 'if true then print "true" else print "false" endif';
     const result = parseInput(source);
 
@@ -654,7 +654,7 @@ t.test('short if', async (t: Test) => {
     );
   });
 
-  await t.test('no-else short if', async (t: Test) => {
+  test('no-else short if', () => {
     const source = 'if true then print "true" endif';
     const result = parseInput(source);
 
@@ -675,7 +675,7 @@ t.test('short if', async (t: Test) => {
     );
   });
 
-  await t.test('nested then/if in short if', async (t: Test) => {
+  test('nested then/if in short if', () => {
     const source =
       'if true then if false then print "true and false" endif else print "false" endif';
     const result = parseInput(source);
@@ -705,7 +705,7 @@ t.test('short if', async (t: Test) => {
     );
   });
 
-  await t.test('nested else/if in short if', async (t: Test) => {
+  test('nested else/if in short if', () => {
     const source =
       'if true then print "true" else if false then print "false and false" endif endif';
     const result = parseInput(source);
@@ -736,8 +736,8 @@ t.test('short if', async (t: Test) => {
   });
 });
 
-t.test('long if', async (t: Test) => {
-  await t.test('if/endif', async (t: Test) => {
+describe('long if', () => {
+  test('if/endif', () => {
     const source = ['10 if true then', '20   print "true"', '30 endif'];
     const result = parseProgram(source.join('\n'), FILENAME);
 
@@ -756,7 +756,7 @@ t.test('long if', async (t: Test) => {
     );
   });
 
-  await t.test('if/else/endif', async (t: Test) => {
+  test('if/else/endif', () => {
     const source = [
       '10 if true then',
       '20   print "true"',
@@ -785,7 +785,7 @@ t.test('long if', async (t: Test) => {
     );
   });
 
-  await t.test('if/elseif/endif', async (t: Test) => {
+  test('if/elseif/endif', () => {
     const source = [
       '10 if true then',
       '20   print "true"',
@@ -817,7 +817,7 @@ t.test('long if', async (t: Test) => {
   });
 });
 
-t.test('empty input', async (t: Test) => {
+test('empty input', () => {
   const result = parseInput('');
 
   t.equal(result[1], null);
@@ -825,7 +825,7 @@ t.test('empty input', async (t: Test) => {
   t.same(result[0], new Input([]));
 });
 
-t.test('empty line', async (t: Test) => {
+test('empty line', () => {
   const source = '100';
   const result = parseInput(source);
 
@@ -837,7 +837,7 @@ t.test('empty line', async (t: Test) => {
   );
 });
 
-t.test('multiple inputs', async (t: Test) => {
+test('multiple inputs', () => {
   const source = ['100 print "hello world"', '"foo"', '200 print "goodbye"'];
   const result = parseInput(source.join('\n'));
 
@@ -872,13 +872,13 @@ t.test('multiple inputs', async (t: Test) => {
 // We would need to track that we just parsed a line number (isLine), that
 // we're parsing the very first instruction, and that we're parsing an expression
 // statement. That's a boatload of state, but I think it's doable.
-t.test('bare expression starting with an integer', async (t: Test) => {
-  throws(t, () => {
+test('bare expression starting with an integer', () => {
+  throws(() => {
     parseInput('1 + 1');
   });
 });
 
-t.test('simple program', async (t: Test) => {
+test('simple program', () => {
   const source = ['100 print "hello world"', '200 print "goodbye"'];
   const result = parseProgram(source.join('\n'), FILENAME);
 
@@ -897,7 +897,7 @@ t.test('simple program', async (t: Test) => {
   );
 });
 
-t.test('out of order program', async (t: Test) => {
+test('out of order program', () => {
   const source = ['200 print "hello world"', '100 print "goodbye"'];
   const result = parseProgram(source.join('\n'), FILENAME);
 
@@ -916,8 +916,8 @@ t.test('out of order program', async (t: Test) => {
   );
 });
 
-t.test('program with non-numbered input', async (t: Test) => {
-  throws(t, () => {
+test('program with non-numbered input', () => {
+  throws(() => {
     parseProgram(
       '100 print "hello world"\n"foo"\n200 print "goodbye"',
       FILENAME,
@@ -925,8 +925,8 @@ t.test('program with non-numbered input', async (t: Test) => {
   });
 });
 
-t.test('program with a negative line number', async (t: Test) => {
-  throws(t, () => {
+test('program with a negative line number', () => {
+  throws(() => {
     parseProgram(
       '100 print "hello world"\n-100 "foo"\n200 print "goodbye"',
       FILENAME,
@@ -934,8 +934,8 @@ t.test('program with a negative line number', async (t: Test) => {
   });
 });
 
-t.test('accidentally an entire semicolon', async (t: Test) => {
-  throws(t, () => {
+test('accidentally an entire semicolon', () => {
+  throws(() => {
     parseInput('print 1 + 1;');
   });
 });

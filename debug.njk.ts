@@ -149,15 +149,26 @@ let traceExec = function traceExec(_rt: Runtime): void {};
 
 NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
 
+//
+// NOTE: This is pulling serious shenanigans and is really brittle!
+//
 function encodingLocation(): string {
   try {
     throw new Error();
   } catch (err) {
+    // (Usually) corresponds to the calling line based on experimentation
     const line = err.stack.split('\n')[5];
     if (!line) {
       return '<unknown>';
     }
-    return line.match(/\(([^)]+)\)/)[1];
+    // In well-behaving cases in practice, this reasonably works
+    let match = line.match(/\(([^)]+)\)/);
+    if (match) {
+      return match[1];
+    }
+    // In practice, these cases are cropping up in vitest - but either way,
+    // if this happens, we don't have a lot of recourse
+    return '<unknown>';
   }
 }
 

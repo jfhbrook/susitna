@@ -1,7 +1,14 @@
 {
   "$schema": "https://swc.rs/schema.json",
-  "exclude": ["node_modules", "bin", "tools", "dist", "test", ".njk.ts"],
+  "exclude": [
+    "node_modules",
+    "bin",
+    "tools",
+    "dist",
+    "test"
+  ],
   "jsc": {
+    "baseUrl": "./",
     "parser": {
       "syntax": "typescript",
       "jsx": false,

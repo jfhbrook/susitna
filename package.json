@@ -9,6 +9,7 @@
   "scripts": {
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
+    "build:config": "./scripts/build-config.mjs",
     "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:typescript",
     "build:release": "dotenv -e release.env -- npm run build",
     "build:constants": "dotenv -- ./scripts/constants.sh",
@@ -22,7 +23,7 @@
     "build:test:activate": "dotenv -e test.env -- test-generator --activate ./test",
     "check": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' && tsc --noEmit",
     "check:swc": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' && swc -d /tmp/dist *.ts **/*.ts",
-    "format": "prettier --write \"**/*.ts\" \"*.mjs\"",
+    "format": "prettier --write \"**/*.ts\" \"*.mjs\" \"scripts/*.mjs\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "dotenv -e test.env -- npm run build && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/* ./.husky/pre-commit",

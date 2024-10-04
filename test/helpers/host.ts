@@ -1,6 +1,9 @@
 import * as assert from 'assert';
 
-import { Test } from 'tap';
+interface Test {
+  match(actual: any, expected: any, ...[msg, extra]: any[]): void;
+}
+
 // TODO: strip-ansi v7+ uses .mjs, which completely breaks in typescript if
 // you're compiling imports to commonjs, lolsob
 import stripAnsi from 'strip-ansi';

@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { commandRunner } from '../commands';
 import { RuntimeFault } from '../faults';
@@ -15,7 +15,7 @@ const INVALID_CMDS: Array<[string, Instr]> = [
 
 const NOOP_CMDS: Array<[string, Instr]> = [['rem', new Rem('A witty remark.')]];
 
-t.test('invalid commands', async (t: Test) => {
+test('invalid commands', async () => {
   await topic.swear(async ({ executor, editor, host }) => {
     for (const [name, instr] of INVALID_CMDS) {
       t.rejects(
@@ -27,7 +27,7 @@ t.test('invalid commands', async (t: Test) => {
   });
 });
 
-t.test('noop commands', async (t: Test) => {
+test('noop commands', async () => {
   await topic.swear(async ({ executor, editor, host }) => {
     for (const [name, instr] of NOOP_CMDS) {
       t.equal(
@@ -39,7 +39,7 @@ t.test('noop commands', async (t: Test) => {
   });
 });
 
-t.test('expression', async (t: Test) => {
+test('expression', async () => {
   await topic.swear(async ({ executor, editor, host }) => {
     const expr = new Expression(new StringLiteral('hello'));
     const rv = await expr.accept(
@@ -49,7 +49,7 @@ t.test('expression', async (t: Test) => {
   });
 });
 
-t.test('editing', async (t: Test) => {
+test('editing', async () => {
   await topic.swear(async ({ executor, editor, host }) => {
     await executor.eval('load "./examples/001-hello-world.bas"');
 

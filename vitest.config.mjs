@@ -6,7 +6,18 @@ export default defineConfig({
     exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
     coverage: {
       enabled: true,
-      exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist', 'test'],
+      exclude: [
+        'tools/**',
+        'node_modules/**',
+        'scripts/**',
+        '**.njk.ts',
+        '.eslintrc.js',
+        'vitest.config.mjs',
+        'dist',
+        'test',
+        'index.ts',
+        'main.ts'
+      ],
     },
   },
   plugins: [

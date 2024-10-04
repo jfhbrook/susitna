@@ -157,7 +157,18 @@ function encodingLocation(): string {
     if (!line) {
       return '<unknown>';
     }
-    return line.match(/\(([^)]+)\)/)[1];
+    // This works for standard Node.js errors
+    let match = line.match(/\(([^)]+)\)/);
+    if (match) {
+      return match[1];
+    }
+    // This fallback works for whatever the blazes vitest is doing
+    match = line.match(/\/(.*)$/);
+    if (match) {
+      return `/${match[1]}`;
+    }
+    // Hey, this whole endeavour is brittle, lol
+    return '<unknown>';
   }
 }
 

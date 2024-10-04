@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import {
   Formatter,
@@ -66,19 +66,19 @@ import { TRACEBACK } from './helpers/traceback';
 const LINE = '100 print someFn(ident';
 const IS_LINE = [true, false];
 
-t.test('inspectString', async (t: Test) => {
-  t.test('it inspects strings without quotes', async (t: Test) => {
+describe('inspectString', () => {
+  test('it inspects strings without quotes', () => {
     t.equal(inspectString('hello'), "'hello'");
   });
-  t.test('it inspects strings with single quotes', async (t: Test) => {
+  test('it inspects strings with single quotes', () => {
     t.equal(inspectString("don't"), '"don\'t"');
   });
 
-  t.test('it inspects strings with double quotes', async (t: Test) => {
+  test('it inspects strings with double quotes', () => {
     t.equal(inspectString('"time machine"'), '\'"time machine"\'');
   });
 
-  t.test('it inspects strings with both kinds of quotes', async (t: Test) => {
+  test('it inspects strings with both kinds of quotes', () => {
     t.equal(
       inspectString('don\'t mess with my "time machine"'),
       "'don\\'t mess with my \"time machine\"'",
@@ -87,20 +87,20 @@ t.test('inspectString', async (t: Test) => {
 });
 
 function formatTestSuite<F extends Formatter>(formatter: F): void {
-  t.test(`given a ${formatter.constructor.name}`, async (t: Test) => {
-    t.test('it formats a string', async (t: Test) => {
+  describe(`given a ${formatter.constructor.name}`, () => {
+    test('it formats a string', () => {
       t.matchSnapshot(formatter.format('hello'));
     });
 
-    t.test('it formats a number', async (t: Test) => {
+    test('it formats a number', () => {
       t.matchSnapshot(formatter.format(12345));
     });
 
-    t.test('it formats a boolean', async (t: Test) => {
+    test('it formats a boolean', () => {
       t.matchSnapshot(formatter.format(true));
     });
 
-    t.test('it formats a Traceback', async (t: Test) => {
+    test('it formats a Traceback', () => {
       t.matchSnapshot(formatter.format(TRACEBACK));
     });
 
@@ -110,26 +110,26 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       RuntimeError,
       NotImplementedError,
     ]) {
-      t.test(`it formats a ${ctor.prototype.name}`, async (t: Test) => {
+      test(`it formats a ${ctor.prototype.name}`, () => {
         t.matchSnapshot(formatter.format(new ctor('message', TRACEBACK)));
       });
     }
 
-    t.test('it formats a BaseWarning', async (t: Test) => {
+    test('it formats a BaseWarning', () => {
       t.matchSnapshot(formatter.format(new BaseWarning('message', TRACEBACK)));
     });
 
-    t.test('it formats a BaseWarning without a traceback', async (t: Test) => {
+    test('it formats a BaseWarning without a traceback', () => {
       t.matchSnapshot(formatter.format(new BaseWarning('message', null)));
     });
 
-    t.test('it formats an AssertionError', async (t: Test) => {
+    test('it formats an AssertionError', () => {
       t.matchSnapshot(
         formatter.format(new AssertionError('message', TRACEBACK)),
       );
     });
 
-    t.test('it formats a TypeError', async (t: Test) => {
+    test('it formats a TypeError', () => {
       t.matchSnapshot(
         formatter.format(
           new TypeError('message', 123, 'integer', 'nil', TRACEBACK),
@@ -137,7 +137,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a ZeroDivisionError', async (t: Test) => {
+    test('it formats a ZeroDivisionError', () => {
       t.matchSnapshot(
         formatter.format(
           new ZeroDivisionError(1, 'integer', 0, 'integer', TRACEBACK),
@@ -145,7 +145,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats an OsError', async (t: Test) => {
+    test('it formats an OsError', () => {
       t.matchSnapshot(
         formatter.format(
           new OsError('message', ErrorCode.AddressInUse, null, TRACEBACK),
@@ -153,7 +153,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a FileError with one file', async (t: Test) => {
+    test('it formats a FileError with one file', () => {
       t.matchSnapshot(
         formatter.format(
           new FileError(
@@ -167,7 +167,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a FileError with two files', async (t: Test) => {
+    test('it formats a FileError with two files', () => {
       t.matchSnapshot(
         formatter.format(
           new FileError(
@@ -182,11 +182,11 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
     });
 
     for (const isLine of IS_LINE) {
-      t.test(`when it ${isLine ? 'is' : 'is not'} a line`, async (t: Test) => {
+      describe(`when it ${isLine ? 'is' : 'is not'} a line`, () => {
         const line = isLine
           ? Source.command(LINE)
           : Source.command(LINE.replace(/^\d+ /, ''));
-        t.test('it formats a SyntaxError', async (t: Test) => {
+        test('it formats a SyntaxError', () => {
           t.matchSnapshot(
             formatter.format(
               new SyntaxError('expected )', {
@@ -203,7 +203,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
           );
         });
 
-        t.test('it formats a ParseError', async (t: Test) => {
+        test('it formats a ParseError', () => {
           t.matchSnapshot(
             formatter.format(
               new ParseError([
@@ -232,7 +232,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
           );
         });
 
-        t.test('it formats a SyntaxWarning', async (t: Test) => {
+        test('it formats a SyntaxWarning', () => {
           t.matchSnapshot(
             formatter.format(
               new SyntaxWarning('expected )', {
@@ -249,7 +249,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
           );
         });
 
-        t.test('it formats a ParseWarning', async (t: Test) => {
+        test('it formats a ParseWarning', () => {
           t.matchSnapshot(
             formatter.format(
               new ParseWarning([
@@ -270,11 +270,11 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       });
     }
 
-    t.test('it formats a BaseFault', async (t: Test) => {
+    test('it formats a BaseFault', () => {
       t.matchSnapshot(formatter.format(new BaseFault('message', TRACEBACK)));
     });
 
-    t.test('it formats a RuntimeFault', async (t: Test) => {
+    test('it formats a RuntimeFault', () => {
       const underlying = new assert.AssertionError({
         message: 'underlying assertion',
         actual: false,
@@ -291,19 +291,19 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a UsageFault', async (t: Test) => {
+    test('it formats a UsageFault', () => {
       t.matchSnapshot(formatter.format(new UsageFault('Usage: lol')));
     });
 
-    t.test('it formats an Exit with a message', async (t: Test) => {
+    test('it formats an Exit with a message', () => {
       t.matchSnapshot(formatter.format(new Exit(ExitCode.Success, 'message')));
     });
 
-    t.test('it formats an Exit without message', async (t: Test) => {
+    test('it formats an Exit without message', () => {
       t.matchSnapshot(formatter.format(new Exit(ExitCode.Success)));
     });
 
-    t.test('it formats a Token', async (t: Test) => {
+    test('it formats a Token', () => {
       t.matchSnapshot(
         formatter.format(
           new Token({
@@ -319,13 +319,13 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a Unary expression', async (t: Test) => {
+    test('it formats a Unary expression', () => {
       t.matchSnapshot(
         formatter.format(new Unary(TokenKind.Minus, new IntLiteral(1))),
       );
     });
 
-    t.test('it formats a Binary expression', async (t: Test) => {
+    test('it formats a Binary expression', () => {
       t.matchSnapshot(
         formatter.format(
           new Binary(new IntLiteral(1), TokenKind.Plus, new IntLiteral(1)),
@@ -333,7 +333,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.todo('it formats a Logical expression', async (_t: Test) => {
+    test.todo('it formats a Logical expression', () => {
       /*
       t.matchSnapshot(formatter.format(new Logical(
         new IntLiteral(1),
@@ -343,35 +343,35 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       */
     });
 
-    t.test('it formats an IntLiteral', async (t: Test) => {
+    test('it formats an IntLiteral', () => {
       t.matchSnapshot(formatter.format(new IntLiteral(12)));
     });
 
-    t.test('it formats a RealLiteral', async (t: Test) => {
+    test('it formats a RealLiteral', () => {
       t.matchSnapshot(formatter.format(new RealLiteral(123.456)));
     });
 
-    t.test('it formats a BoolLiteral', async (t: Test) => {
+    test('it formats a BoolLiteral', () => {
       t.matchSnapshot(formatter.format(new BoolLiteral(true)));
     });
 
-    t.test('it formats a StringLiteral', async (t: Test) => {
+    test('it formats a StringLiteral', () => {
       t.matchSnapshot(formatter.format(new StringLiteral('hello')));
     });
 
-    t.test('it formats a PromptLiteral', async (t: Test) => {
+    test('it formats a PromptLiteral', () => {
       t.matchSnapshot(formatter.format(new PromptLiteral('\\u@\\h:\\w\\$')));
     });
 
-    t.test('it formats a NilLiteral', async (t: Test) => {
+    test('it formats a NilLiteral', () => {
       t.matchSnapshot(formatter.format(new NilLiteral()));
     });
 
-    t.test('it formats a Instr', async (t: Test) => {
+    test('it formats a Instr', () => {
       t.matchSnapshot(formatter.format(new Print(new StringLiteral('hello'))));
     });
 
-    t.test('it formats a Line', async (t: Test) => {
+    test('it formats a Line', () => {
       t.matchSnapshot(
         formatter.format(
           new Line(100, 1, new Source('', '100', ' ', 'print "hello world"'), [
@@ -381,7 +381,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('it formats a Program', async (t: Test) => {
+    test('it formats a Program', () => {
       t.matchSnapshot(
         formatter.format(
           new Program(FILENAME, [
@@ -396,7 +396,7 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       );
     });
 
-    t.test('instructions', async (t: Test) => {
+    test('instructions', () => {
       const INSTRUCTIONS = [
         new Print(new StringLiteral('hello')),
         new ExitInstr(new IntLiteral(0)),
@@ -441,19 +441,19 @@ function formatTestSuite<F extends Formatter>(formatter: F): void {
       }
     });
 
-    t.test('it formats a native value', async (t: Test) => {
+    test('it formats a native value', () => {
       t.matchSnapshot(formatter.format(new Set('abc')));
     });
 
-    t.test('it formats a null value', async (t: Test) => {
+    test('it formats a null value', () => {
       t.matchSnapshot(formatter.format(null));
     });
 
-    t.test('it formats an undefined value', async (t: Test) => {
+    test('it formats an undefined value', () => {
       t.matchSnapshot(formatter.format(undefined));
     });
 
-    t.test('it formats an array of values', async (t: Test) => {
+    test('it formats an array of values', () => {
       t.matchSnapshot(formatter.format([1, 'two', true]));
     });
   });

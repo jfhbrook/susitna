@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`tracer 1`] = `
+[
+  [
+    "[32mTRACE[39m <[36mmain[39m>     before span[90m at {CWD}/node_modules/@vitest/runner/dist/index.js:533:11[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     span[90m at {CWD}/test/debug.spec.ts:9:21[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     [33m|- [39minside span[90m at {CWD}/test/debug.spec.ts:9:21[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     after span[90m at file:///{CWD}/node_modules/@vitest/runner/dist/index.js:986:11[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     sync span[90m at {CWD}/test/debug.spec.ts:13:10[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     [33m|- [39minside sync span[90m at {CWD}/test/debug.spec.ts:13:10[39m",
+  ],
+  [
+    "[32mTRACE[39m <[36mmain[39m>     after sync span[90m at file:///{CWD}/node_modules/@vitest/runner/dist/index.js:986:11[39m",
+  ],
+]
+`;

@@ -37,6 +37,10 @@ export const test = {
     expect(actual, message).toEqual(expected);
   },
 
+  has(actual: any, has: any, message?: string): void {
+    expect(actual, message).toMatchObject(has);
+  },
+
   rejects(fn: () => any, errType: any, message?: string): void {
     expect(fn(), message).rejects.toBeInstanceOf(errType);
   },

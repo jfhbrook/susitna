@@ -1,5 +1,5 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { KEYWORDS } from '../scanner';
 import { TokenKind } from '../tokens';
@@ -42,9 +42,9 @@ const PUNCTUATION = [
   ['#', TokenKind.Hash],
 ];
 
-t.test('punctuation', async (t: Test) => {
+describe('punctuation', () => {
   for (const [text, kind] of PUNCTUATION) {
-    t.test(text, async (t: Test) => {
+    test(text, () => {
       const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
@@ -69,9 +69,9 @@ t.test('punctuation', async (t: Test) => {
   }
 });
 
-t.test('keywords', async (t: Test) => {
+describe('keywords', () => {
   for (const [text, kind] of Object.entries(KEYWORDS)) {
-    t.test(`keyword ${text}`, async (t: Test) => {
+    test(`keyword ${text}`, () => {
       const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
@@ -103,9 +103,9 @@ const STRINGS = [
   "'don\\'t'",
 ];
 
-t.test('strings', async (t: Test) => {
+describe('strings', () => {
   for (const value of STRINGS) {
-    t.test(`it tokenizes ${value}`, async (t: Test) => {
+    test(`it tokenizes ${value}`, () => {
       const tokens = scanTokens(value);
       t.equal(tokens.length, 2);
 
@@ -130,7 +130,7 @@ t.test('strings', async (t: Test) => {
     });
   }
 
-  t.test('unterminated string', async (t: Test) => {
+  test('unterminated string', () => {
     const text = '"hello';
     const tokens = scanTokens(text);
     t.equal(tokens.length, 2);
@@ -168,9 +168,9 @@ const NUMBERS = [
   ['123.456e10', TokenKind.RealLiteral],
 ];
 
-t.test('numbers', async (t: Test) => {
+describe('numbers', () => {
   for (const [text, kind] of NUMBERS) {
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
+    test(`it tokenizes ${text}`, () => {
       const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
@@ -205,9 +205,9 @@ const IDENT = [
   ['pony$', TokenKind.StringIdent],
 ];
 
-t.test('identifiers', async (t: Test) => {
+describe('identifiers', () => {
   for (const [text, kind] of IDENT) {
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
+    test(`it tokenizes ${text}`, () => {
       const tokens = scanTokens(text);
       t.equal(tokens.length, 2);
 
@@ -244,10 +244,10 @@ const SHELL: Array<[string, TokenKind[]]> = [
   ['--long-option', [TokenKind.LongFlag]],
 ];
 
-t.test('shell tokens', async (t: Test) => {
+describe('shell tokens', () => {
   for (const [text, kinds] of SHELL) {
     kinds.push(TokenKind.Eof);
-    t.test(`it tokenizes ${text}`, async (t: Test) => {
+    test(`it tokenizes ${text}`, () => {
       const tokens = scanTokens(text);
       t.equal(tokens.length, kinds.length);
 
@@ -264,7 +264,7 @@ t.test('shell tokens', async (t: Test) => {
 // tokenized *as expected* (the prior tests should show they tokenize at all).
 //
 
-t.test('hello world', async (t: Test) => {
+test('hello world', () => {
   const text = 'print "hello world"';
   const tokens = scanTokens(text);
   t.equal(tokens.length, 3);
@@ -298,7 +298,7 @@ t.test('hello world', async (t: Test) => {
   });
 });
 
-t.test('function call', async (t: Test) => {
+test('function call', () => {
   const text = 'pony(u$, v$)';
   const tokens = scanTokens(text);
   t.equal(tokens.length, 7);
@@ -339,7 +339,7 @@ t.test('function call', async (t: Test) => {
   });
 });
 
-t.test('line endings', async (t: Test) => {
+test('line endings', () => {
   const tokens = scanTokens('\n\n');
   t.equal(tokens.length, 3);
 
@@ -371,7 +371,7 @@ t.test('line endings', async (t: Test) => {
   });
 });
 
-t.test('line endings with whitespace', async (t: Test) => {
+test('line endings with whitespace', () => {
   const tokens = scanTokens('    \n\n    ');
   t.equal(tokens.length, 3);
 
@@ -403,8 +403,8 @@ t.test('line endings with whitespace', async (t: Test) => {
   });
 });
 
-t.test('remarks', async (t: Test) => {
-  await t.test('bare remark', async (t: Test) => {
+describe('remarks', () => {
+  test('bare remark', () => {
     const source = 'rem this is a comment';
     const tokens = scanTokens(source);
 
@@ -430,7 +430,7 @@ t.test('remarks', async (t: Test) => {
     });
   });
 
-  await t.test('bare, empty remark', async (t: Test) => {
+  test('bare, empty remark', () => {
     const source = 'rem';
     const tokens = scanTokens(source);
 
@@ -456,7 +456,7 @@ t.test('remarks', async (t: Test) => {
     });
   });
 
-  await t.test('remark following a command', async (t: Test) => {
+  test('remark following a command', () => {
     const source = 'print 1 rem this is a comment';
     const tokens = scanTokens(source);
 

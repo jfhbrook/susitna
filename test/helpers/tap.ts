@@ -30,6 +30,10 @@ export const test = {
   match(actual: any, expected: any, message?: string): void {
     expect(actual, message).toMatch(expected);
   },
+
+  matchSnapshot(actual: any): void {
+    expect(actual).toMatchSnapshot();
+  },
 };
 
 export type Test = typeof test;

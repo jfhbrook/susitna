@@ -37,6 +37,10 @@ export const test = {
     expect(actual, message).toMatch(expected);
   },
 
+  type(o: any, type: any): void {
+    expect(o).toBeInstanceOf(type);
+  },
+
   throws(fn: () => any, err: any): any {
     expect(fn).toThrowError(err);
   },

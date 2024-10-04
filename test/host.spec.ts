@@ -1,5 +1,6 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
+
 import { discuss } from '@jfhbrook/swears';
 
 import { Level } from '../host';
@@ -14,11 +15,9 @@ const STREAM = {
   writeError: 'errorStream',
 };
 
-function outputTest(
-  method: 'writeOut' | 'writeError',
-): (t: Test) => Promise<void> {
-  return async (t: Test): Promise<void> => {
-    t.test('it writes to the stream', async (t) => {
+function outputTest(method: 'writeOut' | 'writeError'): () => void {
+  return (): void => {
+    test('it writes to the stream', async () => {
       await topic.swear(async (host) => {
         host[method]('test');
 
@@ -28,8 +27,8 @@ function outputTest(
   };
 }
 
-t.test('when calling writeOut', outputTest('writeOut'));
-t.test('when calling writeError', outputTest('writeError'));
+describe('when calling writeOut', outputTest('writeOut'));
+describe('when calling writeError', outputTest('writeError'));
 
 const LOG_PREFIX = {
   writeDebug: 'DEBUG',
@@ -40,20 +39,20 @@ const LOG_PREFIX = {
 function logTest(
   method: 'writeDebug' | 'writeInfo' | 'writeWarn',
   level: Level,
-): (t: Test) => Promise<void> {
-  return async (t: Test): Promise<void> => {
+): () => void {
+  return (): void => {
     for (const setLevel of [0, 1, 2, 3]) {
-      t.test(`at level ${setLevel}`, async (t) => {
+      describe(`at level ${setLevel}`, async () => {
         await topic.swear(async (host) => {
           host.setLevel(setLevel);
           host[method]('test');
 
           if (level >= setLevel) {
-            t.test('it writes a message', async (t) => {
+            test('it writes a message', () => {
               t.equal(host.errorStream.output, `${LOG_PREFIX[method]}: test\n`);
             });
           } else {
-            t.test('it suppresses the message', async (t) => {
+            test('it suppresses the message', () => {
               t.equal(host.errorStream.output, '');
             });
           }
@@ -63,38 +62,38 @@ function logTest(
   };
 }
 
-t.test('when calling writeDebug', logTest('writeDebug', Level.Debug));
-t.test('when calling writeInfo', logTest('writeInfo', Level.Info));
-t.test('when calling writeWarn', logTest('writeWarn', Level.Warn));
+describe('when calling writeDebug', logTest('writeDebug', Level.Debug));
+describe('when calling writeInfo', logTest('writeInfo', Level.Info));
+describe('when calling writeWarn', logTest('writeWarn', Level.Warn));
 
 function channelTest(
   channel: number,
   stream: 'outputStream' | 'errorStream',
   expected: string,
-): (t: Test) => Promise<void> {
-  return async (t: Test): Promise<void> => {
+): () => void {
+  return async (): Promise<void> => {
     await topic.swear(async (host) => {
       host.setLevel(Level.Debug);
       host.writeChannel(channel, 'test');
 
-      t.test('it writes to that stream', async (t) => {
+      test('it writes to that stream', () => {
         t.equal(host[stream].output, expected);
       });
     });
   };
 }
 
-t.test('when writing to channel 1', channelTest(1, 'outputStream', 'test'));
-t.test('when writing to channel 2', channelTest(2, 'errorStream', 'test'));
-t.test(
+describe('when writing to channel 1', channelTest(1, 'outputStream', 'test'));
+describe('when writing to channel 2', channelTest(2, 'errorStream', 'test'));
+describe(
   'when writing to channel 3',
   channelTest(3, 'errorStream', 'WARN: test\n'),
 );
-t.test(
+describe(
   'when writing to channel 4',
   channelTest(4, 'errorStream', 'INFO: test\n'),
 );
-t.test(
+describe(
   'when writing to channel 5',
   channelTest(5, 'errorStream', 'DEBUG: test\n'),
 );
@@ -115,7 +114,7 @@ const RESOLVE_PATH_CASES: Array<[RelativePath, AbsolutePath]> = [
   ['/usr/bin/vim', '/usr/bin/vim'],
 ];
 
-t.test('relativePath', async (t: Test) => {
+test('relativePath', async () => {
   await topic.swear(async (host) => {
     for (const [from, to, expected] of RELATIVE_PATH_CASES) {
       t.equal(host.relativePath(from, to), expected);
@@ -123,7 +122,7 @@ t.test('relativePath', async (t: Test) => {
   });
 });
 
-t.test('resolvePath', async (t: Test) => {
+test('resolvePath', async () => {
   await topic.swear(async (host) => {
     for (const [relative, expected] of RESOLVE_PATH_CASES) {
       t.equal(host.resolvePath(relative), expected);

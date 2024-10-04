@@ -1,10 +1,10 @@
-import t from 'tap';
-import { Test } from 'tap';
+import { describe, test } from 'vitest';
+import { t } from './helpers/tap';
 
 import { executorTopic as topic } from './helpers/executor';
 
-t.test('when prompted for a command', async (t: Test) => {
-  await t.test('it gets a command', async (t: Test) => {
+describe('when prompted for a command', () => {
+  test('it gets a command', async () => {
     await topic.swear(async ({ executor, host }) => {
       const command = await host.expect(
         t,
@@ -17,8 +17,8 @@ t.test('when prompted for a command', async (t: Test) => {
   });
 });
 
-t.test('when input is requested', async (t: Test) => {
-  await t.test('input is received?', async (t: Test) => {
+describe('when input is requested', () => {
+  test('input is received?', async () => {
     await topic.swear(async ({ executor, host }) => {
       const input = await host.expect(
         t,
@@ -32,9 +32,9 @@ t.test('when input is requested', async (t: Test) => {
   });
 });
 
-t.test('when history is saved', async (t: Test) => {
-  await t.test('and the history is long', async (t: Test) => {
-    await t.test('history is saved', async (t: Test) => {
+describe('when history is saved', () => {
+  describe('and the history is long', () => {
+    test('history is saved', async () => {
       await topic.swear(async ({ executor, host }) => {
         (executor as any).history = [];
         for (let i = 0; i < 1000; i++) {

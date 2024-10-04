@@ -22,7 +22,7 @@ jobs:
       - name: Build templates
         run: dotenv -f ./test.env -- npm run 'build:templates'
       - name: Check types
-        run: tsc -p tsconfig.json --no-emit
+        run: tsc -p tsconfig.json --noEmit
       - name: Vitest tests
         run: dotenv -f ./test.env -- ./node_modules/.bin/vitest --run
       - name: Tap tests

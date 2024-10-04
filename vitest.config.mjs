@@ -3,12 +3,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   test: {
-    exclude: ['tools/**', 'node_modules/**', 'tap-snapshots/**', 'dist'],
+    exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
     coverage: {
-      // Coverage isn't useful yet, since most tests are still being run
-      // with tap
-      enabled: false,
-      exclude: ['tools/**', 'node_modules/**', 'tap-snapshots/**', 'dist'],
+      enabled: true,
+      exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
     },
   },
   plugins: [

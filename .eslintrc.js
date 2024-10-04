@@ -14,7 +14,7 @@ module.exports = {
   env: {
     node: true
   },
-  ignorePatterns: ['.eslintrc.js', 'dist', 'tap-snapshots', 'tools/citree', 'tools/test-generator'],
+  ignorePatterns: ['.eslintrc.js', 'dist', 'tap-snapshots', 'tools/citree', 'tools/test-generator', "*.njk.ts"],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',

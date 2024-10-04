@@ -1,2 +1,4 @@
 dist
 tools
+tap-snapshots
+test/__snapshots__

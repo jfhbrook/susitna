@@ -18,7 +18,7 @@ import {
 } from './exceptions';
 import { RuntimeFault } from './faults';
 import { inspector } from './format';
-import { Host } from './host';
+import type { Host } from './host';
 import { Parser, ParseResult } from './parser';
 import { Runtime } from './runtime';
 import { Prompt } from './shell';

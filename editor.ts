@@ -5,7 +5,7 @@ import {
   mergeParseErrors,
   removeFromParseError,
 } from './exceptions';
-import { Host } from './host';
+import type { Host } from './host';
 import { Token } from './tokens';
 import { Line, Program } from './ast';
 import { Source } from './ast/source';

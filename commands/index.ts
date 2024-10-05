@@ -1,4 +1,5 @@
-import { CommandRunner, ReturnValue, invalid, noop } from './base';
+import { invalid, noop } from './base';
+import type { CommandRunner, ReturnValue } from './base';
 import { Editor } from '../editor';
 import { Executor } from '../executor';
 import { Host } from '../host';

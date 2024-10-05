@@ -3,10 +3,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { getTracer } from './debug';
 import { Config } from './config';
 import { BaseException } from './exceptions';
-import { ExitFn } from './exit';
+import type { ExitFn } from './exit';
 import { Executor } from './executor';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
-import { Host } from './host';
+import type { Host } from './host';
 import { Exit, ExitCode } from './exit';
 
 const tracer = getTracer('main');

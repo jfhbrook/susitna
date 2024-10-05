@@ -90,6 +90,7 @@
     "vitest": "^2.1.2"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.24.0"
+    "@rollup/rollup-linux-x64-gnu": "^4.24.0",
+    "@swc/core-linux-x64-gnu": "^1.7.30-nightly-20241002.1"
   }
 }

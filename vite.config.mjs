@@ -10,34 +10,43 @@ const dependencies = Object.keys({
 
 export default defineConfig({
   build: {
-    // exclude: ['tools/**', 'scripts/**', 'dist'],
     ssr: './main.ts',
     outDir: './build',
   },
   ssr: {
     noExternal: dependencies,
   },
-  test: {
-    exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
-    coverage: {
-      enabled: true,
-      exclude: [
-        'tools/**',
-        'node_modules/**',
-        'scripts/**',
-        '**.njk.ts',
-        '.eslintrc.js',
-        'vite.config.mjs',
-        'dist',
-        'test',
-        'index.ts',
-        'main.ts',
-      ],
-    },
-  },
   plugins: [
     swc.vite({
-      module: { type: 'es6' },
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          jsx: false,
+          decorators: true,
+          decoratorsBeforeExport: true,
+          dynamicImport: true,
+          privateMethod: true,
+          functionBind: true,
+          exportDefaultFrom: true,
+          exportNamespaceFrom: true,
+          topLevelAwait: false,
+          importMeta: false,
+        },
+        transform: {
+          legacyDecorator: false,
+          decoratorMetadata: true,
+        },
+        target: 'es2022',
+        loose: false,
+        externalHelpers: false,
+        keepClassNames: true,
+      },
+      module: {
+        type: 'nodenext',
+      },
+      sourceMaps: true,
+      inlineSourcesContent: true,
+      minify: false,
     }),
   ],
 });

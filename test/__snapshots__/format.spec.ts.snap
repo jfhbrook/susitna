@@ -41,7 +41,7 @@ exports[`given a DefaultFormatter > it formats a BaseFault 1`] = `
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at {{CWD}}/test/format.spec.ts:277:10
+    at {{CWD}}/test/format.spec.ts:274:40
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
     at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
@@ -127,7 +127,7 @@ exports[`given a DefaultFormatter > it formats a RuntimeFault 1`] = `
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at {{CWD}}/test/format.spec.ts:279:18
+    at {{CWD}}/test/format.spec.ts:278:26
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
     at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
@@ -331,7 +331,7 @@ exports[`given a Inspector > it formats a BaseFault 1`] = `
 
 --- Internal Stack Trace ---
 BaseFault: message
-    at {{CWD}}/test/format.spec.ts:277:10
+    at {{CWD}}/test/format.spec.ts:274:40
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
     at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)
@@ -417,7 +417,7 @@ exports[`given a Inspector > it formats a RuntimeFault 1`] = `
 --- Internal Stack Trace ---
 AssertionError [ERR_ASSERTION]: underlying assertion
     at new AssertionError (node:internal/assert/assertion_error:447:5)
-    at {{CWD}}/test/format.spec.ts:279:18
+    at {{CWD}}/test/format.spec.ts:278:26
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:146:14
     at file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:533:11
     at runWithTimeout (file://{{CWD}}/node_modules/@vitest/runner/dist/index.js:61:7)

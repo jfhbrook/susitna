@@ -1,5 +1,5 @@
 {
-  "name": "grabthar",
+  "name": "@jfhbrook/grabthar",
   "version": "0.0.1",
   "description": "\"By Grabthar's hammer, what a savings!\"",
   "type": "module",
@@ -19,7 +19,7 @@
   "author": "Josh Holbrook",
   "license": "MIT",
   "dependencies": {
-    "tests-of-the-sierra-madre": "^1.0.1"
+    "yaml": "^2.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.12.0",
@@ -29,6 +29,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "globals": "^15.10.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "tests-of-the-sierra-madre": "^1.0.1"
   }
 }

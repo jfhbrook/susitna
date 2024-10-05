@@ -1,6 +1,6 @@
 import { DECORATORS } from './constants.mjs';
 
-import config from './config.json';
+import config from './config.mjs';
 
 export const swcConfig = {
   jsc: {

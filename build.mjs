@@ -24,11 +24,6 @@ export const tscConfig = {
   },
 };
 
-export const tscBuildConfig = {
-  extends: './tsconfig.json',
-  exclude: tscConfig.exclude.concat(['test']),
-};
-
 export const swcBuildConfig = {
   exclude: config.exclude.concat(config.build.exclude),
   jsc: {

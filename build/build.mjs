@@ -1,10 +1,10 @@
 import { DECORATORS } from './constants.mjs';
-import { exclude } from './util.mjs';
+import { merge } from './util.mjs';
 
 import config from './config.json';
 
 export const swcBuildConfig = {
-  exclude: exclude(config.exclude, config.build.exclude),
+  exclude: merge(config.exclude, config.build.exclude),
   jsc: {
     parser: {
       syntax: 'typescript',

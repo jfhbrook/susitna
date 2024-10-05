@@ -1,9 +1,9 @@
-import { exclude } from './util.mjs';
+import { merge } from './util.mjs';
 
 import config from './config.json';
 import { swcBuildConfig } from './build.mjs';
 
-const testExclude = exclude(
+const testExclude = merge(
   config.exclude,
   config.build.exclude,
   config.test.exclude,
@@ -13,7 +13,7 @@ export const viteTestConfig = {
   exclude: testExclude,
   coverage: {
     ...config.coverage,
-    exclude: exclude(testExclude, config.coverage.exclude),
+    exclude: merge(testExclude, config.coverage.exclude),
   },
 };
 

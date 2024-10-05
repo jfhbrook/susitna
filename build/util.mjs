@@ -1,3 +1,5 @@
-export function exclude(...excludes) {
-  return excludes.reduce((acc, exc) => acc.concat(exc), []).sort();
+export function merge(...lists) {
+  return Array.from(
+    lists.reduce((acc, exc) => acc.union(new Set(exc)), new Set()),
+  ).sort();
 }

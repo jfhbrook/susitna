@@ -35,12 +35,11 @@
   "coverage": {
     "enabled": true,
     "exclude": [
-      "test",
+      "dist",
       "scripts",
-      "build",
-      ".eslintrc.js",
+      "test",
       "*.config.mjs",
-      "**.njk.ts",
+      "*.njk.ts",
       "index.ts",
       "main.ts"
     ]
@@ -48,9 +47,6 @@
   "lint": {
     "exclude": [
       "dist",
-      "test/__snapshots__",
-      "tools/citree",
-      "tools/test-generator",
       "*.njk.ts",
       "debug.ts"
     ],

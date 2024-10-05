@@ -70,7 +70,8 @@ gaps.
 
 ### Up Next
 
-- Switch from exercise-bike to [rollup-plugin-jscc](https://www.npmjs.com/package/rollup-plugin-jscc)
+- Move `constants.njk.ts` step into vite with a custom rollup plugin
+  - Note, `jscc` can't inline template values, only switch on them
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'

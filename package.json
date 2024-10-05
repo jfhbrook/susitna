@@ -62,6 +62,7 @@
     "text-table": "^0.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.12.0",
     "@jfhbrook/swears": "^1.0.2",
     "@nestjs/testing": "^10.3.10",
     "@types/strftime": "^0.9.8",
@@ -70,10 +71,11 @@
     "@vitest/coverage-v8": "^2.1.2",
     "concurrently": "^8.2.2",
     "dotenv-cli": "^7.4.2",
-    "eslint": "^8.42.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "exercise-bike": "^2.1.0",
+    "globals": "^15.10.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.0.0",
@@ -83,6 +85,7 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.2",
+    "typescript-eslint": "^8.8.0",
     "unplugin-swc": "^1.5.1",
     "vite": "^5.4.8",
     "vitest": "^2.1.2"

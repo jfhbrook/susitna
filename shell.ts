@@ -152,6 +152,8 @@ export class Prompt {
           return ps + '\\';
         }
         const esc = advance();
+        let fmt: string = '';
+        let tty: string | null = null;
         switch (esc) {
           // \a is handled in standard strings.
           case 'd':
@@ -163,7 +165,6 @@ export class Prompt {
               break;
             }
             advance();
-            let fmt: string = '';
             while (!done() && this.ps1[curr] !== '}') {
               fmt += advance();
             }
@@ -186,7 +187,7 @@ export class Prompt {
             ps += '0';
             break;
           case 'l':
-            const tty = this.host.tty();
+            tty = this.host.tty();
             if (tty) {
               ps += basename(tty);
             } else {

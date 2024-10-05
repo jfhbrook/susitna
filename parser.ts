@@ -1018,8 +1018,6 @@ export class Parser {
             value += '\\';
             break;
           default:
-            // We advanced twice, for the \\ and the character respectively
-            const offset = this.previous!.offsetStart + i - 2;
             warnings.push(
               new SyntaxWarning(`Invalid escape sequence \`\\${e}\``, {
                 filename: this.filename,
@@ -1027,8 +1025,9 @@ export class Parser {
                 isLine: this.isLine,
                 lineNo: this.lineNo,
                 cmdNo: this.isLine ? null : this.cmdNo,
-                offsetStart: offset,
-                offsetEnd: offset + 2,
+                // We advanced twice, for the \\ and the character respectively
+                offsetStart: this.previous!.offsetStart + i - 2,
+                offsetEnd: this.previous!.offsetStart + i,
                 source: Source.unknown(),
               }),
             );

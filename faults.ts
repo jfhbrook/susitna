@@ -129,7 +129,7 @@ export class UsageFault extends Fault implements ExitCoded {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function runtimeMethod<F extends Function>(
   _target: any,
   _propertyKey: string,

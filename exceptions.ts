@@ -610,6 +610,7 @@ function merge<T extends SourceLocation>(
   let i = 0;
   let j = 0;
   const merged: T[] = [];
+
   while (true) {
     if (i >= xs.length) {
       return merged.concat(ys.slice(j));

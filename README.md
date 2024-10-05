@@ -70,6 +70,7 @@ gaps.
 
 ### Up Next
 
+- Switch from exercise-bike to [rollup-plugin-jscc](https://www.npmjs.com/package/rollup-plugin-jscc)
 - Assert module
   - Wrap 'node:assert'
   - Throw RuntimeFault

@@ -15,7 +15,6 @@
     "build:constants": "dotenv -- ./scripts/constants.sh",
     "build:debug": "dotenv -- ./scripts/debug.sh",
     "build:templates": "concurrently 'npm run build:constants' 'npm run build:debug'",
-    "build:swc": "swc --config-file .swcrc.build -d dist *.ts **/*.ts",
     "build:vite": "vite build",
     "build:citree": "cp ast/index.citree tools/citree/example/ast.citree && cd tools/citree && npm run build && npm run snap",
     "build:test-generator": "cd tools/test-generator && npm run build",
@@ -64,8 +63,6 @@
   "devDependencies": {
     "@jfhbrook/swears": "^1.0.2",
     "@nestjs/testing": "^10.3.10",
-    "@swc/cli": "^0.4.1-nightly.20240914",
-    "@swc/core": "^1.7.26",
     "@types/strftime": "^0.9.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

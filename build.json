@@ -1,5 +1,6 @@
 {
   "entrypoint": "./main.ts",
+  "outDir": "./dist",
   "exclude": [
     "bin",
     "tools",
@@ -9,7 +10,6 @@
   "moduleType": "nodenext",
   "sourceMaps": true,
   "check": {
-    "outDir": "./dist",
     "exclude": [
       "node_modules",
       "*.njk.ts"
@@ -25,14 +25,12 @@
     }
   },
   "build": {
-    "outDir": "./build",
     "exclude": [
       ".njk.ts"
     ],
     "minify": true
   },
   "test": {
-    "outDir": "./dist",
     "exclude": [
       "node_modules"
     ]

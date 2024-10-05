@@ -6,7 +6,7 @@ import { config, swcBuildConfig } from './build.mjs';
 export default defineConfig({
   build: {
     ssr: config.entrypoint,
-    outDir: config.build.outDir,
+    outDir: config.outDir,
   },
   ssr: {},
   plugins: [swc.vite(swcBuildConfig)],

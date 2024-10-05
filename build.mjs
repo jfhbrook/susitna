@@ -8,7 +8,7 @@ const decorators = true;
 export const tscConfig = {
   exclude: config.exclude.concat(config.check.exclude),
   compilerOptions: {
-    outDir: config.check.outDir,
+    outDir: config.outDir,
     module: config.moduleType,
     moduleResolution: config.moduleType,
     target: config.target,

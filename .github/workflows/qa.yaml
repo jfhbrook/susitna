@@ -19,8 +19,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install
         run: npm install
-      - name: Build templates
-        run: dotenv -f ./test.env -- npm run 'build:templates'
+      - name: Build constants
+        run: dotenv -f ./test.env -- npm run 'build:constants'
       - name: Check types
         run: tsc -p tsconfig.json --noEmit
       - name: Test

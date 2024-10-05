@@ -1,21 +1,12 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
-import pkg from './package.json';
-
-const dependencies = Object.keys({
-  ...pkg.dependencies,
-  ...pkg.devDependencies,
-});
-
 export default defineConfig({
   build: {
     ssr: './main.ts',
     outDir: './build',
   },
-  ssr: {
-    noExternal: dependencies,
-  },
+  ssr: {},
   plugins: [
     swc.vite({
       jsc: {
@@ -46,7 +37,7 @@ export default defineConfig({
       },
       sourceMaps: true,
       inlineSourcesContent: true,
-      minify: false,
+      minify: true,
     }),
   ],
 });

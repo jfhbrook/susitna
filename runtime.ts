@@ -197,18 +197,17 @@ export class Runtime {
             this.host.writeLine(this.stack.pop());
             break;
           case OpCode.Exit:
-            const value = this.stack.pop();
-            let exitCode: number;
-            if (typeof value === 'number') {
-              exitCode = Math.floor(value);
-            } else if (value instanceof Nil) {
-              exitCode = 0;
-            } else if (value) {
-              exitCode = 1;
+            a = this.stack.pop();
+            if (typeof a === 'number') {
+              b = Math.floor(a);
+            } else if (a instanceof Nil) {
+              b = 0;
+            } else if (a) {
+              b = 1;
             } else {
-              exitCode = 0;
+              b = 0;
             }
-            this.host.exit(exitCode);
+            this.host.exit(b);
             return null;
           case OpCode.Jump:
             // Note, readShort increments the pc. If we didn't assign before,
@@ -241,16 +240,17 @@ export class Runtime {
         }
       }
     } catch (err) {
+      let exc = err;
       if (err instanceof Exit) {
         throw err;
       }
 
       if (!(err instanceof BaseException)) {
-        err = RuntimeFault.fromError(err);
+        exc = RuntimeFault.fromError(err);
       }
 
-      err.traceback = this.createTraceback();
-      throw err;
+      exc.traceback = this.createTraceback();
+      throw exc;
     }
   }
 

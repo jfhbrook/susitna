@@ -306,15 +306,16 @@ export class Executor {
       chunk = result[0];
       warning = result[1];
     } catch (err) {
+      let exc = err;
       if (err instanceof ParseError) {
-        err = mergeParseErrors([parseWarning, err]);
+        exc = mergeParseErrors([parseWarning, err]);
       }
 
-      if (err instanceof Exception) {
+      if (exc instanceof Exception) {
         this.host.writeException(err);
         return;
       }
-      throw err;
+      throw exc;
     }
 
     warning = mergeParseErrors([parseWarning, warning]);
@@ -388,11 +389,12 @@ export class Executor {
         }
       }
     } catch (err) {
+      let exc = err;
       if (err instanceof ParseError) {
-        err = mergeParseErrors([parseWarning, err]);
+        exc = mergeParseErrors([parseWarning, err]);
       }
 
-      throw err;
+      throw exc;
     }
   }
 

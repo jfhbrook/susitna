@@ -357,7 +357,7 @@ export class ConsoleHost implements Host {
         // TTY never changes).
         const { stdout } = spawnSync('tty');
         this._tty = stdout.toString().trim();
-      } catch (err) {
+      } catch (_err) {
         // I'm assuming that if this fails, it's because it ultimately doesn't
         // make sense to ascribe a TTY to the process. But it would be nice
         // to have tracing for this, in some capacity.

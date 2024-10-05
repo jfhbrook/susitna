@@ -1,0 +1,55 @@
+{
+  "entrypoint": "./main.ts",
+  "exclude": [
+    "bin",
+    "tools",
+    "dist"
+  ],
+  "target": "es2022",
+  "moduleType": "nodenext",
+  "sourceMaps": true,
+  "check": {
+    "outDir": "./dist",
+    "exclude": [
+      "node_modules",
+      "*.njk.ts"
+    ],
+    "compilerOptions": {
+      "declaration": true,
+      "removeComments": true,
+      "strictNullChecks": true,
+      "noImplicitAny": false,
+      "strictBindCallApply": false,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": false
+    }
+  },
+  "build": {
+    "outDir": "./build",
+    "exclude": [
+      ".njk.ts"
+    ],
+    "minify": true
+  },
+  "test": {
+    "outDir": "./dist",
+    "exclude": [
+      "node_modules"
+    ]
+  },
+  "coverage": {
+    "enabled": false,
+    "exclude": [
+      "tools/**",
+      "node_modules/**",
+      "scripts/**",
+      "**.njk.ts",
+      ".eslintrc.js",
+      "vite.config.mjs",
+      "dist",
+      "test",
+      "index.ts",
+      "main.ts"
+    ]
+  }
+}

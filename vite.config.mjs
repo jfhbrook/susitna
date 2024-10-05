@@ -1,43 +1,13 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
+import { config, swcBuildConfig } from './build.mjs';
+
 export default defineConfig({
   build: {
-    ssr: './main.ts',
-    outDir: './build',
+    ssr: config.entrypoint,
+    outDir: config.build.outDir,
   },
   ssr: {},
-  plugins: [
-    swc.vite({
-      jsc: {
-        parser: {
-          syntax: 'typescript',
-          jsx: false,
-          decorators: true,
-          decoratorsBeforeExport: true,
-          dynamicImport: true,
-          privateMethod: true,
-          functionBind: true,
-          exportDefaultFrom: true,
-          exportNamespaceFrom: true,
-          topLevelAwait: false,
-          importMeta: false,
-        },
-        transform: {
-          legacyDecorator: false,
-          decoratorMetadata: true,
-        },
-        target: 'es2022',
-        loose: false,
-        externalHelpers: false,
-        keepClassNames: true,
-      },
-      module: {
-        type: 'nodenext',
-      },
-      sourceMaps: true,
-      inlineSourcesContent: true,
-      minify: true,
-    }),
-  ],
+  plugins: [swc.vite(swcBuildConfig)],
 });

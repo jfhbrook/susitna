@@ -1,11 +1,11 @@
 # Matanuska BASIC
 
-Matanuska is a BASIC dialect designed for use as a shell.  It asks what it
+Matanuska is a BASIC dialect designed for use as a shell. It asks what it
 would've been like if the classic 80s BASIC was better able to rise to the
 occasion when it came to disk features and/or competing with DOS.
 
 Matanuska is still in development, and needs a lot of work before it's ready
-for regular use. 
+for regular use.
 
 ## Install
 
@@ -33,7 +33,7 @@ gaps.
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
-  - [X] Support through the parser
+  - [x] Support through the parser
 - Complete Print syntax
   - Print can take multiple arguments
   - Print can also take a channel config

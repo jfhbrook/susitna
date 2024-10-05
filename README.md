@@ -70,7 +70,6 @@ gaps.
 
 ### Up Next
 
-- [swc build](https://github.com/jfhbrook/matanuska/pull/33)
 - Assert module
   - Wrap 'node:assert'
   - Throw RuntimeFault
@@ -116,11 +115,6 @@ gaps.
 
 ### The Future
 
-- Switch typescript to `module: "nodenext"`
-  - POC PR here: <https://github.com/jfhbrook/matanuska/pull/31>
-  - Failing tests here: <https://github.com/jfhbrook/matanuska/actions/runs/11154361580/job/31003507631?pr=31>
-  - node-tap bug report here: <https://github.com/tapjs/tapjs/issues/1040>
-  - Possibly revisit after [switching to vitest](https://github.com/jfhbrook/matanuska/pull/32/files)
 - String templates
 - Module system
 - Package manager

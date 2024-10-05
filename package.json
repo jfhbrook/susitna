@@ -2,7 +2,8 @@
   "name": "matanuska",
   "version": "0.0.1",
   "description": "A chill BASIC to shell to",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.mjs",
   "bin": {
     "matbas": "bin/matbas"
   },
@@ -10,22 +11,21 @@
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
     "build:config": "./scripts/build-config.mjs",
-    "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:swc",
+    "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:vite",
     "build:release": "dotenv -e release.env -- npm run build",
     "build:constants": "dotenv -- ./scripts/constants.sh",
     "build:debug": "dotenv -- ./scripts/debug.sh",
     "build:templates": "concurrently 'npm run build:constants' 'npm run build:debug'",
-    "build:tsc": "tsc -p tsconfig.build.json",
-    "build:swc": "swc --config-file .swcrc.build -d dist *.ts **/*.ts",
+    "build:vite": "vite build",
     "build:citree": "cp ast/index.citree tools/citree/example/ast.citree && cd tools/citree && npm run build && npm run snap",
     "build:test-generator": "cd tools/test-generator && npm run build",
     "build:ast": "citree ast/index.citree",
     "build:test": "npm run build:test-generator && dotenv -e test.env -- test-generator ./test",
     "build:test:activate": "dotenv -e test.env -- test-generator --activate ./test",
     "check": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' && tsc --noEmit",
-    "format": "prettier --write \"**/*.ts\" \"*.mjs\" \"scripts/*.mjs\"",
+    "format": "prettier --write \"**/*.ts\" \"**/*.mjs\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "lint": "dotenv -e test.env -- npm run build && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
+    "lint": "dotenv -e test.env -- npm run build:templates && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/*.sh ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run",
@@ -64,8 +64,6 @@
   "devDependencies": {
     "@jfhbrook/swears": "^1.0.2",
     "@nestjs/testing": "^10.3.10",
-    "@swc/cli": "^0.4.1-nightly.20240914",
-    "@swc/core": "^1.7.26",
     "@types/strftime": "^0.9.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -86,6 +84,11 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.2",
     "unplugin-swc": "^1.5.1",
+    "vite": "^5.4.8",
     "vitest": "^2.1.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.24.0",
+    "@swc/core-linux-x64-gnu": "^1.7.30-nightly-20241002.1"
   }
 }

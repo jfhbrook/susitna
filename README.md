@@ -71,6 +71,7 @@ gaps.
 ### Up Next
 
 - Switch from exercise-bike to [rollup-plugin-jscc](https://www.npmjs.com/package/rollup-plugin-jscc)
+- Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'
   - Throw RuntimeFault

@@ -1,5 +1,7 @@
 # ADR ??? - Native Hash Support
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

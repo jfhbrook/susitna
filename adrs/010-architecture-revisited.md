@@ -1,5 +1,7 @@
 # ADR 010 - Architecture, Revisited
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -21,7 +23,7 @@ In this architecture, that Translator is responsible for reading input
 from either an interactive session or a script, parsing it, adding lines to
 the editor, and passing parsed ASTs to the Commander. The commander,
 meanwhile, is in charge of both compiling and executing runtime commands,
-*and* directly executing non-runtime interactive commands (such as editing).
+_and_ directly executing non-runtime interactive commands (such as editing).
 The editor is referenced by both the Translator and the Commander - the
 former writes to it, and the latter reads from it. Finally, the initial
 architecture called for a "recreator", which would take parsed ASTs and
@@ -48,7 +50,7 @@ of executing commands.
 
 The new command module is motivated by the use of a visitor pattern. While I
 don't think it's entirely accurate to say nobody was doing object oriented
-programming in the age of PJ Brown, I *do* think it was uncommon, and the book
+programming in the age of PJ Brown, I _do_ think it was uncommon, and the book
 doesn't indicate the use of any particular patterns. Chief
 among these is the visitor pattern, as detailed in `Crafting Interpreters`
 by Robert Nystrom. Matanuska, in contrast to the implied WIC&I architecture,
@@ -126,7 +128,7 @@ during parsing or compiling, error messages are able to take both the original
 source and offsets to display exactly where the error was located.
 
 Given that parsed lines retain their original source, the recreator was no
-longer required - hence, removed. Something *like* the recreator may end up
+longer required - hence, removed. Something _like_ the recreator may end up
 being implemented in the future - however, it would operate less as a
 requirement for generating listings, and more as a code formatter.
 
@@ -142,9 +144,9 @@ appropriate due to the Executor's ownership of sessions. But I'm not
 entirely convinced.
 
 Second is revisiting the decision to make the Host a pluggable component in
-charge of I/O. The surface area of Host is *huge*. Meanwhile, Node.js - and
+charge of I/O. The surface area of Host is _huge_. Meanwhile, Node.js - and
 other potential encoding language targets - have perfectly capable OS and FS
-modules. There *is* a need to wrap these capabilities, namely for reifying
+modules. There _is_ a need to wrap these capabilities, namely for reifying
 errors into Exceptions. But there are other ways of doing this. For example,
 Matanuska could implement OS and FS modules of its own.
 

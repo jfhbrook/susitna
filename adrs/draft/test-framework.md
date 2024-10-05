@@ -1,5 +1,7 @@
 # ADR ??? - BASIC Test Framework
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

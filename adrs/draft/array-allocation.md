@@ -1,5 +1,7 @@
 # ADR ??? - Dynamic Array Allocation
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context
@@ -21,7 +23,7 @@ Dim A(,) AS Integer
 
 This problem has some overlap with support for associative arrays. If we
 implement a separate type for hashes, then there's no need to change the way
-arrays work. However, if we *do* support associative arrays, then extending
+arrays work. However, if we _do_ support associative arrays, then extending
 the language syntax will be required.
 
 One option is to use the corresponding sigil in the index:

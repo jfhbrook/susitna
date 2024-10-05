@@ -1,18 +1,20 @@
 # ADR 009 - Type Awareness in The Compiler and Runtime
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
 
 In [ADR 007](./007-type-semantics.md), we specified the type semantics for
 operations on dissimilar types. The takeaway from this ADR is that there are
-many such operations which are invalid, and the ones which *are* valid require
+many such operations which are invalid, and the ones which _are_ valid require
 implicit type casting. In other words, the types of values matter.
 
 In [ADR 008](./008-sigils.md), we decided to implement a standard BASIC
 model for manifest data types. To review, primary variables are typed using a
 postfix sigil, but those sigils don't distinguish them from arrays and
-functions. That means that we *sometimes* have compile time type information.
+functions. That means that we _sometimes_ have compile time type information.
 
 When available, the advantages of manifest data types are two-fold.
 
@@ -32,11 +34,11 @@ the two values and casts `true` to `1` on the spot. But if we know a priori that
 `1` is an integer and `true` is a boolean, we could instead execute
 `CAST_INT_TO_BOOL, ADD_INTS`, and these instructions can assume that their
 arguments are a bool and two ints respectively. In contrast, a dynamically
-typed language *must* use a generic `ADD` instruction.
+typed language _must_ use a generic `ADD` instruction.
 
-The trade-off here is that typed instructions require *more* instructions,
+The trade-off here is that typed instructions require _more_ instructions,
 but each instruction requires less work. Unfortunately, a partially typed
-runtime would mean that we'd need to implement *both* typed and dynamic
+runtime would mean that we'd need to implement _both_ typed and dynamic
 instructions - in other words, we would need to implement `CAST_BOOL_TO_INT`
 and `ADD_INT` for when types are known, and generic `ADD` for when types
 are unknown. This may still allow for optimized execution in cases where
@@ -63,7 +65,7 @@ important that runtime behavior is correct than it is that type errors are
 caught in the compiler, and implementing it is relatively challenging - and
 low priority.
 
-Second, we will *not* initially support typed operations in the runtime. This
-will likely manifest in a slower runtime as compared to one that *can* assume
+Second, we will _not_ initially support typed operations in the runtime. This
+will likely manifest in a slower runtime as compared to one that _can_ assume
 types. But will also keep the scope of the initial implementation smaller,
 as well as leaving the door open for typed operations in the future.

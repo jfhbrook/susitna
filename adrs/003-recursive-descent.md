@@ -1,5 +1,7 @@
 # ADR 003 - Recursive Descent Parser
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -14,7 +16,7 @@ to match the assumptions of the library.
 `Crafting Interpreters`, meanwhile, details how to write recursive descent
 parsers. These are "hand-rolled", which on its face can require more work.
 However, the architecture is relatively straightforward to understand and
-implement, and it's *much* more flexible.
+implement, and it's _much_ more flexible.
 
 ## Decision
 

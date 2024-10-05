@@ -1,5 +1,7 @@
 # ADR 005 - Editor Operations
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context

@@ -1,5 +1,7 @@
 # ADR 013 - If, Then and Else Syntax
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -19,8 +21,8 @@ MSX BASIC supports the following forms:
 When supplied a lineNo, BASIC will jump to that line. Otherwise, it will run
 the listed instructions.
 
-Notable is that MSX BASIC does *not* support multi-line if statements.
-For an example of a BASIC which *does* support them, we can look to BBC BASIC.
+Notable is that MSX BASIC does _not_ support multi-line if statements.
+For an example of a BASIC which _does_ support them, we can look to BBC BASIC.
 BBC BASIC supports the following:
 
 ```
@@ -95,7 +97,7 @@ consistent with other decisions made in this ADR. However, unlike those
 decisions, this one doesn't significantly complicate the parser. Moreover,
 there isn't a strong motivation to use `else if` on its own line to
 represent a discrete `if` inside a `else` block, therefore deprecation is
-anticipation of such a deprecation. That would 
+anticipation of such a deprecation. That would
 not expected to be painful.
 
 #### Unterminated "Short If" and Multi-Line with Then on Same Line
@@ -149,11 +151,11 @@ complicates the parser by introducing a new form for lines:
 line_with_then := <line_no> then <instructions>
 ```
 
-with this form only being valid if the *previous* line contains an `if`
+with this form only being valid if the _previous_ line contains an `if`
 statement ending before the `then`. Practically speaking, parsing this form
 requires maintaining an extra piece of state in the parser - "should we expect
 a `then`" - and matching it prior to parsing other instructions in those cases.
-This isn't a heavy lift, but it's *enough* of a complication that BBC BASIC
-did not implement it. In our case, we're deciding to leave it out *for now*, so
+This isn't a heavy lift, but it's _enough_ of a complication that BBC BASIC
+did not implement it. In our case, we're deciding to leave it out _for now_, so
 as to not immediately commit to the additional complexity in our parser. It
 may, however, be introduced in the future.

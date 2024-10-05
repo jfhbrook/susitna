@@ -1,5 +1,7 @@
 # ADR ??? - {{ TITLE }}
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

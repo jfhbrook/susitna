@@ -1,5 +1,7 @@
 # ADR ??? - Process & Job Management
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

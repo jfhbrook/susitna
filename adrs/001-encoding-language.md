@@ -1,12 +1,14 @@
 # ADR 001 - Encoding Language
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
 
 In the language of `Writing Interactive Compilers and Interpreters` (WIC&I),
-the *encoding language* is the language in which the interpreter is written.
-This is in contrast to the *source language*, which is the language being
+the _encoding language_ is the language in which the interpreter is written.
+This is in contrast to the _source language_, which is the language being
 implemented by the interpreter.
 
 Practically speaking, there are two categories of choices when it comes to
@@ -54,7 +56,7 @@ number of struggles:
    features of Rust, an intermediate/advanced topic.
 
 While Rust is a compelling target for an interpreter in general, I found it
-challenging to both learn how to implement an interpreter *and* level up in
+challenging to both learn how to implement an interpreter _and_ level up in
 Rust.
 
 ### Extension & Plugins
@@ -85,7 +87,7 @@ Node's native addons. The standard addon language is C++. However, there are
 Between the two, Rust has some advantages:
 
 1. Many baked-in high level abstractions and data structures, including
-  automatically resizing `Vec`s and `Map`s
+   automatically resizing `Vec`s and `Map`s
 2. Great build and test tooling
 3. A fantastic library ecosystem
 4. Memory safety, unsafe features notwithstanding

@@ -1,5 +1,7 @@
 # ADR ??? - Cmdlets
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

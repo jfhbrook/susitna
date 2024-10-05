@@ -1,5 +1,7 @@
 # ADR ??? - Symbol Dump
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

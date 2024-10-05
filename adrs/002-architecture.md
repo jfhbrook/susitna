@@ -1,5 +1,7 @@
 # ADR 002 - Architecture
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -45,7 +47,7 @@ components. The basic loop is:
 1. Read source code input from the prompt
 2. Use the scanner and parser to generate the AST for a line
 3. If prefixed by a line number, feed to the Editor
-4. If *not* prefixed by a line number, feed to the command module as an
+4. If _not_ prefixed by a line number, feed to the command module as an
    immediate command
 
 The Translator may also non-interactively read directly from a file.
@@ -102,7 +104,7 @@ The `Program` will be the top-level node in an AST, and the output of the
 first pass executed in the Translator. The bytecode will be generated from
 a `Program` by the compiler when RUN is executed.
 
-This means that there are *two* intermediate representations, not just one.
+This means that there are _two_ intermediate representations, not just one.
 It also means that the compiler has to do more. However, it means that the
 bytecode can strip non-operating information from the AST, as well as implement
 optimizations and use a simplified instruction set.
@@ -120,7 +122,7 @@ The commander is in charge of initializing and closing sessions. This includes:
 - Initializing the Host
 - Managing `readline` functionality, including loading history
 - Running any `autoexec.bas` (a feature of MSX BASIC, analogous to
-`~/.bashrc`)
+  `~/.bashrc`)
 - Printing any startup messages
 - Gracefully closing resources on exit
 
@@ -142,7 +144,7 @@ In the case of interrupts, the commander is in charge of ensuring that
 the runtime is paused smoothly, and that execution is handed back to the
 translator.
 
-In the case of interrupts caused by *errors*, the commander is in charge of
+In the case of interrupts caused by _errors_, the commander is in charge of
 reporting and recovery. Generally, the translator should not be doing error
 handling.
 

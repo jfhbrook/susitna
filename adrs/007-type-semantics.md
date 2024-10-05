@@ -1,5 +1,7 @@
 # ADR 007 - Type Semantics for Primary Types
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -18,7 +20,7 @@ comparison operators (==, <>, >, <, >=, <=).
 
 In some cases, the behavior is easy and obvious. For example, adding two
 integers together does the right thing by default. However, many other cases
-are *not* obvious. For example, what should happen if you add an integer and
+are _not_ obvious. For example, what should happen if you add an integer and
 a string? Python will throw a `TypeError`, but JavaScript will cast the integer
 to a string and concat the results.
 

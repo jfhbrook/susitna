@@ -1,5 +1,7 @@
 # ADR 011 - Let and Assign Semantics
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context

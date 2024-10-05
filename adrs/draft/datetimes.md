@@ -1,5 +1,7 @@
 # ADR ??? - Dates, DateTimes & Durations
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

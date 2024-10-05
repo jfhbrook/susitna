@@ -1,21 +1,23 @@
 # ADR 008 - Sigils
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
 
 `Writing Interactive Compilers & Interpreters` introduces the concept of
-*manifest data types*. This means that the type of a variable is known at
+_manifest data types_. This means that the type of a variable is known at
 compile time.
 
 BASIC has manifest data types, insofar as the language distinguishes between
-numbers and string variables. Syntactically, it does this by *postfixing*
+numbers and string variables. Syntactically, it does this by _postfixing_
 identifiers with a [sigil](https://www.perl.com/article/on-sigils/). By doing
 this, and by using distinct syntax for defining other types, the compiler is
 able to track and enforce the type of a variable throughout execution.
 
 From a compiler perspective, this allows for the interpreter to use opcodes
-which can *assume* the type of a value. For instance, suppose you want to add
+which can _assume_ the type of a value. For instance, suppose you want to add
 two values. Without manifest types, you would need a `ADD` operation which
 inspects the types of the values, and decides what to do accordingly. With
 manifest types, however, you could implement an `ADD` operation which only
@@ -48,28 +50,28 @@ we can discover these rules:
 2. Singles in MSX BASIC have a `!` sigil.
 3. Doubles in MSX BASIC have a `#` sigil.
 4. Strings in MSX BASIC have a `$` sigil.
-5. Variables defined without a sigil have a *configurable* default type. For
+5. Variables defined without a sigil have a _configurable_ default type. For
    MSX this is initially configured to doubles, though it's common practice to
    change it to integers. This is widely considered to be a footgun.
-6. Arrays and functions *by convention* have the same postfix sigils as their
-   *return values* - but not always! While the syntax doesn't show their type
+6. Arrays and functions _by convention_ have the same postfix sigils as their
+   _return values_ - but not always! While the syntax doesn't show their type
    in context, they are defined within the program using unambiguous syntax.
-7. Arrays and functions in call signatures, however, *are* ambiguous, since
+7. Arrays and functions in call signatures, however, _are_ ambiguous, since
    the relevant definition doesn't exist in the function. Within functions,
-   types are *not* completely manifest.
-8. Channels aren't variables, but are *prefixed* with `#` when specified.
+   types are _not_ completely manifest.
+8. Channels aren't variables, but are _prefixed_ with `#` when specified.
 9. MSX BASIC doesn't have a dedicated boolean type. Instead, the integer `0`
    is treated as `false` and the integer `-1` is treated as `true`. This is
    most apparent in the return values of comparison operators.
 10. Variables of different types can reuse the same names. The correct variable
-   is fetched based on the compiler's knowledge of the type.
+    is fetched based on the compiler's knowledge of the type.
 
 A few aspects of this are worth diving into in more detail.
 
 ### Types in Call Signatures
 
 In the context of a program, the type of an array or function is unambiguous.
-However, in the context of a call signature, they typically *are* ambiguous.
+However, in the context of a call signature, they typically _are_ ambiguous.
 Arrays and functions don't have sigils, aside from a convention of including a
 sigil for the inner type. In effect, call signatures appear to be untyped in
 many implementations of BASIC.
@@ -94,9 +96,9 @@ There are, however, a few options for syntax extensions:
 ### Untyped and Union Identifiers
 
 Variables and function arguments in MSX BASIC don't support unions. In other
-words, a variable can't be either an integer *or* a string. However, as
+words, a variable can't be either an integer _or_ a string. However, as
 mentioned, function arguments are effectively dynamically typed - and many
-*native* functions in BASIC *can* accept union or `any` types as arguments.
+_native_ functions in BASIC _can_ accept union or `any` types as arguments.
 
 One option for a syntax extension to support these use cases is to list
 multiple sigils for union types. For instance, `ident%!` could be a union of
@@ -125,7 +127,7 @@ decisions as MSX BASIC, with the following differences:
 That is:
 
 | sigil    | type |
-|----------|------|
+| -------- | ---- |
 | `%`      | int  |
 | `!`      | real |
 | `?`      | bool |
@@ -140,7 +142,7 @@ a `void` return type.
 However, we will also assume that call signatures of functions are untyped.
 While functions are likely going to remain unimplemented for some time, further
 decisions in the compiler and runtime will be made under this assumption.
-When functions are to be implemented, these decisions *may* be revisited.
+When functions are to be implemented, these decisions _may_ be revisited.
 
 All syntax extensions aside from those already mentioned will be deferred
 until a later date. For instance, identifiers - for now - will only be allowed

@@ -1,5 +1,7 @@
 # ADR ??? - Stack Effects
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

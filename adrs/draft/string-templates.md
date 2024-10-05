@@ -1,5 +1,7 @@
 # ADR ??? - String Templates
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

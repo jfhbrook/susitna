@@ -1,5 +1,7 @@
 # ADR 006 - Runtime Exit
+
 ### Status: Accepted
+
 ### Josh Holbrook
 
 ## Context
@@ -59,7 +61,7 @@ behavior for exits as well.
 The event emitter interface is largely motivated by an interest in delegating
 exit behavior to the `Commander`.
 
-Given you *are* going to delegate to the `Commander`, the alternative to
+Given you _are_ going to delegate to the `Commander`, the alternative to
 an event is injecting it as a dependency to the `Runtime`. Events allow
 the runtime to be unaware of the commander, at the cost of the commander
 being unable to "yield" data back to the runtime.
@@ -68,10 +70,10 @@ Unfortunately, there are already reasons to inject the commander into the
 runtime. In particular, the commander handles prompting, because it handles
 the `readline` interface. This decision was made because readline requires
 asynchronous initialization, and because it's higher level than what the
-host provides. That decision isn't set in stone, but it *is* really convenient.
+host provides. That decision isn't set in stone, but it _is_ really convenient.
 
 While it hasn't been implemented yet, the runtime will need to request input
-from the commander *eventually* - so we might as well inject it now and avoid
+from the commander _eventually_ - so we might as well inject it now and avoid
 two interfaces.
 
 But we could also inject the host into the runtime, and have it call `Host#exit`
@@ -79,7 +81,7 @@ directly. In fact, the host is already injected, just not used.
 
 The alternative to this is implementing proxy methods on the
 commander whenever the runtime needs to access anything from the host. But
-the host contains a *lot* of functionality, and effectively adding all of the
+the host contains a _lot_ of functionality, and effectively adding all of the
 host's functionality to the commander muddies its interface.
 
 ## Decision
@@ -87,7 +89,7 @@ host's functionality to the commander muddies its interface.
 1. The `Host` will be injected into the `Runtime`, where its `exit` method will
    be called directly. This will follow a pattern which should become more
    common over time.
-2. The `Runtime` will *not* inherit from `EventEmitter`, instead preferring
+2. The `Runtime` will _not_ inherit from `EventEmitter`, instead preferring
    to call methods on an injected `Commander` instance. This will create one
    consistent way to call back to the `Commander` that supports "yielding".
 3. `ConsoleHost#exit` will throw an `Exit` error. This will allow for graceful
@@ -97,7 +99,7 @@ host's functionality to the commander muddies its interface.
    its use with intentional non-zero exits.
 5. `Cli` will continue to handle actual exit behavior. This will include
    overriding the `exit` handler in tests.
-5. `MockConsoleHost#exit` will throw a `MockExit` error, maintaining the
+6. `MockConsoleHost#exit` will throw a `MockExit` error, maintaining the
    current structure of the tests.
 
 In other words, when the runtime handles an `OpCode.Exit`, the following will
@@ -107,10 +109,10 @@ occur:
 2. The host will throw an `Exit` error with the exit code.
 3. The error will be caught and handled in the `Cli` class.
 
-Note a subtlety in testing: both `Host#exit` and the CLI exit handler *should*
+Note a subtlety in testing: both `Host#exit` and the CLI exit handler _should_
 throw an error to stop execution. This is to ensure that they short-circuit
 execution in tests as they do in practice. The code has been factored to
-include a return after the relevant calls, which *should* protect against
+include a return after the relevant calls, which _should_ protect against
 that, but it's an easy footgun. This could be addressed through the typing
 system by returning `never` instead of `void`, but this is unimplemented in
 the interest of maximizing flexibility.

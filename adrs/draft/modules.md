@@ -1,5 +1,7 @@
 # ADR ??? - Module System
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context
@@ -10,7 +12,7 @@ but long term I would like to support a module system.
 
 ### BASIC
 
-While BASIC doesn't have the concept of modules, there *is* a history of
+While BASIC doesn't have the concept of modules, there _is_ a history of
 namespaces. For instance, a variable `x` defined in a subroutine `foo` may be
 stored in the global environment as `foo.x`.
 
@@ -18,7 +20,7 @@ stored in the global environment as `foo.x`.
 
 Python loads modules based on a namespace. These modules are loaded based on
 the value of the `CLASSPATH`. By default, Python will load modules from a
-shared  `site-packages` directory. Because this directory is shared and
+shared `site-packages` directory. Because this directory is shared and
 generally non-configurable, this strategy requires support for virtualenvs.
 
 ### Visual Basic

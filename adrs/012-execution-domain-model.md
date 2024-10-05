@@ -1,5 +1,7 @@
 # ADR 012 - Execution Domain Model
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context
@@ -8,59 +10,59 @@ Matanuska contains a number of domain concepts to describe the syntax and
 semantics of source code, parsed trees, and compiled programs. Currently, they
 are named (and defined) as such:
 
-- **Expressions**: Units of code which apply a stack of *operations* on
-  *values* and evaluate to another value. Expressions do not cause side effects
-  directly, though function calls may execute *commands* which *do* cause
+- **Expressions**: Units of code which apply a stack of _operations_ on
+  _values_ and evaluate to another value. Expressions do not cause side effects
+  directly, though function calls may execute _commands_ which _do_ cause
   side effects.
 - **Values**: Elements within memory that represent numbers, booleans, strings,
   and various object types. May either be contained within a variable, or
   specified as a "literal" within source code.
 - **Operations** and **Operators** (**source** and **AST**): Elements within
-  *expressions* that add or remove *values* from the expression stack when
+  _expressions_ that add or remove _values_ from the expression stack when
   they're evaluated. These have varying semantics, such as having
   infix/prefix/postfix operators and having operator precedence. Note that
-  *operators* are the syntactic element, and *operations* are the corresponding
+  _operators_ are the syntactic element, and _operations_ are the corresponding
   units of execution.
 - **Commands**: Units of code which generally invoke state when executed.
-  Commands *may* take expressions as arguments, but may also include
+  Commands _may_ take expressions as arguments, but may also include
   non-expression syntactic elements or other commands. These
-  are generally separated by colons (`:`) within *command groups*.
+  are generally separated by colons (`:`) within _command groups_.
 - **Interactive commands**: Commands which may only be executed in an
   interactive session, through use of the `command` module. These commands
-  are syntactically within non-line *command groups*.
+  are syntactically within non-line _command groups_.
 - **Runtime commands**: Commands which are compiled into chunks and op codes
   and executed by the `runtime`.
 - **Simple** and **complex** commands: Complex commands are commands
-  which *may* contain other commands. This is in contrast to "simple commands",
-  which *never* contain other commands. This concept is not currently
+  which _may_ contain other commands. This is in contrast to "simple commands",
+  which _never_ contain other commands. This concept is not currently
   represented within the source code, but is useful to distinguish in the
   context of this ADR.
 - **Command groups**: A series of commands, separated by colons (`:`). These
   command groups may form the non-numbered portion of a line, or may constitute
-  "bare" *interactive commands*.
+  "bare" _interactive commands_.
 - **Lines**: A command group combined with a preceding line number. Lines are
   currently contained on a single source line, though that may not be true in
   the future if newlines can be escaped (like Bash).
-- **Instructions**: Collections of *op codes* and *addresses* which, when
+- **Instructions**: Collections of _op codes_ and _addresses_ which, when
   encountered by the runtime, cause some effect to occur.
 - **Op codes**: Integer values which, when combined with addresses into
-  *instructions*, cause the `runtime` to execute an "operation". These values
+  _instructions_, cause the `runtime` to execute an "operation". These values
   are between 0 and 255, and are intended to be represented by bytes (as in
   bytecode). These are also called "byte codes" - or simply "codes". "Op" is short for "operation".
 - **Operations** (**bytecode**): Stateful actions which occur when the
-  `runtime` encounters an *op code*. This is distinct from *operations* in
+  `runtime` encounters an _op code_. This is distinct from _operations_ in
   source or AST code, though they may implement the behavior implied by a
   source or AST operation.
-- **Chunks**: Collections of *bytecode*, along with various pieces of
+- **Chunks**: Collections of _bytecode_, along with various pieces of
   metadata. These form the base units which are executed by the `runtime`.
   This term comes directly from `Crafting Interpreters`.
-- **Bytecode**: The unifying concept around *op codes*, *instructions* and
-  *chunks*. In other words, *bytecode* is made up of *chunks* and
-  *instructions*.
+- **Bytecode**: The unifying concept around _op codes_, _instructions_ and
+  _chunks_. In other words, _bytecode_ is made up of _chunks_ and
+  _instructions_.
 
 However, in the [MSX Wiki](https://www.msx.org/wiki/Category:MSX-BASIC_Instructions),
 they very consistently call them "instructions" - and it is believed that the
-domain model in not *just* MSX BASIC but most other classic BASIC languages
+domain model in not _just_ MSX BASIC but most other classic BASIC languages
 as well.
 
 This raises the question: should Matanuska rename "commands" to "instructions"?
@@ -70,7 +72,7 @@ If so, how would this decision cascade to the rest of the domain model?
 
 The first, and most obvious reason, to rename "commands" to "instructions" is
 to maintain consistency with MSX BASIC. While this may allow for borrowing
-more ideas from MSX BASIC (instead of having to invent them), it *also* makes
+more ideas from MSX BASIC (instead of having to invent them), it _also_ makes
 Matanuska more of a "true BASIC". One of Matanuska's design goals is to, in
 fact, invoke classic elements of an 80s era BASIC; therefore, this reason is
 compelling.
@@ -86,7 +88,7 @@ codes" and executed through the `runtime`.
 This could also be motivated by a desire to align with `WIC&I`. The idea of a
 separate execution path for commands, through the `command` module, comes
 directly from this source, which implies that "runtime commands" are not
-commands in the `WIC&I` model. 
+commands in the `WIC&I` model.
 
 ## Instructions in ASTs and Bytecode
 
@@ -108,7 +110,7 @@ On the surface, it may make sense to rename "instructions" in bytecode to
 some alternative name. However, that's challenging, because "instruction" has
 particular meaning within the context of bytecode. But consider that
 "instruction" has general meaning within a language itself, and that - in a
-sense - the BASIC source and the bytecode constitute different *languages*.
+sense - the BASIC source and the bytecode constitute different _languages_.
 In short, "instruction" has the same semantic meaning with the additional
 context of them being in the source code and AST or in bytecode. This is
 different from the case of "command", as "interactive commands" are a subtype
@@ -121,13 +123,13 @@ Matanuska will modify its definitions for execution domain concepts to align
 with the following:
 
 - **Instructions** (**Source** or **AST**): Units of code which generally
-  invoke state when executed. These were previously called *commands*. This
+  invoke state when executed. These were previously called _commands_. This
   will extend to other concepts: "instruction groups", "simple instructions",
   "complex instructions", etc.
 - **Commands**: Instructions which are executed in an interactive session.
-  This is similar to the previous idea of *interactive commands*, but also
+  This is similar to the previous idea of _interactive commands_, but also
   includes "runtime commands" which were executed interactively. Note that,
-  depending on the context, a command *may* be made up of multiple
+  depending on the context, a command _may_ be made up of multiple
   colon-separated instructions.
 - **Runtime instructions**: Instructions which are compiled into chunks and
   codes and executed by the `runtime`. These were previously called "runtime

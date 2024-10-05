@@ -1,5 +1,7 @@
 # ADR ??? - Error Handling
+
 ### Status: Draft
+
 ### Josh Holbrook
 
 ## Context

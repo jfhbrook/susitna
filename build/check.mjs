@@ -7,8 +7,8 @@ export const tscConfig = {
   exclude: merge(config.exclude, config.check.exclude),
   compilerOptions: {
     outDir: config.outDir,
-    module: config.moduleType,
-    moduleResolution: config.moduleType,
+    module: config.target,
+    moduleResolution: 'bundler',
     target: config.target,
     lib: [config.target],
     esModuleInterop: true,

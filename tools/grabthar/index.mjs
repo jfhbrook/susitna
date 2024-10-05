@@ -5,5 +5,5 @@ export { testConfig } from './test.mjs';
 export * as lint from './lint.mjs';
 export * as format from './format.mjs';
 export { writeJSONConfig, writeIgnoreFile } from './io.mjs';
-export { merge } from './util.mjs';
+export { merge, parseBoolEnv } from './util.mjs';
 export { config };

@@ -4,17 +4,17 @@ import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
 
-`{% if matbas_build == 'debug' %}`;
+//#if _MATBAS_BUILD == 'debug'
 import c from 'ansi-colors';
 import { parseBoolEnv } from './env';
 import { formatter } from './format';
-`{% if show_chunk %}`;
+//#if _DEBUG_SHOW_CHUNK
 import { disassemble } from './bytecode/disassembler';
-`{% endif %}`;
-`{% if trace_runtime %}`;
+//#endif
+//#if _DEBUG_TRACE_RUNTIME
 import { disassembleInstruction } from './bytecode/disassembler';
-`{% endif %}`;
-`{% endif %}`;
+//#endif
+//#endif
 
 let NO_TRACE = true;
 
@@ -145,7 +145,7 @@ let startTraceExec = function startTraceExec(): void {};
  */
 let traceExec = function traceExec(_rt: Runtime): void {};
 
-`{% if matbas_build == 'debug' %}`;
+//#if _MATBAS_BUILD == 'debug'
 
 NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
 
@@ -315,42 +315,42 @@ getTracer = function getTracer(name: string): Tracer {
 
 const mainTracer = new DebugTracer('main');
 
-`{% if trace %}`;
+//#if _DEBUG_TRACE
 TRACERS['main'] = mainTracer;
-`{% else %}`;
+//#else
 TRACERS['main'] = NOOP_TRACER;
-`{% endif %}`;
+//#endif
 
-`{% if trace_parser %}`;
+//#if _DEBUG_TRACE_PARSER
 TRACERS['parser'] = mainTracer.child('parser');
-`{% else %}`;
+//#else
 TRACERS['parser'] = NOOP_TRACER;
-`{% endif %}`;
+//#endif
 
-`{% if show_tree %}`;
+//#if _DEBUG_SHOW_TREE
 if (!NO_TRACE) {
   showTree = function showTree(tree: Tree): void {
     console.log('=== Parse Tree: ===');
     console.log(formatter.format(tree));
   };
 }
-`{% endif %}`;
+//#endif
 
-`{% if trace_compiler %}`;
+//#if _DEBUG_TRACE_COMPILER
 TRACERS['compiler'] = mainTracer.child('compiler');
-`{% else %}`;
+//#else
 TRACERS['compiler'] = NOOP_TRACER;
-`{% endif %}`;
+//#endif
 
-`{% if show_chunk %}`;
+//#if _DEBUG_SHOW_CHUNK
 if (!NO_TRACE) {
   showChunk = function showChunk(chunk: Chunk): void {
     console.log(disassemble(chunk));
   };
 }
-`{% endif %}`;
+//#endif
 
-`{% if trace_runtime %}`;
+//#if _DEBUG_TRACE_RUNTIME
 if (!NO_TRACE) {
   startTraceExec = function startTraceExec(): void {
     console.log('=== Execution Trace: ===');
@@ -361,21 +361,21 @@ if (!NO_TRACE) {
     console.log('>', disassembleInstruction(rt.chunk, rt.pc));
   };
 }
-`{% endif %}`;
+//#endif
 
-`{% if trace_gc %}`;
+//#if _DEBUG_TRACE_GC
 TRACERS['gc'] = mainTracer.child('gc');
-`{% else %}`;
+//#else
 TRACERS['gc'] = NOOP_TRACER;
-`{% endif %}`;
+//#endif
 
-`{% else %}`;
+//#else
 TRACERS['main'] = NOOP_TRACER;
 TRACERS['parser'] = NOOP_TRACER;
 TRACERS['compiler'] = NOOP_TRACER;
 TRACERS['runtime'] = NOOP_TRACER;
 TRACERS['gc'] = NOOP_TRACER;
-`{% endif %}`;
+//#endif
 
 @Injectable()
 class NestLogger implements LoggerService {

@@ -3,8 +3,8 @@
   "outDir": "./dist",
   "exclude": [
     "bin",
-    "tools",
-    "dist"
+    "dist",
+    "tools"
   ],
   "target": "es2022",
   "moduleType": "nodenext",
@@ -26,7 +26,7 @@
   },
   "build": {
     "exclude": [
-      ".njk.ts"
+      "**.njk.ts"
     ],
     "minify": true
   },
@@ -36,16 +36,12 @@
     ]
   },
   "coverage": {
-    "enabled": false,
+    "enabled": true,
     "exclude": [
-      "tools/**",
-      "node_modules/**",
-      "scripts/**",
-      "**.njk.ts",
-      ".eslintrc.js",
-      "vite.config.mjs",
-      "dist",
       "test",
+      "scripts",
+      ".eslintrc.js",
+      "*.config.mjs",
       "index.ts",
       "main.ts"
     ]

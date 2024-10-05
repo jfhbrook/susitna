@@ -1,12 +1,16 @@
 import config from './build.json';
 
+function exclude(...excludes) {
+  return excludes.reduce((acc, exc) => acc.concat(exc), []).sort();
+}
+
 export { config };
 
 // Necessary for NestJS to work
 const decorators = true;
 
 export const tscConfig = {
-  exclude: config.exclude.concat(config.check.exclude),
+  exclude: exclude(config.exclude, config.check.exclude),
   compilerOptions: {
     outDir: config.outDir,
     module: config.moduleType,
@@ -25,7 +29,7 @@ export const tscConfig = {
 };
 
 export const swcBuildConfig = {
-  exclude: config.exclude.concat(config.build.exclude),
+  exclude: exclude(config.exclude, config.build.exclude),
   jsc: {
     parser: {
       syntax: 'typescript',
@@ -57,8 +61,22 @@ export const swcBuildConfig = {
   minify: config.build.minify,
 };
 
+const testExclude = exclude(
+  config.exclude,
+  config.build.exclude,
+  config.test.exclude,
+);
+
+export const viteTestConfig = {
+  exclude: testExclude,
+  coverage: {
+    ...config.coverage,
+    exclude: exclude(testExclude, config.coverage.exclude),
+  },
+};
+
 export const swcTestConfig = {
   ...swcBuildConfig,
-  exclude: config.exclude.concat(config.test.exclude),
+  exclude: testExclude,
   minify: false,
 };

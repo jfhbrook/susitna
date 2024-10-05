@@ -1,12 +1,9 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
-import { config, swcTestConfig } from './build.mjs';
+import { viteTestConfig, swcTestConfig } from './build.mjs';
 
 export default defineConfig({
-  test: {
-    exclude: config.exclude.concat(config.test.exclude),
-    coverage: config.coverage,
-  },
+  test: viteTestConfig,
   plugins: [swc.vite(swcTestConfig)],
 });

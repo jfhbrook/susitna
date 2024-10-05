@@ -75,3 +75,21 @@ jobs:
         run: cd ./tools/test-generator && FORCE_COLOR=1 npm test
       - name: Lint
         run: cd ./tools/test-generator && npm run lint
+  qa-grabthar:
+    name: grabthar
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["lts/Iron", "latest"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: cd ./tools/grabthar && npm install
+      - name: Test
+        run: cd ./tools/grabthar && npm test
+      - name: Lint
+        run: cd ./tools/grabthar && npm run lint

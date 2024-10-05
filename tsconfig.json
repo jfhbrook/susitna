@@ -1,19 +1,11 @@
 {
-  "exclude": [
-    "*.njk.ts",
-    "bin",
-    "dist",
-    "node_modules",
-    "tools"
-  ],
+  "exclude": ["*.njk.ts", "bin", "dist", "node_modules", "tools"],
   "compilerOptions": {
     "outDir": "./dist",
     "module": "es2022",
     "moduleResolution": "bundler",
     "target": "es2022",
-    "lib": [
-      "es2022"
-    ],
+    "lib": ["es2022"],
     "esModuleInterop": true,
     "incremental": true,
     "sourceMap": true,

@@ -10,7 +10,7 @@
   "scripts": {
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
-    "build:config": "./scripts/build-config.mjs",
+    "build:config": "grabthar config",
     "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:vite",
     "build:release": "dotenv -e release.env -- npm run build",
     "build:constants": "dotenv -- ./scripts/constants.sh",
@@ -25,7 +25,7 @@
     "check": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' 'npm run build:config' && tsc --noEmit",
     "format": "npm run build:config && prettier --write \"**/*.ts\" \"**/*.mjs\" \"**/*.json\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "lint": "dotenv -e test.env -- npm run build:templates && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
+    "lint": "dotenv -e test.env -- npm run build:templates && prettier --list-different \"**.ts\" \"**.mjs\" && eslint --fix \"**.ts\" \"**.mjs\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/*.sh ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run",
@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@jfhbrook/citree": "file:tools/citree",
+    "@jfhbrook/grabthar": "file:tools/grabthar",
     "@matanuska/test-generator": "file:tools/test-generator",
     "@nestjs/common": "^10.4.1",
     "@nestjs/core": "^10.4.1",

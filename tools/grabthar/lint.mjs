@@ -1,6 +1,6 @@
 import { merge } from './util.mjs';
 
-import config from './config.json' with { type: 'json' };
+import config from './config.mjs';
 
 export const ignoresConfig = {
   ignores: merge(config.exclude, config.lint.exclude),

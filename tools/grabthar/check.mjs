@@ -1,7 +1,7 @@
 import { DECORATORS } from './constants.mjs';
 import { merge } from './util.mjs';
 
-import config from './config.json' with { type: 'json' };
+import config from './config.mjs';
 
 export const tscConfig = {
   exclude: merge(config.exclude, config.check.exclude),

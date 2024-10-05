@@ -1,6 +1,6 @@
 import { merge } from './util.mjs';
 
-import config from './config.json';
+import config from './config.mjs';
 
 const testExclude = merge(config.exclude, config.test.exclude);
 

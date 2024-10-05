@@ -1,0 +1,61 @@
+entrypoint: ./main.ts
+outDir: ./dist
+exclude:
+  - bin
+  - dist
+  - tools
+target: es2022
+moduleType: nodenext
+sourceMaps: true
+check:
+  exclude:
+    - node_modules
+    - "*.njk.ts"
+  compilerOptions:
+    declaration: true
+    removeComments: true
+    strictNullChecks: true
+    noImplicitAny: false
+    strictBindCallApply: false
+    forceConsistentCasingInFileNames: true
+    noFallthroughCasesInSwitch: false
+build:
+  minify: true
+test:
+  exclude:
+    - node_modules
+coverage:
+  enabled: true
+  exclude:
+    - dist
+    - scripts
+    - test
+    - "*.config.mjs"
+    - "*.njk.ts"
+    - index.ts
+    - main.ts
+format:
+  exclude:
+    - test/__snapshots__
+  singleQuote: true
+  trailingComma: all
+lint:
+  exclude:
+    - dist
+    - "*.njk.ts"
+    - debug.ts
+  rules:
+    no-constant-condition: off
+    "@typescript-eslint/interface-name-prefix": off
+    "@typescript-eslint/explicit-function-return-type": off
+    "@typescript-eslint/explicit-module-boundary-types": off
+    "@typescript-eslint/no-explicit-any": off
+    "@typescript-eslint/no-unused-vars":
+      - error
+      - args: all
+        argsIgnorePattern: ^_
+        caughtErrors: all
+        caughtErrorsIgnorePattern: ^_
+        destructuredArrayIgnorePattern: ^_
+        varsIgnorePattern: ^_
+        ignoreRestSiblings: true

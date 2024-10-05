@@ -1,0 +1,36 @@
+{
+  "name": "@jfhbrook/grabthar",
+  "version": "0.0.1",
+  "description": "\"By Grabthar's hammer, what a savings!\"",
+  "type": "module",
+  "main": "index.mjs",
+  "bin": {
+    "grabthar": "main.mjs"
+  },
+  "scripts": {
+    "format": "prettier --write \"**/*.mjs\" \"**/*.json\"",
+    "start": "node ./main.mjs",
+    "lint": "prettier --list-different \"**.mjs\" && eslint --fix \"**.mjs\"",
+    "test": "tests-of-the-sierra-madre"
+  },
+  "keywords": [
+    "build"
+  ],
+  "author": "Josh Holbrook",
+  "license": "MIT",
+  "dependencies": {
+    "minimist": "^1.2.8",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "globals": "^15.10.0",
+    "prettier": "^3.0.0",
+    "tests-of-the-sierra-madre": "^1.0.1"
+  }
+}

@@ -25,9 +25,6 @@
     }
   },
   "build": {
-    "exclude": [
-      "**.njk.ts"
-    ],
     "minify": true
   },
   "test": {
@@ -43,6 +40,7 @@
       "build",
       ".eslintrc.js",
       "*.config.mjs",
+      "**.njk.ts",
       "index.ts",
       "main.ts"
     ]

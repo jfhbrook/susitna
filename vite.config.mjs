@@ -2,7 +2,8 @@ import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
 import config from './build/config.json';
-import { swcBuildConfig } from './build/build.mjs';
+import { swcConfig } from './build/build.mjs';
+import { testConfig } from './build/test.mjs';
 
 export default defineConfig({
   build: {
@@ -10,5 +11,6 @@ export default defineConfig({
     outDir: config.outDir,
   },
   ssr: {},
-  plugins: [swc.vite(swcBuildConfig)],
+  test: testConfig,
+  plugins: [swc.vite(swcConfig)],
 });

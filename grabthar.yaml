@@ -37,6 +37,7 @@ coverage:
 format:
   exclude:
     - test/__snapshots__
+    - .prettierrc
     - tsconfig.json
   singleQuote: true
   trailingComma: all

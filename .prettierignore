@@ -1,4 +1,6 @@
+.prettierrc
 bin
 dist
 test/__snapshots__
 tools
+tsconfig.json

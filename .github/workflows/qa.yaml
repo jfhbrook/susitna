@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["latest"]
+        node-version: ['latest']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js ${{ matrix.node-version }}
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["lts/Iron", "latest"]
+        node-version: ['lts/Iron', 'latest']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js ${{ matrix.node-version }}
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["lts/Iron", "latest"]
+        node-version: ['lts/Iron', 'latest']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js ${{ matrix.node-version }}
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["lts/Iron", "latest"]
+        node-version: ['lts/Iron', 'latest']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Node.js ${{ matrix.node-version }}

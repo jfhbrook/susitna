@@ -10,7 +10,7 @@ sourceMaps: true
 check:
   exclude:
     - node_modules
-    - "*.njk.ts"
+    - '*.njk.ts'
   compilerOptions:
     declaration: true
     removeComments: true
@@ -30,27 +30,28 @@ coverage:
     - dist
     - scripts
     - test
-    - "*.config.mjs"
-    - "*.njk.ts"
+    - '*.config.mjs'
+    - '*.njk.ts'
     - index.ts
     - main.ts
 format:
   exclude:
     - test/__snapshots__
+    - tsconfig.json
   singleQuote: true
   trailingComma: all
 lint:
   exclude:
     - dist
-    - "*.njk.ts"
+    - '*.njk.ts'
     - debug.ts
   rules:
     no-constant-condition: off
-    "@typescript-eslint/interface-name-prefix": off
-    "@typescript-eslint/explicit-function-return-type": off
-    "@typescript-eslint/explicit-module-boundary-types": off
-    "@typescript-eslint/no-explicit-any": off
-    "@typescript-eslint/no-unused-vars":
+    '@typescript-eslint/interface-name-prefix': off
+    '@typescript-eslint/explicit-function-return-type': off
+    '@typescript-eslint/explicit-module-boundary-types': off
+    '@typescript-eslint/no-explicit-any': off
+    '@typescript-eslint/no-unused-vars':
       - error
       - args: all
         argsIgnorePattern: ^_

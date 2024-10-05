@@ -11,5 +11,5 @@ export default defineConfig({
   },
   ssr: {},
   test: testConfig,
-  plugins: [swc.vite(swcConfig), minify()],
+  plugins: [swc.vite(swcConfig)].concat(config.build.minify ? [minify()] : []),
 });

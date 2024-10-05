@@ -8,9 +8,10 @@
   ],
   "compilerOptions": {
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "baseUrl": "./",
     "outDir": "./dist",
-    "target": "es2022",
+    "target": "ESNext",
     "lib": [
       "es2022"
     ],

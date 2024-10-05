@@ -1,7 +1,8 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
-import { config, swcBuildConfig } from './build.mjs';
+import config from './build/config.json';
+import { swcBuildConfig } from './build/build.mjs';
 
 export default defineConfig({
   build: {

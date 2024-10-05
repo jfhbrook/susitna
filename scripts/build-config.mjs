@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from 'node:fs';
+import { writeJSONConfig } from '../build/io.mjs';
+import { tscConfig } from '../build/check.mjs';
 
-import { tscConfig } from '../build.mjs';
-
-function writeConfig(filename, config) {
-  writeFileSync(filename, JSON.stringify(config, null, 2), 'utf8');
-}
-
-writeConfig('tsconfig.json', tscConfig);
+writeJSONConfig('tsconfig.json', tscConfig);

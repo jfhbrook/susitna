@@ -1,10 +1,10 @@
 {
   "exclude": [
+    "*.njk.ts",
     "bin",
-    "tools",
     "dist",
     "node_modules",
-    "*.njk.ts"
+    "tools"
   ],
   "compilerOptions": {
     "outDir": "./dist",

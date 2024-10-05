@@ -34,9 +34,7 @@
     "snap": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run --update",
     "console": "npm run build && ts-node",
     "prepare": "husky",
-    "linecount": "./scripts/linecount.sh",
-    "wordcount": "./scripts/wordcount.sh",
-    "bundle-size": "./scripts/bundle-size.sh",
+    "report": "./scripts/report.sh",
     "clean": "rm -rf ./dist"
   },
   "keywords": [

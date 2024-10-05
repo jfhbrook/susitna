@@ -1,7 +1,22 @@
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vite';
 
+import pkg from './package.json';
+
+const dependencies = Object.keys({
+  ...pkg.dependencies,
+  ...pkg.devDependencies,
+});
+
 export default defineConfig({
+  build: {
+    // exclude: ['tools/**', 'scripts/**', 'dist'],
+    ssr: './main.ts',
+    outDir: './build',
+  },
+  ssr: {
+    noExternal: dependencies,
+  },
   test: {
     exclude: ['tools/**', 'node_modules/**', 'scripts/**', 'dist'],
     coverage: {
@@ -12,7 +27,7 @@ export default defineConfig({
         'scripts/**',
         '**.njk.ts',
         '.eslintrc.js',
-        'vitest.config.mjs',
+        'vite.config.mjs',
         'dist',
         'test',
         'index.ts',

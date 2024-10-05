@@ -32,9 +32,9 @@
     "keepClassNames": true
   },
   "module": {
-    "type": "commonjs"
+    "type": "nodenext"
   },
   "sourceMaps": true,
   "inlineSourcesContent": true,
-  "minify": true
+  "minify": false
 }

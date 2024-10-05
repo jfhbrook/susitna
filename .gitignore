@@ -5,6 +5,7 @@
 constants.ts
 debug.ts
 /dist
+/build
 /node_modules
 
 # Logs

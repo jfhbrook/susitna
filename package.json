@@ -10,7 +10,7 @@
   "scripts": {
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
-    "build:config": "./scripts/build-config.mjs",
+    "build:config": "grabthar config",
     "build": "concurrently 'npm run build:templates' 'npm run build:ast' && npm run build:vite",
     "build:release": "dotenv -e release.env -- npm run build",
     "build:constants": "dotenv -- ./scripts/constants.sh",

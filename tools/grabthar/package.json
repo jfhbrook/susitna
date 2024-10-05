@@ -19,6 +19,7 @@
   "author": "Josh Holbrook",
   "license": "MIT",
   "dependencies": {
+    "minimist": "^1.2.8",
     "yaml": "^2.5.1"
   },
   "devDependencies": {

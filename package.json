@@ -2,7 +2,7 @@
   "name": "matanuska",
   "version": "0.0.1",
   "description": "A chill BASIC to shell to",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "bin": {
     "matbas": "bin/matbas"
   },

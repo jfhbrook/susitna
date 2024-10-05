@@ -25,7 +25,7 @@
     "check": "dotenv -e test.env -- concurrently 'npm run build:templates' 'npm run build:ast' 'npm run build:config' && tsc --noEmit",
     "format": "npm run build:config && prettier --write \"**/*.ts\" \"**/*.mjs\" \"**/*.json\"",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "lint": "dotenv -e test.env -- npm run build:templates && prettier --list-different \"**.ts\" && eslint --fix \"**.ts\"",
+    "lint": "dotenv -e test.env -- npm run build:templates && prettier --list-different \"**.ts\" \"**.mjs\" && eslint --fix \"**.ts\" \"**.mjs\"",
     "lint:shell": "shellcheck ./bin/* ./scripts/*.sh ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- npm run build:templates && dotenv -e test.env -- vitest --run",

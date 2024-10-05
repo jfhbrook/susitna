@@ -8,9 +8,9 @@
     "grabthar": "main.mjs"
   },
   "scripts": {
-    "format": "prettier --write \"**/*.mjs\" \"**/*.json\"",
+    "format": "prettier --write .",
     "start": "node ./main.mjs",
-    "lint": "prettier --list-different \"**.mjs\" && eslint --fix \"**.mjs\"",
+    "lint": "prettier --list-different . && eslint --fix \"**.mjs\"",
     "test": "vitest --run"
   },
   "keywords": [

@@ -13,15 +13,7 @@ const ENV_FALSE = [
   '  fAlSe  ',
 ];
 
-const ENV_TRUE = [
-  '1',
-  '100',
-  '  1  ',
-  'true',
-  'TRUE',
-  '  tRuE  ',
-  'anything',
-];
+const ENV_TRUE = ['1', '100', '  1  ', 'true', 'TRUE', '  tRuE  ', 'anything'];
 
 describe('parseBoolEnv', () => {
   for (const value of ENV_FALSE) {

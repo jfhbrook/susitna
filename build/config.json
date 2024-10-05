@@ -1,19 +1,12 @@
 {
   "entrypoint": "./main.ts",
   "outDir": "./dist",
-  "exclude": [
-    "bin",
-    "dist",
-    "tools"
-  ],
+  "exclude": ["bin", "dist", "tools"],
   "target": "es2022",
   "moduleType": "nodenext",
   "sourceMaps": true,
   "check": {
-    "exclude": [
-      "node_modules",
-      "*.njk.ts"
-    ],
+    "exclude": ["node_modules", "*.njk.ts"],
     "compilerOptions": {
       "declaration": true,
       "removeComments": true,
@@ -28,9 +21,7 @@
     "minify": true
   },
   "test": {
-    "exclude": [
-      "node_modules"
-    ]
+    "exclude": ["node_modules"]
   },
   "coverage": {
     "enabled": true,
@@ -45,18 +36,12 @@
     ]
   },
   "format": {
-    "exclude": [
-      "test/__snapshots__"
-    ],
+    "exclude": ["test/__snapshots__"],
     "singleQuote": true,
     "trailingComma": "all"
   },
   "lint": {
-    "exclude": [
-      "dist",
-      "*.njk.ts",
-      "debug.ts"
-    ],
+    "exclude": ["dist", "*.njk.ts", "debug.ts"],
     "rules": {
       "no-constant-condition": "off",
       "@typescript-eslint/interface-name-prefix": "off",

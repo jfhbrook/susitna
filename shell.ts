@@ -1,10 +1,10 @@
 import { basename } from 'path';
 import strftime from 'strftime';
 
-import { MATBAS_VERSION } from './constants';
+import MATBAS from 'consts:matbas';
 import { Host } from './host';
 
-const shortVersion = MATBAS_VERSION.split('.').slice(0, 2).join('.');
+const shortVersion = MATBAS.version.split('.').slice(0, 2).join('.');
 
 let tildeRe: RegExp | null = null;
 
@@ -219,7 +219,7 @@ export class Prompt {
             ps += shortVersion;
             break;
           case 'V':
-            ps += MATBAS_VERSION;
+            ps += MATBAS.version;
             break;
           case 'w':
             ps += abbreviateHome(this.host.cwd, this.host);

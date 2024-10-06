@@ -1,8 +1,9 @@
-import { inspect } from 'util';
+import process from 'node:process';
+import { inspect } from 'node:util';
 
 import c from 'ansi-colors';
 
-import { MATBAS_VERSION, TYPESCRIPT_VERSION, NODE_VERSION } from './constants';
+import VERSIONS from 'consts:versions';
 import {
   BaseException,
   AssertionError,
@@ -458,9 +459,10 @@ export class DefaultFormatter extends Formatter {
       report += this.format(fault.traceback);
     }
     report += '\n\n--- Versions ---\n';
-    report += `Matanuska BASIC: v${MATBAS_VERSION}\n`;
-    report += `TypeScript: v${TYPESCRIPT_VERSION}\n`;
-    report += `Node.js: v${NODE_VERSION}\n\n`;
+    report += `Matanuska BASIC: v${VERSIONS.matbas}\n`;
+    report += `swc: v${VERSIONS.swc}\n`;
+    report += `vite: v${VERSIONS.swc}\n`;
+    report += `Node.js: ${process.version}\n\n`;
     report +=
       'This is a bug in Matanuska BASIC. If you copy this entire message and post it\n';
     report += 'to the issues tracker:\n\n';

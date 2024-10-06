@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
-import { MATBAS_BUILD, MATBAS_VERSION } from './constants';
+import MATBAS from 'consts:matbas';
 import { UsageFault } from './faults';
 import { Level } from './host';
 import { Exit, ExitCode } from './exit';
 
 let TRACE_USAGE = '';
 
-if (MATBAS_BUILD === 'debug') {
+if (MATBAS.build === 'debug') {
   TRACE_USAGE = `
 DEBUG_TRACE           enable main debug tracing
 DEBUG_TRACE_PARSER    enable parser debug tracing
@@ -54,7 +54,7 @@ function help(): Exit {
 }
 
 function version(): Exit {
-  return new Exit(ExitCode.Success, `v${MATBAS_VERSION}`);
+  return new Exit(ExitCode.Success, `v${MATBAS.version}`);
 }
 
 function usage(message: string): UsageFault {

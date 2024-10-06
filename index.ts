@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 
-import { MATBAS_BUILD } from './constants';
+import MATBAS from 'consts:matbas';
 
-if (MATBAS_BUILD === 'debug') {
+if (MATBAS.build === 'debug') {
   dotenv.config();
 }
 

@@ -70,8 +70,6 @@ gaps.
 
 ### Up Next
 
-- Move `constants.njk.ts` step into vite with a custom rollup plugin
-  - Note, `jscc` can't inline template values, only switch on them
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'

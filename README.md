@@ -70,6 +70,7 @@ gaps.
 
 ### Up Next
 
+- `citree` vite/rollup plugin
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'

@@ -1,13 +1,10 @@
 import { DECORATORS } from './constants.mjs';
-import { merge } from './util.mjs';
+import { writeJSONConfig } from './io.mjs';
 
 import config from './config.mjs';
-import { checkExclude } from './check.mjs';
-
-const testDir = 'test';
 
 export const tscConfig = {
-  exclude: checkExclude,
+  exclude: config.check.exclude,
   compilerOptions: {
     outDir: config.outDir,
     module: config.target,
@@ -27,5 +24,13 @@ export const tscConfig = {
 
 export const tscBuildConfig = {
   ...tscConfig,
-  exclude: merge(checkExclude, [testDir]),
+  exclude: config.build.exclude
 };
+
+export function writeTscConfig() {
+  writeJSONConfig('tsconfig.json', tscConfig);
+}
+
+export function writeTscBuildConfig() {
+  writeJSONConfig('tsconfig.build.json', tscBuildConfig);
+}

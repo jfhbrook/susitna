@@ -1,5 +1,8 @@
-import { merge } from './util.mjs';
+import { execSync } from 'node:child_process';
 
-import config from './config.mjs';
+import { writeTscConfig } from './tsc.mjs';
 
-export const checkExclude = merge(config.exclude, config.check.exclude);
+export function runCheck() {
+  writeTscConfig();
+  execSync('tsc --noEmit');
+}

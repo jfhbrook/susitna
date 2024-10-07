@@ -19,7 +19,7 @@
     "build:ast": "citree ast/index.citree",
     "build:test": "npm run build:test-generator && dotenv -e test.env -- test-generator ./test",
     "build:test:activate": "dotenv -e test.env -- test-generator --activate ./test",
-    "check": "dotenv -e test.env -- concurrently 'npm run build:ast' 'npm run build:config' && tsc --noEmit",
+    "check": "dotenv -e test.env -- npm run build:ast && grabthar check",
     "format": "npm run build:config && prettier --write .",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "dotenv -e test.env -- npm run build:config && prettier --list-different . && eslint --fix \"**.ts\" \"**.mjs\"",

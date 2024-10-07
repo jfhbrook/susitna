@@ -4,6 +4,7 @@ import process from 'node:process';
 
 import minimist from 'minimist';
 
+import { runCheck } from './check.mjs';
 import { writeJSONConfig, writeIgnoreFile } from './io.mjs';
 import { tscConfig } from './tsc.mjs';
 import { prettierIgnore, prettierRc } from './format.mjs';
@@ -36,6 +37,9 @@ function main() {
       writeJSONConfig('tsconfig.json', tscConfig);
       writeJSONConfig('.prettierrc', prettierRc);
       writeIgnoreFile('.prettierignore', prettierIgnore);
+      break;
+    case 'check':
+      runCheck();
       break;
     default:
       console.log(`Unknown command: ${argv._[0]}`);

@@ -26,18 +26,21 @@ const lintData = data.lint || {};
 const outDir = data.outDir || 'dist';
 const testDir = data.testDir || 'test';
 
+const exclude = merge(data.exclude || [], [outDir]);
+
 export default {
   ...data,
-  outDir: outDir,
-  exlude: merge(data.exclude || [], [outDir]),
+  outDir,
+  exclude,
   target: data.target || 'es2022',
   moduleType: data.moduleType || 'nodenext',
   sourceMaps: typeof data.sourceMaps === 'undefined' ? true : data.sourceMaps,
   check: {
-    exclude: merge(checkData.exclude || [], [outDir, 'node_modules']),
+    exclude: merge(exclude, checkData.exclude || [], [outDir, 'node_modules']),
     compilerOptions: checkData.compilerOptions || {},
   },
   build: {
+    exclude: merge(exclude, buildData.exclude || [], [testDir]),
     minify: typeof buildData.minify === 'undefined' ? true : buildData.minify,
   },
   test: {

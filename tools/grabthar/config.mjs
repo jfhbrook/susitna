@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import yaml from 'yaml';
 
+import { merge } from './util.mjs';
+
 let contents = '{}';
 
 try {
@@ -21,15 +23,18 @@ const coverageData = data.coverage || {};
 const formatData = data.format || {};
 const lintData = data.lint || {};
 
+const outDir = data.outDir || 'dist';
+const testDir = data.testDir || 'test';
+
 export default {
   ...data,
-  outDir: data.outDir || 'dist',
-  exlude: data.exclude || ['dist'],
+  outDir: outDir,
+  exlude: merge(data.exclude || [], [outDir]),
   target: data.target || 'es2022',
   moduleType: data.moduleType || 'nodenext',
   sourceMaps: typeof data.sourceMaps === 'undefined' ? true : data.sourceMaps,
   check: {
-    exclude: checkData.exclude || ['node_modules'],
+    exclude: merge(checkData.exclude || [], [outDir, 'node_modules']),
     compilerOptions: checkData.compilerOptions || {},
   },
   build: {
@@ -41,14 +46,23 @@ export default {
   coverage: {
     enabled:
       typeof coverageData.enabled === 'undefined' ? true : buildData.enabled,
-    exclude: coverageData.exclude || [],
+    exclude: merge(coverageData.exclude || [], [
+      outDir,
+      testDir,
+      '*.config.*',
+      'node_modules',
+    ]),
   },
   format: {
     ...formatData,
-    exclude: formatData.exclude || ['.prettierrc', 'tsconfig*.json'],
+    exclude: merge(formatData.exclude || [], [
+      'test/__snapshots__',
+      '.prettierrc',
+      'tsconfig*.json',
+    ]),
   },
   lint: {
-    exclude: lintData.exclude || ['dist'],
+    exclude: merge(lintData.exclude || [], [outDir]),
     rules: lintData.rules || {},
   },
 };

@@ -1,12 +1,8 @@
 entrypoint: ./main.ts
 exclude:
   - bin
-  - dist
   - tools
 check:
-  exclude:
-    - node_modules
-    - '*.njk.ts'
   compilerOptions:
     declaration: true
     removeComments: true
@@ -17,25 +13,13 @@ check:
     noFallthroughCasesInSwitch: false
 coverage:
   exclude:
-    - dist
     - scripts
-    - test
-    - '*.config.mjs'
-    - '*.njk.ts'
     - index.ts
     - main.ts
 format:
-  exclude:
-    - test/__snapshots__
-    - .prettierrc
-    - tsconfig.json
   singleQuote: true
   trailingComma: all
 lint:
-  exclude:
-    - dist
-    - '*.njk.ts'
-    - debug.ts
   rules:
     no-constant-condition: off
     '@typescript-eslint/interface-name-prefix': off

@@ -1,5 +1,9 @@
-import { merge } from './util.mjs';
+import { spawnSync } from 'node:child_process';
 
-import config from './config.mjs';
+export function runTest() {
+  spawnSync('vitest', ['--run'], { stdio: 'inherit' });
+}
 
-export const testExclude = merge(config.exclude, config.test.exclude);
+export function runSnap() {
+  spawnSync('vitest', ['--run', '--update'], { stdio: 'inherit' });
+}

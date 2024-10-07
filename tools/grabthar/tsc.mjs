@@ -24,7 +24,7 @@ export const tscConfig = {
 
 export const tscBuildConfig = {
   ...tscConfig,
-  exclude: config.build.exclude
+  exclude: config.build.exclude,
 };
 
 export function writeTscConfig() {

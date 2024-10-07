@@ -27,6 +27,7 @@ const outDir = data.outDir || 'dist';
 const testDir = data.testDir || 'test';
 
 const exclude = merge(data.exclude || [], [outDir]);
+const testExclude = merge(exclude, testData.exclude || [], ['node_modules']);
 
 export default {
   ...data,
@@ -44,12 +45,12 @@ export default {
     minify: typeof buildData.minify === 'undefined' ? true : buildData.minify,
   },
   test: {
-    exclude: testData.exclude || ['node_modules'],
+    exclude: testExclude,
   },
   coverage: {
     enabled:
       typeof coverageData.enabled === 'undefined' ? true : buildData.enabled,
-    exclude: merge(coverageData.exclude || [], [
+    exclude: merge(exclude, coverageData.exclude || [], [
       outDir,
       testDir,
       '*.config.*',

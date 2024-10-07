@@ -5,6 +5,7 @@ import process from 'node:process';
 import minimist from 'minimist';
 
 import { runCheck } from './check.mjs';
+import { runTest, runSnap } from './test.mjs';
 import { writeJSONConfig, writeIgnoreFile } from './io.mjs';
 import { tscConfig } from './tsc.mjs';
 import { prettierIgnore, prettierRc } from './format.mjs';
@@ -40,6 +41,13 @@ function main() {
       break;
     case 'check':
       runCheck();
+      break;
+    case 'test':
+      console.log('run test');
+      runTest();
+      break;
+    case 'snap':
+      runSnap();
       break;
     default:
       console.log(`Unknown command: ${argv._[0]}`);

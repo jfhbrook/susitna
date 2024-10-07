@@ -5,7 +5,7 @@ import process from 'node:process';
 import minimist from 'minimist';
 
 import { writeJSONConfig, writeIgnoreFile } from './io.mjs';
-import { tscConfig } from './check.mjs';
+import { tscConfig } from './tsc.mjs';
 import { prettierIgnore, prettierRc } from './format.mjs';
 
 const HELP = `USAGE: grabthar COMMAND

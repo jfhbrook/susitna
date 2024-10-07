@@ -1,12 +1,8 @@
 entrypoint: ./main.ts
-outDir: ./dist
 exclude:
   - bin
   - dist
   - tools
-target: es2022
-moduleType: nodenext
-sourceMaps: true
 check:
   exclude:
     - node_modules
@@ -19,13 +15,7 @@ check:
     strictBindCallApply: false
     forceConsistentCasingInFileNames: true
     noFallthroughCasesInSwitch: false
-build:
-  minify: true
-test:
-  exclude:
-    - node_modules
 coverage:
-  enabled: true
   exclude:
     - dist
     - scripts

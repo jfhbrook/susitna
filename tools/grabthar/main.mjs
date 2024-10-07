@@ -43,7 +43,6 @@ function main() {
       runCheck();
       break;
     case 'test':
-      console.log('run test');
       runTest();
       break;
     case 'snap':

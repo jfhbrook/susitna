@@ -1,9 +1,9 @@
-import { spawnSync } from 'node:child_process';
+import { run } from './io.mjs';
 
 export function runTest() {
-  spawnSync('vitest', ['--run'], { stdio: 'inherit' });
+  run('vitest', ['--run']);
 }
 
 export function runSnap() {
-  spawnSync('vitest', ['--run', '--update'], { stdio: 'inherit' });
+  run('vitest', ['--run', '--update']);
 }

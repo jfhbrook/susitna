@@ -1,8 +1,7 @@
-import { spawnSync } from 'node:child_process';
-
 import { writeTscConfig } from './tsc.mjs';
+import { run } from './io.mjs';
 
 export function runCheck() {
   writeTscConfig();
-  spawnSync('tsc', ['--noEmit'], { stdio: 'inherit' });
+  run('tsc', ['--noEmit']);
 }

@@ -4,7 +4,7 @@ import swc from 'unplugin-swc';
 import { minify } from 'rollup-plugin-esbuild-minify';
 
 import config from './config.mjs';
-import { swcConfig } from './build.mjs';
+import { swcConfig } from './swc.mjs';
 import { testConfig } from './test.mjs';
 
 export function defineConfig(cfg) {

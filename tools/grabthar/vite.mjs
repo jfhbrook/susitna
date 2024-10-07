@@ -5,7 +5,16 @@ import { minify } from 'rollup-plugin-esbuild-minify';
 
 import config from './config.mjs';
 import { swcConfig } from './swc.mjs';
-import { testConfig } from './test.mjs';
+import { testExclude } from './test.mjs';
+import { merge } from './util.mjs';
+
+export const testConfig = {
+  exclude: testExclude,
+  coverage: {
+    ...config.coverage,
+    exclude: merge(testExclude, config.coverage.exclude),
+  },
+};
 
 export function defineConfig(cfg) {
   return defineViteConfig(

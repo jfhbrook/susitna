@@ -4,9 +4,8 @@ import process from 'node:process';
 
 import minimist from 'minimist';
 
-import { writeTscConfig } from './tsc.mjs';
 import { runCheck } from './check.mjs';
-import { runFormat, writePrettierConfig } from './format.mjs';
+import { runFormat } from './format.mjs';
 import { runBuild, runTscBuild } from './build.mjs';
 import { runTest, runSnap } from './test.mjs';
 import { runLint } from './lint.mjs';
@@ -14,7 +13,13 @@ import { runLint } from './lint.mjs';
 const HELP = `USAGE: grabthar COMMAND
 
 COMMANDS:
-  config  Generate prettier and tsc configuration
+  check      Run type checks with tsc
+  format     Format source with prettier
+  build      Build with vite
+  build:tsc  Build with tsc
+  test       Test with vitest
+  snap       Update vitest snapshots
+  lint       Lint with prettier and eslint
 `;
 
 function main() {
@@ -35,10 +40,6 @@ function main() {
   }
 
   switch (argv._[0]) {
-    case 'config':
-      writeTscConfig();
-      writePrettierConfig();
-      break;
     case 'check':
       runCheck();
       break;

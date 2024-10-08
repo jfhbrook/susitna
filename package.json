@@ -10,6 +10,7 @@
   "scripts": {
     "install:citree": "cd tools/citree && npm install",
     "install:test-generator": "cd tools/test-generator && npm install",
+    "install:grabthar": "cd tools/grabthar && npm install",
     "build": "npm run build:ast && dotenv -- grabthar build",
     "build:release": "npm run build:ast && dotenv -e release.env -- grabthar build",
     "build:citree": "cp ast/index.citree tools/citree/example/ast.citree && cd tools/citree && npm run build && npm run snap",

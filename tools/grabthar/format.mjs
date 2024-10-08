@@ -9,8 +9,12 @@ export const prettierRc = Object.fromEntries(
   Object.entries(config.format).filter(([k, _v]) => k !== 'exclude'),
 );
 
-export function runFormat() {
+export function writePrettierConfig() {
   writeJSONConfig('.prettierrc', prettierRc);
   writeIgnoreFile('.prettierignore', prettierIgnore);
+}
+
+export function runFormat() {
+  writePrettierConfig();
   run('prettier', ['--write', '.']);
 }

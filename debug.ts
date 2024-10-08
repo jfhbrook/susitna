@@ -162,7 +162,7 @@ function encodingLocation(): string {
       return '<unknown>';
     }
     // In well-behaving cases in practice, this reasonably works
-    let match = line.match(/\(([^)]+)\)/);
+    const match = line.match(/\(([^)]+)\)/);
     if (match) {
       return match[1];
     }

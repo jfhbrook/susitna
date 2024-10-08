@@ -22,7 +22,7 @@
     "check": "dotenv -e test.env -- npm run build:ast && grabthar check",
     "format": "grabthar format",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "lint": "dotenv -e test.env -- npm run build:config && prettier --list-different . && eslint --fix \"**.ts\" \"**.mjs\"",
+    "lint": "dotenv -e test.env -- grabthar lint",
     "lint:shell": "shellcheck ./bin/* ./scripts/*.sh ./.husky/pre-commit",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- grabthar test",

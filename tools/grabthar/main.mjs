@@ -4,11 +4,11 @@ import process from 'node:process';
 
 import minimist from 'minimist';
 
+import { writeTscConfig } from './tsc.mjs';
 import { runCheck } from './check.mjs';
+import { runFormat, writePrettierConfig } from './format.mjs';
 import { runTest, runSnap } from './test.mjs';
-import { writeJSONConfig, writeIgnoreFile } from './io.mjs';
-import { tscConfig } from './tsc.mjs';
-import { runFormat, prettierIgnore, prettierRc } from './format.mjs';
+import { runLint } from './lint.mjs';
 
 const HELP = `USAGE: grabthar COMMAND
 
@@ -35,9 +35,8 @@ function main() {
 
   switch (argv._[0]) {
     case 'config':
-      writeJSONConfig('tsconfig.json', tscConfig);
-      writeJSONConfig('.prettierrc', prettierRc);
-      writeIgnoreFile('.prettierignore', prettierIgnore);
+      writeTscConfig();
+      writePrettierConfig();
       break;
     case 'check':
       runCheck();
@@ -50,6 +49,9 @@ function main() {
       break;
     case 'snap':
       runSnap();
+      break;
+    case 'lint':
+      runLint();
       break;
     default:
       console.log(`Unknown command: ${argv._[0]}`);

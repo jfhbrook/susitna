@@ -7,7 +7,7 @@ import minimist from 'minimist';
 import { writeTscConfig } from './tsc.mjs';
 import { runCheck } from './check.mjs';
 import { runFormat, writePrettierConfig } from './format.mjs';
-import { runBuild } from './build.mjs';
+import { runBuild, runTscBuild } from './build.mjs';
 import { runTest, runSnap } from './test.mjs';
 import { runLint } from './lint.mjs';
 
@@ -47,6 +47,9 @@ function main() {
       break;
     case 'build':
       runBuild();
+      break;
+    case 'build:tsc':
+      runTscBuild();
       break;
     case 'test':
       runTest();

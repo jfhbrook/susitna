@@ -25,6 +25,10 @@ export const tscConfig = {
 export const tscBuildConfig = {
   ...tscConfig,
   exclude: config.build.exclude,
+  compilerOptions: {
+    ...tscConfig.compilerOptions,
+    moduleResolution: 'nodenext',
+  },
 };
 
 export function writeTscConfig() {

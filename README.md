@@ -70,7 +70,14 @@ gaps.
 
 ### Up Next
 
-- `citree` vite/rollup plugin
+- citree vite/rollup plugin
+- Get `npm run console` working again
+  - ts-node seems to depend on a commonjs build
+  - Setting `"type": "module"` in the package.json breaks commonjs completely
+  - `nodenext` module resolution requires that imports end in the file extension,
+    but vite/swc have no such requirement, and it's a bitter pill to swallow
+  - ts-node *completely* depends on tsc to do builds - making it use swc
+    doesn't seem possible
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'

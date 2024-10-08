@@ -78,6 +78,12 @@ gaps.
     but vite/swc have no such requirement, and it's a bitter pill to swallow
   - ts-node *completely* depends on tsc to do builds - making it use swc
     doesn't seem possible
+- grabthar improvements
+  - swc cli build option
+  - automatically update package.json
+  - `grabthar lint:shell`
+  - lint-staged and husky support
+  - `grabthar clean`
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output
 - Assert module
   - Wrap 'node:assert'

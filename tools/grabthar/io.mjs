@@ -5,13 +5,15 @@ import { join } from 'node:path';
 
 import quote from 'shell-quote/quote.js';
 
+import { logger } from './log.mjs';
+
 export function writeJSONConfig(filename, config) {
-  console.log(`- ${filename}...`);
+  logger.info(`- generating ${filename}`);
   writeFileSync(filename, JSON.stringify(config, null, 2), 'utf8');
 }
 
 export function writeIgnoreFile(filename, ignores) {
-  console.log(`- ${filename}...`);
+  logger.info(`- generating ${filename}...`);
   writeFileSync(filename, ignores.join('\n'), 'utf8');
 }
 
@@ -19,7 +21,7 @@ export function run(bin, argv) {
   const path = process.env.PATH.split(':');
   path.concat(join(process.cwd(), 'node_modules', '.bin'));
 
-  console.log(`~ ${quote([bin].concat(argv))}`);
+  logger.info(`> ${quote([bin].concat(argv))}`);
 
   spawnSync(bin, argv, {
     stdio: 'inherit',

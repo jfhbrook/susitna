@@ -11,6 +11,12 @@ check:
     strictBindCallApply: false
     forceConsistentCasingInFileNames: true
     noFallthroughCasesInSwitch: false
+  shellcheck:
+    files:
+      - bin/*
+      - scripts/*.sh
+      - .husky/pre-commit
+    externalSources: true
 coverage:
   exclude:
     - scripts

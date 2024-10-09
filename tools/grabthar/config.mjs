@@ -39,6 +39,7 @@ export default {
   check: {
     exclude: merge(exclude, checkData.exclude || [], [outDir, 'node_modules']),
     compilerOptions: checkData.compilerOptions || {},
+    shellcheck: checkData.shellcheck || {},
   },
   build: {
     exclude: merge(exclude, buildData.exclude || [], [testDir]),

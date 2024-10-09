@@ -10,6 +10,7 @@ import { runFormat } from './format.mjs';
 import { runBuild, runTscBuild } from './build.mjs';
 import { runTest, runSnap } from './test.mjs';
 import { runLint } from './lint.mjs';
+import { runShellcheck } from './shellcheck.mjs';
 
 const HELP = `USAGE: grabthar COMMAND
 
@@ -68,6 +69,9 @@ function main() {
         break;
       case 'lint':
         runLint();
+        break;
+      case 'lint:shell':
+        runShellcheck();
         break;
       default:
         console.log(`Unknown command: ${argv._[0]}`);

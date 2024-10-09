@@ -1,3 +1,5 @@
+import { globSync } from 'glob';
+
 export function merge(...lists) {
   return Array.from(
     lists.reduce((acc, exc) => acc.union(new Set(exc)), new Set()),
@@ -22,4 +24,10 @@ export function parseBoolEnv(value) {
   }
 
   return true;
+}
+
+export function expandGlobs(...globs) {
+  return globs.reduce((files, gl) => {
+    return files.concat(globSync(gl));
+  }, []);
 }

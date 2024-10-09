@@ -22,7 +22,7 @@
     "format": "grabthar format",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "lint": "dotenv -e test.env -- grabthar lint",
-    "lint:shell": "shellcheck ./bin/* ./scripts/*.sh ./.husky/pre-commit",
+    "lint:shell": "grabthar lint:shell",
     "lint:staged": "lint-staged",
     "test": "dotenv -e test.env -- grabthar test",
     "test:env": "dotenv -e test.env -- ./scripts/test-env.sh",

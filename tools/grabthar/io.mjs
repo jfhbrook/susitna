@@ -7,6 +7,11 @@ import quote from 'shell-quote/quote.js';
 
 import { logger } from './log.mjs';
 
+export function writeFile(filename, contents) {
+  logger.info(`- generating ${filename}...`);
+  writeFileSync(filename, contents, 'utf8');
+}
+
 export function writeJSONConfig(filename, config) {
   logger.info(`- generating ${filename}`);
   writeFileSync(filename, JSON.stringify(config, null, 2), 'utf8');

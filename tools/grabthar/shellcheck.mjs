@@ -1,3 +1,7 @@
+import config from './config.mjs';
+import { writeFile, run } from './io.mjs';
+import { expandGlobs } from './util.mjs';
+
 export const Color = {
   Auto: 'auto',
   Always: 'always',
@@ -88,7 +92,7 @@ export function shellcheckArgv(options) {
     argv.push('--external-sources');
   }
 
-  return argv;
+  return argv.concat(expandGlobs(options.files) || []);
 }
 
 export function shellcheckRcContents(options) {
@@ -101,7 +105,9 @@ export function shellcheckRcContents(options) {
     file += `source-path=${path}\n`;
   }
 
-  file += '\n';
+  if (sourcePath.length) {
+    file += '\n';
+  }
 
   if (typeof options.externalSources !== 'undefined') {
     file += `external-sources=${options.externalSources}\n\n`;
@@ -116,4 +122,55 @@ export function shellcheckRcContents(options) {
   }
 
   return file;
+}
+
+export function writeShellcheckRc() {
+  const { sourcePath, externalSources, enable, disable } =
+    config.check.shellcheck;
+  const rcFile = config.check.shellcheck.rcFile || '.shellcheckrc';
+
+  writeFile(
+    rcFile,
+    shellcheckRcContents({
+      sourcePath,
+      externalSources,
+      enable,
+      disable,
+    }),
+  );
+}
+
+export function runShellcheck() {
+  const {
+    checkSourced,
+    color,
+    include,
+    exclude,
+    format,
+    listOptional,
+    rcFile,
+    shell,
+    severity,
+    wikiLinkCount,
+    files,
+  } = config.check.shellcheck;
+
+  writeShellcheckRc();
+
+  run(
+    'shellcheck',
+    shellcheckArgv({
+      checkSourced,
+      color,
+      include,
+      exclude,
+      format,
+      listOptional,
+      rcFile,
+      shell,
+      severity,
+      wikiLinkCount,
+      files,
+    }),
+  );
 }

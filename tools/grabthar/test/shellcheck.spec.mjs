@@ -15,8 +15,9 @@ describe('shellcheck', () => {
       shellcheckArgv({
         checkSourced: true,
         color: Color.Always,
-        include: ['./scripts/*.sh', 'bin'],
-        exclude: ['node_modules', 'tools'],
+        files: ['test/fixtures/*'],
+        include: ['SC1000', 'SC1001'],
+        exclude: ['SC1002', 'SC1003'],
         format: Format.CheckStyle,
         listOptional: true,
         noRc: true,
@@ -31,8 +32,8 @@ describe('shellcheck', () => {
     ).toEqual([
       '--check-sourced',
       '--color=always',
-      '--include=./scripts/*.sh,bin',
-      '--exclude=node_modules,tools',
+      '--include=SC1000,SC1001',
+      '--exclude=SC1002,SC1003',
       '--format=checkstyle',
       '--list-optional',
       '--norc',
@@ -43,6 +44,7 @@ describe('shellcheck', () => {
       '--severity=warning',
       '--wiki-link-count=6',
       '--external-sources',
+      'test/fixtures/hello-world.sh',
     ]);
   });
 

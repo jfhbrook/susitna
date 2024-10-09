@@ -92,7 +92,7 @@ export function shellcheckArgv(options) {
     argv.push('--external-sources');
   }
 
-  return argv.concat(expandGlobs(options.files) || []);
+  return argv.concat(expandGlobs(...(options.files || [])));
 }
 
 export function shellcheckRcContents(options) {

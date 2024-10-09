@@ -19,7 +19,6 @@
   "author": "Josh Holbrook",
   "license": "MIT",
   "dependencies": {
-    "es6-set": "^0.1.6",
     "glob": "^11.0.0",
     "minimist": "^1.2.8",
     "pino": "^9.4.0",

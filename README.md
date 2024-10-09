@@ -81,7 +81,6 @@ gaps.
 - grabthar improvements
   - swc cli build option
   - automatically update package.json
-  - `grabthar lint:shell`
   - lint-staged and husky support
   - `grabthar clean`
 - Use [envinfo](https://www.npmjs.com/package/envinfo) in runtime fault output

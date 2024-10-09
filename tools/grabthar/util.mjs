@@ -1,5 +1,3 @@
-import { createRequire } from 'node:module';
-
 import { globSync } from 'glob';
 
 export function merge(...lists) {

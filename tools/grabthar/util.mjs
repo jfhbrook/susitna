@@ -2,7 +2,7 @@ import { globSync } from 'glob';
 
 export function merge(...lists) {
   return Array.from(
-    lists.reduce((acc, exc) => acc.union(new Set(exc)), new Set()),
+    new Set(lists.reduce((acc, exc) => acc.concat(exc), [])),
   ).sort();
 }
 

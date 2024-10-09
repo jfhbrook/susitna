@@ -20,11 +20,11 @@ jobs:
       - name: Install
         run: npm install
       - name: Check types
-        run: tsc -p tsconfig.json --noEmit
+        run: ./node_modules/.bin/grabthar check
       - name: Test
-        run: dotenv -f ./test.env -- ./node_modules/.bin/vitest --run
+        run: dotenv -f ./test.env -- ./node_modules/.bin/grabthar test
       - name: Lint
-        run: './node_modules/.bin/prettier --list-different "**.ts" && ./node_modules/.bin/eslint --fix "**.ts"'
+        run: ./node_modules/.bin/grabthar lint
       - name: Shellcheck
         uses: ludeeus/action-shellcheck@master
         with:

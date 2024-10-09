@@ -15,13 +15,14 @@ import { runShellcheck } from './shellcheck.mjs';
 const HELP = `USAGE: grabthar COMMAND
 
 COMMANDS:
-  check      Run type checks with tsc
-  format     Format source with prettier
-  build      Build with vite
-  build:tsc  Build with tsc
-  test       Test with vitest
-  snap       Update vitest snapshots
-  lint       Lint with prettier and eslint
+  check       Run type checks with tsc
+  format      Format source with prettier
+  build       Build with vite
+  build:tsc   Build with tsc
+  test        Test with vitest
+  snap        Update vitest snapshots
+  lint        Lint with prettier and eslint
+  lint:shell  Lint with shellcheck
 `;
 
 function main() {

@@ -2,13 +2,11 @@ import process from 'node:process';
 
 import consts from 'rollup-plugin-consts';
 import jscc from 'rollup-plugin-jscc';
-import vitePkg from 'vite/package.json' with { type: 'json' };
-import swcPkg from '@swc/core/package.json' with { type: 'json' };
 
-import matbasPkg from './package.json';
-
-import { parseBoolEnv } from '@jfhbrook/grabthar';
+import { parseBoolEnv, packageLoader } from '@jfhbrook/grabthar';
 import { defineConfig } from '@jfhbrook/grabthar/vite';
+
+const pkg = packageLoader(import.meta.url);
 
 const MATBAS_BUILD =
   process.env.MATBAS_BUILD === 'release' ? 'release' : 'debug';
@@ -18,12 +16,12 @@ export default defineConfig({
     consts({
       matbas: {
         build: MATBAS_BUILD,
-        version: matbasPkg.version,
+        version: pkg('.').version,
       },
       versions: {
-        matbas: matbasPkg.version,
-        vite: vitePkg.version,
-        swc: swcPkg.version,
+        matbas: pkg('.').version,
+        vite: pkg('vite').version,
+        swc: pkg('@swc/core').version,
       },
     }),
     jscc({

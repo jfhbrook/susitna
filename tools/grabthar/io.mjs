@@ -1,7 +1,8 @@
-import process from 'node:process';
 import { spawnSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import process from 'node:process';
 
 import quote from 'shell-quote/quote.js';
 
@@ -20,6 +21,14 @@ export function writeJSONConfig(filename, config) {
 export function writeIgnoreFile(filename, ignores) {
   logger.info(`- generating ${filename}...`);
   writeFileSync(filename, ignores.join('\n'), 'utf8');
+}
+
+export function packageLoader(url) {
+  const require = createRequire(url);
+  return (pkg) => {
+    const path = pkg === '.' ? './package.json' : join(pkg, 'package.json');
+    return JSON.parse(readFileSync(require.resolve(path)));
+  };
 }
 
 export function run(bin, argv) {

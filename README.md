@@ -70,6 +70,7 @@ gaps.
 
 ### Up Next
 
+- implement npm workspaces, split matanuska into modules
 - citree vite/rollup plugin
 - Get `npm run console` working again
   - ts-node seems to depend on a commonjs build
@@ -92,6 +93,7 @@ gaps.
 - Arrays
   - Including array literals - BASIC assigns each index one at a time, or
     uses the `data` command
+  - Consider using [eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 - Implement Acey Ducey
   - `center$(n)`
   - `rnd!` (random) function

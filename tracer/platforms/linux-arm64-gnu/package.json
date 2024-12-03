@@ -1,12 +1,12 @@
 {
-  "name": "@matanuska/matanuska-win32-x64-msvc",
-  "description": "Prebuilt binary package for `debug` on `win32-x64-msvc`.",
+  "name": "@matanuska/tracer-linux-arm64-gnu",
+  "description": "Prebuilt binary package for `tracer` on `linux-arm64-gnu`.",
   "version": "1.0.0",
   "os": [
-    "win32"
+    "linux"
   ],
   "cpu": [
-    "x64"
+    "arm64"
   ],
   "main": "index.node",
   "files": [
@@ -14,11 +14,11 @@
   ],
   "neon": {
     "type": "binary",
-    "rust": "x86_64-pc-windows-msvc",
-    "node": "win32-x64-msvc",
-    "os": "win32",
-    "arch": "x64",
-    "abi": "msvc"
+    "rust": "aarch64-unknown-linux-gnu",
+    "node": "linux-arm64-gnu",
+    "os": "linux",
+    "arch": "arm64",
+    "abi": "gnu"
   },
   "author": "Josh Holbrook",
   "repository": {

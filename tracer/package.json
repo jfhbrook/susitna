@@ -1,7 +1,7 @@
 {
-  "name": "@matanuska/debug",
+  "name": "@matanuska/tracer",
   "version": "1.0.0",
-  "description": "Matanuska's debug library",
+  "description": "Matanuska's tracer, powered by Neon and tracing",
   "main": "./lib/index.cjs",
   "scripts": {
     "test": "tsc &&cargo test",
@@ -38,7 +38,7 @@
   "neon": {
     "type": "library",
     "org": "@matanuska",
-    "prefix": "matanuska-",
+    "prefix": "tracer-",
     "platforms": "common",
     "load": "./src/load.cts"
   },

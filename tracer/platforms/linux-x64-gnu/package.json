@@ -1,9 +1,9 @@
 {
-  "name": "@matanuska/matanuska-darwin-x64",
-  "description": "Prebuilt binary package for `debug` on `darwin-x64`.",
+  "name": "@matanuska/tracer-linux-x64-gnu",
+  "description": "Prebuilt binary package for `tracer` on `linux-x64-gnu`.",
   "version": "1.0.0",
   "os": [
-    "darwin"
+    "linux"
   ],
   "cpu": [
     "x64"
@@ -14,11 +14,11 @@
   ],
   "neon": {
     "type": "binary",
-    "rust": "x86_64-apple-darwin",
-    "node": "darwin-x64",
-    "os": "darwin",
+    "rust": "x86_64-unknown-linux-gnu",
+    "node": "linux-x64-gnu",
+    "os": "linux",
     "arch": "x64",
-    "abi": null
+    "abi": "gnu"
   },
   "author": "Josh Holbrook",
   "repository": {

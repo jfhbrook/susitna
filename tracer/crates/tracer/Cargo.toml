@@ -1,7 +1,7 @@
 [package]
-name = "debug"
+name = "tracer"
 version = "1.0.0"
-description = "Matanuska's debug library"
+description = "Matanuska's debug tracer"
 authors = ["Josh Holbrook"]
 license = "MIT"
 edition = "2021"
@@ -13,6 +13,8 @@ crate-type = ["cdylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-neon = "1"
+neon = { version = "1", features = ["futures"] }
+once_cell = "1.20.2"
+tokio = { version = "1.42.0", features = ["rt-multi-thread"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["fmt"] }

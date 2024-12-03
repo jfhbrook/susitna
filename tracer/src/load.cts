@@ -7,11 +7,11 @@
 
 module.exports = require('@neon-rs/load').proxy({
   platforms: {
-    'win32-x64-msvc': () => require('@matanuska/matanuska-win32-x64-msvc'),
-    'darwin-x64': () => require('@matanuska/matanuska-darwin-x64'),
-    'darwin-arm64': () => require('@matanuska/matanuska-darwin-arm64'),
-    'linux-x64-gnu': () => require('@matanuska/matanuska-linux-x64-gnu'),
-    'linux-arm64-gnu': () => require('@matanuska/matanuska-linux-arm64-gnu')
+    'win32-x64-msvc': () => require('@matanuska/tracer-win32-x64-msvc'),
+    'darwin-x64': () => require('@matanuska/tracer-darwin-x64'),
+    'darwin-arm64': () => require('@matanuska/tracer-darwin-arm64'),
+    'linux-x64-gnu': () => require('@matanuska/tracer-linux-x64-gnu'),
+    'linux-arm64-gnu': () => require('@matanuska/tracer-linux-arm64-gnu')
   },
   debug: () => require('../index.node')
 });

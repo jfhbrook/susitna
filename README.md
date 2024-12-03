@@ -30,6 +30,7 @@ gaps.
 
 ### Prioritized Backlog
 
+- steal ideas from atto
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

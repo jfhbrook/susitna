@@ -31,6 +31,7 @@ gaps.
 ### Prioritized Backlog
 
 - Steal ideas from other fantasy consoles
+- Implement npm workspaces - enables debug in rust
 - Reimplement debug in rust
   - [tracing-subscriber](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/index.html)
   - [neon](https://neon-rs.dev/)
@@ -75,8 +76,22 @@ gaps.
 
 ### Up Next
 
-- Implement npm workspaces, split matanuska into modules
-- citree vite/rollup plugin
+- Split matanuska into modules
+  - runtime/stack/etc
+  - bytecode
+  - compiler
+  - parser/scanner
+  - errors (exceptions/faults)
+  - constants
+    - type stubs
+    - vite configuration
+  - precompiler
+    - `MATBAS_BUILD` constant
+    - jscc vite configuration
+  - values + operations
+  - host
+  - shell
+  - commands
 - Get `npm run console` working again
   - ts-node seems to depend on a commonjs build
   - Setting `"type": "module"` in the package.json breaks commonjs completely

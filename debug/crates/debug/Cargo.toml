@@ -1,0 +1,18 @@
+[package]
+name = "debug"
+version = "1.0.0"
+description = "Matanuska's debug library"
+authors = ["Josh Holbrook"]
+license = "MIT"
+edition = "2021"
+exclude = ["index.node"]
+
+[lib]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+neon = "1"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"

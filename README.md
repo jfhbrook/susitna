@@ -30,7 +30,11 @@ gaps.
 
 ### Prioritized Backlog
 
-- steal ideas from other fantasy consoles
+- Steal ideas from other fantasy consoles
+- Reimplement debug in rust
+  - [tracing-subscriber](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/index.html)
+  - [neon](https://neon-rs.dev/)
+  - Should give better output and be a lower maintenance burden
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
@@ -71,7 +75,7 @@ gaps.
 
 ### Up Next
 
-- implement npm workspaces, split matanuska into modules
+- Implement npm workspaces, split matanuska into modules
 - citree vite/rollup plugin
 - Get `npm run console` working again
   - ts-node seems to depend on a commonjs build
@@ -132,12 +136,12 @@ gaps.
 
 ### The Future
 
+- Reimplement citree in Rust and [chumsky](https://docs.rs/chumsky/latest/chumsky/#example-brainfuck-parser)
 - String templates
 - Module system
 - Package manager
 - Partial rewrite in Rust and/or C/C++
 - Implement entry point in Rust or C/C++
-- Rollup "release build"?
 - Port to bun?
   - Nice FFI
   - Support for bundled executable

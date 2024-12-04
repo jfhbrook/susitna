@@ -36,6 +36,7 @@ gaps.
   - [tracing-subscriber](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/index.html)
   - [neon](https://neon-rs.dev/)
   - Should give better output and be a lower maintenance burden
+  - [PR here](https://github.com/jfhbrook/matanuska/pull/43)
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

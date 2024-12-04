@@ -1,0 +1,36 @@
+{
+  "name": "@matanuska/span-darwin-arm64",
+  "description": "Prebuilt binary package for `span` on `darwin-arm64`.",
+  "version": "0.1.0",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "index.node",
+  "files": [
+    "index.node"
+  ],
+  "neon": {
+    "type": "binary",
+    "rust": "aarch64-apple-darwin",
+    "node": "darwin-arm64",
+    "os": "darwin",
+    "arch": "arm64",
+    "abi": null
+  },
+  "author": "Josh Holbrook",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jfhbrook/matanuska.git"
+  },
+  "keywords": [
+    "tracing"
+  ],
+  "bugs": {
+    "url": "https://github.com/jfhbrook/matanuska/issues"
+  },
+  "homepage": "https://github.com/jfhbrook/matanuska#readme",
+  "license": "MIT"
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@matanuska/span-win32-x64-msvc",
+  "description": "Prebuilt binary package for `span` on `win32-x64-msvc`.",
+  "version": "0.1.0",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "index.node",
+  "files": [
+    "index.node"
+  ],
+  "neon": {
+    "type": "binary",
+    "rust": "x86_64-pc-windows-msvc",
+    "node": "win32-x64-msvc",
+    "os": "win32",
+    "arch": "x64",
+    "abi": "msvc"
+  },
+  "author": "Josh Holbrook",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jfhbrook/matanuska.git"
+  },
+  "keywords": [
+    "tracing"
+  ],
+  "bugs": {
+    "url": "https://github.com/jfhbrook/matanuska/issues"
+  },
+  "homepage": "https://github.com/jfhbrook/matanuska#readme",
+  "license": "MIT"
+}

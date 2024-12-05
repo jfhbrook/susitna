@@ -1,12 +1,7 @@
-/* IMPORTANT
- * This snapshot file is auto-generated, but designed for humans.
- * It should be checked into source control and tracked carefully.
- * Re-generate by setting TAP_SNAPSHOT=1 and running tests.
- * Make sure to inspect the output below.  Do not ignore changes!
- */
-'use strict'
-exports[`test/templates.ts > TAP > it renders a basic config 1`] = `
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`it renders a basic config 1`] = `
+"
 import { Token } from "./token";
 
 export interface ExprVisitor<R> {
@@ -33,5 +28,5 @@ export class Assign extends Expr {
   }
 }
 
-
-`
+"
+`;

@@ -1,4 +1,4 @@
-import t from 'tap';
+import { expect, test } from 'vitest';
 
 import { render, RenderConfig } from '../src/templates';
 
@@ -21,4 +21,6 @@ const CONFIG: RenderConfig = {
   ],
 };
 
-t.matchSnapshot(render(CONFIG), 'it renders a basic config');
+test('it renders a basic config', () => {
+  expect(render(CONFIG)).toMatchSnapshot();
+});

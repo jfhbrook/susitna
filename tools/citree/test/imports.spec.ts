@@ -1,5 +1,6 @@
 import { resolve } from 'path';
-import t from 'tap';
+
+import { expect, test } from 'vitest';
 
 import { Spec } from '../src/ast';
 import { Imports, resolveImports } from '../src/imports';
@@ -41,6 +42,6 @@ EXPECTED[resolve('./expr.ts')] = [
   'import * from "./value";',
 ];
 
-t.test('resolves imports types', async (assert) => {
-  assert.same(resolveImports('./imports.ts', SPEC), EXPECTED);
+test('resolves imports types', () => {
+  expect(resolveImports('./imports.ts', SPEC)).toEqual(EXPECTED);
 });

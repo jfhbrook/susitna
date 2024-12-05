@@ -24,12 +24,13 @@ First, make an `ast.citree` file. That would look something like this:
 
 ```
 type Expr in './expr' {
-  import { TokenKind } from '../tokens'
+  import { Token, TokenKind } from '../tokens'
 
   Unary          => op: TokenKind, expr: Expr
   Binary         => left: Expr, op: TokenKind, right: Expr
   Logical        => left: Expr, op: TokenKind, right: Expr
   Group          => expr: Expr
+  Variable       => ident: Token
   IntLiteral     => value: number
   RealLiteral    => value: number
   BoolLiteral    => value: boolean
@@ -38,22 +39,38 @@ type Expr in './expr' {
   NilLiteral!
 }
 
-type Cmd in './cmd' {
-  import { Expr } from './expr'
+type Instr in './instr' {
+  import { Expr, Variable } from './expr'
 
-  Cmd => offsetStart: number = -1, offsetEnd: number = -1
+  Instr      => offsetStart: number = -1, offsetEnd: number = -1
+  Rem        => remark: string
+  Let        => variable: Variable, value: Expr | null
+  Assign     => variable: Variable, value: Expr
   Expression => expression: Expr
   Print      => expression: Expr
   Exit       => expression: Expr | null
+  End!
+  New        => filename: Expr | null
+  Load       => filename: Expr, run: boolean
+  List!
+  Renum!
+  Run!
+  Save       => filename: Expr | null
+  ShortIf    => condition: Expr, then: Instr[], else_: Instr[]
+  If         => condition: Expr
+  Else!
+  ElseIf     => condition: Expr
+  EndIf!
 }
 
 type Tree in './index' {
-  import { Cmd } from './cmd'
+  import { Source } from './source'
+  import { Instr } from './instr'
 
-  CommandGroup => row: number, source: string, commands: Cmd[]
-  Line         => lineNo: number, row: number, source: string, commands: Cmd[]
-  Input        => input: Array<CommandGroup | Line>
-  Program      => lines: Line[]
+  Cmd          => cmdNo: number, row: number, source: Source, instructions: Instr[]
+  Line         => lineNo: number, row: number, source: Source, instructions: Instr[]
+  Input        => input: Array<Cmd | Line>
+  Program      => filename: string, lines: Line[]
 }
 
 ```
@@ -74,13 +91,14 @@ corresponding to each type.
 For example, `expr.ts` will look like this:
 
 ```typescript
-import { TokenKind } from '../tokens';
+import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitUnaryExpr(node: Unary): R;
   visitBinaryExpr(node: Binary): R;
   visitLogicalExpr(node: Logical): R;
   visitGroupExpr(node: Group): R;
+  visitVariableExpr(node: Variable): R;
   visitIntLiteralExpr(node: IntLiteral): R;
   visitRealLiteralExpr(node: RealLiteral): R;
   visitBoolLiteralExpr(node: BoolLiteral): R;
@@ -141,6 +159,16 @@ export class Group extends Expr {
 
   accept<R>(visitor: ExprVisitor<R>): R {
     return visitor.visitGroupExpr(this);
+  }
+}
+
+export class Variable extends Expr {
+  constructor(public ident: Token) {
+    super();
+  }
+
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitVariableExpr(this);
   }
 }
 

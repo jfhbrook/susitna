@@ -2,4 +2,4 @@ src/*.js
 test/*.js
 node_modules
 dist
-.tap
+coverage

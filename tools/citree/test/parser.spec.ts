@@ -1,6 +1,5 @@
-import t from 'tap';
-
 import { expectEOF, expectSingleResult } from 'typescript-parsec';
+import { expect, test } from 'vitest';
 
 import { scanner } from '../src/scanner';
 import { parser } from '../src/parser';
@@ -55,9 +54,9 @@ const EXPECT = {
   ],
 };
 
-t.test('it parses a simple example', async (t) => {
+test('it parses a simple example', async () => {
   const result = expectSingleResult(
     expectEOF(parser.parse(scanner.parse(EXAMPLE))),
   );
-  t.same(result, EXPECT);
+  expect(result).toEqual(EXPECT);
 });

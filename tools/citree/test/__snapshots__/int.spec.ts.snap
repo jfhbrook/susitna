@@ -1,12 +1,7 @@
-/* IMPORTANT
- * This snapshot file is auto-generated, but designed for humans.
- * It should be checked into source control and tracked carefully.
- * Re-generate by setting TAP_SNAPSHOT=1 and running tests.
- * Make sure to inspect the output below.  Do not ignore changes!
- */
-'use strict'
-exports[`test/int.ts > TAP > integration > must match snapshot 1`] = `
-import { Expr, Variable } from './expr';
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`integration 1`] = `
+"import { Expr, Variable } from './expr';
 
 export interface InstrVisitor<R> {
   visitRemInstr(node: Rem): R;
@@ -270,11 +265,11 @@ export class EndIf extends Instr {
     return visitor.visitEndIfInstr(this);
   }
 }
+"
+`;
 
-`
-
-exports[`test/int.ts > TAP > integration > must match snapshot 2`] = `
-import { Token, TokenKind } from '../tokens';
+exports[`integration 2`] = `
+"import { Token, TokenKind } from '../tokens';
 
 export interface ExprVisitor<R> {
   visitUnaryExpr(node: Unary): R;
@@ -414,11 +409,11 @@ export class NilLiteral extends Expr {
     return visitor.visitNilLiteralExpr(this);
   }
 }
+"
+`;
 
-`
-
-exports[`test/int.ts > TAP > integration > must match snapshot 3`] = `
-import { Source } from './source';
+exports[`integration 3`] = `
+"import { Source } from './source';
 import { Instr } from './instr';
 
 export interface TreeVisitor<R> {
@@ -484,5 +479,5 @@ export class Program extends Tree {
     return visitor.visitProgramTree(this);
   }
 }
-
-`
+"
+`;

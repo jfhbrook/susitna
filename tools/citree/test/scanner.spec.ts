@@ -1,6 +1,7 @@
 import t from 'tap';
 
 import { Token } from 'typescript-parsec';
+import { expect, test } from 'vitest';
 
 import { scanner, TokenKind } from '../src/scanner';
 
@@ -74,18 +75,18 @@ const SIMPLE = [
 ];
 
 for (const [kind, text] of SIMPLE) {
-  t.test(`it scans ${text}`, async (assert) => {
+  test(`it scans ${text}`, () => {
     let token = scanner.parse(text);
 
-    assert.ok(token, 'token is defined');
+    expect(token).toBeTruthy();
     token = token as Token<TokenKind>;
-    assert.equal(token.kind, kind, `token kind is ${kind}`);
-    assert.equal(token.text, text, `token text is '${text}'`);
-    assert.notOk(token.next, 'no following tokens');
+    expect(token.kind).toBe(kind);
+    expect(token.text).toBe(text);
+    expect(token.next).toBeFalsy();
   });
 }
 
-t.test('it scans a full example', async (assert) => {
+test('it scans a full example', () => {
   let token = scanner.parse(EXAMPLE) as Token<TokenKind>;
 
   const results = [[token.kind, token.text]];
@@ -94,5 +95,5 @@ t.test('it scans a full example', async (assert) => {
     results.push([token.kind, token.text]);
   }
 
-  assert.same(results, EXPECTED_EXAMPLE);
+  expect(results).toEqual(EXPECTED_EXAMPLE);
 });

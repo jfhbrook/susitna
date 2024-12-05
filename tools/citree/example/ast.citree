@@ -18,6 +18,7 @@ type Instr in './instr' {
   import { Expr, Variable } from './expr'
 
   Instr      => offsetStart: number = -1, offsetEnd: number = -1
+  Rem        => remark: string
   Let        => variable: Variable, value: Expr | null
   Assign     => variable: Variable, value: Expr
   Expression => expression: Expr
@@ -30,14 +31,19 @@ type Instr in './instr' {
   Renum!
   Run!
   Save       => filename: Expr | null
-  Rem        => remark: string
+  ShortIf    => condition: Expr, then: Instr[], else_: Instr[]
+  If         => condition: Expr
+  Else!
+  ElseIf     => condition: Expr
+  EndIf!
 }
 
 type Tree in './index' {
+  import { Source } from './source'
   import { Instr } from './instr'
 
-  Cmd          => cmdNo: number, row: number, source: string, instructions: Instr[]
-  Line         => lineNo: number, row: number, source: string, instructions: Instr[]
+  Cmd          => cmdNo: number, row: number, source: Source, instructions: Instr[]
+  Line         => lineNo: number, row: number, source: Source, instructions: Instr[]
   Input        => input: Array<Cmd | Line>
   Program      => filename: string, lines: Line[]
 }

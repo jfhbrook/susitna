@@ -30,8 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- Do up dependabot alert(s)
-- Migrate citool to vitest - fix build
 - Steal ideas from other fantasy consoles
 - OpenTelemetry spike
   - `fireball` tool that spins up local [jaeger](https://www.jaegertracing.io/docs/2.0/getting-started/)

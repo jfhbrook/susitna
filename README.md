@@ -30,8 +30,16 @@ gaps.
 
 ### Prioritized Backlog
 
+- Do up dependabot alert(s)
+- Migrate citool to vitest - fix build
 - Steal ideas from other fantasy consoles
-- Implement npm workspaces - enables debug in rust
+- OpenTelemetry spike
+  - `fireball` tool that spins up local [jaeger](https://www.jaegertracing.io/docs/2.0/getting-started/)
+    - use `badger` backend and volume <https://github.com/dgraph-io/badger>
+    - expose 4317 (grpc otel) and 16686 (web ui) <https://www.jaegertracing.io/docs/2.0/apis/>
+  - dust off [telemetrence](https://github.com/jfhbrook/public/blob/main/old-memes/telemetrence/honeycomb.ts.njk)
+  - use terraform and [the good docker provider](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs)
+  - maybe a fool's errand, but the current tracing is not my favorite
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

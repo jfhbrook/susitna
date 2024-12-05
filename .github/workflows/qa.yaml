@@ -42,11 +42,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install
-        run: cd ./tools/citree && npm install
+        run: npm install -w tools/citree
       - name: Build
-        run: cd ./tools/citree && npm run build
+        run: npm run build -w tools/citree
       - name: Test
-        run: cd ./tools/citree && FORCE_COLOR=1 TAP_REPORTER=base TAP_ALLOW_INCOMPLETE_COVERAGE=1 npm test
+        run: FORCE_COLOR=1 TAP_REPORTER=base TAP_ALLOW_INCOMPLETE_COVERAGE=1 npm test -w tools/citree
       - name: Lint
         run: cd ./tools/citree && npm run lint
       - name: Shellcheck
@@ -66,13 +66,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install
-        run: cd ./tools/test-generator && npm install
+        run: npm i -w tools/test-generator
       - name: Build
-        run: cd ./tools/test-generator && npm run build
+        run: npm run build -w tools/test-generator
       - name: Test
-        run: cd ./tools/test-generator && FORCE_COLOR=1 npm test
+        run: FORCE_COLOR=1 npm test -w tools/test-generator
       - name: Lint
-        run: cd ./tools/test-generator && npm run lint
+        run: npm run lint -w tools/test-generator
   qa-grabthar:
     name: grabthar
     runs-on: ubuntu-latest
@@ -86,8 +86,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install
-        run: cd ./tools/grabthar && npm install
+        run: npm i -w tools/grabthar
       - name: Test
-        run: cd ./tools/grabthar && npm test
+        run: npm test -w tools/grabthar
       - name: Lint
-        run: cd ./tools/grabthar && npm run lint
+        run: npm run lint -w tools/grabthar

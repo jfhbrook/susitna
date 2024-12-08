@@ -39,23 +39,14 @@ if (!NO_TRACE) {
 
 export const telemetry = new NodeSDK(options);
 
-export function getSpan(name: string = 'root'): [Span, () => void] {
+export function addEvent(message: string, attributes: Attributes = {}): void {
   const tracer = trace.getTracer('main');
   const activeSpan = trace.getActiveSpan();
-  let span: Span;
-  let end: () => void;
   if (activeSpan) {
-    span = activeSpan;
-    end = () => {};
+    activeSpan.addEvent(message, attributes);
   } else {
-    span = tracer.startSpan(name);
-    end = () => (span as Span).end();
+    tracer.startActiveSpan('event', (span: Span) => {
+      span.addEvent(message, attributes);
+    });
   }
-  return [span, end];
-}
-
-export function addEvent(message: string, attributes: Attributes = {}): void {
-  const [span, end] = getSpan();
-  span.addEvent(message, attributes);
-  end();
 }

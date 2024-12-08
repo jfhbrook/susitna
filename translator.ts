@@ -17,24 +17,23 @@ const tracer = trace.getTracer('main');
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    const span = tracer.startSpan('read-eval-print');
-    try {
-      const input = await executor.prompt();
-      await executor.eval(input);
-    } catch (err) {
-      if (err instanceof BaseFault || err instanceof Exit) {
-        throw err;
-      }
+    await tracer.startActiveSpan('read-eval-print', async (_: Span) => {
+      try {
+        const input = await executor.prompt();
+        await executor.eval(input);
+      } catch (err) {
+        if (err instanceof BaseFault || err instanceof Exit) {
+          throw err;
+        }
 
-      if (err instanceof BaseException) {
-        host.writeException(err);
-        continue;
-      }
+        if (err instanceof BaseException) {
+          host.writeException(err);
+          return;
+        }
 
-      throw RuntimeFault.fromError(err, null);
-    } finally {
-      span.end();
-    }
+        throw RuntimeFault.fromError(err, null);
+      }
+    });
   }
 }
 
@@ -51,14 +50,18 @@ export class Translator {
   ) {}
 
   public async start(): Promise<void> {
-    const span = tracer.startSpan('start');
+    return tracer.startActiveSpan('start', async (_: Span) => {
+      await this._start();
+    });
+  }
+
+  async _start(): Promise<void> {
     const { host, exit, config, executor } = this;
     let error: any = null;
 
     host.setLevel(config.level);
 
     function errorExit(error: any): void {
-      span.end();
       exit(
         typeof error.exitCode === 'number' ? error.exitCode : ExitCode.Software,
       );

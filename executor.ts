@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { trace } from '@opentelemetry/api';
+import { Span, trace } from '@opentelemetry/api';
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -57,71 +57,72 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    const span = tracer.startSpan('init');
-    // Ensure the commander's state is clean before initializing.
-    await this.close(false);
+    return tracer.startActiveSpan('init', async (_: Span) => {
+      // Ensure the commander's state is clean before initializing.
+      await this.close(false);
 
-    await this.loadHistory();
+      await this.loadHistory();
 
-    // TODO: Support for tab-completion
-    this.readline = this.createInterface();
+      // TODO: Support for tab-completion
+      this.readline = this.createInterface();
 
-    // TODO: Node's behavior on first press is to print:
-    //
-    //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
-    //
-    // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
-    // and otherwise ignores.
-    //
-    // Neither behavior is simple. Node's behavior requires tracking state
-    // in the Translator - count sigints, reset to zero on any new input.
-    // You'd have to expose this event to the Translator. Python's behavior
-    // seems simpler - throw an Error - but any error thrown here is thrown
-    // asynchronously and the context is lost. Again, you would need to emit
-    // an event on the Host and handle it in the Translator.
-    //
-    // If there's no handler at *all*, the default behavior is ostensibly to
-    // call readline.pause() - here, we're calling this.close() which also
-    // calls readline.close(). The latter ostensibly causes readline.question
-    // to throw an error. *Practically speaking* this causes the process to
-    // quietly exit - I believe it *is* throwing an error, but that Node is
-    // checking the type and deciding not to log it. That said, who knows.
-    //
-    // Either way, I should dig into this more.
-    this.readline.on('SIGINT', () => {
-      this.host.writeError('\n');
-      this.host.writeDebug('Received SIGINT (ctrl-c)');
-      this.close();
+      // TODO: Node's behavior on first press is to print:
+      //
+      //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
+      //
+      // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
+      // and otherwise ignores.
+      //
+      // Neither behavior is simple. Node's behavior requires tracking state
+      // in the Translator - count sigints, reset to zero on any new input.
+      // You'd have to expose this event to the Translator. Python's behavior
+      // seems simpler - throw an Error - but any error thrown here is thrown
+      // asynchronously and the context is lost. Again, you would need to emit
+      // an event on the Host and handle it in the Translator.
+      //
+      // If there's no handler at *all*, the default behavior is ostensibly to
+      // call readline.pause() - here, we're calling this.close() which also
+      // calls readline.close(). The latter ostensibly causes readline.question
+      // to throw an error. *Practically speaking* this causes the process to
+      // quietly exit - I believe it *is* throwing an error, but that Node is
+      // checking the type and deciding not to log it. That said, who knows.
+      //
+      // Either way, I should dig into this more.
+      this.readline.on('SIGINT', () => {
+        this.host.writeError('\n');
+        this.host.writeDebug('Received SIGINT (ctrl-c)');
+        this.close();
+      });
+      this.readline.on('history', (history) => {
+        this.history = history;
+      });
     });
-    this.readline.on('history', (history) => {
-      this.history = history;
-    });
-    span.end();
   }
 
   /**
    * Close the commander.
    */
   async close(saveHistory: boolean = true): Promise<void> {
-    const span = tracer.startSpan('close');
-    let p: Promise<void> = Promise.resolve();
+    return tracer.startActiveSpan('close', async (_: Span) => {
+      let p: Promise<void> = Promise.resolve();
 
-    if (this._readline) {
-      const rl = this._readline;
-      p = new Promise((resolve, _reject) => {
-        rl.once('close', () => {
-          span.end();
-          resolve();
+      if (this._readline) {
+        const rl = this._readline;
+        p = new Promise((resolve, _reject) => {
+          rl.once('close', () => {
+            resolve();
+          });
         });
-      });
 
-      this._readline.close();
-    }
+        this._readline.close();
+      }
 
-    return Promise.all([
-      p,
-      saveHistory ? this.saveHistory() : Promise.resolve(),
-    ]).then(() => {});
+      await (saveHistory ? this.saveHistory() : Promise.resolve());
+
+      await p;
+
+      return;
+    });
   }
 
   /**

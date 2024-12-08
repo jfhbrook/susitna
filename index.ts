@@ -1,11 +1,14 @@
 import * as dotenv from 'dotenv';
+import { telemetry } from './telemetry';
 
 import MATBAS from 'consts:matbas';
 
 if (MATBAS.build === 'debug') {
   dotenv.config();
+  telemetry.start();
 }
 
+import { Span, trace } from '@opentelemetry/api';
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
@@ -17,11 +20,16 @@ import { ConsoleHost } from './host';
 import { Editor } from './editor';
 import { Executor } from './executor';
 
+async function exit(code: number) {
+  await telemetry.shutdown();
+  process.exit(code);
+}
+
 @Module({
   providers: [
     { provide: 'argv', useValue: process.argv.slice(2) },
     { provide: 'env', useValue: process.env },
-    { provide: 'exitFn', useValue: process.exit },
+    { provide: 'exitFn', useValue: exit },
     {
       provide: Config,
       useFactory: (argv: Argv, env: Env) => {
@@ -41,9 +49,12 @@ import { Executor } from './executor';
 export class Container {}
 
 export async function main(): Promise<void> {
-  const deps = await NestFactory.createApplicationContext(Container, {
-    logger: new NestLogger(),
+  const tracer = trace.getTracer('main');
+  return tracer.startActiveSpan('main', async (_: Span) => {
+    const deps = await NestFactory.createApplicationContext(Container, {
+      logger: new NestLogger(),
+    });
+    const translator = deps.get(Translator);
+    await translator.start();
   });
-  const translator = deps.get(Translator);
-  await translator.start();
 }

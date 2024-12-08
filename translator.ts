@@ -17,6 +17,7 @@ const tracer = trace.getTracer('main');
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
+    const span = tracer.startSpan('read-eval-print');
     try {
       const input = await executor.prompt();
       await executor.eval(input);
@@ -31,6 +32,8 @@ async function repl(executor: Executor, host: Host) {
       }
 
       throw RuntimeFault.fromError(err, null);
+    } finally {
+      span.end();
     }
   }
 }

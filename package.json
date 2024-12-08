@@ -29,7 +29,7 @@
     "check": "npm run build:ast && grabthar check",
     "format": "grabthar format",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
-    "start:fireball": "npm run build -w tools/fireball && fireball up",
+    "fireball": "npm run build -w tools/fireball && fireball",
     "lint": "dotenv -e test.env -- grabthar lint",
     "lint:shell": "grabthar lint:shell",
     "lint:staged": "lint-staged",

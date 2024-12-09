@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { trace } from '@opentelemetry/api';
+// import { trace } from '@opentelemetry/api';
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -25,7 +25,7 @@ import { Prompt } from './shell';
 
 import { Line, Cmd, Program } from './ast';
 
-const tracer = trace.getTracer('main');
+// const tracer = trace.getTracer('main');
 
 @Injectable()
 export class Executor {
@@ -57,7 +57,7 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    const span = tracer.startSpan('init');
+    // TODO: trace
     // Ensure the commander's state is clean before initializing.
     await this.close(false);
 
@@ -96,21 +96,18 @@ export class Executor {
     this.readline.on('history', (history) => {
       this.history = history;
     });
-    span.end();
   }
 
   /**
    * Close the commander.
    */
   async close(saveHistory: boolean = true): Promise<void> {
-    const span = tracer.startSpan('close');
     let p: Promise<void> = Promise.resolve();
 
     if (this._readline) {
       const rl = this._readline;
       p = new Promise((resolve, _reject) => {
         rl.once('close', () => {
-          span.end();
           resolve();
         });
       });

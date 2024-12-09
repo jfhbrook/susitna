@@ -1,5 +1,3 @@
-import { trace } from '@opentelemetry/api';
-
 import { showTree } from './debug';
 import { errorType } from './errors';
 import {
@@ -10,9 +8,7 @@ import {
   sortParseError,
 } from './exceptions';
 import { runtimeMethod } from './faults';
-import { formatter } from './format';
 import { Scanner } from './scanner';
-import { addEvent } from './telemetry';
 import { Token, TokenKind } from './tokens';
 
 import { Source } from './ast/source';
@@ -53,8 +49,6 @@ import {
 } from './ast/instr';
 import { Cmd, Line, Input, Program } from './ast';
 import { sortLines } from './ast/util';
-
-const tracer = trace.getTracer('main');
 
 export interface Params {
   arguments: Expr[];
@@ -106,7 +100,6 @@ export class Parser {
   constructor() {}
 
   init(source: string, filename: string, isProgram: boolean) {
-    const span = tracer.startSpan('init');
     this.filename = filename;
     this.scanner = new Scanner(source, filename);
     this.previous = null;
@@ -125,9 +118,6 @@ export class Parser {
     this.lineNo = null;
     this.line = new Source(ws1, '', '', this.current.text);
     this.isShortIf = false;
-
-    span.setAttribute('current', formatter.format(this.current));
-    span.end();
   }
 
   /**
@@ -226,29 +216,21 @@ export class Parser {
   }
 
   private advance(): Token {
-    const span = tracer.startSpan('advance');
-    try {
-      this.previous = this.current;
-      this.current = this.next;
+    this.previous = this.current;
+    this.current = this.next;
 
-      this.line.source += this.trailingWs + this.current.text;
+    this.line.source += this.trailingWs + this.current.text;
 
-      const [ws, next] = this.nextToken();
-      this.leadingWs = this.trailingWs;
-      this.trailingWs = ws;
-      this.next = next;
+    const [ws, next] = this.nextToken();
+    this.leadingWs = this.trailingWs;
+    this.trailingWs = ws;
+    this.next = next;
 
-      if (this.current.kind === TokenKind.Illegal) {
-        this.syntaxError(this.current, `Illegal token ${this.current.text}`);
-      }
-
-      span.setAttribute('previous', this.previous ? this.previous.text : '');
-      span.setAttribute('current', this.current ? this.current.text : '');
-
-      return this.previous as Token;
-    } finally {
-      span.end();
+    if (this.current.kind === TokenKind.Illegal) {
+      this.syntaxError(this.current, `Illegal token ${this.current.text}`);
     }
+
+    return this.previous as Token;
   }
 
   private get done(): boolean {
@@ -261,12 +243,6 @@ export class Parser {
   }
 
   private syntaxError(token: Token, message: string): never {
-    const span = tracer.startSpan('syntaxError', {
-      attributes: {
-        kind: token.kind,
-        message: message,
-      },
-    });
     const exc = new SyntaxError(message, {
       filename: this.filename,
       row: token.row,
@@ -279,7 +255,6 @@ export class Parser {
     });
     this.isError = true;
     this.lineErrors.push(exc);
-    span.end();
     throw new Synchronize();
   }
 
@@ -299,168 +274,127 @@ export class Parser {
   }
 
   private rows(): Row[] {
-    const span = tracer.startSpan('rows');
-    try {
-      const rows: Row[] = [];
-      while (!this.done) {
-        const parsed = this.row();
-        if (parsed) {
-          rows.push(parsed);
-        }
+    const rows: Row[] = [];
+    while (!this.done) {
+      const parsed = this.row();
+      if (parsed) {
+        rows.push(parsed);
       }
-      return rows;
-    } finally {
-      span.end();
     }
+    return rows;
   }
 
   private row(): Row | null {
-    const span = tracer.startSpan('row');
+    const rowNo = this.current.row;
+
+    let cmds: Instr[];
+    let source: Source;
     try {
-      const rowNo = this.current.row;
+      this.lineNumber();
 
-      let cmds: Instr[];
-      let source: Source;
-      try {
-        this.lineNumber();
+      cmds = this.instructions();
 
-        cmds = this.instructions();
-
-        source = this.rowEnding();
-      } catch (err) {
-        if (err instanceof Synchronize) {
-          this.syncNextRow();
-          return null;
-        }
-        throw err;
+      source = this.rowEnding();
+    } catch (err) {
+      if (err instanceof Synchronize) {
+        this.syncNextRow();
+        return null;
       }
-
-      if (this.lineNo !== null) {
-        return new Line(this.lineNo, rowNo, source, cmds);
-      }
-      this.cmdNo += 10;
-      return new Cmd(this.cmdNo, rowNo, source, cmds);
-    } finally {
-      span.end();
+      throw err;
     }
+
+    if (this.lineNo !== null) {
+      return new Line(this.lineNo, rowNo, source, cmds);
+    }
+    this.cmdNo += 10;
+    return new Cmd(this.cmdNo, rowNo, source, cmds);
   }
 
   private lineNumber(): void {
-    const span = tracer.startSpan('lineNumber');
-    try {
-      const prevLineNo = this.lineNo;
-      if (this.match(TokenKind.DecimalLiteral)) {
-        this.lineNo = this.previous!.value as number;
-        this.line.lineNo = this.previous!.text;
-        this.line.separatingWs = this.leadingWs;
-        this.line.source = this.current.text;
-        this.isLine = true;
-      } else if (this.isProgram) {
-        this.syntaxError(this.current, 'Expected line number');
-      } else {
-        this.lineNo = null;
-        this.isLine = false;
-      }
+    const prevLineNo = this.lineNo;
+    if (this.match(TokenKind.DecimalLiteral)) {
+      this.lineNo = this.previous!.value as number;
+      this.line.lineNo = this.previous!.text;
+      this.line.separatingWs = this.leadingWs;
+      this.line.source = this.current.text;
+      this.isLine = true;
+    } else if (this.isProgram) {
+      this.syntaxError(this.current, 'Expected line number');
+    } else {
+      this.lineNo = null;
+      this.isLine = false;
+    }
 
-      if (this.lineNo !== null) {
-        if (this.lineNo % 10) {
-          this.syntaxWarning(
-            this.previous!,
-            'Line numbers should be in factors of 10',
-          );
-        }
-        if (this.isProgram && prevLineNo !== null) {
-          if (this.lineNo <= prevLineNo) {
-            this.syntaxWarning(
-              this.previous!,
-              'Line numbers should be in order',
-            );
-          }
+    if (this.lineNo !== null) {
+      if (this.lineNo % 10) {
+        this.syntaxWarning(
+          this.previous!,
+          'Line numbers should be in factors of 10',
+        );
+      }
+      if (this.isProgram && prevLineNo !== null) {
+        if (this.lineNo <= prevLineNo) {
+          this.syntaxWarning(this.previous!, 'Line numbers should be in order');
         }
       }
-
-      span.setAttribute('lineNo', this.lineNo || '<none>');
-    } finally {
-      span.end();
     }
   }
 
   private rowEnding(): Source {
-    const span = tracer.startSpan('rowEnding');
-    try {
-      const line = this.line.clone();
-      if (line.source.endsWith('\n')) {
-        line.source = line.source.slice(0, -1);
-      }
-
-      for (const error of this.lineErrors) {
-        span.addEvent('set source to line', {
-          line: formatter.format(line),
-        });
-        error.source = line;
-        this.errors.push(error);
-      }
-
-      this.lineErrors = [];
-
-      if (!this.match(TokenKind.LineEnding)) {
-        const token = this.current;
-        this.consume(
-          TokenKind.Eof,
-          `Unexpected token ${token.text.length ? token.text : token.kind}`,
-        );
-      }
-
-      const nextLine = new Source(this.leadingWs, '', '', this.current.text);
-
-      span.addEvent('reset line', {
-        nextLine: formatter.format(nextLine),
-      });
-      this.line = nextLine;
-      this.isLine = false;
-
-      return line;
-    } finally {
-      span.end();
+    const line = this.line.clone();
+    if (line.source.endsWith('\n')) {
+      line.source = line.source.slice(0, -1);
     }
+
+    for (const error of this.lineErrors) {
+      error.source = line;
+      this.errors.push(error);
+    }
+
+    this.lineErrors = [];
+
+    if (!this.match(TokenKind.LineEnding)) {
+      const token = this.current;
+      this.consume(
+        TokenKind.Eof,
+        `Unexpected token ${token.text.length ? token.text : token.kind}`,
+      );
+    }
+
+    const nextLine = new Source(this.leadingWs, '', '', this.current.text);
+
+    this.line = nextLine;
+    this.isLine = false;
+
+    return line;
   }
 
   private syncNextInstr() {
-    const span = tracer.startSpan('syncNextInstr');
-    try {
-      // Remarks can be handled in the next attempt at parsing a command
-      while (
-        ![
-          TokenKind.Colon,
-          TokenKind.LineEnding,
-          TokenKind.Eof,
-          TokenKind.Rem,
-        ].includes(this.current.kind)
-      ) {
-        // TODO: Illegal, UnterminatedString
-        this.advance();
-      }
-    } finally {
-      span.end();
+    // Remarks can be handled in the next attempt at parsing a command
+    while (
+      ![
+        TokenKind.Colon,
+        TokenKind.LineEnding,
+        TokenKind.Eof,
+        TokenKind.Rem,
+      ].includes(this.current.kind)
+    ) {
+      // TODO: Illegal, UnterminatedString
+      this.advance();
     }
   }
 
   private syncNextRow(): void {
-    const span = tracer.startSpan('syncNextRow');
-    try {
-      while (
-        ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
-          this.current.kind,
-        )
-      ) {
-        // TODO: Illegal, UnterminatedString
-        this.advance();
-      }
-
-      this.rowEnding();
-    } finally {
-      span.end();
+    while (
+      ![TokenKind.LineEnding, TokenKind.Eof, TokenKind.Rem].includes(
+        this.current.kind,
+      )
+    ) {
+      // TODO: Illegal, UnterminatedString
+      this.advance();
     }
+
+    this.rowEnding();
   }
 
   private get isLineEnding(): boolean {
@@ -468,154 +402,127 @@ export class Parser {
   }
 
   private instructions(): Instr[] {
-    const span = tracer.startSpan('instructions');
-    try {
-      if (this.isLineEnding) {
-        return [];
-      }
-
-      let instr: Instr | null = this.instruction();
-      const instrs: Instr[] = instr ? [instr] : [];
-
-      // A remark doesn't need to be separated from a prior command by a
-      // colon
-      while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
-        try {
-          instr = this.instruction();
-          if (instr) {
-            instrs.push(instr);
-          }
-        } catch (err) {
-          if (err instanceof Synchronize) {
-            this.syncNextInstr();
-          }
-          throw err;
-        }
-      }
-      return instrs;
-    } finally {
-      span.end();
+    if (this.isLineEnding) {
+      return [];
     }
+
+    let instr: Instr | null = this.instruction();
+    const instrs: Instr[] = instr ? [instr] : [];
+
+    // A remark doesn't need to be separated from a prior command by a
+    // colon
+    while (this.match(TokenKind.Colon) || this.check(TokenKind.Rem)) {
+      try {
+        instr = this.instruction();
+        if (instr) {
+          instrs.push(instr);
+        }
+      } catch (err) {
+        if (err instanceof Synchronize) {
+          this.syncNextInstr();
+        }
+        throw err;
+      }
+    }
+    return instrs;
   }
 
   private instruction(): Instr | null {
-    const span = tracer.startSpan('instruction');
-    try {
-      const { offsetStart } = this.current;
+    const { offsetStart } = this.current;
 
-      let instr: Instr;
+    let instr: Instr;
 
-      // Remarks are treated like commands - the scanner handles the fact
-      // that they include all text to the end of the line
-      if (this.match(TokenKind.Rem)) {
-        instr = new Rem(this.previous!.value as string);
-      } else if (this.match(TokenKind.Semicolon)) {
-        instr = new Rem('');
-      } else if (this.match(TokenKind.Print)) {
-        instr = this.print();
-        // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
-      } else if (this.match(TokenKind.New)) {
-        instr = this.new();
-      } else if (this.match(TokenKind.Load)) {
-        instr = this.load();
-      } else if (this.match(TokenKind.List)) {
-        instr = this.list();
-      } else if (this.match(TokenKind.Renum)) {
-        instr = this.renum();
-      } else if (this.match(TokenKind.Save)) {
-        instr = this.save();
-      } else if (this.match(TokenKind.Run)) {
-        instr = this.run();
-      } else if (this.match(TokenKind.End)) {
-        instr = this.end();
-      } else if (this.match(TokenKind.Exit)) {
-        instr = this.exit();
-      } else if (this.match(TokenKind.Let)) {
-        instr = this.let();
-      } else if (this.match(TokenKind.If)) {
-        instr = this.if_();
-      } else if (this.match(TokenKind.Else)) {
-        instr = this.else_();
-      } else if (this.match(TokenKind.EndIf)) {
-        instr = this.endIf();
+    // Remarks are treated like commands - the scanner handles the fact
+    // that they include all text to the end of the line
+    if (this.match(TokenKind.Rem)) {
+      instr = new Rem(this.previous!.value as string);
+    } else if (this.match(TokenKind.Semicolon)) {
+      instr = new Rem('');
+    } else if (this.match(TokenKind.Print)) {
+      instr = this.print();
+      // TODO: TokenKind.ShellToken (or TokenKind.StringLiteral)
+    } else if (this.match(TokenKind.New)) {
+      instr = this.new();
+    } else if (this.match(TokenKind.Load)) {
+      instr = this.load();
+    } else if (this.match(TokenKind.List)) {
+      instr = this.list();
+    } else if (this.match(TokenKind.Renum)) {
+      instr = this.renum();
+    } else if (this.match(TokenKind.Save)) {
+      instr = this.save();
+    } else if (this.match(TokenKind.Run)) {
+      instr = this.run();
+    } else if (this.match(TokenKind.End)) {
+      instr = this.end();
+    } else if (this.match(TokenKind.Exit)) {
+      instr = this.exit();
+    } else if (this.match(TokenKind.Let)) {
+      instr = this.let();
+    } else if (this.match(TokenKind.If)) {
+      instr = this.if_();
+    } else if (this.match(TokenKind.Else)) {
+      instr = this.else_();
+    } else if (this.match(TokenKind.EndIf)) {
+      instr = this.endIf();
+    } else {
+      const assign = this.assign();
+      if (assign) {
+        instr = assign;
       } else {
-        const assign = this.assign();
-        if (assign) {
-          instr = assign;
-        } else {
-          instr = this.expressionStatement();
-        }
+        instr = this.expressionStatement();
       }
-
-      const { offsetEnd } = this.previous!;
-
-      instr.offsetStart = offsetStart;
-      instr.offsetEnd = offsetEnd;
-
-      return instr;
-    } finally {
-      span.end();
     }
+
+    const { offsetEnd } = this.previous!;
+
+    instr.offsetStart = offsetStart;
+    instr.offsetEnd = offsetEnd;
+
+    return instr;
   }
 
   // TODO: What's the syntax of print? lol
   private print(): Instr {
-    addEvent('print');
     return new Print(this.expression());
   }
 
   private new(): Instr {
-    addEvent('new');
     return new New(this.optionalExpression());
   }
 
   private load(): Instr {
-    const span = tracer.startSpan('load');
-    try {
-      const { arguments: args, flags } = this.params({
-        arguments: ['filename'],
-        flags: ['run'],
-      });
+    const { arguments: args, flags } = this.params({
+      arguments: ['filename'],
+      flags: ['run'],
+    });
 
-      const filename = args[0];
-      return new Load(filename, flags.run || false);
-    } finally {
-      span.end();
-    }
+    const filename = args[0];
+    return new Load(filename, flags.run || false);
   }
 
   private list(): Instr {
-    addEvent('list');
     return new List();
   }
 
   private renum(): Instr {
-    addEvent('renum');
     return new Renum();
   }
 
   private save(): Instr {
-    const span = tracer.startSpan('save');
-    try {
-      return new Save(this.optionalExpression());
-    } finally {
-      span.end();
-    }
+    return new Save(this.optionalExpression());
   }
 
   private run(): Instr {
-    addEvent('run');
     return new Run();
   }
 
   private end(): Instr {
-    addEvent('end');
     // TODO: Should end take an exit code?
     return new End();
   }
 
   private exit(): Instr {
-    addEvent('exit');
     const expr = this.optionalExpression();
     if (expr) {
       return new Exit(expr);
@@ -624,54 +531,41 @@ export class Parser {
   }
 
   private expressionStatement(): Instr {
-    const span = tracer.startSpan('expressionStatement');
-    const expr = this.expression();
-    span.end();
-    return new Expression(expr);
+    return new Expression(this.expression());
   }
 
   private let(): Instr {
-    const span = tracer.startSpan('let');
-    try {
-      let variable: Variable;
-      if (
-        this.match(
-          TokenKind.IntIdent,
-          TokenKind.RealIdent,
-          TokenKind.BoolIdent,
-          TokenKind.StringIdent,
-        )
-      ) {
-        variable = this.variable();
-      } else {
-        this.syntaxError(this.current, 'Expected variable name');
-      }
-
-      let value: Expr | null = null;
-      if (this.match(TokenKind.Eq)) {
-        value = this.expression();
-      }
-      return new Let(variable, value);
-    } finally {
-      span.end();
+    let variable: Variable;
+    if (
+      this.match(
+        TokenKind.IntIdent,
+        TokenKind.RealIdent,
+        TokenKind.BoolIdent,
+        TokenKind.StringIdent,
+      )
+    ) {
+      variable = this.variable();
+    } else {
+      this.syntaxError(this.current, 'Expected variable name');
     }
+
+    let value: Expr | null = null;
+    if (this.match(TokenKind.Eq)) {
+      value = this.expression();
+    }
+    return new Let(variable, value);
   }
 
   private if_(): Instr {
-    const span = tracer.startSpan('if');
-    try {
-      const condition = this.ifCondition();
+    const condition = this.ifCondition();
 
-      // A bare "if" with a multi-line block
-      if (!this.isShortIf && this.isLineEnding) {
-        const if_ = new If(condition);
-        return if_;
-      }
-
-      return this.shortIf(condition);
-    } finally {
-      span.end();
+    // A bare "if" with a multi-line block
+    if (!this.isShortIf && this.isLineEnding) {
+      const if_ = new If(condition);
+      return if_;
     }
+
+    return this.shortIf(condition);
   }
 
   private ifCondition(): Expr {
@@ -683,167 +577,123 @@ export class Parser {
   }
 
   private shortIf(condition: Expr): Instr {
-    const span = tracer.startSpan('shortIf');
-    try {
-      const prevShortIf = this.isShortIf;
-      this.isShortIf = true;
+    const prevShortIf = this.isShortIf;
+    this.isShortIf = true;
 
-      const then: Instr[] = this.instructions();
-      let else_: Instr[] = [];
+    const then: Instr[] = this.instructions();
+    let else_: Instr[] = [];
 
-      if (this.match(TokenKind.Else)) {
-        else_ = this.instructions();
-      }
-
-      this.consume(TokenKind.EndIf, "Expected 'endif' after 'if' instruction");
-
-      this.isShortIf = prevShortIf;
-
-      return new ShortIf(condition, then, else_);
-    } finally {
-      span.end();
+    if (this.match(TokenKind.Else)) {
+      else_ = this.instructions();
     }
+
+    this.consume(TokenKind.EndIf, "Expected 'endif' after 'if' instruction");
+
+    this.isShortIf = prevShortIf;
+
+    return new ShortIf(condition, then, else_);
   }
 
   private else_(): Instr {
-    const span = tracer.startSpan('else');
-    try {
-      if (this.isShortIf) {
-        this.syntaxError(this.previous!, "Unexpected 'else'");
-      }
-
-      if (this.match(TokenKind.If)) {
-        return this.elseIf();
-      }
-
-      return new Else();
-    } finally {
-      span.end();
+    if (this.isShortIf) {
+      this.syntaxError(this.previous!, "Unexpected 'else'");
     }
+
+    if (this.match(TokenKind.If)) {
+      return this.elseIf();
+    }
+
+    return new Else();
   }
 
   private elseIf(): Instr {
-    const span = tracer.startSpan('else if');
-    try {
-      return new ElseIf(this.ifCondition());
-    } finally {
-      span.end();
-    }
+    return new ElseIf(this.ifCondition());
   }
 
   private endIf(): Instr {
-    const span = tracer.startSpan('endif');
-    try {
-      if (this.isShortIf) {
-        this.syntaxError(this.previous!, "Unexpected 'endif'");
-      }
-      return new EndIf();
-    } finally {
-      span.end();
+    if (this.isShortIf) {
+      this.syntaxError(this.previous!, "Unexpected 'endif'");
     }
+    return new EndIf();
   }
 
   private assign(): Instr | null {
-    const span = tracer.startSpan('assign');
-    try {
-      // We can't match here because we need to check the *next* token
-      // before advancing...
-      if (
-        (this.check(TokenKind.IntIdent) ||
-          this.check(TokenKind.RealIdent) ||
-          this.check(TokenKind.BoolIdent) ||
-          this.check(TokenKind.StringIdent)) &&
-        this.checkNext(TokenKind.Eq)
-      ) {
-        // ...and so we advance here.
-        this.advance();
-        const variable = this.variable();
-        this.consume(TokenKind.Eq, 'Expected =');
-        const value = this.expression();
-        return new Assign(variable, value);
-      }
-
-      return null;
-    } finally {
-      span.end();
+    // We can't match here because we need to check the *next* token
+    // before advancing...
+    if (
+      (this.check(TokenKind.IntIdent) ||
+        this.check(TokenKind.RealIdent) ||
+        this.check(TokenKind.BoolIdent) ||
+        this.check(TokenKind.StringIdent)) &&
+      this.checkNext(TokenKind.Eq)
+    ) {
+      // ...and so we advance here.
+      this.advance();
+      const variable = this.variable();
+      this.consume(TokenKind.Eq, 'Expected =');
+      const value = this.expression();
+      return new Assign(variable, value);
     }
+
+    return null;
   }
 
   private params(spec: ParamsSpec): Params {
-    const span = tracer.startSpan('params');
-    try {
-      const args = spec.arguments || [];
-      const argv: Params = { arguments: [], flags: {}, options: {} };
-      const flagNames: Set<string> = new Set(spec.flags || []);
-      const noFlagNames: Set<string> = new Set(
-        (spec.flags || []).map((f) => `no-${f}`),
-      );
-      const optionNames: Set<string> = new Set(spec.options || []);
+    const args = spec.arguments || [];
+    const argv: Params = { arguments: [], flags: {}, options: {} };
+    const flagNames: Set<string> = new Set(spec.flags || []);
+    const noFlagNames: Set<string> = new Set(
+      (spec.flags || []).map((f) => `no-${f}`),
+    );
+    const optionNames: Set<string> = new Set(spec.options || []);
 
-      let prevParamToken: Token = this.previous!;
-      let currParamToken: Token = this.current;
-      while (
-        !this.check(TokenKind.Colon) &&
-        !this.check(TokenKind.Rem) &&
-        !this.check(TokenKind.LineEnding) &&
-        !this.check(TokenKind.Eof)
-      ) {
-        if (this.match(TokenKind.LongFlag)) {
-          const key = this.previous!.value as string;
-          if (flagNames.has(key)) {
-            argv.flags[key] = true;
-          } else if (noFlagNames.has(key)) {
-            argv.flags[key] = false;
-          } else if (optionNames.has(key)) {
-            argv.options[key] = this.expression();
-          }
-        } else {
-          prevParamToken = currParamToken;
-          currParamToken = this.current;
-          argv.arguments.push(this.expression());
+    let prevParamToken: Token = this.previous!;
+    let currParamToken: Token = this.current;
+    while (
+      !this.check(TokenKind.Colon) &&
+      !this.check(TokenKind.Rem) &&
+      !this.check(TokenKind.LineEnding) &&
+      !this.check(TokenKind.Eof)
+    ) {
+      if (this.match(TokenKind.LongFlag)) {
+        const key = this.previous!.value as string;
+        if (flagNames.has(key)) {
+          argv.flags[key] = true;
+        } else if (noFlagNames.has(key)) {
+          argv.flags[key] = false;
+        } else if (optionNames.has(key)) {
+          argv.options[key] = this.expression();
         }
+      } else {
+        prevParamToken = currParamToken;
+        currParamToken = this.current;
+        argv.arguments.push(this.expression());
       }
-
-      if (argv.arguments.length < args.length) {
-        this.syntaxError(
-          currParamToken,
-          `Missing argument '${args[argv.arguments.length]}'`,
-        );
-      } else if (argv.arguments.length > args.length) {
-        this.syntaxError(prevParamToken, 'Unexpected argument');
-      }
-
-      return argv;
-    } finally {
-      span.end();
     }
+
+    if (argv.arguments.length < args.length) {
+      this.syntaxError(
+        currParamToken,
+        `Missing argument '${args[argv.arguments.length]}'`,
+      );
+    } else if (argv.arguments.length > args.length) {
+      this.syntaxError(prevParamToken, 'Unexpected argument');
+    }
+
+    return argv;
   }
 
   private optionalExpression(): Expr | null {
-    const span = tracer.startSpan('optionalExpression');
-    try {
-      for (const tok of [
-        TokenKind.Colon,
-        TokenKind.LineEnding,
-        TokenKind.Eof,
-      ]) {
-        if (this.check(tok)) {
-          return null;
-        }
+    for (const tok of [TokenKind.Colon, TokenKind.LineEnding, TokenKind.Eof]) {
+      if (this.check(tok)) {
+        return null;
       }
-      return this.expression();
-    } finally {
-      span.end();
     }
+    return this.expression();
   }
 
   private expression(): Expr {
-    const span = tracer.startSpan('expression');
-    try {
-      return this.or();
-    } finally {
-      span.end();
-    }
+    return this.or();
   }
 
   private operator<E extends Expr>(
@@ -864,195 +714,139 @@ export class Parser {
   }
 
   private or(): Expr {
-    const span = tracer.startSpan('or');
-    try {
-      return this.operator(
-        [TokenKind.Or],
-        this.and.bind(this),
-        (l, o, r) => new Logical(l, o, r),
-      );
-    } finally {
-      span.end();
-    }
+    return this.operator(
+      [TokenKind.Or],
+      this.and.bind(this),
+      (l, o, r) => new Logical(l, o, r),
+    );
   }
 
   private and(): Expr {
-    const span = tracer.startSpan('and');
-    try {
-      return this.operator(
-        [TokenKind.And],
-        this.equality.bind(this),
-        (l, o, r) => new Logical(l, o, r),
-      );
-    } finally {
-      span.end();
-    }
+    return this.operator(
+      [TokenKind.And],
+      this.equality.bind(this),
+      (l, o, r) => new Logical(l, o, r),
+    );
   }
 
   private equality(): Expr {
-    const span = tracer.startSpan('equality');
-    try {
-      return this.operator(
-        [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
-        this.comparison.bind(this),
-        (left, op, right) => {
-          if (op == TokenKind.Eq) {
-            this.syntaxWarning(
-              this.previous!,
-              'Use `==` instead of `==` for equality',
-            );
-            op = TokenKind.EqEq;
-          } else if (op == TokenKind.BangEq) {
-            this.syntaxWarning(
-              this.previous!,
-              'Use `<>` instead of `!=` for equality',
-            );
-            op = TokenKind.Ne;
-          }
+    return this.operator(
+      [TokenKind.Eq, TokenKind.EqEq, TokenKind.BangEq, TokenKind.Ne],
+      this.comparison.bind(this),
+      (left, op, right) => {
+        if (op == TokenKind.Eq) {
+          this.syntaxWarning(
+            this.previous!,
+            'Use `==` instead of `==` for equality',
+          );
+          op = TokenKind.EqEq;
+        } else if (op == TokenKind.BangEq) {
+          this.syntaxWarning(
+            this.previous!,
+            'Use `<>` instead of `!=` for equality',
+          );
+          op = TokenKind.Ne;
+        }
 
-          return new Binary(left, op, right);
-        },
-      );
-    } finally {
-      span.end();
-    }
+        return new Binary(left, op, right);
+      },
+    );
   }
 
   private comparison(): Expr {
-    const span = tracer.startSpan('comparison');
-    try {
-      return this.operator(
-        [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
-        this.term.bind(this),
-        (l, o, r) => new Binary(l, o, r),
-      );
-    } finally {
-      span.end();
-    }
+    return this.operator(
+      [TokenKind.Gt, TokenKind.Ge, TokenKind.Lt, TokenKind.Le],
+      this.term.bind(this),
+      (l, o, r) => new Binary(l, o, r),
+    );
   }
 
   private term(): Expr {
-    const span = tracer.startSpan('term');
-    try {
-      return this.operator(
-        [TokenKind.Minus, TokenKind.Plus],
-        this.factor.bind(this),
-        (l, o, r) => new Binary(l, o, r),
-      );
-    } finally {
-      span.end();
-    }
+    return this.operator(
+      [TokenKind.Minus, TokenKind.Plus],
+      this.factor.bind(this),
+      (l, o, r) => new Binary(l, o, r),
+    );
   }
 
   private factor(): Expr {
-    const span = tracer.startSpan('factor');
-    try {
-      return this.operator(
-        [TokenKind.Slash, TokenKind.Star],
-        this.unary.bind(this),
-        (l, o, r) => new Binary(l, o, r),
-      );
-    } finally {
-      span.end();
-    }
+    return this.operator(
+      [TokenKind.Slash, TokenKind.Star],
+      this.unary.bind(this),
+      (l, o, r) => new Binary(l, o, r),
+    );
   }
 
   private unary(): Expr {
-    const span = tracer.startSpan('unary');
-    try {
-      if (this.match(TokenKind.Not, TokenKind.Minus)) {
-        const op = this.previous!.kind;
-        const right = this.unary();
+    if (this.match(TokenKind.Not, TokenKind.Minus)) {
+      const op = this.previous!.kind;
+      const right = this.unary();
 
-        return new Unary(op, right);
-      }
-
-      return this.primary();
-    } finally {
-      span.end();
+      return new Unary(op, right);
     }
+
+    return this.primary();
   }
 
   private primary(): Expr {
-    const span = tracer.startSpan('primary');
-    try {
-      if (
-        this.match(
-          TokenKind.DecimalLiteral,
-          TokenKind.HexLiteral,
-          TokenKind.OctalLiteral,
-          TokenKind.BinaryLiteral,
-        )
-      ) {
-        return new IntLiteral(this.previous!.value as number);
-      } else if (this.match(TokenKind.RealLiteral)) {
-        return new RealLiteral(this.previous!.value as number);
-      } else if (this.match(TokenKind.TrueLiteral)) {
-        return new BoolLiteral(true);
-      } else if (this.match(TokenKind.FalseLiteral)) {
-        return new BoolLiteral(false);
-      } else if (this.match(TokenKind.StringLiteral)) {
-        return this.string();
-      } else if (this.match(TokenKind.NilLiteral)) {
-        return new NilLiteral();
-      } else if (
-        this.match(
-          TokenKind.IntIdent,
-          TokenKind.RealIdent,
-          TokenKind.BoolIdent,
-          TokenKind.StringIdent,
-        )
-      ) {
-        return this.variable();
-      } else if (this.match(TokenKind.LParen)) {
-        return this.group();
-      } else {
-        const token = this.current;
-        let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
+    if (
+      this.match(
+        TokenKind.DecimalLiteral,
+        TokenKind.HexLiteral,
+        TokenKind.OctalLiteral,
+        TokenKind.BinaryLiteral,
+      )
+    ) {
+      return new IntLiteral(this.previous!.value as number);
+    } else if (this.match(TokenKind.RealLiteral)) {
+      return new RealLiteral(this.previous!.value as number);
+    } else if (this.match(TokenKind.TrueLiteral)) {
+      return new BoolLiteral(true);
+    } else if (this.match(TokenKind.FalseLiteral)) {
+      return new BoolLiteral(false);
+    } else if (this.match(TokenKind.StringLiteral)) {
+      return this.string();
+    } else if (this.match(TokenKind.NilLiteral)) {
+      return new NilLiteral();
+    } else if (
+      this.match(
+        TokenKind.IntIdent,
+        TokenKind.RealIdent,
+        TokenKind.BoolIdent,
+        TokenKind.StringIdent,
+      )
+    ) {
+      return this.variable();
+    } else if (this.match(TokenKind.LParen)) {
+      return this.group();
+    } else {
+      const token = this.current;
+      let msg = `Unexpected token ${token.text.length ? token.text : token.kind}`;
 
-        if (token.kind == TokenKind.UnterminatedStringLiteral) {
-          msg = `Unterminated string ${token.text}`;
-        }
-
-        this.syntaxError(token, msg);
+      if (token.kind == TokenKind.UnterminatedStringLiteral) {
+        msg = `Unterminated string ${token.text}`;
       }
-    } finally {
-      span.end();
+
+      this.syntaxError(token, msg);
     }
   }
 
   private variable(): Variable {
-    addEvent('variable');
     return new Variable(this.previous!);
   }
 
   private group(): Expr {
-    const span = tracer.startSpan('group');
-    try {
-      const expr: Expr = this.expression();
-      this.consume(TokenKind.RParen, 'Expected `)` after expression');
-      return new Group(expr);
-    } finally {
-      span.end();
-    }
+    const expr: Expr = this.expression();
+    this.consume(TokenKind.RParen, 'Expected `)` after expression');
+    return new Group(expr);
   }
 
   private string(): StringLiteral {
-    const span = tracer.startSpan('string');
-    try {
-      return new StringLiteral(this.parseStringEscapeCodes(false));
-    } finally {
-      span.end();
-    }
+    return new StringLiteral(this.parseStringEscapeCodes(false));
   }
 
   private prompt(): PromptLiteral {
-    const span = tracer.startSpan('prompt');
-    try {
-      return new PromptLiteral(this.parseStringEscapeCodes(true));
-    } finally {
-      span.end();
-    }
+    return new PromptLiteral(this.parseStringEscapeCodes(true));
   }
 
   private parseStringEscapeCodes(isPrompt: boolean): string {

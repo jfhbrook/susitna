@@ -34,9 +34,11 @@ gaps.
   - [x] Fireball tool for local Jaeger
   - [x] Proof of concept for tracing to Jaeger
   - [x] Rip out existing tracing - start over
-  - [ ] Trace the translator
-  - [ ] Trace the executor
-    - Including calls to parser, compiler and runtime
+  - [x] POC race the translator and excutor
+  - [ ] Get a child trace working
+    - `Executor#load` and `Executor#run` are under `script` span
+    - Manually setting the context reproduces the issue
+    - Wondering if the ContextManager isn't configured correctly?
   - [ ] Trace command execution
   - [ ] Strip calls in release with `jscc`
   - [ ] Write ADR

@@ -1,10 +1,8 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { Attributes, context, trace, Span } from '@opentelemetry/api';
+import { Attributes, trace, Span } from '@opentelemetry/api';
 
 //#if _MATBAS_BUILD == 'debug'
 import VERSIONS from 'consts:versions';
-// import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
-import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { Resource } from '@opentelemetry/resources';
@@ -31,13 +29,9 @@ if (!NO_TRACE) {
       [ATTR_SERVICE_NAME]: 'matbas',
       [ATTR_SERVICE_VERSION]: VERSIONS.matbas,
     }),
-    traceExporter: new ConsoleSpanExporter(),
-    /*
     traceExporter: new OTLPTraceExporter({
       url: 'http://localhost:4317/v1/traces',
     }),
-    */
-    // contextManager: new AsyncHooksContextManager(),
     instrumentations: [getNodeAutoInstrumentations()],
   };
 }
@@ -45,14 +39,23 @@ if (!NO_TRACE) {
 
 export const telemetry = new NodeSDK(options);
 
-export function addEvent(message: string, attributes: Attributes = {}): void {
+export function getSpan(name: string = 'root'): [Span, () => void] {
   const tracer = trace.getTracer('main');
   const activeSpan = trace.getActiveSpan();
+  let span: Span;
+  let end: () => void;
   if (activeSpan) {
-    activeSpan.addEvent(message, attributes);
+    span = activeSpan;
+    end = () => {};
   } else {
-    tracer.startActiveSpan('event', (span: Span) => {
-      span.addEvent(message, attributes);
-    });
+    span = tracer.startSpan(name);
+    end = () => (span as Span).end();
   }
+  return [span, end];
+}
+
+export function addEvent(message: string, attributes: Attributes = {}): void {
+  const [span, end] = getSpan();
+  span.addEvent(message, attributes);
+  end();
 }

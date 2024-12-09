@@ -50,8 +50,6 @@ export const sdk = new NodeSDK(options);
 export function startTelemetry() {
   //#if _MATBAS_BUILD == 'debug'
   sdk.start();
-  contextManager.enable();
-  context.setGlobalContextManager(contextManager);
   //#endif
 }
 

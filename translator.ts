@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-// import { trace } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 
 import { Config } from './config';
 import { BaseException } from './exceptions';
@@ -9,14 +9,14 @@ import { Executor } from './executor';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import type { Host } from './host';
 
-// const tracer = trace.getTracer('main');
+const tracer = trace.getTracer('main');
 
 //
 // Run the REPL.
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    // TODO: trace
+    const span = tracer.startSpan('read-eval-print');
     try {
       const input = await executor.prompt();
       await executor.eval(input);
@@ -27,10 +27,12 @@ async function repl(executor: Executor, host: Host) {
 
       if (err instanceof BaseException) {
         host.writeException(err);
-        continue;
+        return;
       }
 
       throw RuntimeFault.fromError(err, null);
+    } finally {
+      span.end();
     }
   }
 }
@@ -76,8 +78,13 @@ export class Translator {
     try {
       await executor.using(async () => {
         if (config.script) {
-          await executor.load(config.script as string);
-          await executor.run();
+          const span = tracer.startSpan('script');
+          try {
+            await executor.load(config.script as string);
+            await executor.run();
+          } finally {
+            span.end();
+          }
         } else {
           await repl(executor, host);
         }

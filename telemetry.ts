@@ -1,4 +1,5 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 
 //#if _MATBAS_BUILD == 'debug'
 import { context } from '@opentelemetry/api';
@@ -25,6 +26,9 @@ let options = {};
 
 //#if _MATBAS_BUILD == 'debug'
 export const contextManager = new AsyncHooksContextManager();
+
+// For troubleshooting, set the log level to DiagLogLevel.DEBUG
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 
 if (!NO_TRACE) {
   options = {

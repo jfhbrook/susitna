@@ -1,7 +1,9 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
 //#if _MATBAS_BUILD == 'debug'
+import { context } from '@opentelemetry/api';
 import VERSIONS from 'consts:versions';
+import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { Resource } from '@opentelemetry/resources';
@@ -22,6 +24,8 @@ NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
 let options = {};
 
 //#if _MATBAS_BUILD == 'debug'
+export const contextManager = new AsyncHooksContextManager();
+
 if (!NO_TRACE) {
   options = {
     resource: new Resource({
@@ -31,9 +35,22 @@ if (!NO_TRACE) {
     traceExporter: new OTLPTraceExporter({
       url: 'http://localhost:4317/v1/traces',
     }),
+    contextManager,
     instrumentations: [getNodeAutoInstrumentations()],
   };
 }
 //#endif
 
-export const telemetry = new NodeSDK(options);
+export const sdk = new NodeSDK(options);
+
+export function startTelemetry() {
+  //#if _MATBAS_BUILD == 'debug'
+  sdk.start();
+  contextManager.enable();
+  context.setGlobalContextManager(contextManager);
+  //#endif
+}
+
+export async function stopTelemetry() {
+  await sdk.shutdown();
+}

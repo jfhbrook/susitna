@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
-import { telemetry } from './telemetry';
+import { startTelemetry, stopTelemetry } from './telemetry';
 
 import MATBAS from 'consts:matbas';
 
 if (MATBAS.build === 'debug') {
   dotenv.config();
-  telemetry.start();
+  startTelemetry();
 }
 
 import { Module } from '@nestjs/common';
@@ -20,7 +20,7 @@ import { Editor } from './editor';
 import { Executor } from './executor';
 
 async function exit(code: number) {
-  await telemetry.shutdown();
+  await stopTelemetry();
   process.exit(code);
 }
 

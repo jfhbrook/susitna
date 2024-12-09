@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { trace } from '@opentelemetry/api';
+import { Span, trace } from '@opentelemetry/api';
 
 import { Config } from './config';
 import { BaseException } from './exceptions';
@@ -77,13 +77,10 @@ export class Translator {
     try {
       await executor.using(async () => {
         if (config.script) {
-          const span = tracer.startSpan('script');
-          try {
+          await tracer.startActiveSpan('script', async (_: Span) => {
             await executor.load(config.script as string);
             await executor.run();
-          } finally {
-            span.end();
-          }
+          });
         } else {
           await repl(executor, host);
         }

@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { trace } from '@opentelemetry/api';
+import { Span, trace } from '@opentelemetry/api';
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -260,9 +260,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    // TODO: Get this to nest under translator script span
-    const span = tracer.startSpan('Executor#load');
-    try {
+    await tracer.startActiveSpan('Executor#load', async (_: Span) => {
       const source = await this.host.readFile(filename);
 
       let result: ParseResult<Program>;
@@ -284,9 +282,7 @@ export class Executor {
 
       this.editor.program = program;
       this.editor.warning = warning;
-    } finally {
-      span.end();
-    }
+    });
   }
 
   /**

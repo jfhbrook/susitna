@@ -50,7 +50,6 @@ export class Translator {
   ) {}
 
   public async start(): Promise<void> {
-    // TODO: trace
     const { host, exit, config, executor } = this;
     let error: any = null;
 

@@ -2,8 +2,13 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 
 //#if _MATBAS_BUILD == 'debug'
-import { context } from '@opentelemetry/api';
 import VERSIONS from 'consts:versions';
+import {
+  NodeTracerProvider,
+  SimpleSpanProcessor,
+  // ConsoleSpanExporter,
+  AlwaysOnSampler,
+} from '@opentelemetry/sdk-trace-node';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
@@ -25,20 +30,47 @@ NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
 let options = {};
 
 //#if _MATBAS_BUILD == 'debug'
+
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+
 export const contextManager = new AsyncHooksContextManager();
 
-// For troubleshooting, set the log level to DiagLogLevel.DEBUG
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+const resource = new Resource({
+  [ATTR_SERVICE_NAME]: 'matbas',
+  [ATTR_SERVICE_VERSION]: VERSIONS.matbas,
+});
+
+const traceExporter = new OTLPTraceExporter({
+  url: 'http://localhost:4317',
+});
+/*
+const traceExporter = new ConsoleSpanExporter();
+*/
+
+const spanProcessor = new SimpleSpanProcessor(traceExporter);
+
+const debugSpanProcessor = {
+  forceFlush: async () => {},
+  onStart: (_span: any, _parentContext: any) => {},
+  onEnd: (span: any) => {
+    console.log(span);
+  },
+  shutdown: async () => {},
+};
+
+const tracerProvider = new NodeTracerProvider({
+  resource,
+  forceFlushTimeoutMillis: 0,
+  spanProcessors: [spanProcessor, debugSpanProcessor],
+  sampler: new AlwaysOnSampler(),
+});
 
 if (!NO_TRACE) {
   options = {
-    resource: new Resource({
-      [ATTR_SERVICE_NAME]: 'matbas',
-      [ATTR_SERVICE_VERSION]: VERSIONS.matbas,
-    }),
-    traceExporter: new OTLPTraceExporter({
-      url: 'http://localhost:4317/v1/traces',
-    }),
+    resource,
+    spanProcessors: [spanProcessor, debugSpanProcessor],
+    tracerProvider,
+    traceExporter,
     contextManager,
     instrumentations: [getNodeAutoInstrumentations()],
   };
@@ -49,7 +81,7 @@ export const sdk = new NodeSDK(options);
 
 export function startTelemetry() {
   //#if _MATBAS_BUILD == 'debug'
-  sdk.start();
+  return sdk.start();
   //#endif
 }
 

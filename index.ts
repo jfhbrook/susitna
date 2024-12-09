@@ -5,7 +5,6 @@ import MATBAS from 'consts:matbas';
 
 if (MATBAS.build === 'debug') {
   dotenv.config();
-  startTelemetry();
 }
 
 import { Module } from '@nestjs/common';
@@ -48,6 +47,7 @@ async function exit(code: number) {
 export class Container {}
 
 export async function main(): Promise<void> {
+  await startTelemetry();
   const deps = await NestFactory.createApplicationContext(Container, {
     logger: new NestLogger(),
   });

@@ -57,7 +57,7 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    const span = tracer.startSpan('Executor#init');
+    // const span = tracer.startSpan('Executor#init');
     try {
       // Ensure the commander's state is clean before initializing.
       await this.close(false);
@@ -98,7 +98,7 @@ export class Executor {
         this.history = history;
       });
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -106,7 +106,7 @@ export class Executor {
    * Close the commander.
    */
   async close(saveHistory: boolean = true): Promise<void> {
-    const span = tracer.startSpan('Executor#close');
+    // const span = tracer.startSpan('Executor#close');
     try {
       let p: Promise<void> = Promise.resolve();
 
@@ -126,7 +126,7 @@ export class Executor {
         saveHistory ? this.saveHistory() : Promise.resolve(),
       ]).then(() => {});
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -171,7 +171,7 @@ export class Executor {
   }
 
   public async loadHistory(): Promise<void> {
-    const span = tracer.startSpan('Executor#loadHistory');
+    // const span = tracer.startSpan('Executor#loadHistory');
     try {
       this.history = (await this.host.readFile(this.historyFile)).split('\n');
     } catch (err) {
@@ -181,12 +181,12 @@ export class Executor {
         this.host.writeDebug(err);
       }
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
   public async saveHistory(): Promise<void> {
-    const span = tracer.startSpan('Executor#saveHistory');
+    // const span = tracer.startSpan('Executor#saveHistory');
     try {
       const sliceAt = Math.max(
         this.history.length - this.config.historyFileSize,
@@ -199,7 +199,7 @@ export class Executor {
         this.host.writeWarn(err);
       }
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -210,10 +210,12 @@ export class Executor {
    * @returns A promise that resolves to the user input.
    */
   input(question: string): Promise<string> {
+    /*
     const span = trace.getActiveSpan();
     if (span) {
       span.addEvent('Request input');
     }
+    */
     return this.readline.question(`${question} > `);
   }
 
@@ -224,10 +226,12 @@ export class Executor {
    * @returns A promise that resolves to the source line.
    */
   async prompt(): Promise<string> {
+    /*
     const span = trace.getActiveSpan();
     if (span) {
       span.addEvent('Prompt');
     }
+    */
 
     const ans = await this.readline.question(`${this.ps1.render(this.cmdNo)} `);
     this.cmdNo++;
@@ -238,14 +242,14 @@ export class Executor {
    * Start a new program and reset the runtime.
    */
   new(filename: string): void {
-    const span = tracer.startSpan('Executor#new');
+    // const span = tracer.startSpan('Executor#new');
     try {
       this.runtime.reset();
       this.editor.reset();
       this.editor.filename = filename;
       // TODO: Close open file handles on this.host
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -256,6 +260,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
+    // TODO: Get this to nest under translator script span
     const span = tracer.startSpan('Executor#load');
     try {
       const source = await this.host.readFile(filename);
@@ -290,7 +295,7 @@ export class Executor {
    * @Returns A promise.
    */
   async save(filename: string | null): Promise<void> {
-    const span = tracer.startSpan('Executor#save');
+    // const span = tracer.startSpan('Executor#save');
     try {
       if (filename) {
         this.editor.filename = filename;
@@ -301,7 +306,7 @@ export class Executor {
         this.editor.list() + '\n',
       );
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -311,7 +316,7 @@ export class Executor {
    * @returns The recreated source of the current program.
    */
   list(): void {
-    const span = tracer.startSpan('Executor#list');
+    // const span = tracer.startSpan('Executor#list');
     try {
       if (this.editor.warning) {
         this.host.writeWarn(this.editor.warning);
@@ -323,7 +328,7 @@ export class Executor {
       const listings = this.editor.list();
       this.host.writeLine(listings);
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -331,11 +336,11 @@ export class Executor {
    * Renumber the current program.
    */
   renum(): void {
-    const span = tracer.startSpan('Executor#renum');
+    // const span = tracer.startSpan('Executor#renum');
     try {
       this.editor.renum();
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -345,7 +350,7 @@ export class Executor {
    * @returns A promise.
    */
   async run(): Promise<void> {
-    const span = tracer.startSpan('Executor#run');
+    // const span = tracer.startSpan('Executor#run');
 
     const program = this.editor.program;
     const parseWarning = this.editor.warning;
@@ -380,7 +385,7 @@ export class Executor {
 
       this.runtime.interpret(chunk);
     } finally {
-      span.end();
+      // span.end();
     }
   }
 
@@ -391,7 +396,7 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    const span = tracer.startSpan('Executor#eval');
+    // const span = tracer.startSpan('Executor#eval');
     try {
       const [result, warning] = this.parser.parseInput(input);
 
@@ -409,7 +414,7 @@ export class Executor {
         }
       }
     } finally {
-      span.end();
+      // span.end();
     }
   }
 

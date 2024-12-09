@@ -4,8 +4,7 @@ import { showChunk } from '../debug';
 import { errorType } from '../errors';
 import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
 import { RuntimeFault, runtimeMethod } from '../faults';
-import { formatter } from '../format';
-import { addEvent } from '../telemetry';
+// import { formatter } from '../format';
 import { Token, TokenKind } from '../tokens';
 import { Value } from '../value';
 // import { Type } from './value/types';
@@ -301,12 +300,6 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
       this.currentInstrNo = 0;
     }
 
-    addEvent('advance', {
-      lineNo: this.lineNo,
-      rowNo: this.rowNo,
-      currentInstrNo: this.currentInstrNo,
-    });
-
     if (this.done) {
       return null;
     }
@@ -399,10 +392,6 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   }
 
   private emitByte(byte: number): void {
-    addEvent('emitByte', {
-      byte,
-      lineNo: this.lineNo,
-    });
     this.currentChunk.writeOp(byte, this.lineNo);
   }
 
@@ -460,9 +449,6 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
   //
 
   private instruction(instr: Instr): void {
-    addEvent('instruction', {
-      instr: formatter.format(instr),
-    });
     instr.accept(this);
   }
 

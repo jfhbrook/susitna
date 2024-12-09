@@ -3,7 +3,6 @@ import { LoggerService, Injectable } from '@nestjs/common';
 import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
-import { addEvent } from './telemetry';
 
 //#if _MATBAS_BUILD == 'debug'
 import { parseBoolEnv } from './env';
@@ -83,9 +82,10 @@ if (!NO_TRACE) {
 
 @Injectable()
 class NestLogger implements LoggerService {
-  log(message: any, ..._optionalParams: any[]) {
-    // TODO: winston formatter
-    addEvent(message, {});
+  log(message: any, ...optionalParams: any[]) {
+    //#if _MATBAS_BUILD == 'debug'
+    console.log(message, ...optionalParams);
+    //#endif
   }
 
   fatal(message: any, ...optionalParams: any[]) {

@@ -1,5 +1,4 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { Attributes, trace, Span } from '@opentelemetry/api';
 
 //#if _MATBAS_BUILD == 'debug'
 import VERSIONS from 'consts:versions';
@@ -38,24 +37,3 @@ if (!NO_TRACE) {
 //#endif
 
 export const telemetry = new NodeSDK(options);
-
-export function getSpan(name: string = 'root'): [Span, () => void] {
-  const tracer = trace.getTracer('main');
-  const activeSpan = trace.getActiveSpan();
-  let span: Span;
-  let end: () => void;
-  if (activeSpan) {
-    span = activeSpan;
-    end = () => {};
-  } else {
-    span = tracer.startSpan(name);
-    end = () => (span as Span).end();
-  }
-  return [span, end];
-}
-
-export function addEvent(message: string, attributes: Attributes = {}): void {
-  const [span, end] = getSpan();
-  span.addEvent(message, attributes);
-  end();
-}

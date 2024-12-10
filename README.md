@@ -109,6 +109,8 @@ gaps.
 
 ### Up Next
 
+- Swap out `pino` for a different logger in grabthar
+  - its async behavior means logs are in the wrong order
 - Split matanuska into modules
   - runtime/stack/etc
   - bytecode

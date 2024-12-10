@@ -16,24 +16,23 @@ const tracer = trace.getTracer('main');
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    const span = tracer.startSpan('read-eval-print');
-    try {
-      const input = await executor.prompt();
-      await executor.eval(input);
-    } catch (err) {
-      if (err instanceof BaseFault || err instanceof Exit) {
-        throw err;
-      }
+    await tracer.startActiveSpan('read-eval-print', async (_: Span) => {
+      try {
+        const input = await executor.prompt();
+        await executor.eval(input);
+      } catch (err) {
+        if (err instanceof BaseFault || err instanceof Exit) {
+          throw err;
+        }
 
-      if (err instanceof BaseException) {
-        host.writeException(err);
-        return;
-      }
+        if (err instanceof BaseException) {
+          host.writeException(err);
+          return;
+        }
 
-      throw RuntimeFault.fromError(err, null);
-    } finally {
-      span.end();
-    }
+        throw RuntimeFault.fromError(err, null);
+      }
+    });
   }
 }
 

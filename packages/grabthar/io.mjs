@@ -31,17 +31,25 @@ export function packageLoader(url) {
   };
 }
 
-export function run(bin, argv) {
+export function run(bin, argv, options = {}) {
+  let { exitOnError } = options;
+  if (typeof check === 'undefined') {
+    exitOnError = true;
+  }
   const path = process.env.PATH.split(':');
   path.concat(join(process.cwd(), 'node_modules', '.bin'));
 
   logger.info(`> ${quote([bin].concat(argv))}`);
 
-  spawnSync(bin, argv, {
+  const proc = spawnSync(bin, argv, {
     stdio: 'inherit',
     env: {
       ...process.env,
       PATH: path.join(':'),
     },
   });
+
+  if (exitOnError && proc.status) {
+    process.exit(proc.status);
+  }
 }

@@ -1,26 +1,17 @@
-import process from 'node:process';
+import replace from '@rollup/plugin-replace';
 
-import consts from 'rollup-plugin-consts';
-import jscc from 'rollup-plugin-jscc';
+import { packageLoader } from '@jfhbrook/grabthar';
 
 import { defineConfig } from '@jfhbrook/grabthar/vite';
 
-const MATBAS_BUILD =
-  process.env.MATBAS_BUILD === 'release' ? 'release' : 'debug';
-const MATBAS_VERSION = process.env.MATBAS_VERSION || '1.0.0';
+const pkg = packageLoader(import.meta.url);
+
+const MATBAS_VERSION = pkg('../..').version;
 
 export default defineConfig({
   plugins: [
-    consts({
-      matbas: {
-        build: MATBAS_BUILD,
-        version: MATBAS_VERSION,
-      },
-    }),
-    jscc({
-      values: {
-        _MATBAS_BUILD: MATBAS_BUILD,
-      },
+    replace({
+      'process.env.MATBAS_VERSION': `'${MATBAS_VERSION}'`,
     }),
   ],
 });

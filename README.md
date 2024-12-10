@@ -38,13 +38,8 @@ gaps.
     - <https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-node>
   - [x] Add fireball to reporting script
   - [x] Telemetry package
-  - [ ] Clean up instrumentations
-    - [dns](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-dns)
-    - [fs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs)
-    - [http](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http)
-    - [nestjs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core)
-    - [net](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-net)
-    - [undici](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici)
+  - [x] Clean up instrumentations
+  - [x] Set version when building telemetry package
   - [ ] Develop functions/macros for tracing
   - [ ] Trace through executor, top levels of parser/compiler/runtime
   - [ ] Add events to parser and compiler

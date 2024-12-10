@@ -9,7 +9,7 @@
 export __MATBAS_DOLLAR_ZERO="${0}"
 
 MATBAS_HOME="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
-TELEMETRY="${MATBAS_HOME}/telemetry.cjs"
+TELEMETRY="@matanuska/telemetry"
 ENTRYPOINT="${MATBAS_HOME}/dist/main.js"
 
 if [[ "${MATBAS_BUILD}" == 'debug' ]] && [ -n "${DEBUG_TRACE}" ]; then

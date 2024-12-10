@@ -1,0 +1,30 @@
+{
+  "name": "@matanuska/telemetry",
+  "version": "1.0.0",
+  "description": "OpenTelemetry configuration for Matanuska",
+  "main": "dist/index.js",
+  "scripts": {
+    "format": "grabthar format",
+    "build": "grabthar build",
+    "check": "grabthar check",
+    "start": "npm run build && node --enable-source-maps ./dist/main.js",
+    "test": "tests-of-the-sierra-madre",
+    "lint": "grabthar lint",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Josh Holbrook",
+  "license": "MIT",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.54.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.56.0",
+    "@opentelemetry/resources": "^1.29.0",
+    "@opentelemetry/sdk-node": "^0.56.0",
+    "@opentelemetry/sdk-trace-node": "^1.29.0",
+    "@opentelemetry/semantic-conventions": "^1.28.0"
+  },
+  "devDependencies": {
+    "@jfhbrook/grabthar": "^0.0.1",
+    "tests-of-the-sierra-madre": "^1.0.1"
+  }
+}

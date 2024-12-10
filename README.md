@@ -36,22 +36,21 @@ gaps.
   - [x] Clean up telemetry.cjs
   - [x] Investigate instrumentations
     - <https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-node>
+  - [x] Add fireball to reporting script
+  - [x] Telemetry package
+  - [ ] Clean up instrumentations
     - [dns](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-dns)
     - [fs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs)
     - [http](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http)
     - [nestjs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core)
     - [net](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-net)
     - [undici](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici)
-  - [x] Add fireball to reporting script
-  - [ ] Clean up instrumentations
   - [ ] Develop functions/macros for tracing
   - [ ] Trace through executor, top levels of parser/compiler/runtime
   - [ ] Add events to parser and compiler
   - [ ] Is manually creating the context manager necessary?
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
-  - [ ] Telemetry package
-    - Incorporate grabthar, jscc, etc
   - [ ] Configure nestjs logging
     - Currently doing a naive console.log, which is not my favorite
     - Note that this should not depend on Host, as this will introduce a

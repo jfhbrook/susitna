@@ -61,6 +61,7 @@ gaps.
   - [ ] Set timeouts to 0 instead of 30s
   - [ ] Flush traces
     - I believe script mode is still dropping them on the floor
+  - [ ] READMEs for fireball, telemetry and entrypoint
   - [ ] Write blog post
   - [ ] Write ADR
 - Steal ideas from other fantasy consoles

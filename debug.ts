@@ -1,4 +1,4 @@
-import { LoggerService, Injectable } from '@nestjs/common';
+// import { LoggerService, Injectable } from '@nestjs/common';
 
 import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
@@ -80,6 +80,7 @@ if (!NO_TRACE) {
 //#endif
 //#endif
 
+/*
 @Injectable()
 class NestLogger implements LoggerService {
   log(message: any, ...optionalParams: any[]) {
@@ -100,11 +101,12 @@ class NestLogger implements LoggerService {
     this.log(`WARN: ${message}`, ...optionalParams);
   }
 }
+*/
 
 export {
   showTree,
   showChunk,
   startTraceExec,
   traceExec,
-  NestLogger,
+  // NestLogger,
 };

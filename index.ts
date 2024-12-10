@@ -9,7 +9,7 @@ if (MATBAS.build === 'debug') {
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-import { NestLogger } from './debug';
+// import { NestLogger } from './debug';
 
 import { Translator } from './translator';
 import { Config, Argv, Env } from './config';
@@ -46,7 +46,9 @@ export class Container {}
 
 export async function main(): Promise<void> {
   const deps = await NestFactory.createApplicationContext(Container, {
-    logger: new NestLogger(),
+    //#if _MATBAS_BUILD != 'debug'
+    logger: false,
+    //#endif
   });
   const translator = deps.get(Translator);
   await translator.start();

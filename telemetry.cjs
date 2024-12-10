@@ -13,13 +13,6 @@ const {
 const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
-const {
-  PeriodicExportingMetricReader,
-  ConsoleMetricExporter,
-} = require('@opentelemetry/sdk-metrics');
-const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
-
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const sdk = new NodeSDK({
   resource: new Resource({
@@ -35,8 +28,6 @@ const sdk = new NodeSDK({
   }),
   instrumentations: [getNodeAutoInstrumentations()],
 });
-
-console.log(sdk);
 
 sdk.start();
 

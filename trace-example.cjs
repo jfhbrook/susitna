@@ -1,6 +1,6 @@
 const { trace } = require('@opentelemetry/api');
 
-const tracer = trace.getTracer('main');
+const tracer = trace.getTracer();
 
 async function main() {
   await tracer.startActiveSpan('span', async (_) => {

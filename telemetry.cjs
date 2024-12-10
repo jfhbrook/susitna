@@ -24,3 +24,7 @@ const sdk = new NodeSDK({
 });
 
 sdk.start();
+
+process.on('exit', async () => {
+  await sdk.shutdown();
+});

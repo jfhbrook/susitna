@@ -49,12 +49,8 @@ gaps.
   - [ ] Is manually creating the context manager necessary?
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
-  - [ ] Insert version into telemetry.cjs
-    - Note that vite struggles with multiple entry points for SSR
-    - Can I configure vite to pull from a different config?
-    - The move might be using rollup directly?
-    - You can also set resource stuff with `OTEL_RESOURCE_ATTRIBUTES` - doing
-      this through the entry point might be the most straightforward
+  - [ ] Telemetry package
+    - Incorporate grabthar, jscc, etc
   - [ ] Configure nestjs logging
     - Currently doing a naive console.log, which is not my favorite
     - Note that this should not depend on Host, as this will introduce a

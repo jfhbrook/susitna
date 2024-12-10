@@ -42,6 +42,7 @@ gaps.
     - [nestjs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core)
     - [net](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-net)
     - [undici](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici)
+  - [x] Add fireball to reporting script
   - [ ] Clean up instrumentations
   - [ ] Develop functions/macros for tracing
   - [ ] Trace through executor, top levels of parser/compiler/runtime

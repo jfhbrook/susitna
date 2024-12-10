@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace, context } from '@opentelemetry/api';
+import { Span, trace } from '@opentelemetry/api';
 
 import { Config } from './config';
 import { BaseException } from './exceptions';
@@ -16,29 +16,25 @@ const tracer = trace.getTracer('main');
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    const span = tracer.startSpan('read-eval-print');
-    const ctx = trace.setSpan(context.active(), span);
-    try {
-      await context.with(ctx, async () => {
-        try {
-          const input = await executor.prompt();
-          await executor.eval(input);
-        } catch (err) {
-          if (err instanceof BaseFault || err instanceof Exit) {
-            throw err;
-          }
-
-          if (err instanceof BaseException) {
-            host.writeException(err);
-            return;
-          }
-
-          throw RuntimeFault.fromError(err, null);
+    await tracer.startActiveSpan('read-eval-print', async (span: Span) => {
+      try {
+        const input = await executor.prompt();
+        await executor.eval(input);
+      } catch (err) {
+        if (err instanceof BaseFault || err instanceof Exit) {
+          throw err;
         }
-      });
-    } finally {
-      span.end();
-    }
+
+        if (err instanceof BaseException) {
+          host.writeException(err);
+          return;
+        }
+
+        throw RuntimeFault.fromError(err, null);
+      } finally {
+        span.end();
+      }
+    });
   }
 }
 
@@ -82,13 +78,14 @@ export class Translator {
     try {
       await executor.using(async () => {
         if (config.script) {
-          const span = tracer.startSpan('script');
-          try {
-            await executor.load(config.script as string);
-            await executor.run();
-          } finally {
-            span.end();
-          }
+          await tracer.startActiveSpan('script', async (span: Span) => {
+            try {
+              await executor.load(config.script as string);
+              await executor.run();
+            } finally {
+              span.end();
+            }
+          });
         } else {
           await repl(executor, host);
         }

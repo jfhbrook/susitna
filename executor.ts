@@ -392,10 +392,8 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    const span = tracer.startSpan('eval', undefined, context.active());
-    const ctx = trace.setSpan(context.active(), span);
-    try {
-      await context.with(ctx, async () => {
+    await tracer.startActiveSpan('eval', async (span: Span) => {
+      try {
         const [result, warning] = this.parser.parseInput(input);
 
         const splitWarning = splitParseError(warning, 'row');
@@ -411,10 +409,10 @@ export class Executor {
             await this.evalParsedCommands([row, warning as ParseWarning]);
           }
         }
-      });
-    } finally {
-      span.end();
-    }
+      } finally {
+        span.end();
+      }
+    });
   }
 
   /**

@@ -31,16 +31,13 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [x] Fireball tool for local Jaeger
-  - [x] Proof of concept for tracing to Jaeger
-  - [x] Rip out existing tracing - start over
-  - [x] POC race the translator and excutor
-  - [ ] Get a child trace working
-    - `Executor#load` and `Executor#run` are under `script` span
-    - Manually setting the context reproduces the issue
-    - Wondering if the ContextManager isn't configured correctly?
-  - [ ] Trace command execution
-  - [ ] Strip calls in release with `jscc`
+  - [x] Why does `tracer.startActiveSpan` not do what I want?
+    - The function does NOT automatically close the active span
+  - [ ] Develop functions/macros for tracing
+  - [ ] Trace through executor, top levels of parser/compiler/runtime
+  - [ ] Develop entrypoint compiler
+  - [ ] Add events to parser and compiler
+  - [ ] Write blog post about experience
   - [ ] Write ADR
     - [The PR](https://github.com/jfhbrook/matanuska/pull/47) has most of
       the necessary details

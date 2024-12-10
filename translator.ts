@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace } from '@opentelemetry/api';
+import { Span, trace, context } from '@opentelemetry/api';
 
 import { Config } from './config';
 import { BaseException } from './exceptions';
@@ -16,23 +16,29 @@ const tracer = trace.getTracer('main');
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    await tracer.startActiveSpan('read-eval-print', async (_: Span) => {
-      try {
-        const input = await executor.prompt();
-        await executor.eval(input);
-      } catch (err) {
-        if (err instanceof BaseFault || err instanceof Exit) {
-          throw err;
-        }
+    const span = tracer.startSpan('read-eval-print');
+    const ctx = trace.setSpan(context.active(), span);
+    try {
+      await context.with(ctx, async () => {
+        try {
+          const input = await executor.prompt();
+          await executor.eval(input);
+        } catch (err) {
+          if (err instanceof BaseFault || err instanceof Exit) {
+            throw err;
+          }
 
-        if (err instanceof BaseException) {
-          host.writeException(err);
-          return;
-        }
+          if (err instanceof BaseException) {
+            host.writeException(err);
+            return;
+          }
 
-        throw RuntimeFault.fromError(err, null);
-      }
-    });
+          throw RuntimeFault.fromError(err, null);
+        }
+      });
+    } finally {
+      span.end();
+    }
   }
 }
 
@@ -76,10 +82,13 @@ export class Translator {
     try {
       await executor.using(async () => {
         if (config.script) {
-          await tracer.startActiveSpan('script', async (_: Span) => {
+          const span = tracer.startSpan('script');
+          try {
             await executor.load(config.script as string);
             await executor.run();
-          });
+          } finally {
+            span.end();
+          }
         } else {
           await repl(executor, host);
         }

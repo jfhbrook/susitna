@@ -53,6 +53,22 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './packages/citree/scripts'
+  qa-fireball:
+    name: fireball
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['lts/Iron', 'latest']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: npm install
+      - name: Lint
+        run: npm run lint -w packages/fireball
   qa-grabthar:
     name: grabthar
     runs-on: ubuntu-latest

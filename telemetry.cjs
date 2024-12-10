@@ -4,6 +4,9 @@ const {
   OTLPTraceExporter,
 } = require('@opentelemetry/exporter-trace-otlp-grpc');
 const {
+  AsyncLocalStorageContextManager
+} = require('@opentelemetry/context-async-hooks');
+const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
 const {
@@ -15,12 +18,15 @@ const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const sdk = new NodeSDK({
+  contextManager: new AsyncLocalStorageContextManager(),
   traceExporter: new ConsoleSpanExporter(),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new ConsoleMetricExporter(),
   }),
   instrumentations: [getNodeAutoInstrumentations()],
 });
+
+console.log(sdk);
 
 sdk.start();
 

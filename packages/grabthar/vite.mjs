@@ -21,11 +21,14 @@ export function defineConfig(cfg) {
         ...config.build,
         ssr: config.entrypoint,
         outDir: config.outDir,
-        rollupOptions: config.moduleType === 'commonjs' ? {
-          output: {
-            format: 'cjs'
-          }
-        } : {}
+        rollupOptions:
+          config.moduleType === 'commonjs'
+            ? {
+                output: {
+                  format: 'cjs',
+                },
+              }
+            : {},
       },
       ssr: { ...(cfg.ssr || {}) },
       test: {

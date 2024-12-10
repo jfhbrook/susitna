@@ -260,7 +260,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    // await tracer.startActiveSpan('Executor#load', async (_: Span) => {
+    await tracer.startActiveSpan('Executor#load', async (_: Span) => {
       const source = await this.host.readFile(filename);
 
       let result: ParseResult<Program>;
@@ -282,7 +282,7 @@ export class Executor {
 
       this.editor.program = program;
       this.editor.warning = warning;
-    // });
+    });
   }
 
   /**
@@ -392,8 +392,7 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    // const span = tracer.startSpan('Executor#eval');
-    try {
+    await tracer.startActiveSpan('eval', async (_: Span) => {
       const [result, warning] = this.parser.parseInput(input);
 
       const splitWarning = splitParseError(warning, 'row');
@@ -409,9 +408,7 @@ export class Executor {
           await this.evalParsedCommands([row, warning as ParseWarning]);
         }
       }
-    } finally {
-      // span.end();
-    }
+    });
   }
 
   /**

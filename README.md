@@ -33,14 +33,45 @@ gaps.
 - Telemetrence
   - [x] Why does `tracer.startActiveSpan` not do what I want?
     - The function does NOT automatically close the active span
+  - [x] Clean up telemetry.cjs
+  - [x] Investigate instrumentations
+    - <https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-node>
+    - [dns](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-dns)
+    - [fs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs)
+    - [http](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http)
+    - [nestjs](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core)
+    - [net](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-net)
+    - [undici](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici)
+  - [ ] Clean up instrumentations
   - [ ] Develop functions/macros for tracing
   - [ ] Trace through executor, top levels of parser/compiler/runtime
-  - [ ] Develop entrypoint compiler
   - [ ] Add events to parser and compiler
-  - [ ] Write blog post about experience
+  - [ ] Is manually creating the context manager necessary?
+  - [ ] Develop entrypoint compiler
+    - Use Terraform/tftpl and a bash wrapper
+  - [ ] Insert version into telemetry.cjs
+    - Note that vite struggles with multiple entry points for SSR
+    - Can I configure vite to pull from a different config?
+    - The move might be using rollup directly?
+    - You can also set resource stuff with `OTEL_RESOURCE_ATTRIBUTES` - doing
+      this through the entry point might be the most straightforward
+  - [ ] Configure nestjs logging
+    - Currently doing a naive console.log, which is not my favorite
+    - Note that this should not depend on Host, as this will introduce a
+    - circular dependency
+    - The default nestjs logger may be sufficient - let's try it and see
+  - [ ] Configure otel logging
+    - The SDK will automatically incorporate a `DiagConsoleLogger` if you set
+      `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
+    - Configuring my own logger would let me format the output. However, the
+      SDK will override this logger if `OTEL_LOG_LEVEL` is defined. I may be
+      able to work around this by deleting the flag from `process.env`.
+    - They recommend "info" as a "default" - debug is too chatty
+  - [ ] Set timeouts to 0 instead of 30s
+  - [ ] Flush traces
+    - I believe script mode is still dropping them on the floor
+  - [ ] Write blog post
   - [ ] Write ADR
-    - [The PR](https://github.com/jfhbrook/matanuska/pull/47) has most of
-      the necessary details
 - Steal ideas from other fantasy consoles
 - for/while/goto
   - [ ] ADR for for/while/goto

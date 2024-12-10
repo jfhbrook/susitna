@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace } from '@opentelemetry/api';
+import { Span, trace, context } from '@opentelemetry/api';
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
@@ -260,7 +260,7 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    // await tracer.startActiveSpan('Executor#load', async (_: Span) => {
+    await tracer.startActiveSpan('Executor#load', async (_: Span) => {
       const source = await this.host.readFile(filename);
 
       let result: ParseResult<Program>;
@@ -282,7 +282,7 @@ export class Executor {
 
       this.editor.program = program;
       this.editor.warning = warning;
-    // });
+    });
   }
 
   /**
@@ -392,25 +392,28 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    // const span = tracer.startSpan('Executor#eval');
+    const span = tracer.startSpan('eval', undefined, context.active());
+    const ctx = trace.setSpan(context.active(), span);
     try {
-      const [result, warning] = this.parser.parseInput(input);
+      await context.with(ctx, async () => {
+        const [result, warning] = this.parser.parseInput(input);
 
-      const splitWarning = splitParseError(warning, 'row');
+        const splitWarning = splitParseError(warning, 'row');
 
-      for (const row of result.input) {
-        const warning = splitWarning[row.row] || null;
-        if (row instanceof Line) {
-          if (warning) {
-            this.host.writeWarn(warning);
+        for (const row of result.input) {
+          const warning = splitWarning[row.row] || null;
+          if (row instanceof Line) {
+            if (warning) {
+              this.host.writeWarn(warning);
+            }
+            this.editor.setLine(row, warning as ParseWarning);
+          } else {
+            await this.evalParsedCommands([row, warning as ParseWarning]);
           }
-          this.editor.setLine(row, warning as ParseWarning);
-        } else {
-          await this.evalParsedCommands([row, warning as ParseWarning]);
         }
-      }
+      });
     } finally {
-      // span.end();
+      span.end();
     }
   }
 

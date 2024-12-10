@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import { startTelemetry, stopTelemetry } from './telemetry';
 
 import MATBAS from 'consts:matbas';
 
@@ -19,7 +18,6 @@ import { Editor } from './editor';
 import { Executor } from './executor';
 
 async function exit(code: number) {
-  await stopTelemetry();
   process.exit(code);
 }
 
@@ -47,7 +45,6 @@ async function exit(code: number) {
 export class Container {}
 
 export async function main(): Promise<void> {
-  await startTelemetry();
   const deps = await NestFactory.createApplicationContext(Container, {
     logger: new NestLogger(),
   });

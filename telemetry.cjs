@@ -23,9 +23,6 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: 'http://localhost:4317',
   }),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new ConsoleMetricExporter(),
-  }),
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

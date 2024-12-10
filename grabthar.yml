@@ -1,7 +1,7 @@
 entrypoint: ./main.ts
 exclude:
   - bin
-  - tools
+  - packages
 check:
   compilerOptions:
     declaration: true

@@ -11,18 +11,18 @@ MATBAS_LC="$(cat ./*.ts \
   ./test/*.ts \
   ./test/helpers/*.ts \
   ./test/value/*.ts | wc -l)"
-CITREE_LC="$(cat ./tools/citree/src/*.ts \
-  ./tools/citree/src/templates/* | wc -l)"
-GRABTHAR_LC="$(cat ./tools/grabthar/*.mjs | wc -l)"
-TESTGEN_LC="$(cat ./tools/test-generator/*.ts | wc -l)"
+CITREE_LC="$(cat ./packages/citree/src/*.ts \
+  ./packages/citree/src/templates/* | wc -l)"
+GRABTHAR_LC="$(cat ./packages/grabthar/*.mjs | wc -l)"
+TESTGEN_LC="$(cat ./packages/test-generator/*.ts | wc -l)"
 
 echo '======== line counts ========'
 echo "project                 count"
 echo "--------               ------"
 echo "main                 ${MATBAS_LC}"
-echo "tools/citree         ${CITREE_LC}"
-echo "tools/grabthar       ${GRABTHAR_LC}"
-echo "tools/test-generator ${TESTGEN_LC}"
+echo "packages/citree         ${CITREE_LC}"
+echo "packages/grabthar       ${GRABTHAR_LC}"
+echo "packages/test-generator ${TESTGEN_LC}"
 
 README_WC="$(wc -w < README.md)"
 ADR_WC="$(cat ./adrs/*.md | wc -w)"

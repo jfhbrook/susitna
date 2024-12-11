@@ -104,10 +104,8 @@ function startSpan<F extends (span: Span) => ReturnType<F>>(
   }
 
   const parentContext = ctx ?? context.active();
-  console.log(parentContext);
   const span = tracer.startSpan(name, opts, parentContext);
   const contextWithSpanSet = trace.setSpan(parentContext, span);
-
   return context.with(contextWithSpanSet, wrapped, undefined, span);
 }
 

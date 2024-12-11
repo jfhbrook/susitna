@@ -20,25 +20,30 @@ import type { Host } from './host';
 async function repl(executor: Executor, host: Host) {
   while (true) {
     //#if _MATBAS_BUILD == 'debug'
-    await startSpan('read-eval-print', async (_: Span) => {
-      //#endif
-      try {
-        const input = await executor.prompt();
-        await executor.eval(input);
-      } catch (err) {
-        if (err instanceof BaseFault || err instanceof Exit) {
-          throw err;
-        }
+    await startSpan(
+      'read-eval-print',
+      undefined,
+      undefined,
+      async (_: Span) => {
+        //#endif
+        try {
+          const input = await executor.prompt();
+          await executor.eval(input);
+        } catch (err) {
+          if (err instanceof BaseFault || err instanceof Exit) {
+            throw err;
+          }
 
-        if (err instanceof BaseException) {
-          host.writeException(err);
-          return;
-        }
+          if (err instanceof BaseException) {
+            host.writeException(err);
+            return;
+          }
 
-        throw RuntimeFault.fromError(err, null);
-      }
-      //#if _MATBAS_BUILD == 'debug'
-    });
+          throw RuntimeFault.fromError(err, null);
+        }
+        //#if _MATBAS_BUILD == 'debug'
+      },
+    );
     //#endif
   }
 }

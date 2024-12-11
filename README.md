@@ -31,18 +31,6 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [x] Why does `tracer.startActiveSpan` not do what I want?
-    - The function does NOT automatically close the active span
-  - [x] Clean up telemetry.cjs
-  - [x] Investigate instrumentations
-    - <https://www.npmjs.com/package/@opentelemetry/auto-instrumentations-node>
-  - [x] Add fireball to reporting script
-  - [x] Telemetry package
-  - [x] Clean up instrumentations
-  - [x] Set version when building telemetry package
-  - [ ] Develop functions/macros for tracing
-  - [ ] Trace through executor, top levels of parser/compiler/runtime
-  - [ ] Add events to parser and compiler
   - [ ] Is manually creating the context manager necessary?
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
@@ -61,8 +49,10 @@ gaps.
   - [ ] Set timeouts to 0 instead of 30s
   - [ ] Flush traces
     - I believe script mode is still dropping them on the floor
-  - [ ] Root spans appear to fire "twice" - is there special behavior with
-        regards to the "root" span?
+  - [ ] read-eval-print appears to fire "twice"
+    - No special requirements for root spans, as far as I can tell
+  - [ ] Respect `NO_TRACE` in telemetry
+    - Probably easiest to handle in the entrypoint?
   - [ ] READMEs for fireball, telemetry and entrypoint
   - [ ] Write blog post
   - [ ] Write ADR
@@ -107,6 +97,7 @@ gaps.
 
 ### Up Next
 
+- Add trace events to parser and compiler
 - Swap out `pino` for a different logger in grabthar
   - its async behavior means logs are in the wrong order
 - Split matanuska into modules

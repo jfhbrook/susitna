@@ -1,6 +1,11 @@
-// import { trace } from '@opentelemetry/api';
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
+//#endif
 
 import { showChunk } from '../debug';
+//#if _MATBAS_BUILD == 'debug'
+import { startSpan } from '../debug';
+//#endif
 import { errorType } from '../errors';
 import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
 import { RuntimeFault, runtimeMethod } from '../faults';
@@ -678,12 +683,19 @@ export function compileInstruction(
   instr: Instr,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
-  const { cmdNo, cmdSource } = options;
-  const lines = [
-    new Line(cmdNo || 100, 1, cmdSource || Source.unknown(), [instr]),
-  ];
-  const compiler = new LineCompiler(lines, RoutineType.Command, options);
-  return compiler.compile();
+  //#if _MATBAS_BUILD == 'debug'
+  return startSpan('compileInstruction', (_: Span): CompileResult<Chunk> => {
+    //#endif
+    const { cmdNo, cmdSource } = options;
+    const lines = [
+      new Line(cmdNo || 100, 1, cmdSource || Source.unknown(), [instr]),
+    ];
+    const compiler = new LineCompiler(lines, RoutineType.Command, options);
+    return compiler.compile();
+
+    //#if _MATBAS_BUILD == 'debug'
+  });
+  //#endif
 }
 
 /**
@@ -697,10 +709,17 @@ export function compileProgram(
   program: Program,
   options: CompilerOptions = {},
 ): CompileResult<Chunk> {
-  const compiler = new LineCompiler(
-    program.lines,
-    RoutineType.Program,
-    options,
-  );
-  return compiler.compile();
+  //#if _MATBAS_BUILD == 'debug'
+  return startSpan('compileProgram', (_: Span): CompileResult<Chunk> => {
+    //#endif
+    const compiler = new LineCompiler(
+      program.lines,
+      RoutineType.Program,
+      options,
+    );
+    return compiler.compile();
+
+    //#if _MATBAS_BUILD == 'debug'
+  });
+  //#endif
 }

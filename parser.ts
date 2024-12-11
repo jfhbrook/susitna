@@ -1,4 +1,11 @@
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
+//#endif
+
 import { showTree } from './debug';
+//#if _MATBAS_BUILD == 'debug'
+import { startSpan } from './debug';
+//#endif
 import { errorType } from './errors';
 import {
   SyntaxError,
@@ -128,28 +135,35 @@ export class Parser {
    */
   @runtimeMethod
   public parseInput(source: string): ParseResult<Input> {
-    this.init(source, '<input>', false);
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Parser#parseInput', (_: Span): ParseResult<Input> => {
+      //#endif
+      this.init(source, '<input>', false);
 
-    const result = new Input(this.rows());
+      const result = new Input(this.rows());
 
-    // NOTE: errors and warnings are *almost* sorted, but there are
-    // certain cases where an error is only known after its expression is
-    // parsed - for example, parameter length validation in params
-    // parsing.
-    let warning: ParseWarning | null = null;
-    if (this.isError) {
-      const err = new ParseError(this.errors);
-      sortParseError(err, ['row', 'offsetStart']);
-      throw err;
-    } else if (this.isWarning) {
-      const warnings = this.errors as unknown as SyntaxWarning[];
-      warning = new ParseWarning(warnings);
-      sortParseError(warning, ['row', 'offsetStart']);
-    }
+      // NOTE: errors and warnings are *almost* sorted, but there are
+      // certain cases where an error is only known after its expression is
+      // parsed - for example, parameter length validation in params
+      // parsing.
+      let warning: ParseWarning | null = null;
+      if (this.isError) {
+        const err = new ParseError(this.errors);
+        sortParseError(err, ['row', 'offsetStart']);
+        throw err;
+      } else if (this.isWarning) {
+        const warnings = this.errors as unknown as SyntaxWarning[];
+        warning = new ParseWarning(warnings);
+        sortParseError(warning, ['row', 'offsetStart']);
+      }
 
-    showTree(result);
+      showTree(result);
 
-    return [result, warning];
+      return [result, warning];
+
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -161,23 +175,30 @@ export class Parser {
    */
   @runtimeMethod
   public parseProgram(source: string, filename: string): ParseResult<Program> {
-    this.init(source, filename, true);
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Parser#parseProgram', (_: Span): ParseResult<Program> => {
+      //#endif
+      this.init(source, filename, true);
 
-    const result = this.rows();
-    sortLines(result as Line[]);
-    const program = new Program(this.filename, result as Line[]);
+      const result = this.rows();
+      sortLines(result as Line[]);
+      const program = new Program(this.filename, result as Line[]);
 
-    let warning: ParseWarning | null = null;
-    if (this.isError) {
-      throw new ParseError(this.errors);
-    } else if (this.isWarning) {
-      const warnings = this.errors as unknown as SyntaxWarning[];
-      warning = new ParseWarning(warnings);
-    }
+      let warning: ParseWarning | null = null;
+      if (this.isError) {
+        throw new ParseError(this.errors);
+      } else if (this.isWarning) {
+        const warnings = this.errors as unknown as SyntaxWarning[];
+        warning = new ParseWarning(warnings);
+      }
 
-    showTree(program);
+      showTree(program);
 
-    return [program, warning];
+      return [program, warning];
+
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   private match(...kinds: TokenKind[]): boolean {

@@ -37,7 +37,6 @@ gaps.
     - Probably easiest to handle in the entrypoint?
   - [ ] Tracing support in `commands/base.ts`
     - This was unused and appeared half-baked
-  - [ ] `config.ts` doesn't appear to use `MATBAS_BUILD` appropriately
   - [ ] READMEs for fireball, telemetry and entrypoint
 - Steal ideas from other fantasy consoles
 - ADR for vitest and grabthar

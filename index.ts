@@ -9,8 +9,6 @@ if (MATBAS.build === 'debug') {
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-// import { NestLogger } from './debug';
-
 import { Translator } from './translator';
 import { Config, Argv, Env } from './config';
 import { ConsoleHost } from './host';

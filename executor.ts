@@ -399,7 +399,6 @@ export class Executor {
       }
 
       this.runtime.interpret(chunk);
-      // span.end();
       //#if _MATBAS_BUILD == 'debug'
     });
     //#endif

@@ -79,18 +79,13 @@ function format(contents) {
   return prettier.format(formatted, { parser: 'markdown' });
 }
 
-const files = globSync('**/*.md', {
-  ignore: ['node_modules/**', 'packages/**'],
-});
-
 async function main() {
-  for (const file of files) {
-    const contents = readFileSync(file, 'utf8');
-    const formatted = await format(contents);
-    if (formatted.trim() !== contents.trim()) {
-      console.log(file);
-      writeFileSync(file, formatted, 'utf8');
-    }
+  const file = process.argv[2];
+  const contents = readFileSync(file, 'utf8');
+  const formatted = await format(contents);
+  if (formatted.trim() !== contents.trim()) {
+    console.log(file);
+    writeFileSync(file, formatted, 'utf8');
   }
 }
 

@@ -36,11 +36,7 @@ gaps.
   - [x] call recordException
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
-  - [ ] Configure nestjs logging
-    - Currently doing a naive console.log, which is not my favorite
-    - Note that this should not depend on Host, as this will introduce a
-    - circular dependency
-    - The default nestjs logger may be sufficient - let's try it and see
+  - [x] Configure nestjs logging
   - [ ] Configure otel logging
     - The SDK will automatically incorporate a `DiagConsoleLogger` if you set
       `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>

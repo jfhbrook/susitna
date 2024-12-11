@@ -146,34 +146,10 @@ if (!NO_TRACE) {
 //#endif
 //#endif
 
-/*
-@Injectable()
-class NestLogger implements LoggerService {
-  log(message: any, ...optionalParams: any[]) {
-    //#if _MATBAS_BUILD == 'debug'
-    console.log(message, ...optionalParams);
-    //#endif
-  }
-
-  fatal(message: any, ...optionalParams: any[]) {
-    this.log(`FATAL: ${message}`, ...optionalParams);
-  }
-
-  error(message: any, ...optionalParams: any[]) {
-    this.log(`ERROR: ${message}`, ...optionalParams);
-  }
-
-  warn(message: any, ...optionalParams: any[]) {
-    this.log(`WARN: ${message}`, ...optionalParams);
-  }
-}
-*/
-
 export {
   showTree,
   showChunk,
   startTraceExec,
   traceExec,
   startSpan,
-  // NestLogger,
 };

@@ -84,7 +84,7 @@ This caused significant issues when onboarding. I am, however, hopeful that
 with internal abstractions and the relative stability of today's OpenTelemetry
 libraries, that the _maintenance_ burden will be acceptable.
 
-### Deep Traces
+### Deep Stack Traces
 
 Second - and this was a problem with the hand-rolled abstraction as well -
 tracing creates very deep stack traces. In the case of OpenTelemetry and

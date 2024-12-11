@@ -17,11 +17,6 @@
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.56.0",
-    "@opentelemetry/instrumentation-dns": "^0.42.0",
-    "@opentelemetry/instrumentation-fs": "^0.18.0",
-    "@opentelemetry/instrumentation-http": "^0.56.0",
-    "@opentelemetry/instrumentation-nestjs-core": "^0.43.0",
-    "@opentelemetry/instrumentation-net": "^0.42.0",
     "@opentelemetry/resources": "^1.29.0",
     "@opentelemetry/sdk-node": "^0.56.0",
     "@opentelemetry/sdk-trace-node": "^1.29.0",

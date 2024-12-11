@@ -6,11 +6,16 @@ import {
 } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
+
+// TODO: These instrumentations are too noisy for me right now, but there
+// might be a scenario where they're useful.
+/*
 import { DnsInstrumentation } from '@opentelemetry/instrumentation-dns';
 import { FsInstrumentation } from '@opentelemetry/instrumentation-fs';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { NetInstrumentation } from '@opentelemetry/instrumentation-net';
+*/
 
 const sdk = new NodeSDK({
   resource: new Resource({
@@ -21,19 +26,7 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: 'http://localhost:4317',
   }),
-  instrumentations: [
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-dns
-    new DnsInstrumentation({}),
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-fs
-    new FsInstrumentation({}),
-    // https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http
-    new HttpInstrumentation({}),
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-nestjs-core
-    new NestInstrumentation({}),
-    new NetInstrumentation({}),
-    // TODO: undici
-    // https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/instrumentation-undici
-  ],
+  instrumentations: [],
 });
 
 sdk.start();

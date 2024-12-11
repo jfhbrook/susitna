@@ -6,24 +6,11 @@
 
 ## Context
 
-`Writing Interactive Compilers & Interpreters` introduces the concept of
-_manifest data types_. This means that the type of a variable is known at
-compile time.
+`Writing Interactive Compilers & Interpreters` introduces the concept of _manifest data types_. This means that the type of a variable is known at compile time.
 
-BASIC has manifest data types, insofar as the language distinguishes between
-numbers and string variables. Syntactically, it does this by _postfixing_
-identifiers with a [sigil](https://www.perl.com/article/on-sigils/). By doing
-this, and by using distinct syntax for defining other types, the compiler is
-able to track and enforce the type of a variable throughout execution.
+BASIC has manifest data types, insofar as the language distinguishes between numbers and string variables. Syntactically, it does this by _postfixing_ identifiers with a [sigil](https://www.perl.com/article/on-sigils/). By doing this, and by using distinct syntax for defining other types, the compiler is able to track and enforce the type of a variable throughout execution.
 
-From a compiler perspective, this allows for the interpreter to use opcodes
-which can _assume_ the type of a value. For instance, suppose you want to add
-two values. Without manifest types, you would need a `ADD` operation which
-inspects the types of the values, and decides what to do accordingly. With
-manifest types, however, you could implement an `ADD` operation which only
-works for numbers, a separate `CONCAT` operation for strings, and a
-`NUM_TO_STR` operation to convert numbers to strings. For example, the bytecode
-for `one + $two` may look like:
+From a compiler perspective, this allows for the interpreter to use opcodes which can _assume_ the type of a value. For instance, suppose you want to add two values. Without manifest types, you would need a `ADD` operation which inspects the types of the values, and decides what to do accordingly. With manifest types, however, you could implement an `ADD` operation which only works for numbers, a separate `CONCAT` operation for strings, and a `NUM_TO_STR` operation to convert numbers to strings. For example, the bytecode for `one + $two` may look like:
 
 ```
 # stack: []
@@ -37,14 +24,11 @@ CONCAT
 # stack: ["12"]
 ```
 
-In other words, manifest types can help avoid `typeof` and `instanceof` checks
-at runtime.
+In other words, manifest types can help avoid `typeof` and `instanceof` checks at runtime.
 
 ### The Decisions of MSX BASIC
 
-Between `Modern MSX Game Development` and the
-[MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html),
-we can discover these rules:
+Between `Modern MSX Game Development` and the [MSX2 Technical Handbook](https://konamiman.github.io/MSX2-Technical-Handbook/md/Chapter2.html), we can discover these rules:
 
 1. Integers in MSX BASIC have a `%` sigil.
 2. Singles in MSX BASIC have a `!` sigil.
@@ -70,19 +54,11 @@ A few aspects of this are worth diving into in more detail.
 
 ### Types in Call Signatures
 
-In the context of a program, the type of an array or function is unambiguous.
-However, in the context of a call signature, they typically _are_ ambiguous.
-Arrays and functions don't have sigils, aside from a convention of including a
-sigil for the inner type. In effect, call signatures appear to be untyped in
-many implementations of BASIC.
+In the context of a program, the type of an array or function is unambiguous. However, in the context of a call signature, they typically _are_ ambiguous. Arrays and functions don't have sigils, aside from a convention of including a sigil for the inner type. In effect, call signatures appear to be untyped in many implementations of BASIC.
 
-In addition, a callable may return a void type. There is, of course, no
-sigil for identifying a void type.
+In addition, a callable may return a void type. There is, of course, no sigil for identifying a void type.
 
-Were we to stick to the syntax of a typical BASIC, we would need to
-support untyped call signatures and return values. This is the most
-straightforward to implement, as it doesn't require inventing new syntax -
-simply check the types of values where used.
+Were we to stick to the syntax of a typical BASIC, we would need to support untyped call signatures and return values. This is the most straightforward to implement, as it doesn't require inventing new syntax - simply check the types of values where used.
 
 There are, however, a few options for syntax extensions:
 
@@ -95,17 +71,11 @@ There are, however, a few options for syntax extensions:
 
 ### Untyped and Union Identifiers
 
-Variables and function arguments in MSX BASIC don't support unions. In other
-words, a variable can't be either an integer _or_ a string. However, as
-mentioned, function arguments are effectively dynamically typed - and many
-_native_ functions in BASIC _can_ accept union or `any` types as arguments.
+Variables and function arguments in MSX BASIC don't support unions. In other words, a variable can't be either an integer _or_ a string. However, as mentioned, function arguments are effectively dynamically typed - and many _native_ functions in BASIC _can_ accept union or `any` types as arguments.
 
-One option for a syntax extension to support these use cases is to list
-multiple sigils for union types. For instance, `ident%!` could be a union of
-integers and reals. In this case, ordering may be a linting rule.
+One option for a syntax extension to support these use cases is to list multiple sigils for union types. For instance, `ident%!` could be a union of integers and reals. In this case, ordering may be a linting rule.
 
-Another option is to allow completely untyped identifiers. These are two major
-options:
+Another option is to allow completely untyped identifiers. These are two major options:
 
 1. Use a dedicated sigil. Unfortunately, many of the natural sigils - such as
    `?` - are taken. `_` may work, if identifiers are modified to disallow that
@@ -116,8 +86,7 @@ options:
 
 ## Decision
 
-For primary types, Matanuska BASIC will begin by broadly implementing the same
-decisions as MSX BASIC, with the following differences:
+For primary types, Matanuska BASIC will begin by broadly implementing the same decisions as MSX BASIC, with the following differences:
 
 1. Since we only support Reals, use the `!` sigil exclusively.
 2. Do not implement default default types for identifiers without a sigil.
@@ -134,19 +103,11 @@ That is:
 | `$`      | str  |
 | `<none>` | any  |
 
-For now, we will assume that sigils in dims reflect their inner type, and
-that sigils in functions reflect their return type. When functions have no
-sigil, they will be expected to only use bare or implicit returns - ie, have
-a `void` return type.
+For now, we will assume that sigils in dims reflect their inner type, and that sigils in functions reflect their return type. When functions have no sigil, they will be expected to only use bare or implicit returns - ie, have a `void` return type.
 
-However, we will also assume that call signatures of functions are untyped.
-While functions are likely going to remain unimplemented for some time, further
-decisions in the compiler and runtime will be made under this assumption.
-When functions are to be implemented, these decisions _may_ be revisited.
+However, we will also assume that call signatures of functions are untyped. While functions are likely going to remain unimplemented for some time, further decisions in the compiler and runtime will be made under this assumption. When functions are to be implemented, these decisions _may_ be revisited.
 
-All syntax extensions aside from those already mentioned will be deferred
-until a later date. For instance, identifiers - for now - will only be allowed
-to support one type.
+All syntax extensions aside from those already mentioned will be deferred until a later date. For instance, identifiers - for now - will only be allowed to support one type.
 
 These decisions are being made with the following goals:
 

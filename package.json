@@ -25,6 +25,7 @@
     "build:test:activate": "npm run build:test-generator && dotenv -e test.env -- test-generator --activate ./test",
     "check": "npm run build:ast && grabthar check",
     "format": "grabthar format",
+    "format:markdown": "./scripts/format-markdown.mjs",
     "start": "npm run build && PATH=\"${PATH}:$(pwd)/bin\" bin/matbas",
     "fireball": "fireball",
     "lint": "dotenv -e test.env -- grabthar lint",

@@ -1,32 +1,24 @@
 # Matanuska BASIC
 
-Matanuska is a BASIC dialect designed for use as a shell. It asks what it
-would've been like if the classic 80s BASIC was better able to rise to the
-occasion when it came to disk features and/or competing with DOS.
+Matanuska is a BASIC dialect designed for use as a shell. It asks what it would've been like if the classic 80s BASIC was better able to rise to the occasion when it came to disk features and/or competing with DOS.
 
-Matanuska is still in development, and needs a lot of work before it's ready
-for regular use.
+Matanuska is still in development, and needs a lot of work before it's ready for regular use.
 
 ## Install
 
-There currently aren't any installable packages for Matanuska. If you would
-like to try it today, follow the instructions for development.
+There currently aren't any installable packages for Matanuska. If you would like to try it today, follow the instructions for development.
 
 ## Development
 
-Matanuska BASIC uses `npm` for all of its tasks. Refer to `package.json`
-for details.
+Matanuska BASIC uses `npm` for all of its tasks. Refer to `package.json` for details.
 
 ## ADRs
 
-Architectural decisions are documented in [./adrs](./adrs). Notes on future
-decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
+Architectural decisions are documented in [./adrs](./adrs). Notes on future decisions I haven't made yet are in [./adrs/draft](./adrs/draft).
 
 ## Current Status and Next Steps
 
-The interpreter can run "hello world" in a REPL and evaluate simple
-expressions. Now is time to add some basic features and button up a few
-gaps.
+The interpreter can run "hello world" in a REPL and evaluate simple expressions. Now is time to add some basic features and button up a few gaps.
 
 ### Prioritized Backlog
 
@@ -85,8 +77,7 @@ gaps.
     - Calling forceFlush on everything doesn't seem to do the trick
     - May need to set tracer provider timeouts to 0 - see <https://github.com/jfhbrook/matanuska/blob/a325e0a045aac030222304aa621934c3727a3178/telemetry.ts>
   - Custom otel diagnostic logger
-    - Note: The SDK will automatically incorporate a `DiagConsoleLogger` if you
-      set `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
+    - Note: The SDK will automatically incorporate a `DiagConsoleLogger` if you set `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
     - Also consider a `ConsoleSpanExporter`
     - They recommend "info" as a "default" - debug is too chatty
 - Split matanuska into modules
@@ -108,10 +99,8 @@ gaps.
 - Get `npm run console` working again
   - ts-node seems to depend on a commonjs build
   - Setting `"type": "module"` in the package.json breaks commonjs completely
-  - `nodenext` module resolution requires that imports end in the file extension,
-    but vite/swc have no such requirement, and it's a bitter pill to swallow
-  - ts-node _completely_ depends on tsc to do builds - making it use swc
-    doesn't seem possible
+  - `nodenext` module resolution requires that imports end in the file extension, but vite/swc have no such requirement, and it's a bitter pill to swallow
+  - ts-node _completely_ depends on tsc to do builds - making it use swc doesn't seem possible
 - grabthar improvements
   - swc cli build option
   - automatically update package.json
@@ -124,8 +113,7 @@ gaps.
 - Investigate [Node.js inspector](https://nodejs.org/en/learn/getting-started/debugging)
 - Escaped newlines
 - Arrays
-  - Including array literals - BASIC assigns each index one at a time, or
-    uses the `data` command
+  - Including array literals - BASIC assigns each index one at a time, or uses the `data` command
   - Consider using [eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 - Implement Acey Ducey
   - `center$(n)`
@@ -150,8 +138,7 @@ gaps.
 - Stream/pipe support
 - Break-in
   - MSX BASIC uses the `stop` and `cont` commands to control break-in behavior
-  - Will need to intercept and handle ctrl-c from readline (ctrl-stop in
-    MSX BASIC)
+  - Will need to intercept and handle ctrl-c from readline (ctrl-stop in MSX BASIC)
 - Symbol dump
 - Profiling
   - Line-based for users

@@ -2,7 +2,7 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace, context } from '@opentelemetry/api';
+import { Span, trace } from '@opentelemetry/api';
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';

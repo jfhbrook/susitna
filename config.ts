@@ -7,13 +7,13 @@ import { Exit, ExitCode } from './exit';
 
 let TRACE_USAGE = '';
 
-if (MATBAS.build === 'debug') {
-  TRACE_USAGE = `
+//#if _MATBAS_BUILD == 'debug'
+TRACE_USAGE = `
 DEBUG_TRACE           enable debug tracing
 DEBUG_SHOW_TREE       log resulting parse trees
 DEBUG_SHOW_CHUNK      log compiled chunks
 DEBUG_TRACE_RUNTIME   enable runtime execution tracing`;
-}
+//#endif
 
 const USAGE = `Usage: matbas [options] [ script.bas ] [arguments]
 

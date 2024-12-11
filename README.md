@@ -32,13 +32,12 @@ gaps.
 
 - Telemetrence
   - [ ] Develop entrypoint compiler
-    - Use Terraform/tftpl and a bash wrapper
+    - Use Terraform/tftpl
   - [ ] Respect `NO_TRACE` in telemetry
     - Probably easiest to handle in the entrypoint?
   - [ ] READMEs for fireball, telemetry and entrypoint
-  - [ ] Write blog post
-  - [ ] Write ADR
 - Steal ideas from other fantasy consoles
+- ADR for vitest and grabthar
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
@@ -83,6 +82,7 @@ gaps.
 - Swap out `pino` for a different logger in grabthar
   - its async behavior means logs are in the wrong order
 - Telemetry improvements/fixes
+  - Audit/document OTEL related environment variables
   - read-eval-print appears to fire "twice"
     - No special requirements for root spans, as far as I can tell
   - No traces when running script

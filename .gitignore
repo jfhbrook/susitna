@@ -6,6 +6,7 @@ constants.ts
 debug.ts
 /dist
 /node_modules
+/bin/matbas
 
 # Logs
 logs

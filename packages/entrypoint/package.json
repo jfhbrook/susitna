@@ -1,0 +1,26 @@
+{
+  "name": "@matanuska/entrypoint",
+  "version": "1.0.0",
+  "description": "Matanuska's entry point generator",
+  "main": "dist/index.js",
+  "bin": {
+    "entrypoint": "dist/main.js"
+  },
+  "scripts": {
+    "install": "npm run install:terraform",
+    "install:terraform": "terraform -chdir=modules/entrypoint init",
+    "update:terraform": "npm run install:terraform -- -upgrade",
+    "format": "prettier --write \"**/*.ts\" && terraform fmt -recursive ./modules",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "npm run build && node --enable-source-maps ./dist/main.js",
+    "test": "tests-of-the-sierra-madre",
+    "lint": "eslint \"src/**.ts\"",
+    "check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Josh Holbrook",
+  "license": "MIT",
+  "devDependencies": {
+    "tests-of-the-sierra-madre": "^1.0.1"
+  }
+}

@@ -1,0 +1,4 @@
+.prettierrc
+dist
+test/__snapshots__
+tsconfig*.json

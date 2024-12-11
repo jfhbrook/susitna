@@ -1,0 +1,45 @@
+{
+  "name": "@matanuska/telemetry",
+  "version": "1.0.0",
+  "description": "OpenTelemetry configuration for Matanuska",
+  "main": "dist/index.js",
+  "scripts": {
+    "format": "grabthar format",
+    "build": "grabthar build",
+    "check": "grabthar check",
+    "start": "npm run build && node --enable-source-maps ./dist/main.js",
+    "test": "tests-of-the-sierra-madre",
+    "lint": "grabthar lint",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Josh Holbrook",
+  "license": "MIT",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.56.0",
+    "@opentelemetry/resources": "^1.29.0",
+    "@opentelemetry/sdk-node": "^0.56.0",
+    "@opentelemetry/sdk-trace-node": "^1.29.0",
+    "@opentelemetry/semantic-conventions": "^1.28.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@jfhbrook/grabthar": "^0.0.1",
+    "@rollup/plugin-replace": "^6.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "rollup-plugin-esbuild-minify": "^1.1.2",
+    "source-map-support": "^0.5.21",
+    "tests-of-the-sierra-madre": "^1.0.1",
+    "ts-loader": "^9.4.3",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^8.8.0",
+    "unplugin-swc": "^1.5.1",
+    "vite": "^5.4.8"
+  }
+}

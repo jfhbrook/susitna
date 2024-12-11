@@ -2,12 +2,17 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
+//#endif
 
-import { getTracer } from './debug';
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
 import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
+//#if _MATBAS_BUILD == 'debug'
+import { startSpan } from './debug';
+//#endif
 import { Editor } from './editor';
 import {
   Exception,
@@ -24,8 +29,6 @@ import { Runtime } from './runtime';
 import { Prompt } from './shell';
 
 import { Line, Cmd, Program } from './ast';
-
-const tracer = getTracer('main');
 
 @Injectable()
 export class Executor {
@@ -57,71 +60,79 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    tracer.open('Executor#init');
-    // Ensure the commander's state is clean before initializing.
-    await this.close(false);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#init', async (_: Span) => {
+      //#endif
+      // Ensure the commander's state is clean before initializing.
+      await this.close(false);
 
-    await this.loadHistory();
+      await this.loadHistory();
 
-    // TODO: Support for tab-completion
-    this.readline = this.createInterface();
+      // TODO: Support for tab-completion
+      this.readline = this.createInterface();
 
-    // TODO: Node's behavior on first press is to print:
-    //
-    //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
-    //
-    // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
-    // and otherwise ignores.
-    //
-    // Neither behavior is simple. Node's behavior requires tracking state
-    // in the Translator - count sigints, reset to zero on any new input.
-    // You'd have to expose this event to the Translator. Python's behavior
-    // seems simpler - throw an Error - but any error thrown here is thrown
-    // asynchronously and the context is lost. Again, you would need to emit
-    // an event on the Host and handle it in the Translator.
-    //
-    // If there's no handler at *all*, the default behavior is ostensibly to
-    // call readline.pause() - here, we're calling this.close() which also
-    // calls readline.close(). The latter ostensibly causes readline.question
-    // to throw an error. *Practically speaking* this causes the process to
-    // quietly exit - I believe it *is* throwing an error, but that Node is
-    // checking the type and deciding not to log it. That said, who knows.
-    //
-    // Either way, I should dig into this more.
-    this.readline.on('SIGINT', () => {
-      this.host.writeError('\n');
-      this.host.writeDebug('Received SIGINT (ctrl-c)');
-      this.close();
+      // TODO: Node's behavior on first press is to print:
+      //
+      //     (To exit, press Ctrl+C again or Ctrl+D or type .exit)
+      //
+      // Python's behavior is to raise a KeyboardInterrupt, which the REPL logs
+      // and otherwise ignores.
+      //
+      // Neither behavior is simple. Node's behavior requires tracking state
+      // in the Translator - count sigints, reset to zero on any new input.
+      // You'd have to expose this event to the Translator. Python's behavior
+      // seems simpler - throw an Error - but any error thrown here is thrown
+      // asynchronously and the context is lost. Again, you would need to emit
+      // an event on the Host and handle it in the Translator.
+      //
+      // If there's no handler at *all*, the default behavior is ostensibly to
+      // call readline.pause() - here, we're calling this.close() which also
+      // calls readline.close(). The latter ostensibly causes readline.question
+      // to throw an error. *Practically speaking* this causes the process to
+      // quietly exit - I believe it *is* throwing an error, but that Node is
+      // checking the type and deciding not to log it. That said, who knows.
+      //
+      // Either way, I should dig into this more.
+      this.readline.on('SIGINT', () => {
+        this.host.writeError('\n');
+        this.host.writeDebug('Received SIGINT (ctrl-c)');
+        this.close();
+      });
+      this.readline.on('history', (history) => {
+        this.history = history;
+      });
+      //#if _MATBAS_BUILD == 'debug'
     });
-    this.readline.on('history', (history) => {
-      this.history = history;
-    });
-    tracer.close();
+    //#endif
   }
 
   /**
    * Close the commander.
    */
   async close(saveHistory: boolean = true): Promise<void> {
-    tracer.open('Executor#close');
-    let p: Promise<void> = Promise.resolve();
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#close', async (_: Span) => {
+      //#endif
+      let p: Promise<void> = Promise.resolve();
 
-    if (this._readline) {
-      const rl = this._readline;
-      p = new Promise((resolve, _reject) => {
-        rl.once('close', () => {
-          tracer.close();
-          resolve();
+      if (this._readline) {
+        const rl = this._readline;
+        p = new Promise((resolve, _reject) => {
+          rl.once('close', () => {
+            resolve();
+          });
         });
-      });
 
-      this._readline.close();
-    }
+        this._readline.close();
+      }
 
-    return Promise.all([
-      p,
-      saveHistory ? this.saveHistory() : Promise.resolve(),
-    ]).then(() => {});
+      return Promise.all([
+        p,
+        saveHistory ? this.saveHistory() : Promise.resolve(),
+      ]).then(() => {});
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -165,28 +176,40 @@ export class Executor {
   }
 
   public async loadHistory(): Promise<void> {
-    try {
-      this.history = (await this.host.readFile(this.historyFile)).split('\n');
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        this.host.writeWarn(err);
-      } else {
-        this.host.writeDebug(err);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#loadHistory', async (_: Span) => {
+      //#endif
+      try {
+        this.history = (await this.host.readFile(this.historyFile)).split('\n');
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          this.host.writeWarn(err);
+        } else {
+          this.host.writeDebug(err);
+        }
       }
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   public async saveHistory(): Promise<void> {
-    const sliceAt = Math.max(
-      this.history.length - this.config.historyFileSize,
-      0,
-    );
-    const history = this.history.slice(sliceAt);
-    try {
-      await this.host.writeFile(this.historyFile, history.join('\n'));
-    } catch (err) {
-      this.host.writeWarn(err);
-    }
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#saveHistory', async (_: Span) => {
+      //#endif
+      const sliceAt = Math.max(
+        this.history.length - this.config.historyFileSize,
+        0,
+      );
+      const history = this.history.slice(sliceAt);
+      try {
+        await this.host.writeFile(this.historyFile, history.join('\n'));
+      } catch (err) {
+        this.host.writeWarn(err);
+      }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -196,6 +219,12 @@ export class Executor {
    * @returns A promise that resolves to the user input.
    */
   input(question: string): Promise<string> {
+    /*
+    const span = trace.getActiveSpan();
+    if (span) {
+      span.addEvent('Request input');
+    }
+    */
     return this.readline.question(`${question} > `);
   }
 
@@ -206,6 +235,13 @@ export class Executor {
    * @returns A promise that resolves to the source line.
    */
   async prompt(): Promise<string> {
+    /*
+    const span = trace.getActiveSpan();
+    if (span) {
+      span.addEvent('Prompt');
+    }
+    */
+
     const ans = await this.readline.question(`${this.ps1.render(this.cmdNo)} `);
     this.cmdNo++;
     return ans;
@@ -215,10 +251,16 @@ export class Executor {
    * Start a new program and reset the runtime.
    */
   new(filename: string): void {
-    this.runtime.reset();
-    this.editor.reset();
-    this.editor.filename = filename;
-    // TODO: Close open file handles on this.host
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#new', (_: Span) => {
+      //#endif
+      this.runtime.reset();
+      this.editor.reset();
+      this.editor.filename = filename;
+      // TODO: Close open file handles on this.host
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -228,27 +270,33 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    const source = await this.host.readFile(filename);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#load', async (_: Span) => {
+      //#endif
+      const source = await this.host.readFile(filename);
 
-    let result: ParseResult<Program>;
+      let result: ParseResult<Program>;
 
-    try {
-      result = this.parser.parseProgram(
-        source,
-        this.host.resolvePath(filename),
-      );
-    } catch (err) {
-      if (err instanceof Exception) {
-        throw err;
+      try {
+        result = this.parser.parseProgram(
+          source,
+          this.host.resolvePath(filename),
+        );
+      } catch (err) {
+        if (err instanceof Exception) {
+          throw err;
+        }
+
+        throw RuntimeFault.fromException(err);
       }
 
-      throw RuntimeFault.fromException(err);
-    }
+      const [program, warning] = result;
 
-    const [program, warning] = result;
-
-    this.editor.program = program;
-    this.editor.warning = warning;
+      this.editor.program = program;
+      this.editor.warning = warning;
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -257,11 +305,21 @@ export class Executor {
    * @Returns A promise.
    */
   async save(filename: string | null): Promise<void> {
-    if (filename) {
-      this.editor.filename = filename;
-    }
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#save', async (_: Span) => {
+      //#endif
+      if (filename) {
+        this.editor.filename = filename;
+      }
 
-    await this.host.writeFile(this.editor.filename, this.editor.list() + '\n');
+      await this.host.writeFile(
+        this.editor.filename,
+        this.editor.list() + '\n',
+      );
+
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -270,22 +328,34 @@ export class Executor {
    * @returns The recreated source of the current program.
    */
   list(): void {
-    if (this.editor.warning) {
-      this.host.writeWarn(this.editor.warning);
-    }
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#list', (_: Span) => {
+      //#endif
+      if (this.editor.warning) {
+        this.host.writeWarn(this.editor.warning);
+      }
 
-    this.host.writeLine(
-      `${this.editor.filename}\n${'-'.repeat(this.editor.filename.length)}`,
-    );
-    const listings = this.editor.list();
-    this.host.writeLine(listings);
+      this.host.writeLine(
+        `${this.editor.filename}\n${'-'.repeat(this.editor.filename.length)}`,
+      );
+      const listings = this.editor.list();
+      this.host.writeLine(listings);
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
    * Renumber the current program.
    */
   renum(): void {
-    this.editor.renum();
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#list', (_: Span) => {
+      //#endif
+      this.editor.renum();
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -294,37 +364,44 @@ export class Executor {
    * @returns A promise.
    */
   async run(): Promise<void> {
-    const program = this.editor.program;
-    const parseWarning = this.editor.warning;
-    const filename = program.filename;
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#run', async (_: Span) => {
+      //#endif
 
-    let chunk: Chunk;
-    let warning: ParseWarning | null;
+      const program = this.editor.program;
+      const parseWarning = this.editor.warning;
+      const filename = program.filename;
 
-    try {
-      const result = compileProgram(program, { filename });
-      chunk = result[0];
-      warning = result[1];
-    } catch (err) {
-      let exc = err;
-      if (err instanceof ParseError) {
-        exc = mergeParseErrors([parseWarning, err]);
+      let chunk: Chunk;
+      let warning: ParseWarning | null;
+
+      try {
+        const result = compileProgram(program, { filename });
+        chunk = result[0];
+        warning = result[1];
+      } catch (err) {
+        let exc = err;
+        if (err instanceof ParseError) {
+          exc = mergeParseErrors([parseWarning, err]);
+        }
+
+        if (exc instanceof Exception) {
+          this.host.writeException(err);
+          return;
+        }
+        throw exc;
       }
 
-      if (exc instanceof Exception) {
-        this.host.writeException(err);
-        return;
+      warning = mergeParseErrors([parseWarning, warning]);
+
+      if (warning) {
+        this.host.writeWarn(warning);
       }
-      throw exc;
-    }
 
-    warning = mergeParseErrors([parseWarning, warning]);
-
-    if (warning) {
-      this.host.writeWarn(warning);
-    }
-
-    this.runtime.interpret(chunk);
+      this.runtime.interpret(chunk);
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -334,21 +411,27 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    const [result, warning] = this.parser.parseInput(input);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#eval', async (_: Span) => {
+      //#endif
+      const [result, warning] = this.parser.parseInput(input);
 
-    const splitWarning = splitParseError(warning, 'row');
+      const splitWarning = splitParseError(warning, 'row');
 
-    for (const row of result.input) {
-      const warning = splitWarning[row.row] || null;
-      if (row instanceof Line) {
-        if (warning) {
-          this.host.writeWarn(warning);
+      for (const row of result.input) {
+        const warning = splitWarning[row.row] || null;
+        if (row instanceof Line) {
+          if (warning) {
+            this.host.writeWarn(warning);
+          }
+          this.editor.setLine(row, warning as ParseWarning);
+        } else {
+          await this.evalParsedCommands([row, warning as ParseWarning]);
         }
-        this.editor.setLine(row, warning as ParseWarning);
-      } else {
-        await this.evalParsedCommands([row, warning as ParseWarning]);
       }
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**

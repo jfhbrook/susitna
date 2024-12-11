@@ -31,13 +31,7 @@ gaps.
 ### Prioritized Backlog
 
 - Steal ideas from other fantasy consoles
-- OpenTelemetry spike
-  - `fireball` tool that spins up local [jaeger](https://www.jaegertracing.io/docs/2.0/getting-started/)
-    - use `badger` backend and volume <https://github.com/dgraph-io/badger>
-    - expose 4317 (grpc otel) and 16686 (web ui) <https://www.jaegertracing.io/docs/2.0/apis/>
-  - dust off [telemetrence](https://github.com/jfhbrook/public/blob/main/old-memes/telemetrence/honeycomb.ts.njk)
-  - use terraform and [the good docker provider](https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs)
-  - maybe a fool's errand, but the current tracing is not my favorite
+- ADR for vitest and grabthar
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
@@ -78,6 +72,23 @@ gaps.
 
 ### Up Next
 
+- Add `tflint` and `terraform validate`
+- Add trace events to parser and compiler
+- Swap out `pino` for a different logger in grabthar
+  - its async behavior means logs are in the wrong order
+- Telemetry improvements/fixes
+  - Audit/document OTEL related environment variables
+  - read-eval-print appears to fire "twice"
+    - No special requirements for root spans, as far as I can tell
+  - No traces when running script
+    - Appears that shutdown doesn't flush all traces
+    - Calling forceFlush on everything doesn't seem to do the trick
+    - May need to set tracer provider timeouts to 0 - see <https://github.com/jfhbrook/matanuska/blob/a325e0a045aac030222304aa621934c3727a3178/telemetry.ts>
+  - Custom otel diagnostic logger
+    - Note: The SDK will automatically incorporate a `DiagConsoleLogger` if you
+      set `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
+    - Also consider a `ConsoleSpanExporter`
+    - They recommend "info" as a "default" - debug is too chatty
 - Split matanuska into modules
   - runtime/stack/etc
   - bytecode

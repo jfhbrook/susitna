@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# TODO: Replace this with something that removes the dependency on Bash.
+# Perhaps a C or rust program?
+
+# $0 is not exposed in node - process.argv is always
+# ["node", "path/to/script", ...]. This exposes it in an environment variable.
+# In a C++ version, we could probably use getenv/setenv for this.
+export __MATBAS_DOLLAR_ZERO="$${0}"
+
+MATBAS_HOME="$(dirname "$(dirname "$(realpath "$${BASH_SOURCE[0]}")")")"
+ENTRYPOINT="$${MATBAS_HOME}/dist/main.js"
+%{if matbas_build == "debug" ~}
+NODE_OPTIONS=(--trace-deprecation --enable-source-maps --require '@matanuska/telemetry')
+%{else ~}
+NODE_OPTIONS=(--no-deprecation --enable-source-maps)
+%{endif ~}
+
+exec node "$${NODE_OPTIONS[@]}" "$${ENTRYPOINT}" "$@"

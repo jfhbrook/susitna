@@ -3,7 +3,7 @@
     "bin",
     "dist",
     "node_modules",
-    "tools"
+    "packages"
   ],
   "compilerOptions": {
     "outDir": "dist",

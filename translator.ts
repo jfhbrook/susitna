@@ -1,7 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace } from '@opentelemetry/api';
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
+//#endif
 
 import { Config } from './config';
+//#if _MATBAS_BUILD == 'debug'
+import { startSpan } from './debug';
+//#endif
 import { BaseException } from './exceptions';
 import { Exit, ExitCode } from './exit';
 import type { ExitFn } from './exit';
@@ -9,14 +14,14 @@ import { Executor } from './executor';
 import { BaseFault, RuntimeFault, UsageFault } from './faults';
 import type { Host } from './host';
 
-const tracer = trace.getTracer('main');
-
 //
 // Run the REPL.
 //
 async function repl(executor: Executor, host: Host) {
   while (true) {
-    await tracer.startActiveSpan('read-eval-print', async (span: Span) => {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('read-eval-print', async (_: Span) => {
+      //#endif
       try {
         const input = await executor.prompt();
         await executor.eval(input);
@@ -31,10 +36,10 @@ async function repl(executor: Executor, host: Host) {
         }
 
         throw RuntimeFault.fromError(err, null);
-      } finally {
-        span.end();
       }
+      //#if _MATBAS_BUILD == 'debug'
     });
+    //#endif
   }
 }
 
@@ -78,14 +83,14 @@ export class Translator {
     try {
       await executor.using(async () => {
         if (config.script) {
-          await tracer.startActiveSpan('script', async (span: Span) => {
-            try {
-              await executor.load(config.script as string);
-              await executor.run();
-            } finally {
-              span.end();
-            }
+          //#if _MATBAS_BUILD == 'debug'
+          await startSpan('script', async (_: Span) => {
+            //#endif
+            await executor.load(config.script as string);
+            await executor.run();
+            //#if _MATBAS_BUILD == 'debug'
           });
+          //#endif
         } else {
           await repl(executor, host);
         }

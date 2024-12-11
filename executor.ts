@@ -2,12 +2,17 @@ import * as readline from 'node:readline/promises';
 import * as path from 'node:path';
 
 import { Injectable, Inject } from '@nestjs/common';
-import { Span, trace } from '@opentelemetry/api';
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
+//#endif
 
 import { Chunk } from './bytecode/chunk';
 import { commandRunner, ReturnValue } from './commands';
 import { compileCommands, compileProgram, CompiledCmd } from './compiler';
 import { Config } from './config';
+//#if _MATBAS_BUILD == 'debug'
+import { startSpan } from './debug';
+//#endif
 import { Editor } from './editor';
 import {
   Exception,
@@ -24,8 +29,6 @@ import { Runtime } from './runtime';
 import { Prompt } from './shell';
 
 import { Line, Cmd, Program } from './ast';
-
-const tracer = trace.getTracer('main');
 
 @Injectable()
 export class Executor {
@@ -57,8 +60,9 @@ export class Executor {
    * Initialize the commander.
    */
   async init(): Promise<void> {
-    // const span = tracer.startSpan('Executor#init');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#init', async (_: Span) => {
+      //#endif
       // Ensure the commander's state is clean before initializing.
       await this.close(false);
 
@@ -97,17 +101,18 @@ export class Executor {
       this.readline.on('history', (history) => {
         this.history = history;
       });
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
    * Close the commander.
    */
   async close(saveHistory: boolean = true): Promise<void> {
-    // const span = tracer.startSpan('Executor#close');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#close', async (_: Span) => {
+      //#endif
       let p: Promise<void> = Promise.resolve();
 
       if (this._readline) {
@@ -125,9 +130,9 @@ export class Executor {
         p,
         saveHistory ? this.saveHistory() : Promise.resolve(),
       ]).then(() => {});
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -171,23 +176,27 @@ export class Executor {
   }
 
   public async loadHistory(): Promise<void> {
-    // const span = tracer.startSpan('Executor#loadHistory');
-    try {
-      this.history = (await this.host.readFile(this.historyFile)).split('\n');
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        this.host.writeWarn(err);
-      } else {
-        this.host.writeDebug(err);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#loadHistory', async (_: Span) => {
+      //#endif
+      try {
+        this.history = (await this.host.readFile(this.historyFile)).split('\n');
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          this.host.writeWarn(err);
+        } else {
+          this.host.writeDebug(err);
+        }
       }
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   public async saveHistory(): Promise<void> {
-    // const span = tracer.startSpan('Executor#saveHistory');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#saveHistory', async (_: Span) => {
+      //#endif
       const sliceAt = Math.max(
         this.history.length - this.config.historyFileSize,
         0,
@@ -198,9 +207,9 @@ export class Executor {
       } catch (err) {
         this.host.writeWarn(err);
       }
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -242,15 +251,16 @@ export class Executor {
    * Start a new program and reset the runtime.
    */
   new(filename: string): void {
-    // const span = tracer.startSpan('Executor#new');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#new', (_: Span) => {
+      //#endif
       this.runtime.reset();
       this.editor.reset();
       this.editor.filename = filename;
       // TODO: Close open file handles on this.host
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -260,7 +270,9 @@ export class Executor {
    * @returns A promise.
    */
   async load(filename: string): Promise<void> {
-    await tracer.startActiveSpan('Executor#load', async (_: Span) => {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#load', async (_: Span) => {
+      //#endif
       const source = await this.host.readFile(filename);
 
       let result: ParseResult<Program>;
@@ -282,7 +294,9 @@ export class Executor {
 
       this.editor.program = program;
       this.editor.warning = warning;
+      //#if _MATBAS_BUILD == 'debug'
     });
+    //#endif
   }
 
   /**
@@ -291,8 +305,9 @@ export class Executor {
    * @Returns A promise.
    */
   async save(filename: string | null): Promise<void> {
-    // const span = tracer.startSpan('Executor#save');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#save', async (_: Span) => {
+      //#endif
       if (filename) {
         this.editor.filename = filename;
       }
@@ -301,9 +316,10 @@ export class Executor {
         this.editor.filename,
         this.editor.list() + '\n',
       );
-    } finally {
-      // span.end();
-    }
+
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -312,8 +328,9 @@ export class Executor {
    * @returns The recreated source of the current program.
    */
   list(): void {
-    // const span = tracer.startSpan('Executor#list');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#list', (_: Span) => {
+      //#endif
       if (this.editor.warning) {
         this.host.writeWarn(this.editor.warning);
       }
@@ -323,21 +340,22 @@ export class Executor {
       );
       const listings = this.editor.list();
       this.host.writeLine(listings);
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
    * Renumber the current program.
    */
   renum(): void {
-    // const span = tracer.startSpan('Executor#renum');
-    try {
+    //#if _MATBAS_BUILD == 'debug'
+    return startSpan('Executor#list', (_: Span) => {
+      //#endif
       this.editor.renum();
-    } finally {
-      // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -346,16 +364,17 @@ export class Executor {
    * @returns A promise.
    */
   async run(): Promise<void> {
-    // const span = tracer.startSpan('Executor#run');
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#run', async (_: Span) => {
+      //#endif
 
-    const program = this.editor.program;
-    const parseWarning = this.editor.warning;
-    const filename = program.filename;
+      const program = this.editor.program;
+      const parseWarning = this.editor.warning;
+      const filename = program.filename;
 
-    let chunk: Chunk;
-    let warning: ParseWarning | null;
+      let chunk: Chunk;
+      let warning: ParseWarning | null;
 
-    try {
       try {
         const result = compileProgram(program, { filename });
         chunk = result[0];
@@ -380,9 +399,10 @@ export class Executor {
       }
 
       this.runtime.interpret(chunk);
-    } finally {
       // span.end();
-    }
+      //#if _MATBAS_BUILD == 'debug'
+    });
+    //#endif
   }
 
   /**
@@ -392,27 +412,27 @@ export class Executor {
    * @returns A promise.
    */
   async eval(input: string): Promise<void> {
-    await tracer.startActiveSpan('eval', async (span: Span) => {
-      try {
-        const [result, warning] = this.parser.parseInput(input);
+    //#if _MATBAS_BUILD == 'debug'
+    await startSpan('Executor#eval', async (_: Span) => {
+      //#endif
+      const [result, warning] = this.parser.parseInput(input);
 
-        const splitWarning = splitParseError(warning, 'row');
+      const splitWarning = splitParseError(warning, 'row');
 
-        for (const row of result.input) {
-          const warning = splitWarning[row.row] || null;
-          if (row instanceof Line) {
-            if (warning) {
-              this.host.writeWarn(warning);
-            }
-            this.editor.setLine(row, warning as ParseWarning);
-          } else {
-            await this.evalParsedCommands([row, warning as ParseWarning]);
+      for (const row of result.input) {
+        const warning = splitWarning[row.row] || null;
+        if (row instanceof Line) {
+          if (warning) {
+            this.host.writeWarn(warning);
           }
+          this.editor.setLine(row, warning as ParseWarning);
+        } else {
+          await this.evalParsedCommands([row, warning as ParseWarning]);
         }
-      } finally {
-        span.end();
       }
+      //#if _MATBAS_BUILD == 'debug'
     });
+    //#endif
   }
 
   /**

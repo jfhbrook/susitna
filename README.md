@@ -61,6 +61,8 @@ gaps.
   - [ ] Set timeouts to 0 instead of 30s
   - [ ] Flush traces
     - I believe script mode is still dropping them on the floor
+  - [ ] Root spans appear to fire "twice" - is there special behavior with
+        regards to the "root" span?
   - [ ] READMEs for fireball, telemetry and entrypoint
   - [ ] Write blog post
   - [ ] Write ADR

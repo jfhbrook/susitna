@@ -4,7 +4,7 @@
   "description": "Matanuska's entry point generator",
   "main": "dist/index.js",
   "bin": {
-    "fireball": "dist/main.js"
+    "entrypoint": "dist/main.js"
   },
   "scripts": {
     "install": "npm run install:terraform",

@@ -16,12 +16,9 @@
     "packages/test-generator"
   ],
   "scripts": {
-    "build": "npm run build:ast && dotenv -- grabthar build",
-    "build:release": "npm run build:ast && dotenv -e release.env -- grabthar build",
+    "build": "npm run build:ast && entrypoint && dotenv -- grabthar build",
+    "build:release": "npm run build:ast && dotenv -e release.env -- entrypoint && dotenv -e release.env -- grabthar build",
     "build:citree": "cp ast/index.citree packages/citree/example/ast.citree && npm run build -w packages/citree && npm run snap -w packages/citree",
-    "build:fireball": "npm run build -w packages/fireball",
-    "build:telemetry": "cd packages/telemetry && npm run build",
-    "build:test-generator": "npm run build -w packages/test-generator",
     "build:ast": "citree ast/index.citree",
     "build:test": "npm run build:test-generator && dotenv -e test.env -- test-generator ./test",
     "build:test:activate": "npm run build:test-generator && dotenv -e test.env -- test-generator --activate ./test",

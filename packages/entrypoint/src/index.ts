@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import * as path from 'node:path';
 
 import minimist from 'minimist';
@@ -73,7 +73,7 @@ export function parseArgs(argv: typeof process.argv): Args {
 
 function run(command: string, vars: typeof process.env): void {
   const env: typeof process.env = Object.assign({}, process.env);
-  for (let [name, value] of Object.entries(vars)) {
+  for (const [name, value] of Object.entries(vars)) {
     env[`TF_VAR_${name}`] = value;
   }
   const { status } = spawnSync(

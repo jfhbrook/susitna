@@ -31,24 +31,8 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [x] Is manually creating the context manager necessary?
-    - It appears not!
-  - [x] call recordException
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
-  - [x] Configure nestjs logging
-  - [ ] Configure otel logging
-    - The SDK will automatically incorporate a `DiagConsoleLogger` if you set
-      `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
-    - Configuring my own logger would let me format the output. However, the
-      SDK will override this logger if `OTEL_LOG_LEVEL` is defined. I may be
-      able to work around this by deleting the flag from `process.env`.
-    - They recommend "info" as a "default" - debug is too chatty
-  - [ ] Set timeouts to 0 instead of 30s
-  - [ ] Flush traces
-    - I believe script mode is still dropping them on the floor
-  - [ ] read-eval-print appears to fire "twice"
-    - No special requirements for root spans, as far as I can tell
   - [ ] Respect `NO_TRACE` in telemetry
     - Probably easiest to handle in the entrypoint?
   - [ ] READMEs for fireball, telemetry and entrypoint
@@ -98,6 +82,18 @@ gaps.
 - Add trace events to parser and compiler
 - Swap out `pino` for a different logger in grabthar
   - its async behavior means logs are in the wrong order
+- Telemetry improvements/fixes
+  - read-eval-print appears to fire "twice"
+    - No special requirements for root spans, as far as I can tell
+  - No traces when running script
+    - Appears that shutdown doesn't flush all traces
+    - Calling forceFlush on everything doesn't seem to do the trick
+    - May need to set tracer provider timeouts to 0 - see <https://github.com/jfhbrook/matanuska/blob/a325e0a045aac030222304aa621934c3727a3178/telemetry.ts>
+  - Custom otel diagnostic logger
+    - Note: The SDK will automatically incorporate a `DiagConsoleLogger` if you
+      set `OTEL_LOG_LEVEL`: <https://github.com/open-telemetry/opentelemetry-js/blob/887ff1cd6e3f795f703e40a9fbe89b3cba7e88c3/experimental/packages/opentelemetry-sdk-node/src/sdk.ts#L127-L133>
+    - Also consider a `ConsoleSpanExporter`
+    - They recommend "info" as a "default" - debug is too chatty
 - Split matanuska into modules
   - runtime/stack/etc
   - bytecode

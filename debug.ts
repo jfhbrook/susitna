@@ -98,6 +98,9 @@ function startSpan<F extends (span: Span) => ReturnType<F>>(
   const wrapped = (span: Span) => {
     try {
       return fn(span);
+    } catch (err) {
+      span.recordException(err);
+      throw err;
     } finally {
       span.end();
     }

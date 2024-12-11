@@ -31,7 +31,9 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [ ] Is manually creating the context manager necessary?
+  - [x] Is manually creating the context manager necessary?
+    - It appears not!
+  - [x] call recordException
   - [ ] Develop entrypoint compiler
     - Use Terraform/tftpl and a bash wrapper
   - [ ] Configure nestjs logging

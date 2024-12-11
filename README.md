@@ -31,8 +31,6 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [ ] Develop entrypoint compiler
-    - Use Terraform/tftpl
   - [ ] Respect `NO_TRACE` in telemetry
     - Probably easiest to handle in the entrypoint?
   - [ ] Tracing support in `commands/base.ts`

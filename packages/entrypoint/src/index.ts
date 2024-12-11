@@ -10,18 +10,21 @@ const { version: VERSION } = require('../package.json');
 // const EXIT_NOINPUT = 66;
 // const EXIT_CANTCREATE = 73;
 
-const USAGE = `Usage: entrypoint [OPTIONS]
+const USAGE = `Usage: entrypoint [OPTIONS] [OUTPUT]
+
+Write the Matanuska entry point to OUTPUT.
 
 Options:
   -h, --help               print entrypoint command line options
   -v, --version            print entrypoint version
+
+Environment:
+  MATBAS_BUILD             the build type - either 'debug' or 'release'
 `;
 
-/*
 export interface Args {
+  outputPath: string;
 }
-*/
-export type Args = any;
 
 function help() {
   console.log(USAGE);
@@ -48,7 +51,7 @@ export function parseArgs(argv: typeof process.argv): Args {
   const args = minimist(argv, {
     alias: {
       h: 'help',
-      v: 'version'
+      v: 'version',
     },
     boolean: ['help', 'version'],
     unknown(opt: string): boolean {
@@ -68,10 +71,20 @@ export function parseArgs(argv: typeof process.argv): Args {
     version();
   }
 
-  return {};
+  if (args._.length < 1) {
+    help();
+  }
+
+  if (args._.length > 1) {
+    usage(`Unexpected argument: ${args._[1]}`);
+  }
+
+  const outputPath: string = args._[0];
+
+  return { outputPath };
 }
 
-function run(command: string, vars: typeof process.env): void {
+function run(vars: typeof process.env): void {
   const env: typeof process.env = Object.assign({}, process.env);
   for (const [name, value] of Object.entries(vars)) {
     env[`TF_VAR_${name}`] = value;
@@ -80,7 +93,7 @@ function run(command: string, vars: typeof process.env): void {
     'terraform',
     [
       `-chdir=${path.join(__dirname, '..', 'modules', 'entrypoint')}`,
-      command,
+      'apply',
       '-auto-approve',
     ],
     { env, stdio: 'inherit' },
@@ -93,7 +106,10 @@ function run(command: string, vars: typeof process.env): void {
 export default async function main(
   argv: typeof process.argv = process.argv.slice(2),
 ): Promise<void> {
-  const args = parseArgs(argv);
+  const { outputPath } = parseArgs(argv);
 
-  console.log('hello world');
+  run({
+    matbas_build: process.env.MATBAS_BUILD || 'debug',
+    path: path.join(process.cwd(), outputPath),
+  });
 }

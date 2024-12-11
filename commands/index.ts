@@ -1,4 +1,4 @@
-import { invalid, noop } from './base';
+import { invalid, noop, trace } from './base';
 import type { CommandRunner, ReturnValue } from './base';
 import { Editor } from '../editor';
 import { Executor } from '../executor';
@@ -25,15 +25,15 @@ export function commandRunner(
     program: editor.program,
     host,
     args,
-    visitExpressionInstr,
+    visitExpressionInstr: trace('<expr>', visitExpressionInstr),
     visitPrintInstr: invalid('print'),
     visitRemInstr: noop,
-    visitNewInstr,
-    visitLoadInstr,
-    visitListInstr,
-    visitRenumInstr,
-    visitSaveInstr,
-    visitRunInstr,
+    visitNewInstr: trace('new', visitNewInstr),
+    visitLoadInstr: trace('load', visitLoadInstr),
+    visitListInstr: trace('list', visitListInstr),
+    visitRenumInstr: trace('renum', visitRenumInstr),
+    visitSaveInstr: trace('save', visitSaveInstr),
+    visitRunInstr: trace('run', visitRunInstr),
     visitEndInstr: invalid('end'),
     visitExitInstr: invalid('exit'),
     visitLetInstr: invalid('let'),

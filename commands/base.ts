@@ -1,16 +1,19 @@
-// import { trace as _trace, Span } from '@opentelemetry/api';
+//#if _MATBAS_BUILD == 'debug'
+import { Span } from '@opentelemetry/api';
 
+import { startSpan } from '../debug';
+//#endif
 import { Editor } from '../editor';
 import { Executor } from '../executor';
 import { errorType } from '../errors';
 import { RuntimeFault } from '../faults';
-// import { formatter } from '../format';
+//#if _MATBAS_BUILD == 'debug'
+import { formatter } from '../format';
+//#endif
 import { Host } from '../host';
 import { Value } from '../value';
 import { Program } from '../ast';
 import { Instr, InstrVisitor } from '../ast/instr';
-
-// const tracer = _trace.getTracer('main');
 
 /**
  * The return value of a command. Null is used to indicate no returned
@@ -66,19 +69,26 @@ export async function noop<C extends Instr>(_cmd: C): Promise<ReturnValue> {
   return null;
 }
 
-/*
+/**
+ * Wrap an interactive command in a telemetry span.
+ */
 export function trace<C extends Instr>(
-  _name: string,
+  name: string,
   command: InteractiveCommand<C>,
 ): InteractiveCommand<C> {
+  //#if _MATBAS_BUILD == 'debug'
   return async function traced(
     this: CommandRunner,
     cmd: C,
   ): Promise<ReturnValue> {
-    for (let i = 0; i < this.args.length; i++) {
-      span.setAttribute(`arg_${i}`, formatter.format(this.args[i]));
-    }
-    return await command.call(this, cmd);
+    return await startSpan(`command: ${name}`, async (span: Span) => {
+      for (let i = 0; i < this.args.length; i++) {
+        span.setAttribute(`arg_${i}`, formatter.format(this.args[i]));
+      }
+      return await command.call(this, cmd);
+    });
   };
+  //#else
+  return command;
+  //#endif
 }
-*/

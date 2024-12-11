@@ -30,10 +30,6 @@ gaps.
 
 ### Prioritized Backlog
 
-- Telemetrence
-  - [ ] Tracing support in `commands/base.ts`
-    - This was unused and appeared half-baked
-  - [ ] READMEs for fireball, telemetry and entrypoint
 - Steal ideas from other fantasy consoles
 - ADR for vitest and grabthar
 - for/while/goto

@@ -16,4 +16,4 @@ NODE_OPTIONS=(--trace-deprecation --enable-source-maps --require '@matanuska/tel
 NODE_OPTIONS=(--no-deprecation --enable-source-maps)
 %{endif ~}
 
-exec node "$${NODE_OPTIONS}" "$${ENTRYPOINT}" "$@"
+exec node "$${NODE_OPTIONS[@]}" "$${ENTRYPOINT}" "$@"

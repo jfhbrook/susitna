@@ -1,6 +1,4 @@
-// import { LoggerService, Injectable } from '@nestjs/common';
-
-import { context, Context, Span, SpanOptions, trace } from '@opentelemetry/api';
+import { Attributes, context, Context, Span, SpanOptions, trace } from '@opentelemetry/api';
 
 import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
@@ -100,7 +98,7 @@ function startSpan<F extends (span: Span) => ReturnType<F>>(
       return fn(span);
     } catch (err) {
       span.recordException(err);
-      throw err;
+  throw err;
     } finally {
       span.end();
     }
@@ -110,6 +108,16 @@ function startSpan<F extends (span: Span) => ReturnType<F>>(
   const span = tracer.startSpan(name, opts, parentContext);
   const contextWithSpanSet = trace.setSpan(parentContext, span);
   return context.with(contextWithSpanSet, wrapped, undefined, span);
+}
+
+// A convenience function for adding events when you don't have the span
+// immediately on-hand. Like startSpan, this is not hidden behind jscc and
+// should instead be conditionally imported/called at the site of use.
+function addEvent(message: string, attributes: Attributes = {}): void {
+  const span = trace.getActiveSpan();
+  if (span) {
+    span.addEvent(message, attributes);
+  }
 }
 
 //#if _MATBAS_BUILD == 'debug'
@@ -152,4 +160,5 @@ export {
   startTraceExec,
   traceExec,
   startSpan,
+  addEvent,
 };

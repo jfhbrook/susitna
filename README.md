@@ -31,8 +31,6 @@ gaps.
 ### Prioritized Backlog
 
 - Telemetrence
-  - [ ] Respect `NO_TRACE` in telemetry
-    - Probably easiest to handle in the entrypoint?
   - [ ] Tracing support in `commands/base.ts`
     - This was unused and appeared half-baked
   - [ ] READMEs for fireball, telemetry and entrypoint

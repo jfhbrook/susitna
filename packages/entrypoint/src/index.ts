@@ -6,10 +6,6 @@ import minimist from 'minimist';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { version: VERSION } = require('../package.json');
 
-// const EXIT_SOFTWARE = 70;
-// const EXIT_NOINPUT = 66;
-// const EXIT_CANTCREATE = 73;
-
 const USAGE = `Usage: entrypoint [OPTIONS] [OUTPUT]
 
 Write the Matanuska entry point to OUTPUT.

@@ -258,9 +258,12 @@ considered enough to stop me from shipping, but should be addressed eventually.
 
 ### Jscc Patterns for Non-Telemetry Use Cases
 
-This ADR outlines a series of patterns for use of the `debug` module. However,
-the work to migrate other uses of this module to follow the same patterns is
-outstanding.
+This ADR outlines a series of patterns for use of the `debug` module. This
+pattern is new - older features are given default no-op implementations in the
+`debug` module. This is because, historically, the problems solved by `jscc`
+in all files were being handled through templating in just the `debug` module.
+The work to migrate other uses of this module to follow the same patterns is
+outstanding, as is an ADR discussing how `jscc` came into the picture.
 
 ### Debug Logging
 

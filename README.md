@@ -72,6 +72,7 @@ gaps.
 
 ### Up Next
 
+- Add `tflint` and `terraform validate`
 - Add trace events to parser and compiler
 - Swap out `pino` for a different logger in grabthar
   - its async behavior means logs are in the wrong order

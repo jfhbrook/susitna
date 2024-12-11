@@ -20,10 +20,6 @@ data "docker_image" "jaeger" {
   name = "jaegertracing/jaeger:${var.jaeger_version}"
 }
 
-resource "docker_volume" "config" {
-  name = "jaeger-config"
-}
-
 resource "docker_container" "jaeger" {
   image = data.docker_image.jaeger.id
   name  = "fireball"
@@ -31,12 +27,6 @@ resource "docker_container" "jaeger" {
     "--set", "receivers.otlp.protocols.http.endpoint=0.0.0.0:4318",
     "--set", "receivers.otlp.protocols.grpc.endpoint=0.0.0.0:4317"
   ]
-
-  volumes {
-    volume_name    = docker_volume.config.name
-    container_path = "/etc/jaeger"
-    host_path      = "${path.cwd}/.fireball/etc/jaeger"
-  }
 
   dynamic "ports" {
     for_each = toset(local.ports)

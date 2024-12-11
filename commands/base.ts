@@ -81,7 +81,7 @@ export function trace<C extends Instr>(
     this: CommandRunner,
     cmd: C,
   ): Promise<ReturnValue> {
-    return await startSpan(`command: ${name}`, async (span: Span) => {
+    return await startSpan(`Command: ${name}`, async (span: Span) => {
       for (let i = 0; i < this.args.length; i++) {
         span.setAttribute(`arg_${i}`, formatter.format(this.args[i]));
       }

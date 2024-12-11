@@ -33,7 +33,7 @@ export function packageLoader(url) {
 
 export function run(bin, argv, options = {}) {
   let { exitOnError } = options;
-  if (typeof check === 'undefined') {
+  if (typeof exitOnError === 'undefined') {
     exitOnError = true;
   }
   const path = process.env.PATH.split(':');

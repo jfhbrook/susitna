@@ -6,7 +6,11 @@
 
 ## Context
 
-Matanuska BASIC is currently specified as having distinct double and integer types. This is, however, not strictly enforced by the implementation, as JavaScript only has a single `number` type.
+While Matanuska has decided to implement both double and integer literals and sigils, numbers are otherwise poorly specified.
+
+First, the format of number literals is currently not well-specified. The implementation currently leans on JavaScript's `parseInt`, and is therefore JavaScript-compliant by default. But there are alternatives - for instance, aiming for compatibility with ECMA-55, or a format similar to VB.NET.
+
+Second, these types are currently not enforced by the implementation, as JavaScript only has a single `number` type.
 
 This *could* potentially be enforced on a type level. This could be done entirely through type checking in the compiler. It could also be done with a wrapper in the `Value` type. But as it stands, this information is largely ignored.
 

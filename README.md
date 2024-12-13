@@ -22,7 +22,6 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
 
 ### Prioritized Backlog
 
-- ADR for vitest and grabthar
 - Implement JSCC pattern from telemetry to other debug functions
 - for/while/goto
   - [ ] ADR for for/while/goto

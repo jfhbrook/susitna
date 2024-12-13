@@ -2,11 +2,15 @@ import * as assert from 'assert';
 
 //#if _MATBAS_BUILD == 'debug'
 import { Span } from '@opentelemetry/api';
+//#else
+//#unset _DEBUG_TRACE_RUNTIME
 //#endif
 
-import { startTraceExec, traceExec } from './debug';
 //#if _MATBAS_BUILD == 'debug'
 import { startSpan } from './debug';
+//#endif
+//#if _DEBUG_TRACE_RUNTIME
+import { startTraceExec, traceExec } from './debug';
 //#endif
 import { BaseException, NameError, NotImplementedError } from './exceptions';
 import { Exit } from './exit';
@@ -91,11 +95,15 @@ export class Runtime {
       let a: Value | null = null;
       let b: Value | null = null;
 
+      //#if _DEBUG_TRACE_RUNTIME
       startTraceExec();
+      //#endif
 
       try {
         while (true) {
+          //#if _DEBUG_TRACE_RUNTIME
           traceExec(this);
+          //#endif
           const instruction = this.readCode();
 
           switch (instruction) {

@@ -1,29 +1,52 @@
 import { Attributes, context, Context, Span, SpanOptions, trace } from '@opentelemetry/api';
 
-import { Tree } from './ast';
 import { Chunk } from './bytecode/chunk';
 import { Runtime } from './runtime';
 
 //#if _MATBAS_BUILD == 'debug'
 import { parseBoolEnv } from './env';
-import { formatter } from './format';
+//#else
+//#unset _DEBUG_SHOW_TREE
+//#unset _DEBUG_SHOW_CHUNK
+//#unset _DEBUG_TRACE_RUNTIME
+//#endif
+
+//#if _DEBUG_SHOW_TREE
+import type { Tree } from './ast';
+//#set _IMPORT_FORMATTER = 1
+//#endif
+
 //#if _DEBUG_SHOW_CHUNK
 import { disassemble } from './bytecode/disassembler';
 //#endif
+
 //#if _DEBUG_TRACE_RUNTIME
+//#set _IMPORT_FORMATTER = 1
 import { disassembleInstruction } from './bytecode/disassembler';
 //#endif
+
+//#if _IMPORT_FORMATTER
+import { formatter } from './format';
 //#endif
 
 let NO_TRACE = true;
+
+//#if _MATBAS_BUILD == 'debug'
+NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
+//#endif
 
 /**
  * Show a parse tree.
  *
  * @param tree The tree to show.
  */
-let showTree = function showTree(_tree: Tree): void {
-  return;
+export function showTree(tree: Tree): void {
+  //#if _DEBUG_SHOW_TREE
+  if (!NO_TRACE) {
+    console.log('=== Parse Tree: ===');
+    console.log(formatter.format(tree));
+  }
+  //#endif
 };
 
 /**
@@ -31,22 +54,41 @@ let showTree = function showTree(_tree: Tree): void {
  *
  * @param chunk The chunk to show.
  */
-let showChunk = function showChunk(_chunk: Chunk): void {
-  return;
-};
+export function showChunk(chunk: Chunk): void {
+  //#if _DEBUG_SHOW_CHUNK
+  if (!NO_TRACE) {
+    console.log(disassemble(chunk));
+  }
+  //#endif
+}
 
 /**
  * Log the start of execution tracing.
  */
-let startTraceExec = function startTraceExec(): void {};
+export function startTraceExec(): void {
+  //#if _DEBUG_TRACE_RUNTIME
+  if (!NO_TRACE) {
+    console.log('=== Execution Trace: ===');
+  }
+  //#endif
+};
 
 /**
  * Trace a step in execution.
  * @param rt The runtime.
  */
-let traceExec = function traceExec(_rt: Runtime): void {};
+export function traceExec(rt: Runtime): void {
+  //#if _DEBUG_TRACE_RUNTIME
+  if (!NO_TRACE) {
+    console.log('> stack:', formatter.format(rt.stack));
+    console.log('>', disassembleInstruction(rt.chunk, rt.pc));
+  }
+  //#endif
+}
 
 const tracer = trace.getTracer('main');
+
+export { startSpan };
 
 // Very similar to OpenTelemetry's implementation of startActiveSpan, except
 // the callback function closes the span and attaches annotations in error
@@ -113,52 +155,9 @@ function startSpan<F extends (span: Span) => ReturnType<F>>(
 // A convenience function for adding events when you don't have the span
 // immediately on-hand. Like startSpan, this is not hidden behind jscc and
 // should instead be conditionally imported/called at the site of use.
-function addEvent(message: string, attributes: Attributes = {}): void {
+export function addEvent(message: string, attributes: Attributes = {}): void {
   const span = trace.getActiveSpan();
   if (span) {
     span.addEvent(message, attributes);
   }
 }
-
-//#if _MATBAS_BUILD == 'debug'
-NO_TRACE = parseBoolEnv(process.env.NO_TRACE);
-
-//#if _DEBUG_SHOW_TREE
-if (!NO_TRACE) {
-  showTree = function showTree(tree: Tree): void {
-    console.log('=== Parse Tree: ===');
-    console.log(formatter.format(tree));
-  };
-}
-//#endif
-
-//#if _DEBUG_SHOW_CHUNK
-if (!NO_TRACE) {
-  showChunk = function showChunk(chunk: Chunk): void {
-    console.log(disassemble(chunk));
-  };
-}
-//#endif
-
-//#if _DEBUG_TRACE_RUNTIME
-if (!NO_TRACE) {
-  startTraceExec = function startTraceExec(): void {
-    console.log('=== Execution Trace: ===');
-  };
-
-  traceExec = function traceExec(rt: Runtime): void {
-    console.log('> stack:', formatter.format(rt.stack));
-    console.log('>', disassembleInstruction(rt.chunk, rt.pc));
-  };
-}
-//#endif
-//#endif
-
-export {
-  showTree,
-  showChunk,
-  startTraceExec,
-  traceExec,
-  startSpan,
-  addEvent,
-};

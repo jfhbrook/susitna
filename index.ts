@@ -1,10 +1,8 @@
 import * as dotenv from 'dotenv';
 
-import MATBAS from 'consts:matbas';
-
-if (MATBAS.build === 'debug') {
-  dotenv.config();
-}
+//#if _MATBAS_BUILD == 'debug'
+dotenv.config();
+//#endif
 
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';

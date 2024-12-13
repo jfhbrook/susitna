@@ -1,10 +1,14 @@
 //#if _MATBAS_BUILD == 'debug'
 import { Span } from '@opentelemetry/api';
+//#else
+//#unset _DEBUG_SHOW_CHUNK
 //#endif
 
-import { showChunk } from '../debug';
 //#if _MATBAS_BUILD == 'debug'
 import { startSpan } from '../debug';
+//#endif
+//#if _DEBUG_SHOW_CHUNK
+import { showChunk } from '../debug';
 //#endif
 import { errorType } from '../errors';
 import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
@@ -262,7 +266,9 @@ export class LineCompiler implements InstrVisitor<void>, ExprVisitor<void> {
 
     this.emitReturn();
 
+    //#if _DEBUG_SHOW_CHUNK
     showChunk(this.chunk);
+    //#endif
     return [this.chunk, null];
   }
 

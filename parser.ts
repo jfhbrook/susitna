@@ -1,10 +1,14 @@
 //#if _MATBAS_BUILD == 'debug'
 import { Span } from '@opentelemetry/api';
+//#else
+//#unset _DEBUG_SHOW_TREE
 //#endif
 
-import { showTree } from './debug';
 //#if _MATBAS_BUILD == 'debug'
 import { startSpan } from './debug';
+//#endif
+//#if _DEBUG_SHOW_TREE
+import { showTree } from './debug';
 //#endif
 import { errorType } from './errors';
 import {
@@ -157,7 +161,9 @@ export class Parser {
         sortParseError(warning, ['row', 'offsetStart']);
       }
 
+      //#if _DEBUG_SHOW_TREE
       showTree(result);
+      //#endif
 
       return [result, warning];
 

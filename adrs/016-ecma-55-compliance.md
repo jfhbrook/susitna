@@ -53,7 +53,7 @@ This is important, as BASIC doesn't have syntax for array literals - it uses the
 
 ### PRINT
 
-As discussed in ADR 15, the ECMA-55 standard reveals that `PRINT`'s behavior is bizarre and strange. When deciding how to implement the `PRINT` statement, it will be an invaluable reference.
+As discussed in [ADR 15](./015-string-concat-operator.md), the ECMA-55 standard reveals that `PRINT`'s behavior is bizarre and strange. When deciding how to implement the `PRINT` statement, it will be an invaluable reference.
 
 ## Decision
 

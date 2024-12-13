@@ -23,7 +23,6 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
 ### Prioritized Backlog
 
 - ADR for vitest and grabthar
-- Research ECMA-55, write ADR
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators

@@ -21,8 +21,8 @@ import { disassemble } from './bytecode/disassembler';
 //#endif
 
 //#if _DEBUG_TRACE_RUNTIME
-//#set _IMPORT_FORMATTER = 1
 import { disassembleInstruction } from './bytecode/disassembler';
+//#set _IMPORT_FORMATTER = 1
 //#endif
 
 //#if _IMPORT_FORMATTER

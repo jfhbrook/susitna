@@ -44,6 +44,13 @@ Minicube64 has the following registers:
 
 I believe the registers store raw bytes, not `Value`s.
 
+### Programmable Tile Machine
+
+- project page: <https://github.com/FernandoAiresCastello/PTM>
+- instruction set: <https://docs.google.com/spreadsheets/d/1uPhPh0LLgRmL87Uo9hDXGUhOOFIESIYAcZ_nJOlN2VI/edit?gid=1742699342#gid=1742699342>
+
+Programmable Tile Machine does not specify registers. However, it *does* act as an example of an instruction set VM which deals with full `Value`s stored in values or references.
+
 ## Decision
 
 TK

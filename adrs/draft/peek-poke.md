@@ -6,7 +6,7 @@
 
 ## Context
 
-Many BASIC dialects support `PEEK` and `POKE`. How could I support those? *Should* I support those?
+Many BASIC dialects support `PEEK` and `POKE`. How could I support those? _Should_ I support those?
 
 ## Decision
 

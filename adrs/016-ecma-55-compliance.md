@@ -19,7 +19,7 @@ Having read the specification - it's about 30 pages - I can say that, generally 
 
 One obvious deficit is that its treatment of variables and values is extremely limiting, and even 80s era BASIC implementations deviated from it significantly. In fact, ECMA-55 only supported strings and numbers, while many other dialects support distinct integers and floats.
 
-It also, naturally, has specifications for error handling which would be considered odd by today's standards. It doesn't specify exceptions, of course. But, for instance, its *recommendation* for integer overflows is to assign an "infinity" value and move forward.
+It also, naturally, has specifications for error handling which would be considered odd by today's standards. It doesn't specify exceptions, of course. But, for instance, its _recommendation_ for integer overflows is to assign an "infinity" value and move forward.
 
 It does, however, have a few areas worth referencing in the future.
 
@@ -31,7 +31,7 @@ Matanuska's current behavior isn't specified. The scanner converts strings into 
 
 Of course, there are many other places to look than ECMA-55. JavaScript's numbers aren't particularly controversial - that specification, or Python's, would suffice. Alternately, VB.NET could be a good source of inspiration.
 
-It's unlikely that ECMA-55 would play a *major* role in informing such a number literal specification. But it could be a useful refrence, and may not be a stretch to support as a subset.
+It's unlikely that ECMA-55 would play a _major_ role in informing such a number literal specification. But it could be a useful refrence, and may not be a stretch to support as a subset.
 
 ### Built-In Functions
 
@@ -39,11 +39,11 @@ ECMA-55 includes a very short list of implementation-supplied functions. Support
 
 ### GOTOs
 
-In general, I don't like the semantics of BASIC's GOTOs, and have no interest in adhering to any given standard. That said: the ECMA-55 standard specifies *two* keywords (`go to`) rather than one (`goto`). I don't actually know if that's common in 80s era BASICs. But supporting it wouldn't be difficult either.
+In general, I don't like the semantics of BASIC's GOTOs, and have no interest in adhering to any given standard. That said: the ECMA-55 standard specifies _two_ keywords (`go to`) rather than one (`goto`). I don't actually know if that's common in 80s era BASICs. But supporting it wouldn't be difficult either.
 
 ### FOR/NEXT
 
-The standard includes a tight specification for `FOR` and `NEXT`. The `FOR` statement in BASIC is relatively uncontroversial, and I *do* intend to develop at least a variant that's more or less a straight cut. It could prove to be a useful reference.
+The standard includes a tight specification for `FOR` and `NEXT`. The `FOR` statement in BASIC is relatively uncontroversial, and I _do_ intend to develop at least a variant that's more or less a straight cut. It could prove to be a useful reference.
 
 ### DATA, READ and RESTORE
 
@@ -57,6 +57,6 @@ As discussed in [ADR 15](./015-string-concat-operator.md), the ECMA-55 standard 
 
 ## Decision
 
-Having read the standard, I do not feel the need to attempt to *adhere* to it in any way. By extension, I also do not feel the need to *test* for any particular behavior as informed by the specification.
+Having read the standard, I do not feel the need to attempt to _adhere_ to it in any way. By extension, I also do not feel the need to _test_ for any particular behavior as informed by the specification.
 
-That said, we *have* identified some areas where the standard can operate as a useful *reference*. No decisions will be made currently in those identified avenues at this time, but the standard is there when I'm ready.
+That said, we _have_ identified some areas where the standard can operate as a useful _reference_. No decisions will be made currently in those identified avenues at this time, but the standard is there when I'm ready.

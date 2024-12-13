@@ -22,7 +22,7 @@ I began searching for a new test framework, and [at the recommendation of Nuck](
 
 It turns out that Vitest is incredible, and I made the change incrementally - but also quickly. I started by configuring Vite to build files named `*.spec.ts`, and having Tap run tests named `*.tap.ts`. Within a few days, the switch was complete.
 
-Overall, I have been *extremely* happy with Vitest. It has the good parts of Jest and Chai, but without the stranger baggage. It really is incredible, and I can't recommend it enough.
+Overall, I have been _extremely_ happy with Vitest. It has the good parts of Jest and Chai, but without the stranger baggage. It really is incredible, and I can't recommend it enough.
 
 ## Native Imports in TSC and SWC
 
@@ -30,7 +30,7 @@ Switching to Vitest fixed native import in the tests, and I was quite happy with
 
 The issue I ran into is deep in the weeds. When in module mode, Node likes to have imports specify the extension of the file you're importing, and doesn't like importing directories - you have to spell out `./directory/index.mjs`, rather than simply specifying `./directory`. `tsc` ([TypeScript's standard compiler](https://www.npmjs.com/package/typescript)) doesn't rewrite these import paths in "nodenext" mode. This alone made things awkward.
 
-But I also had my Vitest build configured to use [SWC](https://swc.rs/), the compiler backend I had configured for Vitest, and it had issues of its own. SWC is cool. It's a TypeScript compiler written in Rust that is *extremely* fast, and - unlike `tsc` - it *mostly* handles rewriting import paths just fine. However, I did find that it rewrites `index.mjs` imports into directory imports.
+But I also had my Vitest build configured to use [SWC](https://swc.rs/), the compiler backend I had configured for Vitest, and it had issues of its own. SWC is cool. It's a TypeScript compiler written in Rust that is _extremely_ fast, and - unlike `tsc` - it _mostly_ handles rewriting import paths just fine. However, I did find that it rewrites `index.mjs` imports into directory imports.
 
 I also found that [SWC's standard command line interface](https://www.npmjs.com/package/@swc/cli) was really immature. This seems to be because it was really intended to run within other build and bundling tools, such as Vite and Nextjs.
 
@@ -38,9 +38,9 @@ By this point, I was finding the impedance mismatch between Vitest's SWC-based b
 
 ## Vite
 
-I realized that the way to use SWC successfully in Matanuska's main build was going to involve a singular bundle. At this point, I started asking if Vite itself could run my main build. After all, it was building my *tests* with SWC successfully!
+I realized that the way to use SWC successfully in Matanuska's main build was going to involve a singular bundle. At this point, I started asking if Vite itself could run my main build. After all, it was building my _tests_ with SWC successfully!
 
-As it turns out, Vite is more than capable of doing this, through its [server-side rendering functionality](https://vite.dev/guide/ssr) (SSR). This is a bit of a misnomer. The *motivation* is to support server-side rendering of React projects, but the *actual feature* is bundles for server-side JavaScript runtimes like Node.js.
+As it turns out, Vite is more than capable of doing this, through its [server-side rendering functionality](https://vite.dev/guide/ssr) (SSR). This is a bit of a misnomer. The _motivation_ is to support server-side rendering of React projects, but the _actual feature_ is bundles for server-side JavaScript runtimes like Node.js.
 
 It's a little limited as compared to its frontend builds - but only a little. For one thing, it can only really handle one SSR entry point. The biggest issue, though, is that Vite's standard dev mode is geared towards [hot module replacement](https://vite.dev/guide/api-hmr) of frontend code through a proxy over a server - not something that benefits Matanuska. The ramifications of that, though, were simply that I would need to run Vite in batch build mode - not all that different from the pre-existing build process.
 
@@ -48,11 +48,11 @@ Ultimately, I've been pretty happy with Vite as a build tool. It's blazing fast 
 
 ## Type Checking, SWC and TSC
 
-SWC is a great tool when it comes to compiling TypeScript. But it's a *bad* tool for *type checking* TypeScript. This is because part of why it's so fast is that it mostly ignores types completely. This meant that, while SWC was being used for the builds, I still needed `tsc` in the mix for type checking.
+SWC is a great tool when it comes to compiling TypeScript. But it's a _bad_ tool for _type checking_ TypeScript. This is because part of why it's so fast is that it mostly ignores types completely. This meant that, while SWC was being used for the builds, I still needed `tsc` in the mix for type checking.
 
-Luckily, `tsc` is much more flexible with inputs when it comes to type checking than it is with generating compiled output. After all, it doesn't need to concern itself with output at *all* if it's running with the `--noEmit` flag.
+Luckily, `tsc` is much more flexible with inputs when it comes to type checking than it is with generating compiled output. After all, it doesn't need to concern itself with output at _all_ if it's running with the `--noEmit` flag.
 
-Unfortunately, this *did* mean that configuration began to sprawl. At this point, I had configurations not just for Vite (shared with Vitest) and `tsc`, but also for [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and even [ShellCheck](https://www.shellcheck.net/). Many of these files had shared settings that needed to match each other. This was somewhat manageable, until Vite was also in the mix.
+Unfortunately, this _did_ mean that configuration began to sprawl. At this point, I had configurations not just for Vite (shared with Vitest) and `tsc`, but also for [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and even [ShellCheck](https://www.shellcheck.net/). Many of these files had shared settings that needed to match each other. This was somewhat manageable, until Vite was also in the mix.
 
 ## Grabthar
 
@@ -60,11 +60,11 @@ My instincts when presented with this configuration sprawl was to begin writing 
 
 I began to realize that these scripts were becoming elaborate enough that I wanted to massage them into a proper tool. I created a new package, moved the scripts into it, and named the project `grabthar`.
 
-This name has a funny background. Many years ago, I was in an IRC conversation with a developer who began describing a build tool he was making. I was a jerk and scoffed at the API, and began sketching out my *own* build tool. I named it `grabthar` after [my favorite joke from Galaxy Quest](https://www.youtube.com/watch?v=kgv7U3GYlDY). It didn't go anywhere, but I kept the source around. When it came time to write a tool for Matanuska, I decided to reuse the name. But anyway, it turns out I was talking to the author of [Grunt](https://gruntjs.com/), and boy did I look silly.
+This name has a funny background. Many years ago, I was in an IRC conversation with a developer who began describing a build tool he was making. I was a jerk and scoffed at the API, and began sketching out my _own_ build tool. I named it `grabthar` after [my favorite joke from Galaxy Quest](https://www.youtube.com/watch?v=kgv7U3GYlDY). It didn't go anywhere, but I kept the source around. When it came time to write a tool for Matanuska, I decided to reuse the name. But anyway, it turns out I was talking to the author of [Grunt](https://gruntjs.com/), and boy did I look silly.
 
 Either way - Matanuska now has a custom build tool. This tool runs hooks to generate configurations, exports functions for tools using JavaScript configs (ie., Vite and ESLint), and runs the appropriate tools in an opinionated manner.
 
-Make no mistake, `grabthar` is *extremely* opinionated. Aside from the shared configurations, it's not all that customizable. Any tools using it would need to support *exactly* the same underlying build stack as Matanuska. But there are benefits to that, too. I'm currently only using it for Matanuska and a handful of its tools, but may use it outside Matanuska in the future if it ages well.
+Make no mistake, `grabthar` is _extremely_ opinionated. Aside from the shared configurations, it's not all that customizable. Any tools using it would need to support _exactly_ the same underlying build stack as Matanuska. But there are benefits to that, too. I'm currently only using it for Matanuska and a handful of its tools, but may use it outside Matanuska in the future if it ages well.
 
 ## citree
 
@@ -80,7 +80,7 @@ Matanuska has included build-time code generation from pretty early on. In parti
 
 Initially, I solved this through using [nunjucks](https://www.npmjs.com/package/nunjucks) templates for a `constants.ts` file and a `debug.ts` file. Under `MATBAS_BUILD=debug`, the latter file would contain debug output, including tracing ([see ADR 14](./adrs/014-opentelemetry.md) for more context here). But under `MATBAS_BUILD=release`, those hooks would be empty "no-op" functions. This all worked, but was dissatisfying.
 
-JSCC was a simple, general purpose tool for the kind of conditional logic I was looking for. Not only did it have a nice syntax that constituted valid JavaScript; it also [had a build plugin](https://www.npmjs.com/package/rollup-plugin-jscc) that would integrate it into my build for *all* my files. To me, this was a major win.
+JSCC was a simple, general purpose tool for the kind of conditional logic I was looking for. Not only did it have a nice syntax that constituted valid JavaScript; it also [had a build plugin](https://www.npmjs.com/package/rollup-plugin-jscc) that would integrate it into my build for _all_ my files. To me, this was a major win.
 
 ## Summary
 

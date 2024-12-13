@@ -24,7 +24,7 @@ MEG-4 BASIC has a built-in debugger: <https://bztsrc.gitlab.io/meg4/manual_en.ht
 
 <https://aeriform.gitbook.io/minicube64/start>
 
-Minicube64 has a *very* interesting debug view that could be worth trying just to experience:
+Minicube64 has a _very_ interesting debug view that could be worth trying just to experience:
 
 <https://aeriform.gitbook.io/minicube64/debug-view>
 

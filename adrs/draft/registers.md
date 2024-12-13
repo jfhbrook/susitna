@@ -8,7 +8,7 @@
 
 Typically, a hardware architecture has a fixed set of registers. It's not unusual for bytecode VMs to have registers as well, though `clox` in _Crafting Interpreters_ stores values on the C stack with scope.
 
-Matanuska BASIC currently has a *program counter* (`PC`) and will eventually have a *stack pointer* (`SP`) as well. But its current use of "registers" is two `Value`s "a" and "b" stored in the scope of the switch-loop.
+Matanuska BASIC currently has a _program counter_ (`PC`) and will eventually have a _stack pointer_ (`SP`) as well. But its current use of "registers" is two `Value`s "a" and "b" stored in the scope of the switch-loop.
 
 Long term, it could be good (and fun) to specify the registers and their semantics.
 
@@ -49,7 +49,7 @@ I believe the registers store raw bytes, not `Value`s.
 - project page: <https://github.com/FernandoAiresCastello/PTM>
 - instruction set: <https://docs.google.com/spreadsheets/d/1uPhPh0LLgRmL87Uo9hDXGUhOOFIESIYAcZ_nJOlN2VI/edit?gid=1742699342#gid=1742699342>
 
-Programmable Tile Machine does not specify registers. However, it *does* act as an example of an instruction set VM which deals with full `Value`s stored in values or references.
+Programmable Tile Machine does not specify registers. However, it _does_ act as an example of an instruction set VM which deals with full `Value`s stored in values or references.
 
 ## Decision
 

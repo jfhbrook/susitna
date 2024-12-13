@@ -39,6 +39,3 @@ The `ME` keyword references the current class, like `self` or `this`. Attribute 
 ## Decision
 
 TK
-
-
-

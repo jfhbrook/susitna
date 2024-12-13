@@ -34,7 +34,7 @@ But I also had my Vitest build configured to use [SWC](https://swc.rs/), the com
 
 I also found that [SWC's standard command line interface](https://www.npmjs.com/package/@swc/cli) was really immature. This seems to be because it was really intended to run within other build and bundling tools, such as Vite and Nextjs.
 
-By this point, I was finding the impedance mismatch between Vitest's SWC-based build and my project's SWC build to be overwhelming, and I yearned to make the two match. I considered switching Vitest to use `tsc`. But I also found that SWC was SO much faster (it nearly doubled the speed of my tests) that I couldn't say no. By this point, I was committed to using SWC in my build.
+By this point, I was finding the impedance mismatch between Vitest's SWC-based build and my project's `tsc` build to be overwhelming, and I yearned to make the two match. I considered switching Vitest to use `tsc`. But I also found that SWC was SO much faster (it nearly doubled the speed of my tests) that I couldn't say no. By this point, I was committed to using SWC in my build.
 
 ## Vite
 
@@ -50,7 +50,7 @@ Ultimately, I've been pretty happy with Vite as a build tool. It's blazing fast 
 
 SWC is a great tool when it comes to compiling TypeScript. But it's a *bad* tool for *type checking* TypeScript. This is because part of why it's so fast is that it mostly ignores types completely. This meant that, while SWC was being used for the builds, I still needed `tsc` in the mix for type checking.
 
-Luckily, `tsc` is much more flexible with inputs when it comes to type checking than it is with generating compiled output. After all, it doesn't need to consider itself with output at *all* if it's running with the `--noEmit` flag.
+Luckily, `tsc` is much more flexible with inputs when it comes to type checking than it is with generating compiled output. After all, it doesn't need to concern itself with output at *all* if it's running with the `--noEmit` flag.
 
 Unfortunately, this *did* mean that configuration began to sprawl. At this point, I had configurations not just for Vite (shared with Vitest) and `tsc`, but also for [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and even [ShellCheck](https://www.shellcheck.net/). Many of these files had shared settings that needed to match each other. This was somewhat manageable, until Vite was also in the mix.
 
@@ -68,7 +68,7 @@ Make no mistake, `grabthar` is *extremely* opinionated. Aside from the shared co
 
 ## citree
 
-A brief note on [citree](../packages/citree). `citree` is a tool I wrote for generating [Matanuska's AST classes](../ast). This tool is heavily inspired by the script used in Crafting Interpreters' `jlox` interpreter. It uses a DSL implemented in [ts-parsec](https://www.npmjs.com/package/typescript-parsec) that takes a specification for an AST and generates classes implementing a [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern). The DSL is a little janky, but it does exactly what I need for Matanuska.
+A brief note on [citree](../packages/citree). `citree` is a tool I wrote for generating [Matanuska's AST classes](../ast). This tool is heavily inspired by [the script used in Crafting Interpreters' `jlox` interpreter](https://craftinginterpreters.com/representing-code.html#metaprogramming-the-trees). It uses a DSL implemented in [ts-parsec](https://www.npmjs.com/package/typescript-parsec) that takes a specification for an AST and generates classes implementing a [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern). The DSL is a little janky, but it does exactly what I need for Matanuska.
 
 I considered rewriting `citree` to run as a step in the Vite build. However, I decided to keep it as a separate code generation step. This is because, while hacking, I need the TypeScript files to exist in order to do type checking - simple enough.
 

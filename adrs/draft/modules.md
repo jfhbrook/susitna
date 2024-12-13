@@ -10,7 +10,7 @@ Traditionally, BASIC doesn't support modules - all code in a BASIC program is im
 
 ### BASIC
 
-While BASIC doesn't have the concept of modules, there _is_ a history of namespaces. For instance, a variable `x` defined in a subroutine `foo` may be stored in the global environment as `foo.x`.
+While BASIC doesn't have the concept of modules, there _is_ a history of namespaces. For instance, a variable `x` defined in a subroutine `foo` may be stored in the global environment as `foo.x`. [citation needed - maybe from WIC&I?]
 
 ### Python
 
@@ -31,6 +31,12 @@ Node.js loads modules in three different ways:
 3. Non-path module names are loaded from the `node_modules` directory in the root of the current module.
 
 JavaScript more generally can operate on an object using `with`. This is somewhat similar to `namespace`, but rather than taking a namespace, it takes the object which contains that namespace.
+
+### BASIC8
+
+<https://paladin-t.github.io/b8/docs/manual>
+
+BASIC8 supports modules with an `import` keyword. I don't know off-hand how it supports exports, or if it does them "like python".
 
 ## Decision
 

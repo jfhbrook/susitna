@@ -22,8 +22,8 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
 
 ### Prioritized Backlog
 
-- Steal ideas from other fantasy consoles
 - ADR for vitest and grabthar
+- Research ECMA-55, write ADR
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
@@ -184,5 +184,10 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
 - [BBC BASIC Reference Manual](http://www.riscos.com/support/developers/bbcbasic/index.html)
 - [GW-BASIC User's Guide](http://www.antonis.de/qbebooks/gwbasman/)
 - [BASIC Computer Games Microcomputer Edition](https://annarchive.com/files/Basic_Computer_Games_Microcomputer_Edition.pdf)
-- [fantasy BASIC consoles](https://github.com/paladin-t/fantasy)
-  - [atto](https://atto.devicefuture.org/)
+- [Fantasy BASIC Consoles](https://github.com/paladin-t/fantasy)
+- [Atto](https://atto.devicefuture.org/)
+- [BASIC8 Manual](https://paladin-t.github.io/b8/docs/manual)
+- [MEG-4 Manual](https://bztsrc.gitlab.io/meg4/manual_en.html)
+- ECMA-55 Standard
+  - <https://ecma-international.org/publications-and-standards/standards/ecma-55/>
+  - [bas55 implementation](https://jorgicor.niobe.org/bas55/bas55.html)

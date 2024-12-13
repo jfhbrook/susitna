@@ -29,6 +29,12 @@ REM String associative array
 dim B($)
 ```
 
+### MEG-4 BASIC
+
+<https://bztsrc.gitlab.io/meg4/manual_en.html#basic>
+
+These docs note that some languages support a `REDIM` command that can resize arrays. MEG-4 doesn't itself support that command - its arrays are fully static. But it's an interesting suggestion.
+
 ## Decision
 
 TK

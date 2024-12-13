@@ -78,7 +78,7 @@ A final consequence of these refactors was the introduction of [jscc](https://ww
 
 Matanuska has included build-time code generation from pretty early on. In particular, it uses an environment variable (`MATBAS_BUILD`) to control whether or not to include certain debugging hooks. During development, good debugging output is extremely desirable. But for a release, it slows things down to an unacceptable level - or, at least, that's the common wisdom.
 
-Initially, I solved this through using [nunjucks](https://www.npmjs.com/package/nunjucks) templates for a `constants.ts` file and a `debug.ts` file. Under `MATBAS_BUILD=debug`, the latter file would contain debug output, including tracing [see ADR 14](./adrs/014-opentelemetry.md) for more context here). But under `MATBAS_BUILD=release`, those hooks would be empty "no-op" functions. This all worked, but was dissatisfying.
+Initially, I solved this through using [nunjucks](https://www.npmjs.com/package/nunjucks) templates for a `constants.ts` file and a `debug.ts` file. Under `MATBAS_BUILD=debug`, the latter file would contain debug output, including tracing ([see ADR 14](./adrs/014-opentelemetry.md) for more context here). But under `MATBAS_BUILD=release`, those hooks would be empty "no-op" functions. This all worked, but was dissatisfying.
 
 JSCC was a simple, general purpose tool for the kind of conditional logic I was looking for. Not only did it have a nice syntax that constituted valid JavaScript; it also [had a build plugin](https://www.npmjs.com/package/rollup-plugin-jscc) that would integrate it into my build for *all* my files. To me, this was a major win.
 

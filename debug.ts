@@ -1,7 +1,7 @@
 import { Attributes, context, Context, Span, SpanOptions, trace } from '@opentelemetry/api';
 
-import { Chunk } from './bytecode/chunk';
-import { Runtime } from './runtime';
+import type { Chunk } from './bytecode/chunk';
+import type { Runtime } from './runtime';
 
 //#if _MATBAS_BUILD == 'debug'
 import { parseBoolEnv } from './env';

@@ -23,13 +23,15 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
 ### Prioritized Backlog
 
 - ADR for vitest and grabthar
+- Implement JSCC pattern from telemetry to other debug functions
 - for/while/goto
   - [ ] ADR for for/while/goto
 - Logical operators
   - [x] Support through the parser
-- Complete Print syntax
-  - Print can take multiple arguments
-  - Print can also take a channel config
+- Complete Print/Format syntax
+  - Support ECMA-55?
+  - Complete ADR
+  - Print can take a channel config
 - Expanded list
   - `list 10`
   - `list 10-20`

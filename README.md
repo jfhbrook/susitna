@@ -48,6 +48,10 @@ The interpreter can run "hello world" in a REPL and evaluate simple expressions.
   - (Language support can come later)
 - Shell commands
   - Will need to research jobs in Bash
+  - Investigate alt-shells
+    - [fish](https://fishshell.com/)
+    - [nushell](https://www.nushell.sh/)
+    - [elvish](https://elv.sh/)
   - Scanner and parser support for shell commands and "shell tokens"
   - Compiler support for shell commands
   - Host support for shell commands

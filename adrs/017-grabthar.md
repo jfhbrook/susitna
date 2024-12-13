@@ -1,6 +1,6 @@
 # ADR 017 - Vitest, Vite, Grabthar, Oh My!
 
-### Status: Draft
+### Status: Accepted
 
 ### Josh Holbrook
 

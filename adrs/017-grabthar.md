@@ -103,6 +103,7 @@ That was a lot, so I wanted to quickly summarize what happened here.
 - `citree` for generating the AST, as before
 - `tsc` for type checking only
 - `swc` for TypeScript compiling
+- Vite for bundling
 - Prettier, ESLint and ShellCheck used for formatting and linting, as before
 - Vitest for testing
 - `jscc` for build-time configuration and conditional compiling

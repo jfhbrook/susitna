@@ -83,7 +83,7 @@ The `--require` technique motivated a separate compiled entry point for the setu
 
 ### Debug Functions
 
-The `debug.ts` module implements thin wrappers around the OpenTelemetry API. In particular, it implements a function called `startSpan`, which is somewhat similar to `tracer.startActiveSpan` but with the added behaviors of attaching exception data to the span and automatically closing it. In addition, it implement a function called `addEvent`, which will fetch the currently active span and add an event to it. These functions are _not_ hidden behind jscc blocks, as they need to work in the event that they are called in the release build.
+The `debug.ts` module implements thin wrappers around the OpenTelemetry API. In particular, it implements a function called `startSpan`, which is somewhat similar to `tracer.startActiveSpan` but with the added behaviors of attaching exception data to the span and automatically closing it. In addition, it implements a function called `addEvent`, which will fetch the currently active span and add an event to it. These functions are _not_ hidden behind jscc blocks, as they need to work in the event that they are called in the release build.
 
 ### Jscc Patterns
 

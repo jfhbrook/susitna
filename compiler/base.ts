@@ -13,7 +13,6 @@ import { showChunk } from '../debug';
 import { errorType } from '../errors';
 import { SyntaxError, ParseError, ParseWarning } from '../exceptions';
 import { RuntimeFault, runtimeMethod } from '../faults';
-// import { formatter } from '../format';
 import { Token, TokenKind } from '../tokens';
 import { Value } from '../value';
 // import { Type } from './value/types';
